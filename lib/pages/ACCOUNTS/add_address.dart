@@ -134,8 +134,8 @@ class _add_addressState extends State<add_address> {
             _buildDropdownTile(context, 'Expence', ['Add Expence', 'Expence List',]),
             _buildDropdownTile(context, 'Reports', ['Sales Report', 'Credit Sales Report','COD Sales Report','Statewise Sales Report','Expence Report','Delivery Report','Product Sale Report','Stock Report','Damaged Stock']),
             _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
-             _buildDropdownTile(context, 'Banking Module', ['Add Bank ', 'List','Other Transfer']),
-               Divider(),
+            _buildDropdownTile(context, 'Banking Module', ['Add Bank ', 'List','Other Transfer']),
+            Divider(),
 
 
 
