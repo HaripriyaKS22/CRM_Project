@@ -1,0 +1,1 @@
+var api="https://governing-superior-course-opposition.trycloudflare.com";

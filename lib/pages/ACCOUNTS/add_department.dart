@@ -1,12 +1,12 @@
 
 import 'dart:convert';
 
-import 'package:beposoft/pages/ACCOUNTS/customer_singleview.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/api.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 import 'package:beposoft/main.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
@@ -22,27 +22,151 @@ import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
+import 'package:beposoft/pages/api.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class customer_list extends StatefulWidget {
-  const customer_list({super.key});
+class add_department extends StatefulWidget {
+  const add_department({super.key});
 
   @override
-  State<customer_list> createState() => _customer_listState();
+  State<add_department> createState() => _add_departmentState();
 }
 
-class _customer_listState extends State<customer_list> {
-
-  @override
+class _add_departmentState extends State<add_department> {
+ @override
   void initState() {
     super.initState();
-   getcustomer();
+    getdepartments();
+  }
+
+var url = "$api/api/add/department/";
+
+
+  TextEditingController department = TextEditingController();
+Future<String?> gettokenFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+var departments;
+  List<Map<String, dynamic>> dep = [];
+
+    Future<void> getdepartments() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/departments/'),
+        headers: {
+          'Authorization': '$token',
+          'Content-Type': 'application/json',
+        },
+      );
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+        List<Map<String, dynamic>> departmentlist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+ for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          departmentlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            
+          });
+        
+        }
+        setState(() {
+          dep = departmentlist;
+                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+
+          
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
   }
   
-  List<String>  categories = ["cycling",'skating','fitnass','bepocart'];
-  String selectededu="cycling";
-   drower d=drower();
+  void adddepartment(String department, BuildContext context) async {
+    print("eeeeeeeeeeeeeeeeeeeeeeeeee$department");
+        print("eeeeeeeeeeeeeeeeeeeeeeeeee$url");
+
+          final token = await gettokenFromPrefs();
+
+    try {
+      var response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': '$token',
+          
+        },
+        body: {"name": department},
+      );
+
+      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
+
+      if (response.statusCode == 201) {
+        var responseData = jsonDecode(response.body);
+
+     Navigator.push(context, MaterialPageRoute(builder: (context)=>add_department()));
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Color.fromARGB(255, 49, 212, 4),
+          content: Text('sucess'),
+        ),
+      );
+      }
+    } catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('An error occurred. Please try again.'),
+        ),
+      );
+    }
+  }
+ Future<void> deletedepartment(int Id) async {
+    final token = await gettokenFromPrefs();
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$api/api/department/delete/$Id/'),
+        headers: {
+          'Authorization': '$token',
+        },
+      );
+    print(response.statusCode);
+    if(response.statusCode == 200){
+         ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Color.fromARGB(255, 49, 212, 4),
+          content: Text('Deleted sucessfully'),
+        ),
+      );
+         Navigator.push(context, MaterialPageRoute(builder: (context)=>add_department()));
+    }
+
+      if (response.statusCode == 204) {
+      } else {
+        throw Exception('Failed to delete wishlist ID: $Id');
+      }
+    } catch (error) {
+    }
+  }
+
+  void removeProduct(int index) {
+    setState(() {
+      dep.removeAt(index);
+    });
+  }
+
+ drower d=drower();
    Widget _buildDropdownTile(BuildContext context, String title, List<String> options) {
     return ExpansionTile(
       title: Text(title),
@@ -58,55 +182,24 @@ class _customer_listState extends State<customer_list> {
     );
   }
 
-    List<Map<String, dynamic>> customer = [];
-Future<String?> gettokenFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-   Future<void> getcustomer() async {
-    try {
-      final token = await gettokenFromPrefs();
+  //searchable dropdown
 
-      var response = await http.get(
-        Uri.parse('$api/api/customers/'),
-        headers: {
-          'Authorization': '$token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(
-          "=============================================hoiii${response.body}");
-      List<Map<String, dynamic>> managerlist = [];
+ 
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
-        for (var productData in productsData) {
-          managerlist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-            'created_at':productData['created_at']
-          });
-        }
-        setState(() {
-          customer = managerlist;
-
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT$customer");
-        });
-      }
-    } catch (error) {
-      print("Error: $error");
-    }
-  }
-
+  String? selectedValue;
+  final TextEditingController textEditingController = TextEditingController();
 
   @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+  
+  @override
   Widget build(BuildContext context) {
-     
     return Scaffold(
+
+
       backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
 
@@ -121,7 +214,7 @@ Future<String?> gettokenFromPrefs() async {
           ],
           
           ),
-      drawer: Drawer(
+ drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -218,151 +311,127 @@ Future<String?> gettokenFromPrefs() async {
         ),
       ),
 
-       body:SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 45),
-                child: Text(
-                  "CUSTOMER LIST",
+
+        body: LayoutBuilder(
+  builder: (context, constraints) {
+    return SingleChildScrollView(
+      child: Container(
+        width: double.infinity,
+        child: Column(
+          children: [
+            SizedBox(height: 15),
+            Text(
+              "DEPARTMENT",
+              style: TextStyle(
+                fontSize: 20,
+                letterSpacing: 9.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Padding(
+  padding: EdgeInsets.symmetric(horizontal: 1),
+  child: Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10.0),
+      border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
+    ),
+    width: constraints.maxWidth * 0.9,
+    child: Padding(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: constraints.maxWidth * 0.9,
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 0, 0, 0),
+              border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
+            ),
+            child: Column(
+              children: [
+                SizedBox(height: 10),
+                Text(
+                  "New Department",
                   style: TextStyle(
-                    letterSpacing: 2.0,
-                    fontSize: 25,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
+                SizedBox(height: 13),
+              ],
+            ),
+          ),
+          Text(
+            "Department",
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 10),
+          Container(
+            width: constraints.maxWidth * 0.9,
+            child: TextField(
+              controller: department,
+              decoration: InputDecoration(
+                labelText: 'Department',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
               ),
-              SizedBox(height: 20),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9, // Adjust width based on screen size
-                color: Colors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color.fromARGB(255, 62, 62, 62),
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Search...',
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Image.asset(
-                              "lib/assets/search.png",
-                              width: 40,
-                              height: 20,
-                              fit: BoxFit.contain,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.9, // Adjust width based on screen size
-                        height: 49,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: const Color.fromARGB(255, 62, 62, 62)),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            SizedBox(width: 20),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7
-                              , // Adjust width based on screen size
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Select your class',
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                ),
-                                child: DropdownButton<String>(
-                                  value: selectededu,
-                                  underline: Container(), // This removes the underline
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectededu = newValue!;
-                                      print(selectededu);
-                                    });
-                                  },
-                                  items: categories.map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                  icon: Container(
-                                    padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.4), // Adjust padding as needed
-                                    alignment: Alignment.centerRight,
-                                    child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.4, // Adjust width based on screen size
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => add_new_customer()));
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 4, 171, 29)),
-                              ),
-                              child: Text("New Customer", style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.45, // Adjust width based on screen size
-                            child: ElevatedButton(
-                              onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => customer_singleview()));
+            ),
+          ),
+          SizedBox(height: 15),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                adddepartment(department.text, context);
+              });
+            },
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                Color.fromARGB(255, 244, 66, 66),
+              ),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              fixedSize: MaterialStateProperty.all<Size>(
+                Size(constraints.maxWidth * 0.4, 50),
+              ),
+            ),
+            child: Text("Submit", style: TextStyle(color: Colors.white)),
+          ),
+         
+          // Displaying the list of departments as a table
+          SizedBox(height: 10),
 
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 4, 171, 29)),
-                              ),
-                              child: Text("Download Excel", style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-
-                     SizedBox(height: 10),
+        ],
+      ),
+    ),
+  ),
+),
+ SizedBox(height: 15),
+ Padding(
+   padding: const EdgeInsets.only(left: 15),
+   child: Row(
+    mainAxisAlignment: MainAxisAlignment.start,
+     children: [
+       Text(
+                  "Available Departments",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+     ],
+   ),
+ ),
+          SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.only(right: 10,left: 10),
+            padding: const EdgeInsets.only(right: 15,left: 15),
             child: Container(
               color: Colors.white,
               child: Table(
@@ -371,7 +440,7 @@ Future<String?> gettokenFromPrefs() async {
                 columnWidths: {
                      0: FixedColumnWidth(40.0), // Fixed width for the first column (No.)
                   1: FlexColumnWidth(2),     // Flex width for the second column (Department Name)
-                  2: FixedColumnWidth(90.0), // Fixed width for the third column (Edit)
+                  2: FixedColumnWidth(50.0), // Fixed width for the third column (Edit)
                   3: FixedColumnWidth(50.0), // Fixed width for the fourth column (Delete)
               
                 },
@@ -411,7 +480,7 @@ Future<String?> gettokenFromPrefs() async {
                       ),
                     ],
                   ),
-                  for (int i = 0; i < customer.length; i++)
+                  for (int i = 0; i < dep.length; i++)
                     TableRow(
                       children: [
                         Padding(
@@ -420,19 +489,30 @@ Future<String?> gettokenFromPrefs() async {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(customer[i]['name']),
+                          child: Text(dep[i]['name']),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(customer[i]['created_at']),
-                        ),
-                                     
+                                     Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: GestureDetector(
+                                            onTap: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>update_department(id:dep[i]['id'])));
+                                       
+                                            },
+                                            child: Image.asset(
+                                                            "lib/assets/edit.jpg",
+                                       
+                                              width: 20,
+                                              height: 20,
+                                             
+                                            ),
+                                          ),
+                                     ),
                          Padding(
                            padding: const EdgeInsets.all(8.0),
                            child: GestureDetector(
                                             onTap: () {
-                                              //  deletedepartment(dep[i]['id']);
-                                              // removeProduct(i);
+                                               deletedepartment(dep[i]['id']);
+                                              removeProduct(i);
                                             },
                                             child: Image.asset(
                                               "lib/assets/delete.gif",
@@ -449,34 +529,33 @@ Future<String?> gettokenFromPrefs() async {
             ),
           ),
 
-
-
-                  ],
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
+    );
+  },
+)
 
-      );
-    
 
+
+
+    );
   }
 
-   void _navigateToSelectedPage(BuildContext context, String selectedOption) {
+
+  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
     
     switch (selectedOption) {
       case 'Option 1':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
+          MaterialPageRoute(builder: (context) => credit_note_list()),
         );
         break;
       case 'Option 2':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
+          MaterialPageRoute(builder: (context) => customer_list()),
         );
         break;
         case 'Option 3':
@@ -518,11 +597,9 @@ Future<String?> gettokenFromPrefs() async {
      
       
       default:
-        // Handle default case or unexpected options
+        
         break;
     }
   }
 
-
-   
 }

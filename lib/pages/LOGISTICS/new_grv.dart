@@ -1,4 +1,5 @@
 
+import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:flutter/material.dart';
 
 
@@ -144,7 +145,7 @@ class _log_new_grvState extends State<log_new_grv> {
               leading: Icon(Icons.dashboard),
               title: Text('Dashboard'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>beposoft()));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>dashboard()));
 
               },
             ),

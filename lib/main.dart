@@ -1,70 +1,45 @@
-
-
-
-import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
-import 'package:beposoft/pages/ACCOUNTS/login.dart';
-import 'package:beposoft/pages/ACCOUNTS/register.dart';
-import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
-import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
-import 'package:beposoft/pages/HR/hr_dashboard.dart';
-import 'package:beposoft/pages/LOGISTICS/logistics_dashboard.dart';
 import 'package:flutter/material.dart';
-
-
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 
 void main() {
   runApp(beposoftmain());
 }
 
-class beposoftmain extends StatelessWidget {
+class beposoftmain extends StatefulWidget {
   const beposoftmain({super.key});
+
+  @override
+  State<beposoftmain> createState() => _beposoftmainState();
+}
+
+class _beposoftmainState extends State<beposoftmain> {
+  bool tok = false;
+
+  @override
+  void initState() {
+    super.initState();
+    check();
+  }
+
+  Future<String?> gettokenFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  void check() async {
+    final token = await gettokenFromPrefs();
+    setState(() {
+      tok = token != null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: beposoft(),
-    );
-  }
-}
-class beposoft extends StatefulWidget {
-  const beposoft({super.key});
-
-  @override
-  State<beposoft> createState() => _beposoftState();
-}
-
-class _beposoftState extends State<beposoft> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>dashboard()));
-          }, child: Text("accounts")),
-          ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>bdm_dashbord()));
-          }, child: Text("bdm")),
-           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>bdo_dashbord()));
-          }, child: Text("bdo")),
-
-          ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>hr_dashbord()));
-          }, child: Text("hr")),
-          ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>logistics_dashbord()));
-          }, child: Text("logistics")),
-           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>login()));
-          }, child: Text("login"))
-        ],
-      ),
-
+      home: tok ? dashboard() : login(),
     );
   }
 }

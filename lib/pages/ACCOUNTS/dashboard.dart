@@ -1,5 +1,10 @@
 
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/bank_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/daily_goods_movement.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
@@ -10,6 +15,7 @@ import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_proforma_invoice.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/profile.dart';
+import 'package:beposoft/pages/ACCOUNTS/profilepage.dart';
 import 'package:beposoft/pages/ACCOUNTS/proforma_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
@@ -73,7 +79,7 @@ class _dashboardState extends State<dashboard> {
               icon: Image.asset('lib/assets/profile.png'),
                
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>profile()));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));
                 
               },
             ),
@@ -122,6 +128,46 @@ class _dashboardState extends State<dashboard> {
               title: Text('Customer'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>customer_list()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
+              ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Departments'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_department()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
+             ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Supervisors'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_supervisor()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
+              ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Family'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_family()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
+             ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Staff'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_staff()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
+             ListTile(
+              leading: Icon(Icons.person),
+              title: Text('States'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_state()));
                 // Navigate to the Settings page or perform any other action
               },
             ),

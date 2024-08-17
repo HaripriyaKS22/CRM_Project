@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http:
+  shared_preferences: ^2.0.15
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -76,6 +78,9 @@ flutter:
     - lib/assets/search.png
     - lib/assets/addnew.png
     - lib/assets/logo_black.png
+    - lib/assets/delete.gif
+    - lib/assets/edit.jpg
+    - lib/assets/logo.png
    
 
   # An image asset can refer to one or more resolution-specific "variants", see
