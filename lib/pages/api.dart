@@ -1,1 +1,1 @@
-var api="https://governing-superior-course-opposition.trycloudflare.com";
+var api="https://mime-ec-player-yet.trycloudflare.com";

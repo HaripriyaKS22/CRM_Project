@@ -56,7 +56,9 @@ dev_dependencies:
   dropdown_search: ^5.0.6
   dropdown_button2: ^2.3.9
   flutter_colorpicker: 1.0.3
-  provider: 
+  provider:
+  file_picker :
+  path_provider : 
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -81,6 +83,7 @@ flutter:
     - lib/assets/delete.gif
     - lib/assets/edit.jpg
     - lib/assets/logo.png
+    - lib/assets/upload.png
    
 
   # An image asset can refer to one or more resolution-specific "variants", see

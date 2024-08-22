@@ -30,8 +30,10 @@ class _beposoftmainState extends State<beposoftmain> {
 
   void check() async {
     final token = await gettokenFromPrefs();
+    print("$token");
     setState(() {
       tok = token != null;
+      print(tok);
     });
   }
 

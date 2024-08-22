@@ -1,11 +1,14 @@
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_supervisor.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:beposoft/pages/api.dart';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 
@@ -42,16 +45,214 @@ class _add_staffState extends State<add_staff> {
     getdepartments();
     getmanegers();
     getstaff();
+    getstates();
   }
 
 var url = "$api/api/add/department/";
 
-
+ String? selectstate;
+  int? selectedStateId;
   TextEditingController name = TextEditingController();
+    TextEditingController username = TextEditingController();
+      TextEditingController email = TextEditingController();
+      TextEditingController phone = TextEditingController();
+        TextEditingController alternate_number = TextEditingController();
+              TextEditingController password = TextEditingController();
+                    TextEditingController driving_license = TextEditingController();
+                    TextEditingController employment_status= TextEditingController();
+                    TextEditingController designation= TextEditingController();
+                    TextEditingController grade= TextEditingController();
+                    TextEditingController address= TextEditingController();
+                    TextEditingController city= TextEditingController();
+                    TextEditingController Country= TextEditingController();
+
+
+
+
+      
+
+
+
+
+
 Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+   List<String>  gender = ["Female",'Male','Other'];
+  String selectgender="Female";
+   List<String>  material =["Married",'Single','Other'];
+  String selectmarital="Single";
+
+
+
+//dateselection
+   DateTime selectedDate = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+
+     DateTime selecteExp = DateTime.now();
+          DateTime selectejoin = DateTime.now();
+                    DateTime selecteconf = DateTime.now();
+
+
+     
+      Future<void> _selectDate2(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selecteExp = picked;
+      });
+    }
+  }
+
+
+    
+      Future<void> _selectDate3(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectejoin = picked;
+      });
+    }
+  }
+
+
+      Future<void> _selectDate4(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selecteconf = picked;
+      });
+    }
+  }
+
+
+
+  List<Map<String, dynamic>> statess = [];
+
+  Future<void> getstates() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/states/'),
+        headers: {
+          'Authorization': '$token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "=============================================statesssssss${response.body}");
+      List<Map<String, dynamic>> stateslist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print(
+            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiistatess$parsed");
+        for (var productData in productsData) {
+          stateslist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          statess = stateslist;
+
+          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTstatesss$statess");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+
+   File? selectedImage;
+
+  void imageSelect() async {
+    try {
+      print("sdgs");
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+      );
+      if (result != null) {
+        setState(() {
+          selectedImage = File(result.files.single.path!);
+
+          print("imggg$selectedImage");
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("image1 selected successfully."),
+          backgroundColor: Color.fromARGB(173, 120, 249, 126),
+        ));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error while selecting the file."),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+
+   File? selectedImage1;
+
+  void imageSelect1() async {
+    try {
+      print("sdgs");
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+      );
+      if (result != null) {
+        setState(() {
+          selectedImage1 = File(result.files.single.path!);
+
+          print("imggg$selectedImage");
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("image1 selected successfully."),
+          backgroundColor: Color.fromARGB(173, 120, 249, 126),
+        ));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error while selecting the file."),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
 var departments;
   List<Map<String, dynamic>> dep = [];
    List<Map<String, dynamic>> manager = [];
@@ -274,6 +475,116 @@ var departments;
     );
   }
 
+void RegisterUserData(
+
+ 
+  String name,
+  String username,
+  String email,
+  String phone,
+  String alternate_number,
+  String password,
+  int selectedDepartmentId,
+  File? image1,
+  String selectedDate,
+  int selectedStateId,
+  String selectgender,
+  String selectmarital,
+  String driving_license,
+  String selecteExp,
+  String designation,
+  String grade,
+  String address,
+  String city,
+  String country,
+  String selectejoin,
+  String selecteconf,
+    File? image2,
+
+  BuildContext scaffoldContext,
+
+ 
+ 
+) async {
+       final token = await gettokenFromPrefs();
+
+  try {
+    print("00000000000000000000000000000000000$token");
+    var request = http.MultipartRequest('POST', Uri.parse('$api/api/add/staff/'));
+    
+    // Add headers to the request
+    request.headers['Content-type'] = 'application/json';
+    request.headers['Authorization'] = '$token';
+
+    // Add text fields to the request
+    request.fields['name'] = name;
+    request.fields['username'] = username;
+    request.fields['email'] = email;
+    request.fields['phone'] = phone;
+    request.fields['alternate_number'] = alternate_number;
+    request.fields['password'] = password;
+    request.fields['department_id'] = selectedDepartmentId.toString();
+    request.fields['date_of_birth'] = selectedDate;
+    request.fields[''] = phone;
+    request.fields['alternate_number'] = alternate_number;
+
+    // Add images to the request if they are not null
+    if (image1 != null) {
+      request.files.add(await http.MultipartFile.fromPath('image', image1.path));
+    }
+    
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    // Handle response based on status code
+    if (response.statusCode == 200) {
+      // Registration successful
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Data Added Successfully.'),
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => add_staff()),
+      );
+    } else if (response.statusCode == 400) {
+      // Handle validation errors or other specific errors from the server
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      if (responseData.containsKey('image2') && responseData.containsKey('image3')) {
+        // Show error dialog for specific image validation errors
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Something went wrong. Please try again later.'),
+          ),
+        );
+      }
+    } else {
+      // Handle other status codes
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Something went wrong. Please try again later.'),
+        ),
+      );
+    }
+  } catch (e) {
+    // Handle network errors or exceptions
+    print("Error: $e");
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text('Network error. Please check your connection.'),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
   //searchable dropdown
 
  
@@ -413,7 +724,7 @@ var departments;
           children: [
             SizedBox(height: 15),
             Text(
-              "SUPERVISOR",
+              "STAFF",
               style: TextStyle(
                 fontSize: 20,
                 letterSpacing: 9.0,
@@ -444,7 +755,7 @@ var departments;
                   children: [
                     SizedBox(height: 10),
                     Text(
-                      "Add Supervisor",
+                      "Add STAFF",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -455,13 +766,7 @@ var departments;
                   ],
                 ),
               ),
-              Text(
-                "Name",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+             
               SizedBox(height: 10),
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
@@ -477,18 +782,12 @@ var departments;
                   ),
                 ),
               ),
-               Text(
-                "Username",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              
               SizedBox(height: 10),
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: TextField(
-                  controller: name,
+                  controller: username,
                   decoration: InputDecoration(
                     labelText: 'username',
                     border: OutlineInputBorder(
@@ -499,18 +798,12 @@ var departments;
                   ),
                 ),
               ),
-               Text(
-                "Email",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              
               SizedBox(height: 10),
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: TextField(
-                  controller: name,
+                  controller: email,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(
@@ -521,18 +814,12 @@ var departments;
                   ),
                 ),
               ),
-               Text(
-                "Phone",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              
               SizedBox(height: 10),
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: TextField(
-                  controller: name,
+                  controller: phone,
                   decoration: InputDecoration(
                     labelText: 'Phone',
                     border: OutlineInputBorder(
@@ -543,18 +830,12 @@ var departments;
                   ),
                 ),
               ),
-               Text(
-                "Alternate Number",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+             
               SizedBox(height: 10),
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: TextField(
-                  controller: name,
+                  controller: alternate_number,
                   decoration: InputDecoration(
                     labelText: 'Alternate Number',
                     border: OutlineInputBorder(
@@ -565,18 +846,12 @@ var departments;
                   ),
                 ),
               ),
-               Text(
-                "Password",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              
               SizedBox(height: 10),
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: TextField(
-                  controller: name,
+                  controller: password,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(
@@ -614,11 +889,580 @@ var departments;
                   }).toList(),
                 ),
               ),
+              SizedBox(height: 10,),
+
+
+              GestureDetector(
+                                          onTap: () {
+                                           imageSelect();
+                                          },
+                                          child: Container(
+                                            height: 55,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Color.fromARGB(
+                                                  255, 224, 223, 223),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Image.asset(
+                                                  'lib/assets/upload.png', // Replace 'upload_icon.png' with your image asset path
+                                                  width:
+                                                      24, // Adjust the width of the image
+                                                  height:
+                                                      24, // Adjust the height of the image
+                                                  color: Color.fromARGB(
+                                                      255,
+                                                      2,
+                                                      2,
+                                                      2), // Adjust the color of the image
+                                                ),
+                                                SizedBox(
+                                                    width:
+                                                        10), // Spacer between icon and text
+                                                Text(
+                                                  "Select Profile Image",
+                                                  style: TextStyle(
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              116,
+                                                              116,
+                                                              116)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 5,),
+
+                                         Text(
+                "Date Of Birth",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+                                                         SizedBox(height: 5,),
+
+                                        Container(
+                        width: constraints.maxWidth * 0.9, // Adjusted width based on screen size
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey, width: 1.0),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 30),
+                                  Text(
+                                    '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                    style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 116, 116, 116)),
+                                  ),
+                                  SizedBox(width: 162),
+                                  GestureDetector(
+                                    onTap: () {
+                                      _selectDate(context);
+                                      print('Icon pressed');
+                                    },
+                                    child: Icon(Icons.date_range),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 5),
+                                           Text(
+                "State",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5,),
+                           Container(
+  width: double.infinity, // Use full width available
+  height: 49,
+  decoration: BoxDecoration(
+    border: Border.all(color: Colors.grey),
+    borderRadius: BorderRadius.circular(10),
+  ),
+  child: InputDecorator(
+    decoration: InputDecoration(
+      border: InputBorder.none,
+      contentPadding: EdgeInsets.symmetric(horizontal: 10), // Adjust padding as needed
+    ),
+    child: DropdownButtonHideUnderline(
+      child: DropdownButton<Map<String, dynamic>>(
+        value: statess.isNotEmpty
+            ? statess.firstWhere(
+                (element) => element['name'] == selectstate,
+                orElse: () => statess[0],
+              )
+            : null,
+        onChanged: statess.isNotEmpty
+            ? (Map<String, dynamic>? newValue) {
+                setState(() {
+                  selectstate = newValue!['name'];
+                  selectedStateId = newValue['id']; // Store the selected state's ID
+                  print('Selected State Name: $selectstate');
+                  print('Selected State ID: $selectedStateId');
+                });
+              }
+            : null,
+        items: statess.isNotEmpty
+            ? statess.map<DropdownMenuItem<Map<String, dynamic>>>(
+                (Map<String, dynamic> state) {
+                  return DropdownMenuItem<Map<String, dynamic>>(
+                    value: state,
+                    child: Text(state['name']),
+                  );
+                },
+              ).toList()
+            : [
+                DropdownMenuItem(
+                  child: Text('No states available'),
+                  value: null,
+                ),
+              ],
+        icon: Icon(Icons.arrow_drop_down),
+        isExpanded: true, // Ensure dropdown takes full width
+      ),
+    ),
+  ),
+),
+  SizedBox(height: 5),
+                                           Text(
+                "Gender",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5,),
+                      Container(
+                        width: constraints.maxWidth * 0.9, // Adjusted width based on screen size
+                        height: 49,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 20),
+                            Container(
+                              width: constraints.maxWidth * 0.7, // Adjusted width based on screen size
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: '',
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: selectgender,
+                                  underline: Container(), // This removes the underline
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectgender = newValue!;
+                                      print(selectgender);
+                                    });
+                                  },
+                                  items: gender.map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                  icon: Container(
+                                    padding: EdgeInsets.only(left: constraints.maxWidth * 0.35),
+                                    alignment: Alignment.centerRight,
+                                    child: Icon(Icons.arrow_drop_down),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+
+                       SizedBox(height: 5),
+                       
+                                           Text(
+                "Marital status",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5,),
+                      Container(
+                        width: constraints.maxWidth * 0.9, // Adjusted width based on screen size
+                        height: 49,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 20),
+                            Container(
+                              width: constraints.maxWidth * 0.6, // Adjusted width based on screen size
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: '',
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: selectmarital,
+                                  underline: Container(), // This removes the underline
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectmarital = newValue!;
+                                      print(selectmarital);
+                                    });
+                                  },
+                                  items: material.map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                  icon: Container(
+                                    padding: EdgeInsets.only(left: constraints.maxWidth * 0.35),
+                                    alignment: Alignment.centerRight,
+                                    child: Icon(Icons.arrow_drop_down),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: TextField(
+                  controller: driving_license,
+                  decoration: InputDecoration(
+                    labelText: 'Driving License',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                  ),
+                ),
+              ),
+
+                  
+                       SizedBox(height: 5),
+                       
+                                           Text(
+                "License Exp.Date",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5,),
+                                        Container(
+                        width: constraints.maxWidth * 0.9, // Adjusted width based on screen size
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey, width: 1.0),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 30),
+                                  Text(
+                                    '${selecteExp.day}/${selecteExp.month}/${selecteExp.year}',
+                                    style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 116, 116, 116)),
+                                  ),
+                                  SizedBox(width: 162),
+                                  GestureDetector(
+                                    onTap: () {
+                                      _selectDate2(context);
+                                      print('Icon pressed');
+                                    },
+                                    child: Icon(Icons.date_range),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+
+                       SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: TextField(
+                  controller: employment_status,
+                  decoration: InputDecoration(
+                    labelText: 'Employment Status',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                  ),
+                ),
+              ),
+               SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: TextField(
+                  controller: designation,
+                  decoration: InputDecoration(
+                    labelText: 'Designation',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                  ),
+                ),
+              ),
+               SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: TextField(
+                  controller: grade,
+                  decoration: InputDecoration(
+                    labelText: 'Grade',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                  ),
+                ),
+              ),
+ SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: TextField(
+                  controller: address,
+                  decoration: InputDecoration(
+                    labelText: 'Address',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                  ),
+                ),
+              ),
+
+               SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: TextField(
+                  controller: city,
+                  decoration: InputDecoration(
+                    labelText: 'City',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                  ),
+                ),
+              ),
+
+               SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: TextField(
+                  controller: Country,
+                  decoration: InputDecoration(
+                    labelText: 'Country',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                  ),
+                ),
+              ),
+
+
+
+               
+                       SizedBox(height: 5),
+                       
+                                           Text(
+                "Joining Date",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5,),
+                                        Container(
+                        width: constraints.maxWidth * 0.9, // Adjusted width based on screen size
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey, width: 1.0),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 30),
+                                  Text(
+                                    '${selectejoin.day}/${selectejoin.month}/${selectejoin.year}',
+                                    style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 116, 116, 116)),
+                                  ),
+                                  SizedBox(width: 162),
+                                  GestureDetector(
+                                    onTap: () {
+                                      _selectDate3(context);
+                                      print('Icon pressed');
+                                    },
+                                    child: Icon(Icons.date_range),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+
+                        
+                       SizedBox(height: 5),
+                       
+                                           Text(
+                "Confirmation Date",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5,),
+                                        Container(
+                        width: constraints.maxWidth * 0.9, // Adjusted width based on screen size
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey, width: 1.0),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 30),
+                                  Text(
+                                    '${selecteconf.day}/${selecteconf.month}/${selecteconf.year}',
+                                    style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 116, 116, 116)),
+                                  ),
+                                  SizedBox(width: 162),
+                                  GestureDetector(
+                                    onTap: () {
+                                      _selectDate4(context);
+                                      print('Icon pressed');
+                                    },
+                                    child: Icon(Icons.date_range),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                     
+                       SizedBox(height: 5),
+                       
+                                           Text(
+                "Signature",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 5,),
+
+  GestureDetector(
+                                          onTap: () {
+                                           imageSelect1();
+                                          },
+                                          child: Container(
+                                            height: 55,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Color.fromARGB(
+                                                  255, 224, 223, 223),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Image.asset(
+                                                  'lib/assets/upload.png', // Replace 'upload_icon.png' with your image asset path
+                                                  width:
+                                                      24, // Adjust the width of the image
+                                                  height:
+                                                      24, // Adjust the height of the image
+                                                  color: Color.fromARGB(
+                                                      255,
+                                                      2,
+                                                      2,
+                                                      2), // Adjust the color of the image
+                                                ),
+                                                SizedBox(
+                                                    width:
+                                                        10), // Spacer between icon and text
+                                                Text(
+                                                  "Select Signature",
+                                                  style: TextStyle(
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              116,
+                                                              116,
+                                                              116)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+
               SizedBox(height: 15),
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    addsupervisor(name.text, context);
+                                    RegisterUserData(name.text,username.text,email.text,phone.text,alternate_number.text,password.text,selectedDepartmentId,selectedImage,selectedDate,selectedStateId,selectgender,selectmarital,driving_license.text,selecteExp,designation.text,grade.text,address.text,city.text,Country.text,selectejoin,selecteconf,scaffoldContext);
+
                   });
                 },
                 style: ButtonStyle(

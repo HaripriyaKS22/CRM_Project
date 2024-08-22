@@ -1,4 +1,5 @@
 
+import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
@@ -38,10 +39,12 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class dashboard  extends StatefulWidget {
   const dashboard({super.key});
 
+  
   @override
   State<dashboard> createState() => _dashboardState();
 }
@@ -64,7 +67,26 @@ class _dashboardState extends State<dashboard> {
     );
   }
 
-  
+   void logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
+  await prefs.remove('token');
+
+  // Show a snackbar with the logout success message
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Logout successfully'),
+      duration: Duration(seconds: 2), // Optional: Set how long the snackbar will be visible
+    ),
+  );
+
+  // Navigate to the HomePage
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) =>login()),
+  );
+}
+
   
 
   @override
@@ -214,8 +236,7 @@ class _dashboardState extends State<dashboard> {
               leading: Icon(Icons.exit_to_app),
               title: Text('Logout'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Perform logout action
+                logout();
               },
             ),
             
