@@ -1,1 +1,1 @@
-var api="https://mime-ec-player-yet.trycloudflare.com";
+var api="https://occupation-pie-poison-interesting.trycloudflare.com";

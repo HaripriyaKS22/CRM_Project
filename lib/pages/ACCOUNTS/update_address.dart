@@ -1,65 +1,134 @@
 import 'dart:convert';
 
-import 'package:beposoft/main.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_address.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beposoft/pages/api.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
-class add_address extends StatefulWidget {
-  const add_address({super.key, required this.customerid});
+class Updateaddress extends StatefulWidget {
+  const Updateaddress(
+      {super.key,
+      required int this.customerid,
+      required this.addressid,
+      required this.customername});
 
   final int customerid;
+  final int addressid;
+  final String customername;
   @override
-  State<add_address> createState() => _add_addressState();
+  State<Updateaddress> createState() => _UpdateaddressState();
 }
 
-class _add_addressState extends State<add_address> {
-  double number = 0.00;
+class _UpdateaddressState extends State<Updateaddress> {
+  @override
+  void initState() {
+    getaddress();
+    getstates();
+    super.initState();
+
+    print(
+        "AAAAAAAAAADDDDDDDDDDDDRREEEEEEERSSSSSSSSSSSSSIIIIIIIIIIDDIDDDDD${widget.addressid}");
+  }
+
   TextEditingController customer = TextEditingController();
   TextEditingController name = TextEditingController();
-  TextEditingController address = TextEditingController();
-
+  TextEditingController addressController = TextEditingController();
   TextEditingController zipcode = TextEditingController();
   TextEditingController city = TextEditingController();
-  TextEditingController state = TextEditingController();
-
   TextEditingController country = TextEditingController();
   TextEditingController phone = TextEditingController();
-
   TextEditingController email = TextEditingController();
-  List<Map<String, dynamic>> statess = [];
-  List<Map<String, dynamic>> customers = [];
 
+  List<Map<String, dynamic>> customeraddress = [];
+  List<Map<String, dynamic>> statess = [];
   String? selectstate;
   int? selectedStateId;
   String? selectedCustomerId;
 
-  final TextEditingController _controller = TextEditingController();
-  void incrementNumber() {
-    setState(() {
-      number +=
-          0.01; // Increment by 0.01 (you can adjust the increment value as needed)
-      _controller.text = number.toStringAsFixed(2);
-    });
+  Map<int, String> stateMap =
+      {}; // Map to store state ID and corresponding name
+
+  Future<String?> gettokenFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
   }
 
-  void decrementNumber() {
-    setState(() {
-      if (number >= 0.01) {
-        number -=
-            0.01; // Decrement by 0.01 (you can adjust the decrement value as needed)
-        _controller.text = number.toStringAsFixed(2);
+  Future<void> getaddress() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/cutomers/${widget.customerid}/'),
+        headers: {
+          'Authorization': '$token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var addressData = parsed['data'];
+
+        var selectedAddress = addressData.firstWhere(
+          (address) => address['id'] == widget.addressid,
+          orElse: () => null,
+        );
+
+        if (selectedAddress != null) {
+          // Update text fields with the selected address details
+          customer.text = selectedAddress['customer'].toString() ?? '';
+          name.text = selectedAddress['name'] ?? '';
+          addressController.text = selectedAddress['address'] ?? '';
+          zipcode.text = selectedAddress['zipcode'].toString() ?? '';
+          city.text = selectedAddress['city'] ?? '';
+          country.text = selectedAddress['country'] ?? '';
+          phone.text = selectedAddress['phone'] ?? '';
+          email.text = selectedAddress['email'] ?? '';
+          selectstate = statess.firstWhere(
+              (state) => state['id'] == selectedAddress['state'],
+              orElse: () => {'name': ''})['name'];
+
+          setState(() {}); // Refresh the UI
+        } else {
+          print("Address with ID ${widget.addressid} not found");
+        }
       }
-    });
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+  Future<void> getstates() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/states/'),
+        headers: {
+          'Authorization': '$token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "=============================================statesssssss${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var statesData = parsed['data'];
+
+        for (var state in statesData) {
+          stateMap[state['id']] = state['name']; // Populate the state map
+        }
+        print("Mapped State Data: $stateMap");
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
   }
 
   drower d = drower();
@@ -78,181 +147,6 @@ class _add_addressState extends State<add_address> {
         );
       }).toList(),
     );
-  }
-
-  List<String> categories = ["Joishya", 'Hanvi', 'nimitha', 'Hari'];
-  String selectededu = "Hari";
-  // List<String> state = ["Kerala", 'Tamilnadu', 'Karnataka', 'Gujarat'];
-  // String selectstate = "Kerala";
-
-  @override
-  void initState() {
-    getstates();
-    getcustomers();
-    super.initState();
-    print("CUUUUUUUUSSSSSSSSIDDr${widget.customerid}");
-  }
-
-  Future<String?> gettokenFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
-  Future<void> getcustomers() async {
-    try {
-      final token = await gettokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/customers/'),
-        headers: {
-          'Authorization': '$token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(
-          "=============================================CUSTOMERSSSSS${response.body}");
-      List<Map<String, dynamic>> customerlist = [];
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiiCUSSSSSS$parsed");
-        for (var productData in productsData) {
-          customerlist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-
-        setState(() {
-          customers = customerlist;
-          print(
-              "CCCCCCCCCCCCCCCCCCCCCCCCCCUUUUUUUUUUUUUSSSSSSSSSSSSSSSSSSS$customers");
-
-          // After fetching customers, set the customer name and ID
-          setCustomerName();
-        });
-      }
-    } catch (error) {
-      print("Error: $error");
-    }
-  }
-
-  void setCustomerName() {
-    // Find the customer with the matching ID
-    final selectedCustomer = customers.firstWhere(
-      (customer) => customer['id'] == widget.customerid,
-      orElse: () => {},
-    );
-
-    // If a matching customer is found, set the name in the text field and save the customer ID
-    if (selectedCustomer.isNotEmpty) {
-      customer.text = selectedCustomer['name'];
-      selectedCustomerId =
-          selectedCustomer['id'].toString(); // Store the customer ID
-
-          print("AAAAAAAAAALLLLLLLLLLLLOOOOOOOOOOOOOOOOO$selectedCustomerId");
-    }
-  }
-
-  Future<void> getstates() async {
-    try {
-      final token = await gettokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/states/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(
-          "=============================================statesssssss${response.body}");
-      List<Map<String, dynamic>> stateslist = [];
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiistatess$parsed");
-        for (var productData in productsData) {
-          stateslist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-        setState(() {
-          statess = stateslist;
-
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTstatesss$statess");
-        });
-      }
-    } catch (error) {
-      print("Error: $error");
-    }
-  }
-
-  void addaddress(
-    String name,
-    String address,
-    String email,
-    String phone,
-    String zipcode,
-    String city,
-    String state,
-    String country,
-    BuildContext scaffoldContext,
-  ) async {
-    try {
-      final token = await gettokenFromPrefs();
-
-      var response = await http.post(
-        Uri.parse('$api/api/add/cutomer/address/${widget.customerid}/'),
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          "customer": widget.customerid,
-          "name": name,
-          "address": address,
-          "zipcode": zipcode,
-          "city": city,
-          "state": selectedStateId,
-          "country": country,
-          "phone": phone,
-          "email": email,
-        }),
-      );
-
-      print("Response: ${response.body}");
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-                        backgroundColor: Colors.green,
-
-            content: Text('Address added Successfully.'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding address failed.'),
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Enter valid information'),
-        ),
-      );
-    }
   }
 
   @override
@@ -398,7 +292,7 @@ class _add_addressState extends State<add_address> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        "Add Address",
+                        "Update Address",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
@@ -407,7 +301,7 @@ class _add_addressState extends State<add_address> {
                 ),
                 SizedBox(height: 15),
                 SizedBox(
-                  height: 230,
+                  height: 200,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -423,110 +317,21 @@ class _add_addressState extends State<add_address> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Text(
-                            //   "Customer ",
-                            //   style: TextStyle(
-                            //       fontSize: 15, fontWeight: FontWeight.bold),
-                            // ),
-                            // SizedBox(
-                            //   height: 10,
-                            // ),
-                            // Container(
-                            //   width: 310,
-                            //   height: 49,
-                            //   decoration: BoxDecoration(
-                            //     border: Border.all(color: Colors.grey),
-                            //     borderRadius: BorderRadius.circular(10),
-                            //   ),
-                            //   child: Row(
-                            //     children: [
-                            //       Expanded(
-                            //         child: Container(
-                            //           child: Row(
-                            //             children: [
-                            //               Expanded(
-                            //                 child: TextField(
-                            //                   controller: _controller,
-                            //                   keyboardType: TextInputType
-                            //                       .numberWithOptions(
-                            //                           decimal: true),
-                            //                   decoration: InputDecoration(
-                            //                     prefixIcon:
-                            //                         Icon(Icons.line_weight),
-                            //                     border: InputBorder.none,
-                            //                     hintText: '',
-                            //                     // Adjust horizontal padding
-                            //                   ),
-                            //                   onChanged: (value) {
-                            //                     setState(() {
-                            //                       number =
-                            //                           double.tryParse(value) ??
-                            //                               0.00;
-                            //                     });
-                            //                   },
-                            //                 ),
-                            //               ),
-                            //               Container(
-                            //                 width: 30,
-                            //                 color: Color.fromARGB(
-                            //                     255, 88, 184, 248),
-                            //                 child: IconButton(
-                            //                   icon: Icon(
-                            //                       Icons
-                            //                           .keyboard_arrow_down_rounded,
-                            //                       size: 20,
-                            //                       color: Colors
-                            //                           .white), // Down arrow icon with size 20
-                            //                   onPressed: decrementNumber,
-                            //                 ),
-                            //               ),
-                            //               Container(
-                            //                 width: 30,
-                            //                 decoration: BoxDecoration(
-                            //                     color: Color.fromARGB(
-                            //                         255, 64, 176, 251),
-                            //                     border: Border.all(
-                            //                         color: Color.fromARGB(
-                            //                             255, 64, 176, 251)),
-                            //                     borderRadius: BorderRadius.only(
-                            //                         bottomRight:
-                            //                             Radius.circular(10),
-                            //                         topRight:
-                            //                             Radius.circular(10))),
-                            //                 child: IconButton(
-                            //                   icon: Icon(
-                            //                       Icons
-                            //                           .keyboard_arrow_up_rounded,
-                            //                       size: 20,
-                            //                       color: Colors
-                            //                           .white), // Up arrow icon with size 20
-                            //                   onPressed: incrementNumber,
-                            //                 ),
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ],
+                            // TextField(
+                            //   controller: customer,
+                            //   decoration: InputDecoration(
+                            //     labelText: 'Customer Name',
+                            //     hintText: widget
+                            //         .customername, // Display customer name if available
+                            //     prefixIcon: Icon(Icons.local_offer),
+                            //     border: OutlineInputBorder(
+                            //       borderRadius: BorderRadius.circular(10.0),
+                            //       borderSide: BorderSide(color: Colors.grey),
+                            //     ),
+                            //     contentPadding:
+                            //         EdgeInsets.symmetric(vertical: 8.0),
                             //   ),
                             // ),
-                            // Text("Customer Name",
-                            //     style: TextStyle(
-                            //         fontSize: 15, fontWeight: FontWeight.bold)),
-                            // SizedBox(height: 10),
-                            TextField(
-                              controller: customer,
-                              decoration: InputDecoration(
-                                labelText: 'Customer Name',
-                                prefixIcon: Icon(Icons.local_offer),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
                             SizedBox(height: 10),
                             Text("Shipping Address Name",
                                 style: TextStyle(
@@ -535,7 +340,10 @@ class _add_addressState extends State<add_address> {
                             TextField(
                               controller: name,
                               decoration: InputDecoration(
-                                labelText: 'name',
+                                labelText: 'Shipping Address Name',
+                                hintText: name.text.isEmpty
+                                    ? 'Enter Shipping Address Name'
+                                    : name.text,
                                 prefixIcon: Icon(Icons.local_offer),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
@@ -579,9 +387,13 @@ class _add_addressState extends State<add_address> {
                                     fontSize: 15, fontWeight: FontWeight.bold)),
                             SizedBox(height: 13),
                             TextField(
-                              controller: address,
+                              controller: addressController,
                               decoration: InputDecoration(
-                                labelText: 'Address',
+                                labelText:
+                                    'Address/Building Name/Building Number',
+                                hintText: addressController.text.isEmpty
+                                    ? 'Enter Address'
+                                    : addressController.text,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -607,6 +419,9 @@ class _add_addressState extends State<add_address> {
                                         controller: zipcode,
                                         decoration: InputDecoration(
                                           labelText: 'Zip code',
+                                          hintText: zipcode.text.isEmpty
+                                              ? 'Enter Zip code'
+                                              : zipcode.text,
                                           border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
@@ -637,6 +452,9 @@ class _add_addressState extends State<add_address> {
                                         controller: city,
                                         decoration: InputDecoration(
                                           labelText: 'City',
+                                          hintText: city.text.isEmpty
+                                              ? 'Enter City'
+                                              : city.text,
                                           border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
@@ -729,6 +547,9 @@ class _add_addressState extends State<add_address> {
                               controller: country,
                               decoration: InputDecoration(
                                 labelText: 'Country',
+                                hintText: country.text.isEmpty
+                                    ? 'Enter Country'
+                                    : country.text,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -757,6 +578,9 @@ class _add_addressState extends State<add_address> {
                               controller: phone,
                               decoration: InputDecoration(
                                 labelText: 'Phone Number',
+                                hintText: phone.text.isEmpty
+                                    ? 'Enter Phone Number'
+                                    : phone.text,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -774,6 +598,9 @@ class _add_addressState extends State<add_address> {
                               controller: email,
                               decoration: InputDecoration(
                                 labelText: 'Mail Id',
+                                hintText: email.text.isEmpty
+                                    ? 'Enter Mail Id'
+                                    : email.text,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -809,7 +636,8 @@ class _add_addressState extends State<add_address> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => View_Address(customerid:widget.customerid)));
+                                  builder: (context) => View_Address(
+                                      customerid: widget.customerid)));
                           // Your onPressed logic goes here
                         },
                         style: ButtonStyle(
@@ -832,18 +660,18 @@ class _add_addressState extends State<add_address> {
                       SizedBox(width: 13),
                       ElevatedButton(
                         onPressed: () {
-                          addaddress(
-                           
-                            name.text,
-                            address.text,
-                            email.text,
-                            phone.text,
-                            zipcode.text,
-                            city.text,
-                            state.text,
-                            country.text,
-                            context,
-                          );
+                          // addaddress(
+
+                          //   name.text,
+                          //   address.text,
+                          //   email.text,
+                          //   phone.text,
+                          //   zipcode.text,
+                          //   city.text,
+                          //   state.text,
+                          //   country.text,
+                          //   context,
+                          // );
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
@@ -872,61 +700,5 @@ class _add_addressState extends State<add_address> {
         ),
       ),
     );
-  }
-
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
-      case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-      case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-
-      default:
-        break;
-    }
   }
 }

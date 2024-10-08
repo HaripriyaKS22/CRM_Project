@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:beposoft/functions.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/api.dart';
@@ -23,17 +22,18 @@ import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 
-class add_new_customer extends StatefulWidget {
-  const add_new_customer({super.key});
+class view_customer extends StatefulWidget {
+  const view_customer({super.key, required this.customerid});
+  final int customerid;
 
   @override
-  State<add_new_customer> createState() => _add_new_customerState();
+  State<view_customer> createState() => _view_customerState();
 }
 
-class _add_new_customerState extends State<add_new_customer> {
-
+class _view_customerState extends State<view_customer> {
   List<Map<String, dynamic>> manager = [];
   List<Map<String, dynamic>> statess = [];
+  List<Map<String, dynamic>> customer = [];
 
   String? selectedManagerName;
   int? selectedManagerId;
@@ -54,82 +54,160 @@ class _add_new_customerState extends State<add_new_customer> {
   @override
   void initState() {
     super.initState();
-    _initData();
-   
-    
-  }
-var tok;
-var id;
-  Functions functions= Functions();
-Future<void> _initData() async {
-         tok = await functions.gettokenFromPrefs(); 
-         id= await functions.getidFromPrefs();
-selectedManagerId=id;
-        print("initttttttttttttttttttttttttttt$selectedManagerId");
-         getmanagers();
-        getstates();
+        getcustomers();
+
+    getmanagers();
+    getstates();
+
+    print("CCCCCCCCCCCCUUUUUSSSSSSSSSSIIIIIIIIIDDDDDDDDDD${widget.customerid}");
   }
 
- 
-  void addcustomer(
-      String gstno,
-      String name,
-      String selectedManagerId,
-      String selectedStateId,
-      String phone,
-      String altphone,
-      String email,
-      String address,
-      String zipcode,
-      String city,
-      String states,
-      String comment,
-      BuildContext scaffoldContext) async {
-    try {
+  Future<void> storeUserData(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
 
-      var response = await http.post(
-        Uri.parse('$api/api/add/customer/'),
-        headers: {
-          'Authorization': 'Bearer $tok',
-          "Content-Type": "application/json"},
-        body: jsonEncode({
-          "gst": gstno,
-          "name": name,
-          "manager": selectedManagerId,
-          "state": selectedStateId,
-          "phone": phone,
-          "alt_phone": altphone,
-          "email": email,
-          "address": address,
-          "zip_code": zipcode,
-          "city": city,
-          "comment": comment
-        }),
-      );
+  Future<String?> gettokenFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
 
-      print("----------====================================${response.body}");
+  void updateCustomer(
+  String gst,
+  String name,
+  String manager,
+  String phone,
+  String altPhone,
+  String email,
+  String address,
+  String zipcode,
+  String city,
+  String state,
+  String comment,
+  BuildContext context,
+) async {
+  print("Updating customer: $name");
+  print("API URL: $api/api/customer/update/${widget.customerid}/");
 
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.green,
-            content: Text('Customer Added Successfully.'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding Customer failed.'),
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+  final token = await gettokenFromPrefs();
+
+  try {
+    var response = await http.put(
+      Uri.parse("$api/api/customer/update/${widget.customerid}/"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "gst": gst,
+        "name": name,
+        'manager': selectedManagerId,
+        'phone': phone,
+        'alt_phone': altPhone,
+        'email': email,
+        'address': address,
+        'zip_code': zipcode,
+        'city': city,
+        'state': state,
+        'comment': comment,
+      }),
+    );
+
+    print("RRRRRRRRRRRRRRRRREEEEEEEEESSSSSSPPPPPPPPOOOOOONNNNNNNNNSSSE${response.body}");
+
+    print("Response Status Code: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('An error occurred.'),
+          backgroundColor: Color.fromARGB(255, 49, 212, 4),
+          content: Text('Success'),
         ),
       );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Failed to update customer. Please try again.'),
+        ),
+      );
+    }
+  } catch (e) {
+    print("Error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('An error occurred. Please try again.'),
+      ),
+    );
+  }
+}
+var managerfetchid;
+var statefetchid;
+  Future<void> getcustomers() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/customers/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      List<Map<String, dynamic>> managerlist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+print("custoooooooooooooooooooooooooooo$productsData");
+        for (var productData in productsData) {
+          managerlist.add({
+            'id': productData['id'],
+            'gst': productData['gst'],
+            'name': productData['name'],
+            'created_at': productData['created_at'],
+            'manager': productData['manager'],
+            'phone': productData['phone'],
+            'alt_phone': productData['alt_phone'],
+            'email': productData['email'],
+            'address': productData['address'],
+            'zip_code': productData['zip_code'],
+            'city': productData['city'],
+            'state': productData['state'],
+            'comment': productData['comment'],
+          });
+
+          if (widget.customerid == productData['id']) {
+            gstno.text = productData['gst'] ?? '';
+            name.text = productData['name'] ?? '';
+            managerfetchid=productData['manager'];
+            statefetchid=productData['state'];
+            phone.text = productData['phone'] ?? '';
+            altphone.text = productData['alt_phone'] ?? '';
+            email.text = productData['email'] ?? '';
+            address.text = productData['address'] ?? '';
+            zipcode.text = productData['zip_code'].toString() ?? '';
+            city.text = productData['city'] ?? '';
+            selectstate = statess.firstWhere(
+                (state) => state['id'] == productData['state'],
+                orElse: () => {'name': ''})['name']; // Set selectstate
+            comment.text = productData['comment'] ?? '';
+          }
+        }
+
+        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSLLLLLLLLLLLLLLLLLLLL$statefetchid");
+        getstates();
+        setState(() {
+          customer = managerlist;
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
     }
   }
 
@@ -139,79 +217,103 @@ selectedManagerId=id;
   // }
 
   Future<void> getmanagers() async {
-    try {
-     print("tokkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$tok");
-print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
-      var response = await http.get(
-        Uri.parse('$api/api/staffs/'),
-        headers: {
-          'Authorization': 'Bearer $tok',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(
-          "staffffffffffffffffffffffffffffff${response.body}");
-      List<Map<String, dynamic>> managerlist = [];
+  try {
+    final token = await gettokenFromPrefs();
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+    var response = await http.get(
+      Uri.parse('$api/api/staffs/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    List<Map<String, dynamic>> managerlist = [];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
-        for (var productData in productsData) {
-          managerlist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-        setState(() {
-          manager = managerlist;
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
 
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT$manager");
+      for (var productData in productsData) {
+        managerlist.add({
+          'id': productData['id'],
+          'name': productData['name'],
         });
       }
-    } catch (error) {
-      print("Error: $error");
+print(managerlist);
+
+      // Reorder the list to have the manager with managerfetchid first
+      managerlist.sort((a, b) {
+        if (a['id'] == managerfetchid) return -1;
+        if (b['id'] == managerfetchid) return 1;
+        return 0;
+      });
+print(managerlist);
+
+      setState(() {
+        manager = managerlist;
+        selectedManagerName = managerlist[0]['name'];
+        selectedManagerId = managerlist[0]['id'];
+        print("Selected Manager Name: $selectedManagerName");
+        print("Selected Manager ID: $selectedManagerId");
+      });
     }
+  } catch (error) {
+    print("Error: $error");
   }
+}
 
-  Future<void> getstates() async {
-    try {
 
-      var response = await http.get(
-        Uri.parse('$api/api/states/'),
-        headers: {
-          'Authorization': 'Bearer $tok',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(
-          "=============================================statesssssss${response.body}");
-      List<Map<String, dynamic>> stateslist = [];
+Future<void> getstates() async {
+  try {
+    final token = await gettokenFromPrefs();
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+    var response = await http.get(
+      Uri.parse('$api/api/states/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    List<Map<String, dynamic>> stateslist = [];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiistatess$parsed");
-        for (var productData in productsData) {
-          stateslist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-        setState(() {
-          statess = stateslist;
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
 
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTstatesss$statess");
+      for (var productData in productsData) {
+        stateslist.add({
+          'id': productData['id'],
+          'name': productData['name'],
         });
       }
-    } catch (error) {
-      print("Error: $error");
+      print("Original stateslist: $stateslist");
+
+      // Convert statefetchid to match the type of id in stateslist
+      final convertedStatefetchid = statefetchid is String
+          ? int.tryParse(statefetchid)
+          : statefetchid;
+
+      // Reorder the list to have the state with statefetchid first
+      stateslist.sort((a, b) {
+        if (a['id'] == convertedStatefetchid) return -1;
+        if (b['id'] == convertedStatefetchid) return 1;
+        return 0;
+      });
+      print("Sorted stateslist: $stateslist");
+
+      setState(() {
+        statess = stateslist;
+        selectstate = stateslist[0]['name'];
+        selectedStateId = stateslist[0]['id'];
+        print("Selected State Name: $selectstate");
+        print("Selected State ID: $selectedStateId");
+      });
     }
+  } catch (error) {
+    print("Error: $error");
   }
+}
+
 
   drower d = drower();
   Widget _buildDropdownTile(
@@ -416,6 +518,9 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                               controller: gstno,
                               decoration: InputDecoration(
                                 labelText: 'AAA00',
+                                hintText: gstno.text.isNotEmpty
+                                    ? gstno.text
+                                    : 'Enter your gstno',
                                 prefixIcon: Icon(Icons.numbers),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
@@ -434,6 +539,9 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                               controller: name,
                               decoration: InputDecoration(
                                 labelText: 'Name of customer',
+                                hintText: name.text.isNotEmpty
+                                    ? name.text
+                                    : 'Enter your name',
                                 prefixIcon: Icon(Icons.person),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
@@ -458,53 +566,67 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                               child: Row(
                                 children: [
                                   SizedBox(width: 20),
-                                   Flexible(
-  child: InputDecorator(
-    decoration: InputDecoration(
-      border: InputBorder.none,
-      hintText: '',
-      contentPadding: EdgeInsets.symmetric(horizontal: 1),
-    ),
-    child: DropdownButton<Map<String, dynamic>>(
-      value: manager.isNotEmpty
-          ? manager.firstWhere(
-              (element) => element['id'] == selectedManagerId,
-              orElse: () => manager[0],
-            )
-          : null,
-      underline: Container(),
-      onChanged: manager.isNotEmpty
-          ? (Map<String, dynamic>? newValue) {
-              setState(() {
-                selectedManagerName = newValue!['name'];
-                selectedManagerId = newValue['id'];
-                print('Selected Manager Name: $selectedManagerName');
-                print('Selected Manager ID: $selectedManagerId');
-              });
-            }
-          : null,
-      items: manager.isNotEmpty
-          ? manager.map<DropdownMenuItem<Map<String, dynamic>>>(
-              (Map<String, dynamic> manager) {
-                return DropdownMenuItem<Map<String, dynamic>>(
-                  value: manager,
-                  child: Text(manager['name']),
-                );
-              },
-            ).toList()
-          : [
-              DropdownMenuItem(
-                child: Text('No managers available'),
-                value: null,
-              ),
-            ],
-      icon: Container(
-        alignment: Alignment.centerRight,
-        child: Icon(Icons.arrow_drop_down),
-      ),
-    ),
-  ),
-)
+                                  Flexible(
+                                    child: InputDecorator(
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          hintText: '',
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 1),
+                                        ),
+                                        child: DropdownButton<
+                                            Map<String, dynamic>>(
+                                          value: manager.isNotEmpty
+                                              ? manager.firstWhere(
+                                                  (element) =>
+                                                      element['name'] ==
+                                                      selectedManagerName,
+                                                  orElse: () => manager[0],
+                                                )
+                                              : null,
+                                          underline: Container(),
+                                          onChanged: manager.isNotEmpty
+                                              ? (Map<String, dynamic>?
+                                                  newValue) {
+                                                  setState(() {
+                                                    selectedManagerName =
+                                                        newValue!['name'];
+                                                    selectedManagerId =
+                                                        newValue['id'];
+                                                    print(
+                                                        'Selected Manager Name: $selectedManagerName');
+                                                    print(
+                                                        'Selected Manager ID: $selectedManagerId');
+                                                  });
+                                                }
+                                              : null,
+                                          items: manager.isNotEmpty
+                                              ? manager.map<
+                                                  DropdownMenuItem<
+                                                      Map<String, dynamic>>>(
+                                                  (Map<String, dynamic>
+                                                      manager) {
+                                                    return DropdownMenuItem<
+                                                        Map<String, dynamic>>(
+                                                      value: manager,
+                                                      child:
+                                                          Text(manager['name']),
+                                                    );
+                                                  },
+                                                ).toList()
+                                              : [
+                                                  DropdownMenuItem(
+                                                    child: Text(
+                                                        'No managers available'),
+                                                    value: null,
+                                                  ),
+                                                ],
+                                          icon: Container(
+                                            alignment: Alignment.centerRight,
+                                            child: Icon(Icons.arrow_drop_down),
+                                          ),
+                                        )),
+                                  ),
                                 ],
                               ),
                             ),
@@ -516,59 +638,7 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                 ),
 
                 SizedBox(height: 5),
-                // SizedBox(
-                //   height: 200,
-                //   width: 340,
-                //   child: Card(
-                //     elevation: 3,
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(10.0),
-                //     ),
-                //     child: Container(
-                //       decoration: BoxDecoration(
-                //         color: Colors.white,
-                //         borderRadius: BorderRadius.circular(10.0),
-                //         border: Border.all(
-                //             color: Color.fromARGB(255, 236, 236, 236)),
-                //       ),
-                //       child: Padding(
-                //         padding: const EdgeInsets.all(10.0),
-                //         child: Column(
-                //           crossAxisAlignment: CrossAxisAlignment.start,
-                //           children: [
-                //             Text("Administrative information ",
-                //                 style: TextStyle(
-                //                     fontSize: 15, fontWeight: FontWeight.bold)),
-                //             SizedBox(height: 20),
-                //             TextField(
-                //               decoration: InputDecoration(
-                //                 labelText: 'Naf code',
-                //                 border: OutlineInputBorder(
-                //                   borderRadius: BorderRadius.circular(10.0),
-                //                   borderSide: BorderSide(color: Colors.grey),
-                //                 ),
-                //                 contentPadding:
-                //                     EdgeInsets.symmetric(vertical: 8.0),
-                //               ),
-                //             ),
-                //             SizedBox(height: 10),
-                //             TextField(
-                //               decoration: InputDecoration(
-                //                 labelText: 'VAT number',
-                //                 border: OutlineInputBorder(
-                //                   borderRadius: BorderRadius.circular(10.0),
-                //                   borderSide: BorderSide(color: Colors.grey),
-                //                 ),
-                //                 contentPadding:
-                //                     EdgeInsets.symmetric(vertical: 8.0),
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
+
                 SizedBox(height: 15),
                 // Continue adding form elements here
                 SizedBox(height: 15),
@@ -620,6 +690,9 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                               controller: phone,
                               decoration: InputDecoration(
                                 labelText: 'Phone Number',
+                                hintText: phone.text.isNotEmpty
+                                    ? phone.text
+                                    : 'Enter your phone number',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -637,6 +710,9 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                               controller: altphone,
                               decoration: InputDecoration(
                                 labelText: 'Alternate Number',
+                                hintText: altphone.text.isNotEmpty
+                                    ? altphone.text
+                                    : 'Enter your alternate phone number',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -654,6 +730,9 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                               controller: email,
                               decoration: InputDecoration(
                                 labelText: 'Mail Id',
+                                hintText: email.text.isNotEmpty
+                                    ? email.text
+                                    : 'Enter your email Id',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -682,6 +761,9 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                               controller: address,
                               decoration: InputDecoration(
                                 labelText: 'Address',
+                                hintText: address.text.isNotEmpty
+                                    ? address.text
+                                    : 'Enter your Address',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -707,6 +789,9 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                                         controller: zipcode,
                                         decoration: InputDecoration(
                                           labelText: 'Zip code',
+                                          hintText: zipcode.text.isNotEmpty
+                                              ? zipcode.text
+                                              : 'Enter your zipcode',
                                           border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
@@ -737,6 +822,9 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                                         controller: city,
                                         decoration: InputDecoration(
                                           labelText: 'City',
+                                          hintText: city.text.isNotEmpty
+                                              ? city.text
+                                              : 'Enter your city',
                                           border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
@@ -757,57 +845,62 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),
                             SizedBox(height: 10),
-                           Container(
-  width: double.infinity, // Use full width available
-  height: 49,
-  decoration: BoxDecoration(
-    border: Border.all(color: Colors.grey),
-    borderRadius: BorderRadius.circular(10),
-  ),
-  child: InputDecorator(
-    decoration: InputDecoration(
-      border: InputBorder.none,
-      contentPadding: EdgeInsets.symmetric(horizontal: 10), // Adjust padding as needed
-    ),
-    child: DropdownButtonHideUnderline(
-      child: DropdownButton<Map<String, dynamic>>(
-        value: statess.isNotEmpty
-            ? statess.firstWhere(
-                (element) => element['name'] == selectstate,
-                orElse: () => statess[0],
-              )
-            : null,
-        onChanged: statess.isNotEmpty
-            ? (Map<String, dynamic>? newValue) {
-                setState(() {
-                  selectstate = newValue!['name'];
-                  selectedStateId = newValue['id']; // Store the selected state's ID
-                  print('Selected State Name: $selectstate');
-                  print('Selected State ID: $selectedStateId');
-                });
-              }
-            : null,
-        items: statess.isNotEmpty
-            ? statess.map<DropdownMenuItem<Map<String, dynamic>>>(
-                (Map<String, dynamic> state) {
-                  return DropdownMenuItem<Map<String, dynamic>>(
-                    value: state,
-                    child: Text(state['name']),
-                  );
-                },
-              ).toList()
-            : [
-                DropdownMenuItem(
-                  child: Text('No states available'),
-                  value: null,
-                ),
-              ],
-        icon: Icon(Icons.arrow_drop_down),
-        isExpanded: true, // Ensure dropdown takes full width
-      ),
-    ),
-  ),
-),
+                            Container(
+                              width: double.infinity,
+                              height: 49,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<Map<String, dynamic>>(
+                                    value: statess.isNotEmpty
+                                        ? statess.firstWhere(
+                                            (element) =>
+                                                element['name'] == selectstate,
+                                            orElse: () => statess[0],
+                                          )
+                                        : null,
+                                    onChanged: statess.isNotEmpty
+                                        ? (Map<String, dynamic>? newValue) {
+                                            setState(() {
+                                              selectstate = newValue!['name'];
+                                              selectedStateId = newValue[
+                                                  'id']; // Store the selected state's ID
+                                            });
+                                          }
+                                        : null,
+                                    items: statess.isNotEmpty
+                                        ? statess.map<
+                                            DropdownMenuItem<
+                                                Map<String, dynamic>>>(
+                                            (Map<String, dynamic> state) {
+                                              return DropdownMenuItem<
+                                                  Map<String, dynamic>>(
+                                                value: state,
+                                                child: Text(state['name']),
+                                              );
+                                            },
+                                          ).toList()
+                                        : [
+                                            DropdownMenuItem(
+                                              child:
+                                                  Text('No states available'),
+                                              value: null,
+                                            ),
+                                          ],
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    isExpanded: true,
+                                  ),
+                                ),
+                              ),
+                            ),
 
                             // SizedBox(height: 20),
                             // Text("Country ",
@@ -859,7 +952,10 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                             TextField(
                               controller: comment,
                               decoration: InputDecoration(
-                                labelText: 'Enter',
+                                labelText: 'Enter comment',
+                                hintText: comment.text.isNotEmpty
+                                    ? comment.text
+                                    : 'Enter your comment',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -915,31 +1011,20 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                       SizedBox(width: 13),
                      ElevatedButton(
   onPressed: () {
-    if (selectedManagerId != null && selectedStateId != null) {
-      addcustomer(
-        gstno.text,
-        name.text,
-        selectedManagerId!.toString(),
-        selectedStateId!.toString(),
-        phone.text,
-        altphone.text,
-        email.text,
-        address.text,
-        zipcode.text,
-        city.text,
-        states.text,
-        comment.text,
-        context,
-      );
-    } else {
-      // Show an error message if either ID is null
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Please select both manager and state.'),
-        ),
-      );
-    }
+    updateCustomer(
+      gstno.text,
+      name.text,
+selectedManagerId.toString(),
+      phone.text,
+      altphone.text,
+      email.text,
+      address.text,
+      zipcode.text,
+      city.text,
+      selectedStateId.toString(), // Use selectedStateId instead of states.text
+      comment.text,
+      context,
+    );
   },
   style: ButtonStyle(
     backgroundColor: MaterialStateProperty.all<Color>(
@@ -954,7 +1039,7 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
       Size(95, 15),
     ),
   ),
-  child: Text("Submit", style: TextStyle(color: Colors.white)),
+  child: Text("Update", style: TextStyle(color: Colors.white)),
 ),
 
                     ],

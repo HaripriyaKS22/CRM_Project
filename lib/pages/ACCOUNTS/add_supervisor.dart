@@ -62,7 +62,7 @@ var departments;
       var response = await http.get(
         Uri.parse('$api/api/departments/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -103,7 +103,7 @@ var departments;
       var response = await http.get(
         Uri.parse('$api/api/supervisors/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -147,7 +147,7 @@ var departments;
       var response = await http.post(
         Uri.parse("$api/api/add/supervisor/"),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           
         },
         body: {
@@ -185,9 +185,9 @@ var departments;
 
     try {
       final response = await http.delete(
-        Uri.parse('$api/api/supervisor/delete/$Id/'),
+        Uri.parse('$api/api/supervisor/update/$Id/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': ' Bearer $token',
         },
       );
     print(response.statusCode);

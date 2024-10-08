@@ -63,7 +63,7 @@ var departments;
       var response = await http.get(
         Uri.parse('$api/api/departments/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -86,7 +86,7 @@ var departments;
         }
         setState(() {
           dep = departmentlist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+                  print("depppppppppppppppppppppppppppppppppp$dep");
 
           
         });
@@ -98,7 +98,7 @@ var departments;
   
   TextEditingController namehint = TextEditingController();
     TextEditingController dephint = TextEditingController();
-
+var depp;
 
     Future<void> getmanegers() async {
     try {
@@ -107,7 +107,7 @@ var departments;
       var response = await http.get(
         Uri.parse('$api/api/supervisors/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -131,12 +131,13 @@ var departments;
             if(widget.id==productData['id']){
           namehint.text=productData['name']?? '';;
           dephint.text=productData['department_name']?? '';;
+        selectedDepartmentId=int.tryParse(productData['department_name']);
         }
         
         }
         setState(() {
           manager = managerlist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+                  print("RmaneeeeeeeeeeeeeeeeeeeeeeeeeeeeeeD$manager");
 
           
         });
@@ -196,9 +197,9 @@ var departments;
 
     try {
       final response = await http.delete(
-        Uri.parse('$api/api/supervisor/delete/$Id/'),
+        Uri.parse('$api/api/supervisor/update/$Id/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
         },
       );
     print(response.statusCode);
@@ -450,31 +451,36 @@ var departments;
               ),
               SizedBox(height: 15),
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: Colors.grey),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: DropdownButton<int>(
-                  isExpanded: true,
-                  value: selectedDepartmentId,
-                  hint: Text('Select a department'),
-                  underline: SizedBox(), // Remove the default underline
-                  onChanged: (int? newValue) {
-                    setState(() {
-                      selectedDepartmentId = newValue;
-                      selectedDepartmentName = dep
-                          .firstWhere((element) => element['id'] == newValue)['name'];
-                    });
-                  },
-                  items: dep.map<DropdownMenuItem<int>>((department) {
-                    return DropdownMenuItem<int>(
-                      value: department['id'],
-                      child: Text(department['name']),
-                    );
-                  }).toList(),
-                ),
-              ),
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(10.0),
+    border: Border.all(color: Colors.grey),
+  ),
+  padding: EdgeInsets.symmetric(horizontal: 12),
+  child: DropdownButton<int>(
+    isExpanded: true,
+    value: selectedDepartmentId != null
+        ? dep.firstWhere(
+            (department) => department['id'] == selectedDepartmentId,
+            orElse: () => dep[0],
+          )['id']
+        : null, // This will handle the default selection
+    
+    underline: SizedBox(), // Remove the default underline
+    onChanged: (int? newValue) {
+      setState(() {
+        selectedDepartmentId = newValue;
+        selectedDepartmentName = dep
+            .firstWhere((element) => element['id'] == newValue)['name'];
+      });
+    },
+    items: dep.map<DropdownMenuItem<int>>((department) {
+      return DropdownMenuItem<int>(
+        value: department['id'],
+        child: Text(department['name']),
+      );
+    }).toList(),
+  ),
+),
               SizedBox(height: 15),
               ElevatedButton(
                 onPressed: () {

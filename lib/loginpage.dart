@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beposoft/pages/api.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 import 'dart:convert';
 
@@ -31,78 +32,91 @@ class _loginState extends State<login> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
   }
+void login(String email, String password, BuildContext context) async {
+  print("eeeeeeeeeeeeeeeeeeeeeeeeee$email");
+  print("PPPPPPPPPPPPPPPPPPPPPPPPPPPPP$password");
+  try {
+    var response = await http.post(
+      Uri.parse(url),
+      body: {"email": email, "password": password},
+    );
 
-  void login(String email, String password, BuildContext context) async {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$email");
-    print("PPPPPPPPPPPPPPPPPPPPPPPPPPPPP$password");
-    try {
-      var response = await http.post(
-        Uri.parse(url),
-        body: {"email": email, "password": password},
-      );
+    print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.body}");
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.body}");
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+      var status = responseData['status'];
 
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        var status = responseData['status'];
+      print("RRRRRRRRRRRRRRDDDDDDDDDDDDDDDDDDDDDDDDDDDD$responseData");
+      print(status);
 
-        print("RRRRRRRRRRRRRRDDDDDDDDDDDDDDDDDDDDDDDDDDDD$responseData");
-        print(status);
+      if (status == 'success') {
+        var token = responseData['token'];
+        var active = responseData['active'];
 
-        if (status == 'success') {
-          var token = responseData['token'];
-          var active = responseData['active'];
+        print(token);
+        print("DDDDDDDEEEEEEPPPPPPPPPPPPPAAAAARRRRRRRTTTTTTMEEEEENNTTTT===========$active");
 
-          print(token);
-          print("DDDDDDDEEEEEEPPPPPPPPPPPPPAAAAARRRRRRRTTTTTTMEEEEENNTTTT===========$active");
+        // Decode the token and store the ID in SharedPreferences
+        try {
+          final jwt = JWT.decode(token);
+          var id = jwt.payload['id'];
+          print("Decoded Token Payload: ${jwt.payload}");
+          print("User ID: $id");
 
-          await storeUserData(token);
+          // Save ID in SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('user_id', id); // Store user ID
+          await storeUserData(token); // Store token as needed
+        } catch (e) {
+          print("Token decode error: $e");
+        }
 
-          if (active == 'IT Department') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: Colors.green,
-                content: Text('Successfully logged in.'),
-              ),
-            );
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()),
-            );
-          }
-
-          if (active == 'Logistics Manager') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: Colors.green,
-                content: Text('Successfully logged in.'),
-              ),
-            );
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()),
-            );
-          } 
-        } else {
+        if (active == 'IT Department') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: Colors.red,
-              content: Text('Login failed.'),
+              backgroundColor: Colors.green,
+              content: Text('Successfully logged in.'),
             ),
           );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => dashboard()),
+          );
         }
+
+        if (active == 'Logistics Manager') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Successfully logged in.'),
+            ),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => dashboard()),
+          );
+        } 
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Login failed.'),
+          ),
+        );
       }
-    } catch (e) {
-      print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('An error occurred. Please try again.'),
-        ),
-      );
     }
+  } catch (e) {
+    print("Error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('An error occurred. Please try again.'),
+      ),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

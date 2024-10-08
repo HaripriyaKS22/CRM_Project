@@ -61,7 +61,7 @@ var departments;
       var response = await http.get(
         Uri.parse('$api/api/departments/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -106,7 +106,7 @@ var departments;
       var response = await http.put(
         Uri.parse('$api/api/department/update/${widget.id}/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
         body: jsonEncode(
@@ -117,7 +117,6 @@ var departments;
         ),
       );
 
-    
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -462,6 +461,7 @@ var departments;
                         child: Text(dep[i]['name']),
                       ),
                       ElevatedButton(onPressed: (){
+                        
                        
                       }, child: Text("delete")),
                       
