@@ -17,6 +17,7 @@ class _RegisterState extends State<Register> {
   TextEditingController username = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController gender = TextEditingController();
+  TextEditingController phone = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController retypepass = TextEditingController();
 
@@ -27,7 +28,7 @@ class _RegisterState extends State<Register> {
     super.initState();
   }
 
-  void register(String name, String username, String email, String gender,
+  void register(String name, String username, String email,int phone, String gender,
       String password, String retypepass, BuildContext scaffoldContext) async {
     try {
       var response = await http.post(
@@ -37,6 +38,7 @@ class _RegisterState extends State<Register> {
           "name": name,
           "username": username,
           "email": email,
+          "phone":phone,
           "gender": gender,
           "password": password,
           "retype_password": retypepass
@@ -46,7 +48,7 @@ class _RegisterState extends State<Register> {
       print("----------====================================${response.body}");
 
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar( 
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
             backgroundColor: Colors.green,
             content: Text('Registered Successfully.'),
@@ -167,6 +169,20 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       SizedBox(height: 15),
+
+                        TextField(
+                        controller: phone,
+                        decoration: InputDecoration(
+                          labelText: 'Phone Number',
+                          prefixIcon: Icon(Icons.email),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                        ),
+                      ),
+                      SizedBox(height: 15),
                       TextField(
                         controller: gender,
                         decoration: InputDecoration(
@@ -212,6 +228,7 @@ class _RegisterState extends State<Register> {
                             name.text,
                             username.text,
                             email.text,
+                          int.tryParse(phone.text) ?? 0,
                             gender.text,
                             password.text,
                             retypepass.text,

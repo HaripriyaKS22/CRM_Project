@@ -1,1 +1,1 @@
-var api="https://occupation-pie-poison-interesting.trycloudflare.com";
+var api="https://anime-affordable-pipes-menus.trycloudflare.com";

@@ -85,7 +85,7 @@ void login(String email, String password, BuildContext context) async {
           );
         }
 
-        if (active == 'Logistics Manager') {
+        if (active == 'Sales Department') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,

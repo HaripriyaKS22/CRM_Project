@@ -46,6 +46,7 @@ class _update_supervisorState extends State<update_supervisor> {
 
 var url = "$api/api/add/department/";
 
+ int? selectedDepartmentId; // Variable to store the selected department's ID
 
 
 Future<String?> gettokenFromPrefs() async {
@@ -118,20 +119,21 @@ var depp;
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
  for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
             'department_name':productData['department_name'],
+            'department':productData['department']
             
           });
 
             if(widget.id==productData['id']){
           namehint.text=productData['name']?? '';;
           dephint.text=productData['department_name']?? '';;
-        selectedDepartmentId=int.tryParse(productData['department_name']);
+        selectedDepartmentId=productData['department'];
+              
         }
         
         }
@@ -159,7 +161,7 @@ var depp;
       var response = await http.put(
         Uri.parse("$api/api/supervisor/update/${widget.id}/"),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
@@ -169,7 +171,7 @@ var depp;
         }),
       );
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
+      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.body}");
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
@@ -226,7 +228,6 @@ var depp;
       manager.removeAt(index);
     });
   }
- int? selectedDepartmentId; // Variable to store the selected department's ID
   String? selectedDepartmentName; // Variable to store the selected department's name
  drower d=drower();
    Widget _buildDropdownTile(BuildContext context, String title, List<String> options) {

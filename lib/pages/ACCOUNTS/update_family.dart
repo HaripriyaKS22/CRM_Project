@@ -58,9 +58,9 @@ var departments;
 
     try {
       final response = await http.delete(
-        Uri.parse('$api/api/family/delete/$Id/'),
+        Uri.parse('$api/api/family/update/$Id/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
         },
       );
     print(response.statusCode);
@@ -97,7 +97,7 @@ var departments;
       var response = await http.get(
         Uri.parse('$api/api/familys/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -143,7 +143,7 @@ var departments;
       var response = await http.put(
         Uri.parse('$api/api/family/update/${widget.id}/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
         body: jsonEncode(
