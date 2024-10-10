@@ -64,7 +64,40 @@ class _customer_listState extends State<customer_list> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+Future<void> deletecustomer(int Id) async {
+    final token = await gettokenFromPrefs();
 
+    try {
+      final response = await http.delete(
+        Uri.parse('$api/api/customer/update/$Id/'),
+        headers: {
+          'Authorization': '$token',
+        },
+      );
+    print(response.statusCode);
+    if(response.statusCode == 200){
+         ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Color.fromARGB(255, 49, 212, 4),
+          content: Text('Deleted sucessfully'),
+        ),
+      );
+         Navigator.push(context, MaterialPageRoute(builder: (context)=>add_new_customer()));
+    }
+
+      if (response.statusCode == 204) {
+      } else {
+        throw Exception('Failed to delete $Id');
+      }
+    } catch (error) {
+    }
+  }
+
+  void removeProduct(int index) {
+    setState(() {
+    customer.removeAt(index);
+    });
+  }
   Future<void> getcustomer() async {
     try {
       final token = await gettokenFromPrefs();
@@ -491,8 +524,9 @@ class _customer_listState extends State<customer_list> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: GestureDetector(
                                       onTap: () {
-                                        //  deletedepartment(dep[i]['id']);
-                                        // removeProduct(i);
+                                        deletecustomer(customer[i]['id']);
+                                        removeProduct(i);
+                                        
                                       },
                                       child: Image.asset(
                                         "lib/assets/delete.gif",

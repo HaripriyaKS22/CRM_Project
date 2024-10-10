@@ -54,13 +54,17 @@ class _view_customerState extends State<view_customer> {
   @override
   void initState() {
     super.initState();
-        getcustomers();
-
+    getcustomers();
     getmanagers();
     getstates();
 
+
     print("CCCCCCCCCCCCUUUUUSSSSSSSSSSIIIIIIIIIDDDDDDDDDD${widget.customerid}");
   }
+void initdata()async{
+  await getmanagers();
+   await getstates();
+}
 
   Future<void> storeUserData(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -196,11 +200,16 @@ print("custoooooooooooooooooooooooooooo$productsData");
             selectstate = statess.firstWhere(
                 (state) => state['id'] == productData['state'],
                 orElse: () => {'name': ''})['name']; // Set selectstate
+
+             selectedManagerName = manager.firstWhere(
+                (manager) => manager['id'] == productData['manager'],
+                orElse: () => {'name': ''})['name']; 
             comment.text = productData['comment'] ?? '';
+
           }
         }
 
-        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSLLLLLLLLLLLLLLLLLLLL$statefetchid");
+        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSLLLLLLLLLLLLLLLLLLLL$selectedManagerName");
         getstates();
         setState(() {
           customer = managerlist;

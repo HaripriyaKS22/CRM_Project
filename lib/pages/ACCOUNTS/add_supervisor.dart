@@ -180,7 +180,7 @@ var departments;
       );
     }
   }
- Future<void> deletedepartment(int Id) async {
+ Future<void> deletesupervisor(int Id) async {
     final token = await gettokenFromPrefs();
 
     try {
@@ -584,7 +584,7 @@ var departments;
                            padding: const EdgeInsets.all(8.0),
                            child: GestureDetector(
                                             onTap: () {
-                                               deletedepartment(manager[i]['id']);
+                                               deletesupervisor(manager[i]['id']);
                                               removeProduct(i);
                                             },
                                             child: Image.asset(

@@ -417,12 +417,12 @@ class _add_staffState extends State<add_staff> {
     }
   }
 
-  Future<void> deletedepartment(int Id) async {
+  Future<void> deletestaff(int Id) async {
     final token = await gettokenFromPrefs();
 
     try {
       final response = await http.delete(
-        Uri.parse('$api/api/supervisor/delete/$Id/'),
+        Uri.parse('$api/api/staff/update/$Id/'),
         headers: {
           'Authorization': '$token',
         },
@@ -448,7 +448,7 @@ class _add_staffState extends State<add_staff> {
 
   void removeProduct(int index) {
     setState(() {
-      manager.removeAt(index);
+      sta.removeAt(index);
     });
   }
 
@@ -1855,7 +1855,7 @@ class _add_staffState extends State<add_staff> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: GestureDetector(
                                         onTap: () {
-                                          deletedepartment(sta[i]['id']);
+                                          deletestaff(sta[i]['id']);
                                           removeProduct(i);
                                         },
                                         child: Image.asset(

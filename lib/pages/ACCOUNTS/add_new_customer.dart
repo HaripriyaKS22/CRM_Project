@@ -116,6 +116,7 @@ selectedManagerId=id;
             content: Text('Customer Added Successfully.'),
           ),
         );
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>add_new_customer()));
       } else {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(

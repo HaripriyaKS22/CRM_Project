@@ -45,11 +45,15 @@ class _update_staffState extends State<update_staff> {
  @override
   void initState() {
     super.initState();
-    getdepartments();
+    initdata();
     getmanegers();
     getstaff();
     getstates();
     getstafff();
+  }
+  void initdata()async{
+    await getdepartments();
+
   }
 
 var url = "$api/api/add/department/";
@@ -59,12 +63,12 @@ var url = "$api/api/add/department/";
   int? selectedStateId;
   List stat=[];
  List<int> dynamicStatid=[];
-  TextEditingController name = TextEditingController();
-    TextEditingController username = TextEditingController();
-      TextEditingController email = TextEditingController();
-      TextEditingController phone = TextEditingController();
-        TextEditingController alternate_number = TextEditingController();
-              TextEditingController password = TextEditingController();
+                    TextEditingController name = TextEditingController();
+                    TextEditingController username = TextEditingController();
+                    TextEditingController email = TextEditingController();
+                    TextEditingController phone = TextEditingController();
+                    TextEditingController alternate_number = TextEditingController();
+                    TextEditingController password = TextEditingController();
                     TextEditingController driving_license = TextEditingController();
                     TextEditingController employment_status= TextEditingController();
                     TextEditingController designation= TextEditingController();
@@ -72,16 +76,6 @@ var url = "$api/api/add/department/";
                     TextEditingController address= TextEditingController();
                     TextEditingController city= TextEditingController();
                     TextEditingController Country= TextEditingController();
-
-
-
-
-      
-
-
-
-
-
 Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -968,12 +962,14 @@ selecteconf=DateTime.parse(productsData['confirmation_date']);
             (department) => department['id'] == selectedDepartmentId,
             orElse: () => dep[0],
           )['id']
-        : null, // This will handle the default selection
+        : 
+        dep[0]['id'],
     
     underline: SizedBox(), // Remove the default underline
     onChanged: (int? newValue) {
       setState(() {
         selectedDepartmentId = newValue;
+        print("departmentid::::::::::::;$selectedDepartmentId");
         selectedDepartmentName = dep
             .firstWhere((element) => element['id'] == newValue)['name'];
       });

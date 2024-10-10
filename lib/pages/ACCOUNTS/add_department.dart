@@ -136,7 +136,7 @@ var departments;
 
     try {
       final response = await http.delete(
-        Uri.parse('$api/api/department/delete/$Id/'),
+        Uri.parse('$api/api/department/update/$Id/'),
         headers: {
           'Authorization': '$token',
         },
