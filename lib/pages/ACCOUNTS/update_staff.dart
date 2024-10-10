@@ -575,118 +575,103 @@ selecteconf=DateTime.parse(productsData['confirmation_date']);
 
 //   }
 
-void update(
-  
-  int selectedDepartmentId,
-  File? image1,
-  DateTime selectedDate,
-  int selectedStateId,
-  String selectgender,
-  String selectmarital,
-  DateTime selecteExp,
-  
-  
-  
-  DateTime selectejoin,
-  DateTime selecteconf,
-  File? image2,
-  BuildContext scaffoldContext,
-) async {
-  final token = await gettokenFromPrefs();
+ void update(
+    int selectedDepartmentId,
+    File? image1,
+    DateTime selectedDate,
+    
+    String selectgender,
+    String selectmarital,
+    DateTime selecteExp,
+    DateTime selectejoin,
+    DateTime selecteconf,
+    File? image2,
+    BuildContext scaffoldContext,
+  ) async {
+    final token = await gettokenFromPrefs();
+    try {
+      print("yesssssssssssssssssssssssssssssssssssssssssssssss");
+      var request =
+          http.MultipartRequest('POST', Uri.parse('$api/api/add/staff/'));
+      print('$api/api/add/staff/');
+      // Add headers to the request
+      request.headers['Authorization'] = 'Bearer $token';
 
-  try {
+      // Prepare the JSON data for the text fields
+      Map<String, dynamic> data = {
+        'date_of_birth': selectedDate.toIso8601String(),
+        'driving_license_exp_date': selecteExp.toIso8601String(),
+        'join_date': selectejoin.toIso8601String(),
+        'confirmation_date': selecteconf.toIso8601String(),
+        'allocated_states': dynamicStatid,
+      };
+      print("HAAAAAAAAAIIIIII$data");
+      // Add JSON data as a field
+      request.fields['data'] = jsonEncode(data);
+      request.fields['name'] = name.text;
+      request.fields['username'] = username.text;
 
-    print('Name: ${name.text}');
-print('Email: ${email.text}');
-print('Phone: ${phone.text}');
-print('Password: ${password.text}');
+      print("nameeeeeeeeeeeeeeeeeee${name.text}");
+      request.fields['email'] = email.text;
+      request.fields['phone'] = phone.text;
+      request.fields['password'] = password.text;
+      request.fields['alternate_number'] = alternate_number.text;
+      request.fields['designation'] = designation.text;
+      request.fields['grade'] = grade.text;
+      request.fields['address'] = address.text;
+      request.fields['city'] = city.text;
+      request.fields['country'] = Country.text;
+      request.fields['driving_license'] = driving_license.text;
+      request.fields['department_id'] = selectedDepartmentId.toString();
+      request.fields['supervisor_id'] = selectedmanagerId.toString();
+      request.fields['gender'] = selectgender;
+      request.fields['marital_status'] = selectmarital;
+      request.fields['employment_status'] = employment_status.text;
+      request.fields['APPROVAL_CHOICE'] = approvalstatus;
+      // Add images to the request if they are not null
+      if (image1 != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('image', image1.path));
+      }
+      if (image2 != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('signatur_up', image2.path));
+      }
 
-    var request = http.MultipartRequest('POST', Uri.parse('$api/api/add/staff/'));
-print('$api/api/add/staff/');
-    // Add headers to the request
-    request.headers['Authorization'] = 'Bearer $token';
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
 
-    // Prepare the JSON data for the text fields
-    Map<String, dynamic> data = {
-      
-      'allocated_states': dynamicStatid,
-      'date_of_birth': selectedDate.toIso8601String(),
-      'driving_license_exp_date': selecteExp.toIso8601String(),
-      'join_date': selectejoin.toIso8601String(),
-      'confirmation_date': selecteconf.toIso8601String(),
-      'APPROVAL_CHOICE': approvalstatus,
-    };
-print(data);
-    // Add JSON data as a field
-    request.fields['data'] = jsonEncode(data);
-    request.fields['name'] = name.text;
-    request.fields['username'] = username.text;
-
-    print("nameeeeeeeeeeeeeeeeeee${name.text}");
-    request.fields['email'] = email.text;
-    request.fields['phone'] = phone.text;
-    request.fields['password'] = password.text;
-    request.fields['alternate_number'] = alternate_number.text;
-    request.fields['designation'] = designation.text;
-    request.fields['grade'] = grade.text;
-    request.fields['address'] = address.text;
-    request.fields['city'] = city.text;
-    request.fields['country'] = Country.text;
-    request.fields['driving_license'] = driving_license.text;
-    request.fields['department_id'] = selectedDepartmentId.toString();
-    request.fields['supervisor_id'] = selectedmanagerId.toString();
-    request.fields['gender'] = selectgender;
-    request.fields['marital_status'] = selectmarital;
-    request.fields['employment_status'] = employment_status.text;
-    request.fields['APPROVAL_CHOICE'] = approvalstatus;
-
-
-
-
-
-
-
-    // Add images to the request if they are not null
-    if (image1 != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', image1.path));
-    }
-    if (image2 != null) {
-      request.files.add(await http.MultipartFile.fromPath('signatur_up', image2.path));
-    }
-
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-
-    print("Response: ${response.body}");
-    // Handle response based on status code
-    if (response.statusCode == 201) {
+      print("Response: ${response.body}");
+      // Handle response based on status code
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Data Added Successfully.')),
+        );
+        Navigator.pushReplacement(
+          scaffoldContext,
+          MaterialPageRoute(builder: (context) => add_staff()),
+        );
+      } else if (response.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+              content: Text('Something went wrong. Please try again later.')),
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+              content: Text('Something went wrong. Please try again later.')),
+        );
+      }
+    } catch (e) {
+      print("Error: $e");
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        
-        SnackBar(
-          backgroundColor: Colors.green,
-          content: Text('Data Added Successfully.')),
-      );
-      Navigator.pushReplacement(
-        scaffoldContext,
-        MaterialPageRoute(builder: (context) => add_staff()),
-      );
-    } else if (response.statusCode == 400) {
-      Map<String, dynamic> responseData = jsonDecode(response.body);
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(content: Text('Something went wrong. Please try again later.')),
-      );
-    } else {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(content: Text('Something went wrong. Please try again later.')),
+        SnackBar(content: Text('Network error. Please check your connection.')),
       );
     }
-  } catch (e) {
-    print("Error: $e");
-    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-      SnackBar(content: Text('Network error. Please check your connection.')),
-    );
   }
-}
 
 
   //searchable dropdown
@@ -969,6 +954,7 @@ print(data);
                     ),
                   ),
                   SizedBox(height: 15),
+                 
                    Container(
   decoration: BoxDecoration(
     borderRadius: BorderRadius.circular(10.0),
@@ -992,12 +978,19 @@ print(data);
             .firstWhere((element) => element['id'] == newValue)['name'];
       });
     },
-    items: dep.map<DropdownMenuItem<int>>((department) {
+    items:dep.isNotEmpty ?
+     dep.map<DropdownMenuItem<int>>((department) {
       return DropdownMenuItem<int>(
         value: department['id'],
         child: Text(department['name']),
       );
-    }).toList(),
+    }).toList()
+     : [
+                                 DropdownMenuItem(
+                                   child: Text('No depatment available'),
+                                   value: null,
+                                 ),
+                               ],
   ),
 ),
                   SizedBox(height: 10,),
@@ -1698,7 +1691,7 @@ print(data);
                       setState(() {
                         // stattt(stat.toString());
                         print(stat);
-                                        update(selectedDepartmentId!,selectedImage,selectedDate,selectedStateId!,selectgender,selectmarital,selecteExp,selectejoin,selecteconf,selectedImage1,scaffoldContext);
+                                        update(selectedDepartmentId!,selectedImage,selectedDate,selectgender,selectmarital,selecteExp,selectejoin,selecteconf,selectedImage1,scaffoldContext);
             
                       });
                     },
