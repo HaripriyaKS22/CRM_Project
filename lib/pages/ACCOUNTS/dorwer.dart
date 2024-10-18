@@ -14,6 +14,7 @@ import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_proforma_invoice.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
+import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/proforma_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
@@ -92,6 +93,12 @@ class drower{
         );
         break;
       case 'Product List':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Product_List()),
+        );
+        break;
+          case 'Product Add':
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => new_product()),

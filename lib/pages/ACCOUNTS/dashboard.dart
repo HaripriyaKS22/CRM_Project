@@ -204,7 +204,7 @@ class _dashboardState extends State<dashboard> {
              Text("Others"),
              Divider(),
 
-            _buildDropdownTile(context, 'Product', ['Product List', 'Stock',]),
+            _buildDropdownTile(context, 'Product', ['Product List','Product Add', 'Stock',]),
             _buildDropdownTile(context, 'Purchase', [' New Purchase', 'Purchase List']),
             _buildDropdownTile(context, 'Expence', ['Add Expence', 'Expence List',]),
             _buildDropdownTile(context, 'Reports', ['Sales Report', 'Credit Sales Report','COD Sales Report','Statewise Sales Report','Expence Report','Delivery Report','Product Sale Report','Stock Report','Damaged Stock']),

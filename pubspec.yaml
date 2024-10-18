@@ -60,6 +60,7 @@ dev_dependencies:
   file_picker :
   path_provider : 
   intl: ^0.17.0
+  image_picker: ^0.8.5+3
   dart_jsonwebtoken: ^2.0.0
 
 
