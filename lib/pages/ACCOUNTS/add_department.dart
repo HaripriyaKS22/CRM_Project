@@ -82,7 +82,6 @@ var departments;
         }
         setState(() {
           dep = departmentlist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
 
           
         });
