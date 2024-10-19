@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:beposoft/pages/api.dart';
 
-
 class EditProfileScreen extends StatefulWidget {
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
@@ -36,8 +35,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   var termination_date = "";
   String imageUrl = '';
 
-  var viewprofileurl =
-      "$api/api/profile/";
+  var viewprofileurl = "$api/api/profile/";
 
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -51,10 +49,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       var response = await http.get(
         Uri.parse('$viewprofileurl'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
+print("==============0000000000000000000000000${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -120,14 +119,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   child: ClipOval(
                     child: Image.network(
-                      imageUrl.isNotEmpty ? imageUrl : 'lib/assets/imgg.webp',
+                      imageUrl.isNotEmpty ? imageUrl : 'lib/assets/profile.png',
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
                       errorBuilder: (BuildContext context, Object exception,
                           StackTrace? stackTrace) {
                         return Image.asset(
-                          'lib/assets/imgg.webp',
+                          'lib/assets/profile.png',
                           width: 100,
                           height: 100,
                           fit: BoxFit.cover,
@@ -145,14 +144,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
               SizedBox(height: 10),
-                if(designation.isNotEmpty)
-              Center(
-                
-                child: Text(
-                  "Job Role: $designation",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              if (designation.isNotEmpty)
+                Center(
+                  child: Text(
+                    "Job Role: $designation",
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
               SizedBox(height: 20),
               if (eid.isNotEmpty)
                 buildInfoContainer(Icons.badge, "Employee ID : $eid"),

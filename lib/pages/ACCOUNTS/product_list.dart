@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:beposoft/pages/ACCOUNTS/add_product_variant.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
@@ -357,7 +358,7 @@ class _Product_ListState extends State<Product_List> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Productlist_view(id: product['id']),
+                  builder: (context) => add_product_variant(id: product['id']),
                 ),
               );
             },

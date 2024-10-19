@@ -1,1 +1,1 @@
-var api="https://admissions-research-tiles-phentermine.trycloudflare.com";
+var api="https://brandon-heated-coverage-printer.trycloudflare.com";

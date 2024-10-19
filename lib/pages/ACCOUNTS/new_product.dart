@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -95,7 +97,17 @@ class _new_productState extends State<new_product> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
- 
+  var image;
+   final ImagePicker _picker = ImagePicker();
+ Future<void> pickImagemain() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        image=File(pickedFile.path);
+        print("iiiiiiiiiiiiiiiiiiiiiiiii$image");
+      });
+    }
+  }
 void addproduct(
   String name,
   String hsncode,
@@ -117,6 +129,7 @@ void addproduct(
       "unit": selectunit,
       "purchase_rate": purchaserate.text,
       "tax": taxx.text,
+      'image':image,
       "selling_price": sellingprice,
     };
 
@@ -649,7 +662,7 @@ void addproduct(
                   height: 15,
                 ),
                 SizedBox(
-                  height: 350,
+                  height: 500,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -783,6 +796,39 @@ void addproduct(
                                 ],
                               ),
                             ),
+                            SizedBox(height: 10,),
+
+                             TextFormField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Select Main Image',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.image),
+                            onPressed: () => pickImagemain(), // Trigger image picker for this index
+                          ),
+                        ),
+                      ),
+ SizedBox(height: 10),
+                        if (image != null)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              Image.file(
+                image!,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover, // Adjust the display of the image
+              ),
+              SizedBox(height: 10),
+            ],
+          ),
+
+
                             // SizedBox(
                             //   height: 10,
                             // ),

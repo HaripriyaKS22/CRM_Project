@@ -803,96 +803,96 @@ void removeProduct(int index) {
                               ),
                             ],
 
-  //             if (selecttype == "variant")
-  // Container(
-  //   child: DropdownButtonHideUnderline(
-  //     child: Container(
-  //       height: 46,
-  //       decoration: BoxDecoration(
-  //         border: Border.all(color: Colors.grey, width: 1.0),
-  //         borderRadius: BorderRadius.circular(8.0),
-  //       ),
-  //       child: DropdownButton2<String>(
-  //         isExpanded: true,
-  //         hint: Text(
-  //           'Select Item',
-  //           style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
-  //         ),
-  //         items: attribute.asMap().entries.map((entry) {
-  //           var attr = entry.value; // Get the attribute value
+              if (selecttype == "variant")
+  Container(
+    child: DropdownButtonHideUnderline(
+      child: Container(
+        height: 46,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1.0),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          hint: Text(
+            'Select Item',
+            style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
+          ),
+          items: attribute.asMap().entries.map((entry) {
+            var attr = entry.value; // Get the attribute value
 
-  //           return DropdownMenuItem<String>(
-  //             value: attr['name'],
-  //             child: Row(
-  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //               children: [
-  //                 Text(attr['name'], style: const TextStyle(fontSize: 14)),
-  //                 IconButton(
-  //                   icon: Icon(Icons.close, color: Colors.red),
-  //                   onPressed: () async {
-  //                     await deleteattribute(attr['id']); // Delete by ID
-  //                   },
-  //                 ),
-  //               ],
-  //             ),
-  //           );
-  //         }).toList(),
-  //         value: selectedAttributeName,
-  //         onChanged: (value) {
-  //           setState(() {
-  //             var selectedAttr = attribute.firstWhere(
-  //               (attr) => attr['name'].toLowerCase() == value!.toLowerCase(),
-  //               orElse: () => {'id': null, 'name': 'Unknown'},
-  //             );
-  //             selectedAttributeName = selectedAttr['name'];
-  //             selectedAttributeId = selectedAttr['id'];
-  //             print("Selected Attribute Name: $selectedAttributeName");
-  //             print("Selected Attribute ID: $selectedAttributeId");
-  //           });
-  //         },
-  //         buttonStyleData: const ButtonStyleData(
-  //           padding: EdgeInsets.symmetric(horizontal: 16),
-  //           height: 40,
-  //         ),
-  //         dropdownStyleData: const DropdownStyleData(maxHeight: 200),
-  //         menuItemStyleData: const MenuItemStyleData(height: 40),
-  //         dropdownSearchData: DropdownSearchData(
-  //           searchController: textEditingController,
-  //           searchInnerWidgetHeight: 50,
-  //           searchInnerWidget: Container(
-  //             height: 50,
-  //             padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
-  //             child: TextFormField(
-  //               expands: true,
-  //               maxLines: null,
-  //               controller: textEditingController,
-  //               decoration: InputDecoration(
-  //                 isDense: true,
-  //                 contentPadding: const EdgeInsets.symmetric(
-  //                     horizontal: 10, vertical: 8),
-  //                 hintText: 'Search for an item...',
-  //                 hintStyle: const TextStyle(fontSize: 12),
-  //                 border: OutlineInputBorder(
-  //                     borderRadius: BorderRadius.circular(8)),
-  //               ),
-  //             ),
-  //           ),
-  //           searchMatchFn: (item, searchValue) {
-  //             return item.value
-  //                 .toString()
-  //                 .toLowerCase()
-  //                 .contains(searchValue.toLowerCase());
-  //           },
-  //         ),
-  //         onMenuStateChange: (isOpen) {
-  //           if (!isOpen) {
-  //             textEditingController.clear();
-  //           }
-  //         },
-  //       ),
-  //     ),
-  //   ),
-  // ),
+            return DropdownMenuItem<String>(
+              value: attr['name'],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(attr['name'], style: const TextStyle(fontSize: 14)),
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.red),
+                    onPressed: () async {
+                      await deleteattribute(attr['id']); // Delete by ID
+                    },
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          value: selectedAttributeName,
+          onChanged: (value) {
+            setState(() {
+              var selectedAttr = attribute.firstWhere(
+                (attr) => attr['name'].toLowerCase() == value!.toLowerCase(),
+                orElse: () => {'id': null, 'name': 'Unknown'},
+              );
+              selectedAttributeName = selectedAttr['name'];
+              selectedAttributeId = selectedAttr['id'];
+              print("Selected Attribute Name: $selectedAttributeName");
+              print("Selected Attribute ID: $selectedAttributeId");
+            });
+          },
+          buttonStyleData: const ButtonStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            height: 40,
+          ),
+          dropdownStyleData: const DropdownStyleData(maxHeight: 200),
+          menuItemStyleData: const MenuItemStyleData(height: 40),
+          dropdownSearchData: DropdownSearchData(
+            searchController: textEditingController,
+            searchInnerWidgetHeight: 50,
+            searchInnerWidget: Container(
+              height: 50,
+              padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
+              child: TextFormField(
+                expands: true,
+                maxLines: null,
+                controller: textEditingController,
+                decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 8),
+                  hintText: 'Search for an item...',
+                  hintStyle: const TextStyle(fontSize: 12),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
+            searchMatchFn: (item, searchValue) {
+              return item.value
+                  .toString()
+                  .toLowerCase()
+                  .contains(searchValue.toLowerCase());
+            },
+          ),
+          onMenuStateChange: (isOpen) {
+            if (!isOpen) {
+              textEditingController.clear();
+            }
+          },
+        ),
+      ),
+    ),
+  ),
 
   //                           SizedBox(
   //                             height: 20,
