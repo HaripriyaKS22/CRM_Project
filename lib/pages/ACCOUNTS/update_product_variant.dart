@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/update_product_variant.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -33,16 +32,16 @@ import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 
-class add_product_variant extends StatefulWidget {
+class update_product_variant extends StatefulWidget {
   final id;
-  final type;
-  const add_product_variant({super.key, required this.id, required this.type});
+  
+  const update_product_variant({super.key, required this.id});
 
   @override
-  State<add_product_variant> createState() => _add_product_variantState();
+  State<update_product_variant> createState() => _update_product_variantState();
 }
 
-class _add_product_variantState extends State<add_product_variant> {
+class _update_product_variantState extends State<update_product_variant> {
   drower d = drower();
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
@@ -61,166 +60,6 @@ class _add_product_variantState extends State<add_product_variant> {
     );
   }
 
-  Widget buildProductTable() {
-    if (widget.type == 'single') {
-      // Display single products
-      return DataTable(
-        columnSpacing: 20,
-        headingRowHeight: 40,
-        columns: const <DataColumn>[
-          DataColumn(
-            label: Text(
-              'Product Name',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Image',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Actions',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-        rows: singleProducts.map((product) {
-          return DataRow(
-            cells: <DataCell>[
-              DataCell(
-                Text(
-                  product['name'] ?? '',
-                  style: const TextStyle(fontSize: 12),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              DataCell(
-                Image.network(
-                  '$api${product['image']}',
-                  width: 30,
-                  height: 30,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.image_not_supported);
-                  },
-                ),
-              ),
-              DataCell(
-                ElevatedButton(
-                  onPressed: () {
-                    print('jdlzglzkbksbksbks');
-                   Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id:product['id'])));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue, // Text color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: const Text('Edit'),
-                ),
-              ),
-            ],
-          );
-        }).toList(),
-      );
-    } else if (widget.type == 'variant') {
-      // Display variant products
-      return DataTable(
-        columnSpacing: 20,
-        headingRowHeight: 40,
-        columns: const <DataColumn>[
-          DataColumn(
-            label: Text(
-              'Variant Name',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Image',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Actions',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-        rows: variantProducts.map((variant) {
-          return DataRow(
-            cells: <DataCell>[
-              DataCell(
-                Text(
-                  variant['name'] ?? '',
-                  style: const TextStyle(fontSize: 12),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              DataCell(
-                variant['variant_images']?.isNotEmpty == true
-                    ? Image.network(
-                        '$api${variant['variant_images'][0]['image']}',
-                        width: 50,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.image_not_supported);
-                        },
-                      )
-                    : const Icon(Icons.image_not_supported),
-              ),
-              DataCell(
-                ElevatedButton(
-                  onPressed: () {
-
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id:variant['id'])));
-
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue, // Text color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: const Text('Edit'),
-                ),
-              ),
-            ],
-          );
-        }).toList(),
-      );
-    } else {
-      return const Text('No products available');
-    }
-  }
 
 // Method to handle editing a product
   void _editProduct(Map<String, dynamic> product) {
@@ -251,7 +90,7 @@ class _add_product_variantState extends State<add_product_variant> {
     getvariant();
     getattributes();
 
-    print(widget.type);
+    
   }
 
   @override
@@ -396,19 +235,19 @@ class _add_product_variantState extends State<add_product_variant> {
 
         setState(() {
           // Handle response based on widget.type
-          if (widget.type == 'single') {
-            // Handle single product response
-            singleProducts = List<Map<String, dynamic>>.from(productsData);
-            if (productsData.isNotEmpty) {
-              product.text = productsData[0]['name'] ?? '';
-            }
-          } else if (widget.type == 'variant') {
-            // Handle variant product response
-            variantProducts = List<Map<String, dynamic>>.from(productsData);
-            if (productsData.isNotEmpty) {
-              product.text = productsData[0]['name'] ?? '';
-            }
-          }
+          // if (widget.type == 'single') {
+          //   // Handle single product response
+          //   singleProducts = List<Map<String, dynamic>>.from(productsData);
+          //   if (productsData.isNotEmpty) {
+          //     product.text = productsData[0]['name'] ?? '';
+          //   }
+          // } else if (widget.type == 'variant') {
+          //   // Handle variant product response
+          //   variantProducts = List<Map<String, dynamic>>.from(productsData);
+          //   if (productsData.isNotEmpty) {
+          //     product.text = productsData[0]['name'] ?? '';
+          //   }
+          // }
         });
 
         print("Fetched Products: $productsData");
@@ -467,7 +306,7 @@ void addvariant(BuildContext scaffoldContext) async {
         
         ),
       );
-      Navigator.push(context, MaterialPageRoute(builder: (context) => add_product_variant(id:widget.id,type: widget.type,)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => update_product_variant(id:widget.id)));
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
@@ -1029,12 +868,7 @@ void addvariant(BuildContext scaffoldContext) async {
                     ],
                   ),
                 ),
-                SingleChildScrollView(
-                  // scrollDirection: Axis.vertical,
-                  child: buildProductTable(),
-                ),
-
-                SizedBox(height: 30,),
+               
               ],
             ),
           ),

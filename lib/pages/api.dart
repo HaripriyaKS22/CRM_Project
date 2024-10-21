@@ -1,1 +1,1 @@
-var api="https://brandon-heated-coverage-printer.trycloudflare.com";
+var api="https://yang-computational-origins-significantly.trycloudflare.com";

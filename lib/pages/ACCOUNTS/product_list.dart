@@ -358,10 +358,11 @@ class _Product_ListState extends State<Product_List> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => add_product_variant(id: product['id']),
+                  builder: (context) => add_product_variant(id: product['id'],type:product['type']),
                 ),
               );
             },
+            
             icon: Icon(Icons.visibility, color: Colors.white), // View icon with white color
             label: Text(
               "View",
