@@ -100,6 +100,8 @@ class _update_product_variantState extends State<update_product_variant> {
   }
 
   bool flag = false;
+  List<String> type = ["yes", 'no'];
+  String selecttype = "yes";
   List<String> selectedValues = [];
   String? selectedAttributeName; // Store the selected attribute name
   int? selectedAttributeId; // Store the selected attribute ID
@@ -221,17 +223,17 @@ class _update_product_variantState extends State<update_product_variant> {
       final token = await gettokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/products/${widget.id}/variants/'),
+        Uri.parse('$api/api/product/${widget.id}/variant/data/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
-      print("Response: ${response.body}");
+      print("Response%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        var productsData = parsed['products'];
+        var productsData = parsed['data'];
 
         setState(() {
           // Handle response based on widget.type
@@ -239,7 +241,7 @@ class _update_product_variantState extends State<update_product_variant> {
           //   // Handle single product response
           //   singleProducts = List<Map<String, dynamic>>.from(productsData);
           //   if (productsData.isNotEmpty) {
-          //     product.text = productsData[0]['name'] ?? '';
+             product.text = productsData['name'] ?? '';
           //   }
           // } else if (widget.type == 'variant') {
           //   // Handle variant product response
@@ -511,7 +513,7 @@ void addvariant(BuildContext scaffoldContext) async {
                   height: 15,
                 ),
                 SizedBox(
-                  height: 260,
+                  height: 310,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -566,7 +568,7 @@ void addvariant(BuildContext scaffoldContext) async {
                               controller: product,
                               decoration: InputDecoration(
                                 hintText: product.text,
-                                enabled: false,
+                                
 
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
@@ -576,6 +578,64 @@ void addvariant(BuildContext scaffoldContext) async {
                                     EdgeInsets.symmetric(vertical: 10.0),
 
                                 // Set vertical padding
+                              ),
+                            ),
+                            SizedBox(height: 10),
+
+                             Text("is Variant ",
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold)),
+                            SizedBox(height: 10),
+
+                             Container(
+                              width: 310,
+                              height: 49,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 20),
+                                  Container(
+                                    width: 276,
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding:
+                                            EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selecttype,
+                                        underline:
+                                            Container(), // This removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selecttype = newValue!;
+                                            print(selecttype);
+                                          });
+                                        },
+                                        items: type
+                                            .map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(
+                                              left:
+                                                  137), // Adjust padding as needed
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons
+                                              .arrow_drop_down), // Dropdown arrow icon
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
