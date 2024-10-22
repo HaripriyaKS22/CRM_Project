@@ -81,7 +81,7 @@ class _update_product_variantState extends State<update_product_variant> {
     TextEditingController stock = TextEditingController();
 
   final TextEditingController textEditingController = TextEditingController();
-
+List<Map<String,dynamic>> size=[];
   List<Map<String, dynamic>> fam = [];
   List<bool> _checkboxValues = [];
   List<Map<String, dynamic>> attribute = [];
@@ -96,6 +96,7 @@ class _update_product_variantState extends State<update_product_variant> {
     getprofiledata();
     getvariant();
     getattributes();
+    get_product_values();
 
     
   }
@@ -283,6 +284,48 @@ Future<void> pickImagemain() async {
         });
 
         print("Fetched Products: $productsData");
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+   Future<void> get_product_values() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/variant/product/${widget.id}/size/view/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print("proooooooooooooosizeeeeeeeeeeeeeeeeeeeeeeeee${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+print(productsData);
+List<Map<String, dynamic>> sizes=[];
+for(var productData in productsData){
+sizes.add(
+  {
+    'id': productData['id'],
+    'size': productData['attribute'],
+    'stock': productData['stock'],
+
+  }
+);
+
+}
+
+
+
+        setState(() {
+        size=sizes;
+        });
+
+        print("sizesssssssssss: $size");
       }
     } catch (error) {
       print("Error: $error");
