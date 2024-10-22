@@ -64,80 +64,122 @@ class _add_product_variantState extends State<add_product_variant> {
   Widget buildProductTable() {
     if (widget.type == 'single') {
       // Display single products
-      return DataTable(
-        columnSpacing: 20,
-        headingRowHeight: 40,
-        columns: const <DataColumn>[
-          DataColumn(
-            label: Text(
-              'Product Name',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Image',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Actions',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-        rows: singleProducts.map((product) {
-          return DataRow(
-            cells: <DataCell>[
-              DataCell(
-                Text(
-                  product['name'] ?? '',
-                  style: const TextStyle(fontSize: 12),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+      if (singleProducts.isNotEmpty) {
+        final product = singleProducts.first;
+
+        return DataTable(
+          columnSpacing: 20,
+          headingRowHeight: 40,
+          columns: const <DataColumn>[
+            DataColumn(
+              label: Text(
+                'Name',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
               ),
-              DataCell(
-                Image.network(
-                  '$api${product['image']}',
-                  width: 30,
-                  height: 30,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.image_not_supported);
-                  },
+            ),
+            DataColumn(
+              label: Text(
+                'Image',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
               ),
-              DataCell(
-                ElevatedButton(
-                  onPressed: () {
-                    print('jdlzglzkbksbksbks');
-                   Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id:product['id'])));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue, // Text color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+            ),
+            DataColumn(
+              label: Text(
+                'Actions',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Delete',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+          rows: [
+            DataRow(
+              cells: <DataCell>[
+                DataCell(
+                  Text(
+                    product['name'] ?? '',
+                    style: const TextStyle(fontSize: 12),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                DataCell(
+                  Image.network(
+                    '$api${product['image']}',
+                    width: 30,
+                    height: 30,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.image_not_supported);
+                    },
+                  ),
+                ),
+                DataCell(
+                  ElevatedButton(
+                    onPressed: () {
+                      print("dhfgjk");
+                     Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id: product['id'])));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      minimumSize: const Size(50, 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Edit',
+                      style: TextStyle(fontSize: 10),
                     ),
                   ),
-                  child: const Text('Edit'),
                 ),
-              ),
-            ],
-          );
-        }).toList(),
-      );
+                DataCell(
+                  ElevatedButton(
+                    onPressed: () {
+                      deleteProduct(product['id'], context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      minimumSize: const Size(50, 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Delete',
+                      style: TextStyle(fontSize: 10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      } else {
+        return const Text('No products available');
+      }
     } else if (widget.type == 'variant') {
       // Display variant products
       return DataTable(
@@ -146,7 +188,7 @@ class _add_product_variantState extends State<add_product_variant> {
         columns: const <DataColumn>[
           DataColumn(
             label: Text(
-              'Variant Name',
+              'Name',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
@@ -165,6 +207,15 @@ class _add_product_variantState extends State<add_product_variant> {
           DataColumn(
             label: Text(
               'Actions',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          DataColumn(
+            label: Text(
+              'Delete',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
@@ -199,18 +250,44 @@ class _add_product_variantState extends State<add_product_variant> {
               DataCell(
                 ElevatedButton(
                   onPressed: () {
-
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id:variant['id'])));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id: variant['id'])));
 
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue, // Text color
+                    backgroundColor: Colors.blue,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: const Size(50, 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: const Text('Edit'),
+                  child: const Text(
+                    'Edit',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                ),
+              ),
+              DataCell(
+                ElevatedButton(
+                  onPressed: () {
+                    deleteProduct(variant['id'], context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: const Size(50, 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(fontSize: 10),
+                  ),
                 ),
               ),
             ],
@@ -252,6 +329,8 @@ class _add_product_variantState extends State<add_product_variant> {
     getattributes();
 
     print(widget.type);
+
+    print("PPPPPPPPROOOOOOOOOOOOOOIDDDDDD${widget.id}");
   }
 
   @override
@@ -259,6 +338,9 @@ class _add_product_variantState extends State<add_product_variant> {
     name.dispose(); // Dispose the controller when the widget is removed
     super.dispose();
   }
+
+  List<File> selectedImagesList =
+      []; // Single list to store all selected images
 
   bool flag = false;
   List<String> selectedValues = [];
@@ -295,6 +377,115 @@ class _add_product_variantState extends State<add_product_variant> {
       }
     } catch (error) {
       print("Error fetching attributes: $error");
+    }
+  }
+
+  var image;
+  final ImagePicker _picker = ImagePicker();
+  int imagePickerCount = 1; // To keep track of the number of image pickers
+  // Function to pick an image from the gallery
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        selectedImagesList
+            .add(File(pickedFile.path)); // Store image in the single list
+      });
+    }
+  }
+
+  void addimage(
+    BuildContext scaffoldContext,
+  ) async {
+    var slug = name.text.toUpperCase().replaceAll(' ', '-');
+
+    final token = await gettokenFromPrefs();
+
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse("$api/api/add/product/variant/"),
+      );
+
+      // Add headers
+      request.headers.addAll({
+        "Content-Type": "multipart/form-data",
+        'Authorization': 'Bearer $token',
+      });
+
+      request.fields['product'] = widget.id;
+      for (File imageFile in selectedImagesList) {
+        var stream = http.ByteStream(imageFile.openRead());
+        var length = await imageFile.length();
+        var multipartFile = http.MultipartFile(
+          'images', // The name 'images' must match your backend field name
+          stream,
+          length,
+          filename: imageFile.path.split('/').last,
+        );
+
+        print("multiiiiiiiiiiiiiiiiiiiiiiiii${multipartFile.filename}");
+        request.files.add(multipartFile);
+      }
+
+      // Send the request
+      var response = await request.send();
+      var responseData = await http.Response.fromStream(response);
+
+      print(responseData.body);
+
+      if (responseData.statusCode == 201) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Product added successfully.'),
+          ),
+        );
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => add_product()));
+      } else if (responseData.statusCode == 500) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Session expired.'),
+          ),
+        );
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => Login_Page()));
+      } else if (responseData.statusCode == 400) {
+        Map<String, dynamic> responseDataBody = jsonDecode(responseData.body);
+        Map<String, dynamic> data = responseDataBody['data'];
+        String errorMessage =
+            data.entries.map((entry) => entry.value[0]).join('\n');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Error"),
+              content: Text(errorMessage),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Something went wrong. Please try again later.'),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Enter valid information'),
+        ),
+      );
     }
   }
 
@@ -401,6 +592,9 @@ class _add_product_variantState extends State<add_product_variant> {
             singleProducts = List<Map<String, dynamic>>.from(productsData);
             if (productsData.isNotEmpty) {
               product.text = productsData[0]['name'] ?? '';
+
+              print(
+                  "AAAAAAAAAAAAA======================P${productsData[0]['name']}");
             }
           } else if (widget.type == 'variant') {
             // Handle variant product response
@@ -417,73 +611,78 @@ class _add_product_variantState extends State<add_product_variant> {
       print("Error: $error");
     }
   }
-void addvariant(BuildContext scaffoldContext) async {
-  try {
-    final token = await gettokenFromPrefs();
 
-    // Check if selectedAttributeName is null or if selectedValues is empty
-    if (selectedAttributeName == null || selectedValues.isEmpty) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(content: Text('Please select an attribute and its values.')),
-      );
-      return; // Exit the function if there's no attribute or values selected
-    }
+  void addvariant(BuildContext scaffoldContext) async {
+    try {
+      final token = await gettokenFromPrefs();
 
-    // Prepare the data for sending as a JSON string
-    // Convert the attributes to JSON string before sending
-    String attributesToSend = jsonEncode([
-      {
-        'attribute': selectedAttributeName,
-        'values': selectedValues, // Ensure this is a list of selected values
+      // Check if selectedAttributeName is null or if selectedValues is empty
+      if (selectedAttributeName == null || selectedValues.isEmpty) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(content: Text('Please select an attribute and its values.')),
+        );
+        return; // Exit the function if there's no attribute or values selected
       }
-    ]);
 
-    // Prepare the final JSON body
-    String jsonString = jsonEncode({
-      'product':widget.id,
-      'attributes': attributesToSend});
+      // Prepare the data for sending as a JSON string
+      // Convert the attributes to JSON string before sending
+      String attributesToSend = jsonEncode([
+        {
+          'attribute': selectedAttributeName,
+          'values': selectedValues, // Ensure this is a list of selected values
+        }
+      ]);
+
+      // Prepare the final JSON body
+      String jsonString =
+          jsonEncode({'product': widget.id, 'attributes': attributesToSend});
 
       print(jsonString);
 
-    // Sending the request to the backend
-    var response = await http.post(
-      Uri.parse('$api/api/add/product/variant/'),
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonString, // Use the valid JSON string
-    );
-
-    // Debugging output
-    print("Response status code: ${response.statusCode}");
-    print("Response body: ${response.body}");
-
-    if (response.statusCode == 201) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        
-        SnackBar(content: Text('Product added successfully.'),
-        backgroundColor: Colors.green,
-        
-        ),
+      // Sending the request to the backend
+      var response = await http.post(
+        Uri.parse('$api/api/add/product/variant/'),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonString, // Use the valid JSON string
       );
-      Navigator.push(context, MaterialPageRoute(builder: (context) => add_product_variant(id:widget.id,type: widget.type,)));
-    } else {
+
+      // Debugging output
+      print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Product added successfully.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => add_product_variant(
+                      id: widget.id,
+                      type: widget.type,
+                    )));
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Adding product failed: ${response.body}'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Adding product failed: ${response.body}'),
+          content: Text('Enter valid information: ${e.toString()}'),
         ),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-      SnackBar(
-        content: Text('Enter valid information: ${e.toString()}'),
-      ),
-    );
   }
-}
 
   Future<void> getfamily() async {
     try {
@@ -516,6 +715,55 @@ void addvariant(BuildContext scaffoldContext) async {
       }
     } catch (error) {
       print("Error: $error");
+    }
+  }
+
+  Future<void> deleteProduct(int productId, BuildContext context) async {
+    final token = await gettokenFromPrefs();
+
+    try {
+      final url = widget.type == 'single'
+          ? '$api/api/product/$productId/variant/data/'
+          : '$api/api/variant/$productId/images/';
+
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print("Response status: ${response.statusCode}");
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Deleted successfully'),
+          ),
+        );
+
+        // Refresh the products after deletion
+        setState(() {
+          if (widget.type == 'single') {
+            singleProducts.removeWhere((product) => product['id'] == productId);
+          } else {
+            variantProducts
+                .removeWhere((variant) => variant['id'] == productId);
+          }
+        });
+      } else {
+        throw Exception('Failed to delete variant product with ID: $productId');
+      }
+    } catch (error) {
+      print("Error: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Failed to delete variant product. Please try again.'),
+        ),
+      );
     }
   }
 
@@ -672,7 +920,6 @@ void addvariant(BuildContext scaffoldContext) async {
                   height: 15,
                 ),
                 SizedBox(
-                  height: 260,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -739,6 +986,77 @@ void addvariant(BuildContext scaffoldContext) async {
                                 // Set vertical padding
                               ),
                             ),
+                            SizedBox(
+                              height: 10,
+                            ),
+
+                            if (widget.type == "single")
+                              Column(
+                                children:
+                                    List.generate(imagePickerCount, (index) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      TextFormField(
+                                        readOnly: true,
+                                        decoration: InputDecoration(
+                                          labelText: 'Select Image',
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            borderSide:
+                                                BorderSide(color: Colors.grey),
+                                          ),
+                                          suffixIcon: IconButton(
+                                            icon: Icon(Icons.image),
+                                            onPressed: () =>
+                                                pickImage(), // Trigger image picker for this index
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 20),
+                                    ],
+                                  );
+                                }),
+                              ),
+
+                            // Display all selected images with a cross icon to remove
+                            if (selectedImagesList.isNotEmpty &&
+                                widget.type == "single")
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: selectedImagesList
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int index = entry.key;
+                                  File image = entry.value;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Row(
+                                      children: [
+                                        Image.file(
+                                          image,
+                                          width: 50,
+                                          height: 50,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(image.path.split('/').last),
+                                        Spacer(),
+                                        IconButton(
+                                          icon: Icon(Icons.close,
+                                              color: Colors.red),
+                                          onPressed:
+                                              () {}, // Remove image on click
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
                           ],
                         ),
                       ),
@@ -991,6 +1309,7 @@ void addvariant(BuildContext scaffoldContext) async {
                       ElevatedButton(
                         onPressed: () {
                           addvariant(context);
+                          addimage(context);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
@@ -1022,7 +1341,9 @@ void addvariant(BuildContext scaffoldContext) async {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        "Variant Products",
+                        widget.type == 'single'
+                            ? "Single Product Images"
+                            : "Variant Products",
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
@@ -1033,8 +1354,9 @@ void addvariant(BuildContext scaffoldContext) async {
                   // scrollDirection: Axis.vertical,
                   child: buildProductTable(),
                 ),
-
-                SizedBox(height: 30,),
+                SizedBox(
+                  height: 30,
+                ),
               ],
             ),
           ),

@@ -82,6 +82,8 @@ class _update_product_variantState extends State<update_product_variant> {
 
   final TextEditingController textEditingController = TextEditingController();
 List<Map<String,dynamic>> size=[];
+List<Map<String,dynamic>> img=[];
+
   List<Map<String, dynamic>> fam = [];
   List<bool> _checkboxValues = [];
   List<Map<String, dynamic>> attribute = [];
@@ -97,6 +99,7 @@ List<Map<String,dynamic>> size=[];
     getvariant();
     getattributes();
     get_product_values();
+    get_product_images();
 
     
   }
@@ -318,9 +321,6 @@ sizes.add(
 );
 
 }
-
-
-
         setState(() {
         size=sizes;
         });
@@ -330,6 +330,82 @@ sizes.add(
     } catch (error) {
       print("Error: $error");
     }
+  }
+
+
+Future<void> get_product_images() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/variant/${widget.id}/images/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print("prooooooooooooooimggggggggggggggggg${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['images'];
+print(productsData);
+List<Map<String, dynamic>> images=[];
+for(var productData in productsData){
+var imgurl="$api/${productData['image']}";
+images.add(
+  {
+    'id': productData['id'],
+    'image': imgurl,
+    
+  }
+);
+
+}
+        setState(() {
+         img=images;
+        });
+
+        print("imgggggggggsssssssssss: $img");
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+ Future<void> deleteimage(int Id) async {
+    final token = await gettokenFromPrefs();
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$api/api/variant/$Id/delete/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      print("responseeee${response.body}");
+    print(response.statusCode);
+    if(response.statusCode == 204){
+         ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Color.fromARGB(255, 49, 212, 4),
+          content: Text('Deleted sucessfully'),
+        ),
+      );
+         Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id:widget.id)));
+    }
+
+      if (response.statusCode == 204) {
+      } else {
+        throw Exception('Failed to delete wishlist ID: $Id');
+      }
+    } catch (error) {
+    }
+  }
+
+  void removeProduct(int index) {
+    setState(() {
+      img.removeAt(index);
+    });
   }
 
 
@@ -934,7 +1010,41 @@ void addsizes(BuildContext scaffoldContext) async {
                     );
                   }).toList(),
                 ),
+                if (img.isNotEmpty)
+  Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: img.asMap().entries.map((entry) {
+      int index = entry.key;
+      var imageData = entry.value;
+      String imageUrl = imageData['image'];
 
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Row(
+          children: [
+            Image.network(
+              imageUrl,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            ),
+            SizedBox(width: 10),
+            Text(imageUrl.split('/').last),
+            Spacer(),
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: () {
+                deleteimage(imageData['id']);
+                removeProduct(index);
+              },
+            ),
+          ],
+        ),
+      );
+    }).toList(),
+  ),
+
+               
 
 
                           if(selecttype=="no")

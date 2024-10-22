@@ -4,7 +4,6 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/product_list_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -130,7 +129,7 @@ class _Product_ListState extends State<Product_List> {
       var productsData = parsed['data'];
       List<Map<String, dynamic>> productList = [];
 
-      print("Products Response: ${response.body}");
+      print("Products Responsehhhhhhhhhhhhhhhhhhhhhhhhh: ${response.body}");
 
       for (var productData in productsData) {
         // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
@@ -336,8 +335,8 @@ class _Product_ListState extends State<Product_List> {
       leading: product['image'] != null && product['image'].isNotEmpty
           ? Image.network(
               '$api${product['image']}', // Display product image
-              width: 50, // Set width for the image
-              height: 50, // Set height for the image
+              width: 40, // Set width for the image
+              height: 40, // Set height for the image
               fit: BoxFit.cover, // Adjust the image aspect ratio
               errorBuilder: (context, error, stackTrace) => Icon(Icons.error), // Handle image load error
             )
@@ -348,34 +347,40 @@ class _Product_ListState extends State<Product_List> {
           Expanded(
             child: Text(
               "${product['name']}",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 14),
               maxLines: 1, // Ensures the text only takes up one line
               overflow: TextOverflow.ellipsis, // Adds ellipsis if the text is too long
             ),
           ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => add_product_variant(id: product['id'],type:product['type']),
-                ),
-              );
-            },
-            
-            icon: Icon(Icons.visibility, color: Colors.white), // View icon with white color
-            label: Text(
-              "View",
-              style: TextStyle(color: Colors.white), // White text
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue, // Blue background color
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Adjust button padding
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10), // Rounded corners
-              ),
-            ),
-          )
+         ElevatedButton.icon(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => add_product_variant(id: product['id'], type: product['type']),
+      ),
+    );
+  },
+  // icon: Icon(
+  //   Icons.view_agenda, // Replace with the appropriate icon
+  //   size: 14, // Smaller icon size
+  //   color: Colors.white, // Icon color
+  // ),
+  label: Text(
+    "View",
+    style: TextStyle(color: Colors.white, fontSize: 10), // White text with smaller font size
+  ),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.blue, // Blue background color
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
+    minimumSize: const Size(60, 24), // Set a smaller minimum size
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8.0), // Rounded corners
+    ),
+  ),
+),
+
+
         ],
       ),
     );
