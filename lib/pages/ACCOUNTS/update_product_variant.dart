@@ -59,7 +59,12 @@ class _update_product_variantState extends State<update_product_variant> {
       }).toList(),
     );
   }
-
+// Function to remove an image from the list
+  void removeImage(int index) {
+    setState(() {
+      selectedImagesList.removeAt(index); // Remove the image at the specified index
+    });
+  }
 
 // Method to handle editing a product
   void _editProduct(Map<String, dynamic> product) {
@@ -73,6 +78,8 @@ class _update_product_variantState extends State<update_product_variant> {
 
   TextEditingController name = TextEditingController();
   TextEditingController product = TextEditingController();
+    TextEditingController stock = TextEditingController();
+
   final TextEditingController textEditingController = TextEditingController();
 
   List<Map<String, dynamic>> fam = [];
@@ -136,6 +143,29 @@ class _update_product_variantState extends State<update_product_variant> {
       }
     } catch (error) {
       print("Error fetching attributes: $error");
+    }
+  }
+
+  var image;
+ List<File> selectedImagesList = []; // Single list to store all selected images
+  final ImagePicker _picker = ImagePicker();
+  int imagePickerCount = 1; // To keep track of the number of image pickers
+  // Function to pick an image from the gallery
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        selectedImagesList.add(File(pickedFile.path)); // Store image in the single list
+      });
+    }
+  }
+Future<void> pickImagemain() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        image=File(pickedFile.path);
+        print("iiiiiiiiiiiiiiiiiiiiiiiii$image");
+      });
     }
   }
 
@@ -258,73 +288,228 @@ class _update_product_variantState extends State<update_product_variant> {
       print("Error: $error");
     }
   }
-void addvariant(BuildContext scaffoldContext) async {
-  try {
-    final token = await gettokenFromPrefs();
 
-    // Check if selectedAttributeName is null or if selectedValues is empty
-    if (selectedAttributeName == null || selectedValues.isEmpty) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(content: Text('Please select an attribute and its values.')),
+
+  void addimage(
+  BuildContext scaffoldContext,
+) async {
+  var slug = name.text.toUpperCase().replaceAll(' ', '-');
+ 
+      final token = await gettokenFromPrefs();
+
+  try {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse("$api/api/product/${widget.id}/variant/data/"),
+    );
+    
+    // Add headers
+    request.headers.addAll({
+      "Content-Type": "multipart/form-data",
+      'Authorization': 'Bearer $token',
+    });
+
+    request.fields['product'] = widget.id ;
+    for (File imageFile in selectedImagesList) {
+      var stream = http.ByteStream(imageFile.openRead());
+      var length = await imageFile.length();
+      var multipartFile = http.MultipartFile(
+        'images', // The name 'images' must match your backend field name
+        stream,
+        length,
+        filename: imageFile.path.split('/').last,
       );
-      return; // Exit the function if there's no attribute or values selected
+
+       print("multiiiiiiiiiiiiiiiiiiiiiiiii${multipartFile.filename}");
+      request.files.add(multipartFile);
+     
     }
 
-    // Prepare the data for sending as a JSON string
-    // Convert the attributes to JSON string before sending
-    String attributesToSend = jsonEncode([
-      {
-        'attribute': selectedAttributeName,
-        'values': selectedValues, // Ensure this is a list of selected values
-      }
-    ]);
+    // Send the request
+    var response = await request.send();
+    var responseData = await http.Response.fromStream(response);
 
-    // Prepare the final JSON body
-    String jsonString = jsonEncode({
-      'product':widget.id,
-      'attributes': attributesToSend});
+    print("responseData.bodyyyyyyyyyyyyyyyyyyyyy${responseData.body}");
 
-      print(jsonString);
-
-    // Sending the request to the backend
-    var response = await http.post(
-      Uri.parse('$api/api/add/product/variant/'),
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonString, // Use the valid JSON string
-    );
-
-    // Debugging output
-    print("Response status code: ${response.statusCode}");
-    print("Response body: ${response.body}");
-
-    if (response.statusCode == 201) {
+    if (responseData.statusCode == 201) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        
-        SnackBar(content: Text('Product added successfully.'),
-        backgroundColor: Colors.green,
-        
+        SnackBar(
+          content: Text('Product added successfully.'),
         ),
       );
-      Navigator.push(context, MaterialPageRoute(builder: (context) => update_product_variant(id:widget.id)));
+      // Navigator.push(
+      //     context, MaterialPageRoute(builder: (context) => add_product()));
+    } else if (responseData.statusCode == 500) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Session expired.'),
+        ),
+      );
+      // Navigator.push(
+      //     context, MaterialPageRoute(builder: (context) => Login_Page()));
+    } else if (responseData.statusCode == 400) {
+      Map<String, dynamic> responseDataBody = jsonDecode(responseData.body);
+      Map<String, dynamic> data = responseDataBody['data'];
+      String errorMessage =
+          data.entries.map((entry) => entry.value[0]).join('\n');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text(errorMessage),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Adding product failed: ${response.body}'),
+          content: Text('Something went wrong. Please try again later.'),
         ),
       );
     }
   } catch (e) {
+    print("errorrrrrrrrrrrrrrrrrrrrrrrrrrr$e");
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
-        content: Text('Enter valid information: ${e.toString()}'),
+        content: Text('Enter valid information'),
       ),
     );
   }
 }
+
+
+void addsizes(
+ 
+  BuildContext scaffoldContext,
+) async {
+  try {
+    final token = await gettokenFromPrefs();
+    print("AAAAAAAAAZZZZZZSSSSSSSSSSSSWWWWWWWWWWW$selectedValues");
+    Map<String, dynamic> productData = {
+    
+      "sizes": selectedValues,
+      
+    };
+    print("---------------------------$productData");
+
+    var response = await http.put(
+      Uri.parse("$api/api/product/${widget.id}/variant/data/"),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(
+        {
+          'size':selectedValues
+        }
+        
+      ),
+    );
+
+    print("Responsessssssssssssssssssssssssssssssssssssssssytyttttttttttt: ${response.body}");
+
+    if (response.statusCode == 201) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Product added Successfully.'),
+        ),
+      );
+
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>new_product()));
+    } else {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Adding product failed.'),
+        ),
+      );
+    }
+  } catch (e) {
+    print("eror==========$e");
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text('Enter valid information'),
+      ),
+    );
+  }
+}
+
+// void addvariant(BuildContext scaffoldContext) async {
+//   try {
+//     final token = await gettokenFromPrefs();
+
+//     // Check if selectedAttributeName is null or if selectedValues is empty
+//     if (selectedAttributeName == null || selectedValues.isEmpty) {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(content: Text('Please select an attribute and its values.')),
+//       );
+//       return; // Exit the function if there's no attribute or values selected
+//     }
+
+//     // Prepare the data for sending as a JSON string
+//     // Convert the attributes to JSON string before sending
+//     String attributesToSend = jsonEncode([
+//       {
+//         'attribute': selectedAttributeName,
+//         'values': selectedValues, // Ensure this is a list of selected values
+//       }
+//     ]);
+
+//     // Prepare the final JSON body
+//     String jsonString = jsonEncode({
+//       'product':widget.id,
+//       'attributes': attributesToSend});
+
+//       print(jsonString);
+
+//     // Sending the request to the backend
+//     var response = await http.post(
+//       Uri.parse('$api/api/product/${widget.id}/variant/data/'),
+//       headers: {
+//         "Content-Type": "application/json",
+//         'Authorization': 'Bearer $token',
+//       },
+//       body: jsonString, // Use the valid JSON string
+//     );
+
+//     // Debugging output
+//     print("Response status code: ${response.statusCode}");
+//     print("Response body: ${response.body}");
+
+//     if (response.statusCode == 201) {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        
+//         SnackBar(content: Text('Product added successfully.'),
+//         backgroundColor: Colors.green,
+        
+//         ),
+//       );
+//       Navigator.push(context, MaterialPageRoute(builder: (context) => update_product_variant(id:widget.id)));
+//     } else {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(
+//           backgroundColor: Colors.red,
+//           content: Text('Adding product failed: ${response.body}'),
+//         ),
+//       );
+//     }
+//   } catch (e) {
+//     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//       SnackBar(
+//         content: Text('Enter valid information: ${e.toString()}'),
+//       ),
+//     );
+//   }
+// }
 
   Future<void> getfamily() async {
     try {
@@ -513,7 +698,7 @@ void addvariant(BuildContext scaffoldContext) async {
                   height: 15,
                 ),
                 SizedBox(
-                  height: 310,
+                 
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -537,7 +722,7 @@ void addvariant(BuildContext scaffoldContext) async {
                                   fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
-                              height: 10,
+                              height: 5,
                             ),
                             TextField(
                               controller: name,
@@ -554,7 +739,7 @@ void addvariant(BuildContext scaffoldContext) async {
                               ),
                             ),
                             SizedBox(
-                              height: 10,
+                              height: 5,
                             ),
                             Text(
                               "product",
@@ -562,7 +747,7 @@ void addvariant(BuildContext scaffoldContext) async {
                                   fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
-                              height: 10,
+                              height: 5,
                             ),
                             TextField(
                               controller: product,
@@ -580,15 +765,18 @@ void addvariant(BuildContext scaffoldContext) async {
                                 // Set vertical padding
                               ),
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(height: 5),
 
-                             Text("is Variant ",
+
+                          
+
+                             Text("Is variant ",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
+                            SizedBox(height: 5),
 
                              Container(
-                              width: 310,
+                              width: 360,
                               height: 49,
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey),
@@ -638,6 +826,112 @@ void addvariant(BuildContext scaffoldContext) async {
                                 ],
                               ),
                             ),
+
+                            SizedBox(height: 5),
+
+
+                          
+
+                             Text("Images",
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold)),
+                            SizedBox(height: 5),
+
+
+                             Column(
+                children: List.generate(imagePickerCount, (index) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Select Image',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.image),
+                            onPressed: () => pickImage(), // Trigger image picker for this index
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                    ],
+                  );
+                }),
+              ),
+
+              
+
+              // Display all selected images with a cross icon to remove
+              if (selectedImagesList.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: selectedImagesList.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    File image = entry.value;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Image.file(
+                            image,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                          SizedBox(width: 10),
+                          Text(image.path.split('/').last),
+                          Spacer(),
+                          IconButton(
+                            icon: Icon(Icons.close, color: Colors.red),
+                            onPressed: (){
+                              removeImage(index);
+
+                            }, // Remove image on click
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+
+
+
+                          if(selecttype=="no")
+
+              
+
+                             Text(
+                              "Stock",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                              height: 5,
+                            ),
+                            if(selecttype=="no")
+                             TextField(
+                              controller: stock,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 10.0),
+
+                                // Set vertical padding
+                              ),
+                            ),
+                                SizedBox(
+                  height: 5,
+                ),
+
+
                           ],
                         ),
                       ),
@@ -647,7 +941,11 @@ void addvariant(BuildContext scaffoldContext) async {
                 SizedBox(
                   height: 5,
                 ),
-                Padding(
+
+                
+
+                if(selecttype=="yes")
+                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -889,7 +1187,8 @@ void addvariant(BuildContext scaffoldContext) async {
                       SizedBox(width: 13),
                       ElevatedButton(
                         onPressed: () {
-                          addvariant(context);
+                          addimage(context);
+                          addsizes(context);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(

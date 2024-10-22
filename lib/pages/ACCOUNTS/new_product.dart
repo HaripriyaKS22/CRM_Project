@@ -108,6 +108,26 @@ class _new_productState extends State<new_product> {
       });
     }
   }
+
+
+  int imagePickerCount = 1; // To keep track of the number of image pickers
+  // Function to pick an image from the gallery
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        selectedImagesList.add(File(pickedFile.path)); // Store image in the single list
+      });
+    }
+  }
+
+  // Function to add a new image selection option
+  void addImagePicker() {
+    setState(() {
+      imagePickerCount += 1; // Increment the number of image pickers
+    });
+  }
+
 void addproduct(
   String name,
   String hsncode,
@@ -172,6 +192,7 @@ void addproduct(
     );
   }
 }
+ List<File> selectedImagesList = []; // Single list to store all selected images
 
   Future<void> getfamily() async {
     try {
@@ -662,7 +683,7 @@ void addproduct(
                   height: 15,
                 ),
                 SizedBox(
-                  height: 500,
+                  
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -827,6 +848,69 @@ void addproduct(
               SizedBox(height: 10),
             ],
           ),
+
+
+          if(selecttype=="single")           
+                    
+              Column(
+                children: List.generate(imagePickerCount, (index) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Select Image',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.image),
+                            onPressed: () => pickImage(), // Trigger image picker for this index
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                    ],
+                  );
+                }),
+              ),
+
+              
+
+              // Display all selected images with a cross icon to remove
+              if (selectedImagesList.isNotEmpty && selecttype=="single")
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: selectedImagesList.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    File image = entry.value;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Image.file(
+                            image,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                          SizedBox(width: 10),
+                          Text(image.path.split('/').last),
+                          Spacer(),
+                          IconButton(
+                            icon: Icon(Icons.close, color: Colors.red),
+                            onPressed: (){
+
+                            }, // Remove image on click
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
 
 
                             // SizedBox(

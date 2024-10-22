@@ -1,1 +1,1 @@
-var api="https://yang-computational-origins-significantly.trycloudflare.com";
+var api="https://pending-reliance-venues-comes.trycloudflare.com";
