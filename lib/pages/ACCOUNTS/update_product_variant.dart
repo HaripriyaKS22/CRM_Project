@@ -299,7 +299,7 @@ Future<void> pickImagemain() async {
 
   try {
     var request = http.MultipartRequest(
-      'POST',
+      'PUT',
       Uri.parse("$api/api/product/${widget.id}/variant/data/"),
     );
     
@@ -387,54 +387,50 @@ Future<void> pickImagemain() async {
 }
 
 
-void addsizes(
- 
-  BuildContext scaffoldContext,
-) async {
+void addsizes(BuildContext scaffoldContext) async {
   try {
     final token = await gettokenFromPrefs();
-    print("AAAAAAAAAZZZZZZSSSSSSSSSSSSWWWWWWWWWWW$selectedValues");
-    Map<String, dynamic> productData = {
-    
-      "sizes": selectedValues,
-      
-    };
-    print("---------------------------$productData");
+    print("Selected Values: $selectedValues");
 
+    // Prepare the data for sending
+    Map<String, dynamic> productData = {
+      "size": selectedValues, // Ensure selectedValues is a list
+    };
+
+    print("Product Data: $productData");
+
+    // Adjust the data structure if needed, e.g., if the backend needs 'size' as a list
     var response = await http.put(
       Uri.parse("$api/api/product/${widget.id}/variant/data/"),
       headers: {
         "Content-Type": "application/json",
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode(
-        {
-          'size':selectedValues
-        }
-        
-      ),
+      body: jsonEncode({
+        'size': selectedValues, // Directly ensure it's being sent as a list
+      }),
     );
 
-    print("Responsessssssssssssssssssssssssssssssssssssssssytyttttttttttt: ${response.body}");
+    print("Response: ${response.body}");
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) { // Successful update
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          content: Text('Product added Successfully.'),
+          content: Text('Product updated successfully.'),
         ),
       );
 
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>new_product()));
+      // Navigator.push(context, MaterialPageRoute(builder: (context) => NewProduct()));
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text('Adding product failed.'),
+          content: Text('Adding product failed. Response: ${response.body}'),
         ),
       );
     }
   } catch (e) {
-    print("eror==========$e");
+    print("Error: $e");
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
         content: Text('Enter valid information'),
