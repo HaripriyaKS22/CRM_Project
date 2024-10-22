@@ -1373,6 +1373,55 @@ void addsizes(BuildContext scaffoldContext) async {
                     ],
                   ),
                 ),
+
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: DataTable(
+                        columns: [
+                          DataColumn(label: Text('Size')),
+                          DataColumn(label: Text('Stock')),
+                          DataColumn(label: Text('Actions')),
+                        ],
+                        rows: size.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          Map<String, dynamic> item = entry.value;
+                          return DataRow(cells: [
+                            DataCell(Text(item['size'])),
+                            DataCell(
+                              // TextField for stock input
+                              SizedBox(
+                                width: 100,
+                                child: TextField(
+                  keyboardType: TextInputType.number,
+                  // onChanged: (value) => _editStock(index, value),
+                  decoration: InputDecoration(
+                    hintText: item['stock'].toString(),
+                  ),
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Row(
+                                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      // You can handle any additional edit logic here
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      
+                    }
+                  ),
+                                ],
+                              ),
+                            ),
+                          ]);
+                        }).toList(),
+                      ),
+                ),
                
               ],
             ),

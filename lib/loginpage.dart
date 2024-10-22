@@ -96,6 +96,18 @@ void login(String email, String password, BuildContext context) async {
             context,
             MaterialPageRoute(builder: (context) => dashboard()),
           );
+        }
+        if (active == 'Customer Service Department') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Successfully logged in.'),
+            ),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => dashboard()),
+          );
         } 
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
