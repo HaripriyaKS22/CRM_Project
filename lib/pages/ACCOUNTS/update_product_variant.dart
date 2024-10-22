@@ -290,26 +290,27 @@ Future<void> pickImagemain() async {
   }
 
 
-  void addimage(
+ void addimage(
   BuildContext scaffoldContext,
 ) async {
   var slug = name.text.toUpperCase().replaceAll(' ', '-');
- 
-      final token = await gettokenFromPrefs();
+
+  final token = await gettokenFromPrefs();
 
   try {
     var request = http.MultipartRequest(
       'PUT',
       Uri.parse("$api/api/product/${widget.id}/variant/data/"),
     );
-    
+
     // Add headers
     request.headers.addAll({
       "Content-Type": "multipart/form-data",
       'Authorization': 'Bearer $token',
     });
+print(widget.id);
+    request.fields['product'] = widget.id.toString(); // Convert to string
 
-    request.fields['product'] = widget.id ;
     for (File imageFile in selectedImagesList) {
       var stream = http.ByteStream(imageFile.openRead());
       var length = await imageFile.length();
@@ -320,9 +321,8 @@ Future<void> pickImagemain() async {
         filename: imageFile.path.split('/').last,
       );
 
-       print("multiiiiiiiiiiiiiiiiiiiiiiiii${multipartFile.filename}");
+      print("multiiiiiiiiiiiiiiiiiiiiiiiii${multipartFile.filename}");
       request.files.add(multipartFile);
-     
     }
 
     // Send the request
@@ -337,23 +337,19 @@ Future<void> pickImagemain() async {
           content: Text('Product added successfully.'),
         ),
       );
-      // Navigator.push(
-      //     context, MaterialPageRoute(builder: (context) => add_product()));
     } else if (responseData.statusCode == 500) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Session expired.'),
         ),
       );
-      // Navigator.push(
-      //     context, MaterialPageRoute(builder: (context) => Login_Page()));
     } else if (responseData.statusCode == 400) {
       Map<String, dynamic> responseDataBody = jsonDecode(responseData.body);
       Map<String, dynamic> data = responseDataBody['data'];
       String errorMessage =
           data.entries.map((entry) => entry.value[0]).join('\n');
       showDialog(
-        context: context,
+        context: scaffoldContext, // Fixed the context here
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("Error"),
@@ -385,6 +381,7 @@ Future<void> pickImagemain() async {
     );
   }
 }
+
 
 
 void addsizes(BuildContext scaffoldContext) async {
