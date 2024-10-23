@@ -417,34 +417,34 @@ class _add_staffState extends State<add_staff> {
     }
   }
 
-  Future<void> deletestaff(int Id) async {
-    final token = await gettokenFromPrefs();
+  // Future<void> deletestaff(int Id) async {
+  //   final token = await gettokenFromPrefs();
 
-    try {
-      final response = await http.delete(
-        Uri.parse('$api/api/staff/update/$Id/'),
-        headers: {
-          'Authorization': '$token',
-        },
-      );
-      print(response.statusCode);
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Color.fromARGB(255, 49, 212, 4),
-            content: Text('Deleted sucessfully'),
-          ),
-        );
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => add_staff()));
-      }
+  //   try {
+  //     final response = await http.delete(
+  //       Uri.parse('$api/api/staff/update/$Id/'),
+  //       headers: {
+  //         'Authorization': '$token',
+  //       },
+  //     );
+  //     print(response.statusCode);
+  //     if (response.statusCode == 200) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           backgroundColor: Color.fromARGB(255, 49, 212, 4),
+  //           content: Text('Deleted sucessfully'),
+  //         ),
+  //       );
+  //       Navigator.push(
+  //           context, MaterialPageRoute(builder: (context) => add_staff()));
+  //     }
 
-      if (response.statusCode == 204) {
-      } else {
-        throw Exception('Failed to delete wishlist ID: $Id');
-      }
-    } catch (error) {}
-  }
+  //     if (response.statusCode == 204) {
+  //     } else {
+  //       throw Exception('Failed to delete wishlist ID: $Id');
+  //     }
+  //   } catch (error) {}
+  // }
 
   void removeProduct(int index) {
     setState(() {
@@ -493,103 +493,101 @@ class _add_staffState extends State<add_staff> {
 
 //   }
 
-  void RegisterUserData(
-    int selectedDepartmentId,
-    File? image1,
-    DateTime selectedDate,
-    
-    String selectgender,
-    String selectmarital,
-    DateTime selecteExp,
-    DateTime selectejoin,
-    DateTime selecteconf,
-    File? image2,
-    BuildContext scaffoldContext,
-  ) async {
-    final token = await gettokenFromPrefs();
-    try {
-      print("yesssssssssssssssssssssssssssssssssssssssssssssss");
-      var request =
-          http.MultipartRequest('POST', Uri.parse('$api/api/add/staff/'));
-      print('$api/api/add/staff/');
-      // Add headers to the request
-      request.headers['Authorization'] = 'Bearer $token';
 
-      // Prepare the JSON data for the text fields
-      Map<String, dynamic> data = {
-        'date_of_birth': selectedDate.toIso8601String(),
-        'driving_license_exp_date': selecteExp.toIso8601String(),
-        'join_date': selectejoin.toIso8601String(),
-        'confirmation_date': selecteconf.toIso8601String(),
-        'allocated_states': _selectedFamily,
-      };
-      print("HAAAAAAAAAIIIIII$data");
-      // Add JSON data as a field
-      request.fields['data'] = jsonEncode(data);
-      request.fields['name'] = name.text;
-      request.fields['username'] = username.text;
+void RegisterUserData(
+  int selectedDepartmentId,
+  File? image1,
+  DateTime selectedDate,
+  String selectgender,
+  String selectmarital,
+  DateTime selecteExp,
+  DateTime selectejoin,
+  DateTime selecteconf,
+  File? image2,
+  BuildContext scaffoldContext,
+) async {
+  final token = await gettokenFromPrefs();
+  try {
+    var request = http.MultipartRequest('POST', Uri.parse('$api/api/add/staff/'));
 
-      print("nameeeeeeeeeeeeeeeeeee${name.text}");
-      request.fields['email'] = email.text;
-      request.fields['phone'] = phone.text;
-      request.fields['password'] = password.text;
-      request.fields['alternate_number'] = alternate_number.text;
-      request.fields['designation'] = designation.text;
-      request.fields['grade'] = grade.text;
-      request.fields['address'] = address.text;
-      request.fields['city'] = city.text;
-      request.fields['country'] = Country.text;
-      request.fields['driving_license'] = driving_license.text;
-      request.fields['department_id'] = selectedDepartmentId.toString();
-      request.fields['supervisor_id'] = selectedmanagerId.toString();
-      request.fields['gender'] = selectgender;
-      request.fields['marital_status'] = selectmarital;
-      request.fields['employment_status'] = employment_status.text;
-      request.fields['APPROVAL_CHOICE'] = approvalstatus;
-      // Add images to the request if they are not null
-      if (image1 != null) {
-        request.files
-            .add(await http.MultipartFile.fromPath('image', image1.path));
-      }
-      if (image2 != null) {
-        request.files
-            .add(await http.MultipartFile.fromPath('signatur_up', image2.path));
-      }
+    // Add headers to the request
+    request.headers['Authorization'] = 'Bearer $token';
 
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+    // Add form fields directly
+    request.fields['date_of_birth'] = selectedDate.toIso8601String().substring(0, 10);
+    request.fields['driving_license_exp_date'] = selecteExp.toIso8601String().substring(0, 10);
+    request.fields['join_date'] = selectejoin.toIso8601String().substring(0, 10);
+    request.fields['confirmation_date'] = selecteconf.toIso8601String().substring(0, 10);
 
-      print("Response: ${response.body}");
-      // Handle response based on status code
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('Data Added Successfully.')),
-        );
-        Navigator.pushReplacement(
-          scaffoldContext,
-          MaterialPageRoute(builder: (context) => add_staff()),
-        );
-      } else if (response.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(response.body);
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-              content: Text('Something went wrong. Please try again later.')),
-        );
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-              content: Text('Something went wrong. Please try again later.')),
-        );
-      }
-    } catch (e) {
-      print("Error: $e");
+    // Append each state ID separately using the key 'allocated_states[]'
+    for (var stateId in dynamicStatid) {
+      request.fields['allocated_states[]'] = stateId.toString();
+    }
+
+    print("Selected State IDs: $dynamicStatid");
+
+    // Add other form fields
+    request.fields['name'] = name.text;
+    request.fields['username'] = username.text;
+    request.fields['email'] = email.text;
+    request.fields['phone'] = phone.text;
+    request.fields['password'] = password.text;
+    request.fields['alternate_number'] = alternate_number.text;
+    request.fields['designation'] = designation.text;
+    request.fields['grade'] = grade.text;
+    request.fields['address'] = address.text;
+    request.fields['city'] = city.text;
+    request.fields['country'] = Country.text;
+    request.fields['driving_license'] = driving_license.text;
+    request.fields['department_id'] = selectedDepartmentId.toString();
+    request.fields['supervisor_id'] = selectedmanagerId.toString();
+    request.fields['gender'] = selectgender;
+    request.fields['marital_status'] = selectmarital;
+    request.fields['employment_status'] = employment_status.text;
+    request.fields['APPROVAL_CHOICE'] = approvalstatus;
+
+    // Add images to the request if they are not null
+    if (image1 != null) {
+      request.files.add(await http.MultipartFile.fromPath('image', image1.path));
+    }
+    if (image2 != null) {
+      request.files.add(await http.MultipartFile.fromPath('signatur_up', image2.path));
+    }
+
+    // Print the data being sent
+    print("Sending Data:");
+    print("Headers: ${request.headers}");
+    print("Fields: ${request.fields}");
+    print("Files: ${request.files.map((file) => file.filename).toList()}");
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+    print("Response: ${response.body}");
+
+    // Handle response based on status code
+    if (response.statusCode == 201) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(content: Text('Network error. Please check your connection.')),
+        SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Data Added Successfully.')),
+      );
+      Navigator.pushReplacement(
+        scaffoldContext,
+        MaterialPageRoute(builder: (context) => add_staff()),
+      );
+    } else {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+            content: Text(responseData['message'] ?? 'Something went wrong. Please try again later.')),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(content: Text('Network error. Please check your connection.')),
+    );
   }
+}
 
   //searchable dropdown
 
@@ -1056,130 +1054,232 @@ class _add_staffState extends State<add_staff> {
                                     ],
                                   ),
                                 ),
-                               Text("Checkbox Family",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 20),
-                            statess.isEmpty
-                                ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: statess.length,
-                                    itemBuilder: (context, index) {
-                                      return CheckboxListTile(
-                                        title: Text(statess[index]['name']),
-                                        value: _checkboxValues[index],
-                                        onChanged: (bool? value) {
-                                          setState(() {
-                                            _checkboxValues[index] =
-                                                value ?? false;
-                                            if (_checkboxValues[index]) {
-                                              _selectedFamily
-                                                  .add(statess[index]['id']);
-                                            } else {
-                                              _selectedFamily
-                                                  .remove(statess[index]['id']);
-                                            }
-                                            print(_selectedFamily);
-                                          });
-                                        },
-                                        controlAffinity:
-                                            ListTileControlAffinity.leading,
-                                      );
-                                    },
-                                  ),
+                            //    Text("Checkbox Family",
+                            //     style: TextStyle(
+                            //         fontSize: 15, fontWeight: FontWeight.bold)),
+                            // SizedBox(height: 20),
+                            // statess.isEmpty
+                            //     ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
+                            //     : ListView.builder(
+                            //         shrinkWrap: true,
+                            //         itemCount: statess.length,
+                            //         itemBuilder: (context, index) {
+                            //           return CheckboxListTile(
+                            //             title: Text(statess[index]['name']),
+                            //             value: _checkboxValues[index],
+                            //             onChanged: (bool? value) {
+                            //               setState(() {
+                            //                 _checkboxValues[index] =
+                            //                     value ?? false;
+                            //                 if (_checkboxValues[index]) {
+                            //                   _selectedFamily
+                            //                       .add(statess[index]['id']);
+                            //                 } else {
+                            //                   _selectedFamily
+                            //                       .remove(statess[index]['id']);
+                            //                 }
+                            //                 print(_selectedFamily);
+                            //               });
+                            //             },
+                            //             controlAffinity:
+                            //                 ListTileControlAffinity.leading,
+                            //           );
+                            //         },
+                            //       ),
+Padding(
+  padding: const EdgeInsets.all(.0),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        height: 46,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1.0),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<Map<String, dynamic>>(
+            isExpanded: true,
+            hint: Text(
+              'Select State',
+              style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
+            ),
+            value: statess.isNotEmpty && selectstate != null
+                ? statess.firstWhere(
+                    (element) => element['name'] == selectstate,
+                    orElse: () => statess[0], // Default to first state if not found
+                  )
+                : null,
+            items: statess.isNotEmpty
+                ? statess.map<DropdownMenuItem<Map<String, dynamic>>>(
+                    (Map<String, dynamic> state) {
+                      return DropdownMenuItem<Map<String, dynamic>>(
+                        value: state,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              state['name'],
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            if (stat.contains(state['name']))
+                              Icon(
+                                Icons.check,
+                                color: Colors.blue, // Indicate selected items
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ).toList()
+                : [
+                    DropdownMenuItem(
+                      child: Text('No states available'),
+                      value: null,
+                    ),
+                  ],
+            onChanged: (Map<String, dynamic>? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  selectstate = newValue['name'];
+                  selectedStateId = newValue['id'];
+                  if (!stat.contains(selectstate) &&
+                      !dynamicStatid.contains(selectedStateId)) {
+                    stat.add(selectstate!);
+                    dynamicStatid.add(selectedStateId!);
+                  } else {
+                    stat.remove(selectstate!);
+                    dynamicStatid.remove(selectedStateId);
+                  }
+                  print('Selected State Name: $stat');
+                  print('Selected State ID: $dynamicStatid');
+                });
+              }
+            },
+            icon: Icon(Icons.arrow_drop_down),
+          ),
+        ),
+      ),
+      SizedBox(height: 10), // Spacing
+      // Display selected values
+      Wrap(
+        spacing: 8.0,
+        children: stat.map((value) {
+          return Chip(
+            label: Text(value),
+            deleteIcon: Icon(Icons.close),
+            onDeleted: () {
+              setState(() {
+                int index = stat.indexOf(value);
+                stat.removeAt(index);
+                dynamicStatid.removeAt(index);
+                if (stat.isEmpty) {
+                  selectstate = null; // Reset the selected state
+                }
+                print("Updated Selected Values: $stat");
+              });
+            },
+          );
+        }).toList(),
+      ),
+    ],
+  ),
+),
+
+
+                                  
                                 SizedBox(height: 5),
-                                Text(
-                                  "State$stat",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: double
-                                      .infinity, // Use full width available
-                                  height: 49,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: InputDecorator(
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.symmetric(
-                                          horizontal:
-                                              10), // Adjust padding as needed
-                                    ),
-                                    child: DropdownButtonHideUnderline(
-                                      child:
-                                          DropdownButton<Map<String, dynamic>>(
-                                        value: statess.isNotEmpty
-                                            ? statess.firstWhere(
-                                                (element) =>
-                                                    element['name'] ==
-                                                    selectstate,
-                                                orElse: () => statess[0],
-                                              )
-                                            : null,
-                                        onChanged: statess.isNotEmpty
-                                            ? (Map<String, dynamic>? newValue) {
-                                                setState(() {
-                                                  selectstate =
-                                                      newValue!['name'];
-                                                  selectedStateId = newValue[
-                                                      'id']; // Store the selected state's ID
+                                // Text(
+                                //   "State$stat",
+                                //   style: TextStyle(
+                                //     fontSize: 15,
+                                //     fontWeight: FontWeight.bold,
+                                //   ),
+                                // ),
+                                // SizedBox(
+                                //   height: 5,
+                                // ),
+                                // Container(
+                                //   width: double
+                                //       .infinity, // Use full width available
+                                //   height: 49,
+                                //   decoration: BoxDecoration(
+                                //     border: Border.all(color: Colors.grey),
+                                //     borderRadius: BorderRadius.circular(10),
+                                //   ),
+                                //   child: InputDecorator(
+                                //     decoration: InputDecoration(
+                                //       border: InputBorder.none,
+                                //       contentPadding: EdgeInsets.symmetric(
+                                //           horizontal:
+                                //               10), // Adjust padding as needed
+                                //     ),
+                                //     child: DropdownButtonHideUnderline(
+                                //       child:
+                                //           DropdownButton<Map<String, dynamic>>(
+                                //         value: statess.isNotEmpty
+                                //             ? statess.firstWhere(
+                                //                 (element) =>
+                                //                     element['name'] ==
+                                //                     selectstate,
+                                //                 orElse: () => statess[0],
+                                //               )
+                                //             : null,
+                                //         onChanged: statess.isNotEmpty
+                                //             ? (Map<String, dynamic>? newValue) {
+                                //                 setState(() {
+                                //                   selectstate =
+                                //                       newValue!['name'];
+                                //                   selectedStateId = newValue[
+                                //                       'id']; // Store the selected state's ID
 
-                                                  // Check if the selected state is already in the list
-                                                  if (!stat.contains(
-                                                          selectstate) &&
-                                                      !dynamicStatid.contains(
-                                                          selectedStateId)) {
-                                                    stat.add(selectstate!);
-                                                    dynamicStatid
-                                                        .add(selectedStateId!);
-                                                  } else {
-                                                    stat.remove(selectstate!);
-                                                    dynamicStatid.remove(
-                                                        selectedStateId);
-                                                  }
+                                //                   // Check if the selected state is already in the list
+                                //                   if (!stat.contains(
+                                //                           selectstate) &&
+                                //                       !dynamicStatid.contains(
+                                //                           selectedStateId)) {
+                                //                     stat.add(selectstate!);
+                                //                     dynamicStatid
+                                //                         .add(selectedStateId!);
+                                //                   } else {
+                                //                     stat.remove(selectstate!);
+                                //                     dynamicStatid.remove(
+                                //                         selectedStateId);
+                                //                   }
 
-                                                  print(
-                                                      'Selected State Name: $stat');
-                                                  print(
-                                                      'Selected State ID: $dynamicStatid');
-                                                });
-                                              }
-                                            : null,
-                                        items: statess.isNotEmpty
-                                            ? statess.map<
-                                                DropdownMenuItem<
-                                                    Map<String, dynamic>>>(
-                                                (Map<String, dynamic> state) {
-                                                  return DropdownMenuItem<
-                                                      Map<String, dynamic>>(
-                                                    value: state,
-                                                    child: Text(state['name']),
-                                                  );
-                                                },
-                                              ).toList()
-                                            : [
-                                                DropdownMenuItem(
-                                                  child: Text(
-                                                      'No states available'),
-                                                  value: null,
-                                                ),
-                                              ],
-                                        icon: Icon(Icons.arrow_drop_down),
-                                        isExpanded:
-                                            true, // Ensure dropdown takes full width
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                //                   print(
+                                //                       'Selected State Name: $stat');
+                                //                   print(
+                                //                       'Selected State ID: $dynamicStatid');
+                                //                 });
+                                //               }
+                                //             : null,
+                                //         items: statess.isNotEmpty
+                                //             ? statess.map<
+                                //                 DropdownMenuItem<
+                                //                     Map<String, dynamic>>>(
+                                //                 (Map<String, dynamic> state) {
+                                //                   return DropdownMenuItem<
+                                //                       Map<String, dynamic>>(
+                                //                     value: state,
+                                //                     child: Text(state['name']),
+                                //                   );
+                                //                 },
+                                //               ).toList()
+                                //             : [
+                                //                 DropdownMenuItem(
+                                //                   child: Text(
+                                //                       'No states available'),
+                                //                   value: null,
+                                //                 ),
+                                //               ],
+                                //         icon: Icon(Icons.arrow_drop_down),
+                                //         isExpanded:
+                                //             true, // Ensure dropdown takes full width
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
                                 SizedBox(height: 5),
                                 Text(
                                   "Gender",
@@ -1855,7 +1955,7 @@ class _add_staffState extends State<add_staff> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: GestureDetector(
                                         onTap: () {
-                                          deletestaff(sta[i]['id']);
+                                          // deletestaff(sta[i]['id']);
                                           removeProduct(i);
                                         },
                                         child: Image.asset(

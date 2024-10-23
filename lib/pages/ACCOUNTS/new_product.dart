@@ -97,18 +97,18 @@ class _new_productState extends State<new_product> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+
   var image;
-   final ImagePicker _picker = ImagePicker();
- Future<void> pickImagemain() async {
+  final ImagePicker _picker = ImagePicker();
+  Future<void> pickImagemain() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        image=File(pickedFile.path);
+        image = File(pickedFile.path);
         print("iiiiiiiiiiiiiiiiiiiiiiiii$image");
       });
     }
   }
-
 
   int imagePickerCount = 1; // To keep track of the number of image pickers
   // Function to pick an image from the gallery
@@ -116,8 +116,10 @@ class _new_productState extends State<new_product> {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        selectedImagesList.add(File(pickedFile.path)); // Store image in the single list
+        image = File(pickedFile
+            .path); // Store the selected image in the 'image' variable
       });
+      print("Selected image path: ${image.path}");
     }
   }
 
@@ -128,63 +130,138 @@ class _new_productState extends State<new_product> {
     });
   }
 
-void addproduct(
-  String name,
-  String hsncode,
-  String family,
-  String sellingprice,
-  String stock,
-  BuildContext scaffoldContext,
-) async {
+Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
+  final token = await gettokenFromPrefs();
+
   try {
-    final token = await gettokenFromPrefs();
-    print("AAAAAAAAAZZZZZZSSSSSSSSSSSSWWWWWWWWWWW$_selectedFamily");
-
-    // Build the product data, excluding "stock" when the product type is "variant"
-    Map<String, dynamic> productData = {
-      "name": name,
-      "hsn_code": hsncode,
-      "family": _selectedFamily,
-      "type": selecttype,
-      "unit": selectunit,
-      "purchase_rate": purchaserate.text,
-      "tax": taxx.text,
-      'image':image,
-      "selling_price": sellingprice,
-    };
-
-    // Add "stock" only if the product type is "single"
-    if (selecttype == "single") {
-      productData["stock"] = stock;
-    }
-    var response = await http.post(
+    var request = http.MultipartRequest(
+      'POST',
       Uri.parse('$api/api/add/product/'),
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode(productData),
     );
 
-    print("Responsessssssssssssssssssssssssssssssssssssssssytyttttttttttt: ${response.body}");
+    request.headers.addAll({
+      'Authorization': 'Bearer $token',
+    });
 
-    if (response.statusCode == 201) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Product added Successfully.'),
-        ),
-      );
+    // Add common fields to the request
+    request.fields['name'] = name.text;
+    request.fields['hsn_code'] = hsncode.text;
+    request.fields['type'] = selecttype;
+    request.fields['unit'] = selectunit;
+    request.fields['purchase_rate'] = purchaserate.text;
+    request.fields['tax'] = taxx.text;
+    request.fields['selling_price'] = sellingprice.text;
 
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>new_product()));
+    // Ensure _selectedFamily is populated correctly
+    if (_selectedFamily != null && _selectedFamily.isNotEmpty) {
+      // Add each family ID as a separate entry with the key 'family[]'
+      for (var familyId in _selectedFamily) {
+        request.fields['family[]'] = familyId.toString();
+      }
+      print("Sending family IDs: $_selectedFamily");
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Adding product failed.'),
+          content: Text('Please select a valid family.'),
+        ),
+      );
+      return;
+    }
+
+
+    if (selecttype == 'single') {
+      print("Stock value from TextField: ${stock.text}");
+
+      if (stock.text.isNotEmpty && int.tryParse(stock.text) != null) {
+        int stockValue = int.parse(stock.text);
+        request.fields['stock'] = stockValue.toString();
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Please enter a valid stock value.'),
+          ),
+        );
+        return;
+      }
+    }
+
+    // Add the image file if available
+    if (image != null) {
+      request.files.add(await http.MultipartFile.fromPath('image', image.path));
+    } else {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Please select an image.'),
+        ),
+      );
+      return;
+    }
+
+    print("Final request fields: ${request.fields}");
+
+    // Send the request
+    var response = await request.send();
+    var responseData = await http.Response.fromStream(response);
+
+    // Log the response status and body for debugging
+    print("Response status: ${responseData.statusCode}");
+    print("Response body: ${responseData.body}");
+
+    if (responseData.statusCode == 201) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Product added successfully.'),
+        ),
+      );
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => new_product()));
+    } else if (responseData.statusCode == 400) {
+      // Handle the case of a 400 response, typically indicating validation errors
+      final Map<String, dynamic> responseDataBody = jsonDecode(responseData.body);
+      if (responseDataBody.containsKey('errors')) {
+        final errors = responseDataBody['errors'];
+        String errorMessage = errors.entries
+            .map((entry) => "${entry.key}: ${entry.value.join(', ')}")
+            .join('\n');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Validation Error"),
+              content: Text(errorMessage),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Invalid response format.'),
+          ),
+        );
+      }
+    } else if (responseData.statusCode == 500) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Session expired.'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Something went wrong. Please try again later.'),
         ),
       );
     }
   } catch (e) {
+    print(e);
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
         content: Text('Enter valid information'),
@@ -192,7 +269,163 @@ void addproduct(
     );
   }
 }
- List<File> selectedImagesList = []; // Single list to store all selected images
+  // void addProduct(
+  //   BuildContext scaffoldContext,
+  // ) async {
+  //   final token = await gettokenFromPrefs();
+
+  //   print("object $token");
+  //   // var slug = name.text.toUpperCase().replaceAll(' ', '-');
+  //   // print(slug);
+  //   // print("$url/vendor/vendor-create-product/");
+
+  //   try {
+  //     var request = http.MultipartRequest(
+  //       'POST',
+  //       Uri.parse("$api/api/add/product/"),
+  //     );
+
+  //     // Add headers
+  //     request.headers.addAll({
+  //       "Content-Type": "multipart/form-data",
+  //       'Authorization': 'Bearer $token',
+  //     });
+
+  //     // Add other fields
+  //     request.fields['name'] = name.text;
+  //     request.fields['hsn_code'] = hsncode.text;
+  //     request.fields['type'] = selecttype;
+  //     request.fields['unit'] = selectunit;
+  //     request.fields['purchase_rate'] = purchaserate.text;
+  //     request.fields['tax'] = taxx.text;
+  //     request.fields['selling_price'] = sellingprice.text;
+
+  //     if (image != null) {
+  //       request.files
+  //           .add(await http.MultipartFile.fromPath('image', image.path));
+  //     }
+
+  //     // Add image files to request
+
+  //     // Send the request
+  //     var response = await request.send();
+  //     var responseData = await http.Response.fromStream(response);
+
+  //     print(responseData.body);
+
+  //     if (responseData.statusCode == 201) {
+  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Product added successfully.'),
+  //         ),
+  //       );
+  //       // Navigator.push(
+  //       //     context, MaterialPageRoute(builder: (context) => add_product()));
+  //     } else if (responseData.statusCode == 500) {
+  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Session expired.'),
+  //         ),
+  //       );
+  //       // Navigator.push(
+  //       //     context, MaterialPageRoute(builder: (context) => Login_Page()));
+  //     } else if (responseData.statusCode == 400) {
+  //       Map<String, dynamic> responseDataBody = jsonDecode(responseData.body);
+  //       Map<String, dynamic> data = responseDataBody['data'];
+  //       String errorMessage =
+  //           data.entries.map((entry) => entry.value[0]).join('\n');
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: Text("Error"),
+  //             content: Text(errorMessage),
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: Text("OK"),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Something went wrong. Please try again later.'),
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Enter valid information'),
+  //       ),
+  //     );
+  //   }
+  // }
+
+  // void add_family_list(
+  //   BuildContext scaffoldContext,
+  // ) async {
+  //   try {
+  //     final token = await gettokenFromPrefs();
+  //     print("AAAAAAAAAZZZZZZSSSSSSSSSSSSWWWWWWWWWWW$_selectedFamily");
+
+  //     // Build the product data, excluding "stock" when the product type is "variant"
+  //     Map<String, dynamic> productData = {
+  //       "family": _selectedFamily,
+  //     };
+
+  //     // Add "stock" only if the product type is "single"
+  //     if (selecttype == "single") {
+  //       productData["stock"] = stock;
+  //     }
+  //     var response = await http.post(
+  //       Uri.parse('$api/api/add/product/'),
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         'Authorization': 'Bearer $token',
+  //       },
+  //       body: jsonEncode(productData),
+  //     );
+
+  //     print(
+  //         "Responsessssssssssssssssssssssssssssssssssssssssytytttttttttttqqqqqq: ${response.body}");
+
+  //     print("SSSSSSSSSELLLLLLLLLLLLLLLLL$selectedImagesList");
+
+  //     if (response.statusCode == 201) {
+  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Product added Successfully.'),
+  //         ),
+  //       );
+
+  //       Navigator.push(
+  //           context, MaterialPageRoute(builder: (context) => new_product()));
+  //     } else {
+  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+  //         SnackBar(
+  //           backgroundColor: Colors.red,
+  //           content: Text('Adding product failed.'),
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Enter valid information'),
+  //       ),
+  //     );
+  //   }
+  // }
+
+  List<File> selectedImagesList =
+      []; // Single list to store all selected images
 
   Future<void> getfamily() async {
     try {
@@ -214,7 +447,6 @@ void addproduct(
         for (var productData in productsData) {
           familylist.add({
             'id': productData['id'],
-
             'name': productData['name'],
           });
         }
@@ -480,7 +712,6 @@ void addproduct(
                   height: 15,
                 ),
                 SizedBox(
-                  height: 540,
                   width: 340,
                   child: Card(
                     elevation: 3,
@@ -683,7 +914,6 @@ void addproduct(
                   height: 15,
                 ),
                 SizedBox(
-                  
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -817,101 +1047,40 @@ void addproduct(
                                 ],
                               ),
                             ),
-                            SizedBox(height: 10,),
+                            SizedBox(
+                              height: 10,
+                            ),
 
-                             TextFormField(
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          labelText: 'Select Main Image',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.image),
-                            onPressed: () => pickImagemain(), // Trigger image picker for this index
-                          ),
-                        ),
-                      ),
- SizedBox(height: 10),
-                        if (image != null)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              
-              Image.file(
-                image!,
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover, // Adjust the display of the image
-              ),
-              SizedBox(height: 10),
-            ],
-          ),
-
-
-          if(selecttype=="single")           
-                    
-              Column(
-                children: List.generate(imagePickerCount, (index) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          labelText: 'Select Image',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.image),
-                            onPressed: () => pickImage(), // Trigger image picker for this index
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                    ],
-                  );
-                }),
-              ),
-
-              
-
-              // Display all selected images with a cross icon to remove
-              if (selectedImagesList.isNotEmpty && selecttype=="single")
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: selectedImagesList.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    File image = entry.value;
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Row(
-                        children: [
-                          Image.file(
-                            image,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
-                          SizedBox(width: 10),
-                          Text(image.path.split('/').last),
-                          Spacer(),
-                          IconButton(
-                            icon: Icon(Icons.close, color: Colors.red),
-                            onPressed: (){
-
-                            }, // Remove image on click
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
-
+                            TextFormField(
+                              readOnly: true,
+                              decoration: InputDecoration(
+                                labelText: 'Select Main Image',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(Icons.image),
+                                  onPressed: () =>
+                                      pickImagemain(), // Trigger image picker for this index
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            if (image != null)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Image.file(
+                                    File(image
+                                        .path), // Use the file path obtained from the picked image
+                                    width: 100, // Set the desired width
+                                    height: 100, // Set the desired height
+                                    fit: BoxFit.cover, // Set the fit style
+                                  ),
+                                  SizedBox(height: 10),
+                                ],
+                              ),
 
                             // SizedBox(
                             //   height: 10,
@@ -1056,8 +1225,9 @@ void addproduct(
                       SizedBox(width: 13),
                       ElevatedButton(
                         onPressed: () {
-                          addproduct(name.text, hsncode.text, family.text,
-                              sellingprice.text, stock.text, context);
+                          // addProduct(context);
+                          // add_family_list(context);
+                          addOrUpdateProduct(context);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(

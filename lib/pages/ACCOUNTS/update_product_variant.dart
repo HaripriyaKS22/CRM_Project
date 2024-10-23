@@ -295,7 +295,7 @@ Future<void> pickImagemain() async {
    Future<void> get_product_values() async {
     try {
       final token = await gettokenFromPrefs();
-
+print('$api/api/variant/product/${widget.id}/size/view/');
       var response = await http.get(
         Uri.parse('$api/api/variant/product/${widget.id}/size/view/'),
         headers: {
@@ -1329,99 +1329,131 @@ void addsizes(BuildContext scaffoldContext) async {
                 Padding(
                   padding: const EdgeInsets.only(),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(width: 13),
-                      ElevatedButton(
-                        onPressed: () {
-                          addimage(context);
-                          addsizes(context);
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 238, 57, 16),
-                          ),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  10), // Set your desired border radius
+                      SizedBox(
+                        width: 190,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            addimage(context);
+                            addsizes(context);
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Color.fromARGB(255, 238, 57, 16),
+                            ),
+                            shape:
+                                MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    10), // Set your desired border radius
+                              ),
+                            ),
+                            fixedSize: MaterialStateProperty.all<Size>(
+                              Size(95, 15), // Set your desired width and heigh
                             ),
                           ),
-                          fixedSize: MaterialStateProperty.all<Size>(
-                            Size(95, 15), // Set your desired width and heigh
-                          ),
+                          child: Text("Submit",
+                              style: TextStyle(color: Colors.white)),
                         ),
-                        child: Text("Submit",
-                            style: TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 35,
-                ),
+               SizedBox(height: 5,),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(13.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        "Variant Products",
+                        "Values",
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: DataTable(
-                        columns: [
-                          DataColumn(label: Text('Size')),
-                          DataColumn(label: Text('Stock')),
-                          DataColumn(label: Text('Actions')),
-                        ],
-                        rows: size.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          Map<String, dynamic> item = entry.value;
-                          return DataRow(cells: [
-                            DataCell(Text(item['size'])),
-                            DataCell(
-                              // TextField for stock input
-                              SizedBox(
-                                width: 100,
-                                child: TextField(
-                  keyboardType: TextInputType.number,
-                  // onChanged: (value) => _editStock(index, value),
-                  decoration: InputDecoration(
-                    hintText: item['stock'].toString(),
-                  ),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Row(
-                                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () {
-                      // You can handle any additional edit logic here
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      
-                    }
-                  ),
-                                ],
-                              ),
-                            ),
-                          ]);
-                        }).toList(),
+              Padding(
+  padding: const EdgeInsets.all(8.0),
+  child: Container(
+    decoration: BoxDecoration(
+      color: Colors.white, // Background color of the container
+      borderRadius: BorderRadius.circular(10.0), // Rounded corners
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5), // Shadow color with opacity
+          spreadRadius: 1, // Spread radius of the shadow
+          blurRadius: 5, // Blur radius of the shadow
+          offset: Offset(0, 3), // Offset of the shadow (horizontal, vertical)
+        ),
+      ],
+    ),
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8, right: 8),
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('Size')),
+            DataColumn(label: Text('Stock')),
+            DataColumn(label: Text('Actions')),
+          ],
+          rows: size.asMap().entries.map((entry) {
+            int index = entry.key;
+            Map<String, dynamic> item = entry.value;
+            return DataRow(cells: [
+              DataCell(Text(item['size'])),
+              DataCell(
+                // TextField for stock input
+                SizedBox(
+                  width: 100,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: item['stock'].toString(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0), // Rounded corners
+                          borderSide: BorderSide(
+                            color: Colors.grey, // Border color
+                          ),
+                        ),
                       ),
+                    ),
+                  ),
                 ),
+              ),
+              DataCell(
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        // You can handle any additional edit logic here
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        // Handle delete action
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ]);
+          }).toList(),
+        ),
+      ),
+    ),
+  ),
+),
+
+
                
               ],
             ),

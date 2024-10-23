@@ -1,5 +1,6 @@
 
 import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
@@ -190,6 +191,14 @@ class _dashboardState extends State<dashboard> {
               title: Text('States'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>add_state()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
+             ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Attributes'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_attribute()));
                 // Navigate to the Settings page or perform any other action
               },
             ),

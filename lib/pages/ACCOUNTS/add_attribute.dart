@@ -892,7 +892,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                                   }).toList(),
                                                 )
                                               : Image.asset(
-                                                  "lib/assets/view.png",
+                                                  "lib/assets/view.jpeg",
                                                   width: 20,
                                                   height: 20,
                                                 ),
