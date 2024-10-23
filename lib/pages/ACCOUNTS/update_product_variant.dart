@@ -90,7 +90,7 @@ List<Map<String,dynamic>> img=[];
   List<Map<String, dynamic>> valuess = [];
   List<Map<String, dynamic>> variantProducts = [];
   List<Map<String, dynamic>> singleProducts = [];
-
+  List<TextEditingController> _controllers = [];
   @override
   void initState() {
     super.initState();
@@ -100,13 +100,16 @@ List<Map<String,dynamic>> img=[];
     getattributes();
     get_product_values();
     get_product_images();
-
+_controllers = List.generate(size.length, (index) {
+      return TextEditingController(text: size[index]['stock'].toString());
+    });
     
   }
 
   @override
   void dispose() {
     name.dispose(); // Dispose the controller when the widget is removed
+     _controllers.forEach((controller) => controller.dispose());
     super.dispose();
   }
 
@@ -217,6 +220,8 @@ Future<void> pickImagemain() async {
     }
   }
 
+
+
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -251,7 +256,54 @@ Future<void> pickImagemain() async {
       print("Error: $error");
     }
   }
+Future<void> updatestock(int id,var stock) async {
+    try {
+      final token = await gettokenFromPrefs();
 
+      var response = await http.put(
+        Uri.parse('$api/api/variant/product/${id}/size/edit/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+           'stock':stock.text
+            
+          },
+        ),
+      );
+
+    
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile updated successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (context) =>add_family()),
+        // );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating profile'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
   Future<void> getvariant() async {
     try {
       final token = await gettokenFromPrefs();
@@ -1376,82 +1428,110 @@ void addsizes(BuildContext scaffoldContext) async {
                   ),
                 ),
 
-              Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: Container(
-    decoration: BoxDecoration(
-      color: Colors.white, // Background color of the container
-      borderRadius: BorderRadius.circular(10.0), // Rounded corners
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.5), // Shadow color with opacity
-          spreadRadius: 1, // Spread radius of the shadow
-          blurRadius: 5, // Blur radius of the shadow
-          offset: Offset(0, 3), // Offset of the shadow (horizontal, vertical)
-        ),
-      ],
-    ),
-    child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 8, right: 8),
-        child: DataTable(
-          columns: [
-            DataColumn(label: Text('Size')),
-            DataColumn(label: Text('Stock')),
-            DataColumn(label: Text('Actions')),
+               Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
           ],
-          rows: size.asMap().entries.map((entry) {
-            int index = entry.key;
-            Map<String, dynamic> item = entry.value;
-            return DataRow(cells: [
-              DataCell(Text(item['size'])),
-              DataCell(
-                // TextField for stock input
-                SizedBox(
-                  width: 100,
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: item['stock'].toString(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0), // Rounded corners
-                          borderSide: BorderSide(
-                            color: Colors.grey, // Border color
+        ),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8),
+            child: DataTable(
+              columns: [
+                DataColumn(label: Text('Size')),
+                DataColumn(label: Text('Stock')),
+                DataColumn(label: Text('Edit')),
+                DataColumn(label: Text('Delete')),
+              ],
+              rows: size.isNotEmpty // Check if size list is not empty
+                  ? size.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      Map<String, dynamic> item = entry.value;
+
+                      return DataRow(cells: [
+                        DataCell(Text(item['size'])),
+                        DataCell(
+                          SizedBox(
+                            width: 100,
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: TextField(
+                                controller: _controllers[index],
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: 'Enter stock',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              DataCell(
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () {
-                        // You can handle any additional edit logic here
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () {
-                        // Handle delete action
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ]);
-          }).toList(),
+                        DataCell(
+                          ElevatedButton(
+                            onPressed: () {
+                              updatestock(item['id'], _controllers[index].text);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              minimumSize: const Size(50, 20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            child: const Text(
+                              'Edit',
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          ElevatedButton(
+                            onPressed: () {
+                              //deleteProduct(item['id'], context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              minimumSize: const Size(50, 20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            child: const Text(
+                              'Delete',
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ),
+                        ),
+                      ]);
+                    }).toList()
+                  : [], // Return an empty list if size is empty
+            ),
+          ),
         ),
       ),
     ),
-  ),
-),
 
 
                
