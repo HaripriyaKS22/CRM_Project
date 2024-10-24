@@ -1,1 +1,1 @@
-var api="https://praise-knives-fridge-email.trycloudflare.com";
+var api="https://vcr-contest-cream-frequent.trycloudflare.com";

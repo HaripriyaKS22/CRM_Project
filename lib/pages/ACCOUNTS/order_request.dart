@@ -1,8 +1,11 @@
 
+import 'dart:convert';
+
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 
@@ -29,6 +32,7 @@ import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
+import 'package:beposoft/pages/api.dart';
 
 
 
@@ -59,16 +63,40 @@ class _order_requestState extends State<order_request> {
     );
   }
 
-   List<String>  bank = ["anand",'yogi','hari',"jerry",'navi','megha'];
-  String selectbank="anand";
-    
-  List<String>  categories = ["cycling",'skating','fitnass','bepocart'];
-  String selectededu="cycling";
-      
   List<String>  manager= ["jeshiya",'hanvi','nimitha','sandheep','sulfi'];
   String selectmanager="jeshiya";
   List<String>  address= ["empty",];
   String selectaddress="empty";
+  List<Map<String, dynamic>> fam = [];
+    List<Map<String, dynamic>> customer = [];
+
+    int? selectedFamilyId;
+    String selectedstaff='';
+    int? selectedstaffId;
+    int? selectedstateId;
+
+
+    var famid;
+    var staffid;
+
+ @override
+  void initState() {
+    super.initState();
+    initdata();
+    
+  }
+  void initdata() async{
+    await getprofiledata();
+    getfamily();
+    selectedFamilyId=famid;
+    print("famiddd$selectedFamilyId");
+    getstaff();
+    selectedstaffId=staffid;
+    getcustomer();
+     getstate();
+     getaddress();
+
+  }
 
 //dateselection
    DateTime selectedDate = DateTime.now();
@@ -87,8 +115,242 @@ class _order_requestState extends State<order_request> {
     }
   }
 
+  Future<String?> gettokenFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+ Future<void> getcustomer() async {
+    try {
+      final token = await gettokenFromPrefs();
 
+      var response = await http.get(
+        Uri.parse('$api/api/customers/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "=============================================hoiii${response.body}");
+      List<Map<String, dynamic>> managerlist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print(
+            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
+        for (var productData in productsData) {
+          managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'created_at': productData['created_at'],
+            'manager':productData['manager']
+          });
+        }
+        setState(() {
+          customer = managerlist;
+
+          print("cutomerrrr$customer");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+List<Map<String, dynamic>> stat = [];
+
+    Future<void> getstate() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/states/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+        print("state${response.body}");
+        List<Map<String, dynamic>> statelist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("stateeeeeeeeeeeee$parsed");
+ for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          statelist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            
+          });
+        
+        }
+        setState(() {
+          stat = statelist;
+                  print("stateeeeeeee$stat");
+
+          
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+
+  List<Map<String, dynamic>> addres = [];
+
+    Future<void> getaddress() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/add/customer/address/$staffid/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+        print("addresres${response.body}");
+        List<Map<String, dynamic>> addresslist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("addreseeeeeeeeeeeee$parsed");
+ for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          addresslist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            
+          });
+        
+        }
+        setState(() {
+          addres = addresslist;
+                  print("addres$addres");
+
+          
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+
+ Future<void> getfamily() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/familys/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+        List<Map<String, dynamic>> familylist = [];
+
+        for (var productData in productsData) {
+          familylist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+
+        setState(() {
+          fam = familylist;
+          print("fammmmmmmmmmmmmm$fam");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
   //searchable dropdown
+
+
+  Future<void> getprofiledata() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse("$api/api/profile/"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print("==============0000000000000000000000000${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("profileeeeeee$productsData");
+
+        setState(() {
+          famid=productsData['family'];
+          staffid=productsData['id'];
+
+          print("fammmmmmmmmmmmmmid$famid");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+
+List<Map<String, dynamic>> sta = [];
+
+  Future<void> getstaff() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/staffs/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+      List<Map<String, dynamic>> stafflist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          stafflist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          sta = stafflist;
+          print("sataffffffffffff$sta");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
 
  final List<String> items = [
     'A_Item1',
@@ -302,9 +564,9 @@ class _order_requestState extends State<order_request> {
                            ),
                         
                                     
-                SizedBox(height: 10,),
+                SizedBox(height: 8,),
                  Text("Select Family *",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 10,),
+                  SizedBox(height: 5,),
 
                       Container(
                     width: 310,
@@ -324,100 +586,53 @@ class _order_requestState extends State<order_request> {
                               hintText: 'Select your class',
                               contentPadding: EdgeInsets.symmetric(horizontal: 1),
                             ),
-                            child: DropdownButton<String>(
-                              value: selectededu,
-                              underline: Container(), // This removes the underline
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectededu = newValue!;
-                                  print(selectededu);
-                                });
-                              },
-                              items: categories.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              icon: Container(
-                                padding: EdgeInsets.only(left: 170), // Adjust padding as needed
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                              ),
-                            ),
+                            child:DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+            hint: Text(
+              'Select a Family',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            value: selectedFamilyId,
+            isExpanded: true,
+            dropdownColor: const Color.fromARGB(255, 255, 255, 255),
+            icon: Icon(Icons.arrow_drop_down, color: Colors.blueAccent),
+            onChanged: (int? newValue) {
+              setState(() {
+                selectedFamilyId = newValue; // Store the selected family ID
+              });
+            },
+            items: fam.map<DropdownMenuItem<int>>((family) {
+              return DropdownMenuItem<int>(
+                value: family['id'],
+                child: Text(
+                  family['name'],
+                  style: TextStyle(color: Colors.black87, fontSize: 16),
+                ),
+              );
+            }).toList(),
+          ),)
+          
+        
+      
                           ),
                         ),
                       ],
                     ),
                   ),
 
+
+
+                  
+
                                          
-                SizedBox(height: 10,),
-                 Text("Select Customer *",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 10,),
+                SizedBox(height: 8,),
+                 Text("Maneger *",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                  SizedBox(height: 5,),
 
 
-                  Row(
-                    children: [
-                     Container(
-                      child: Row(
-                        children: [
+                
 
-                         Container(
-          width: 50,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Color.fromARGB(255, 223, 223, 222),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10),
-              bottomLeft: Radius.circular(10),
-            ),
-          ),
-          child: GestureDetector(
-            onTap: () {
-
-              Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_new_customer()));
-            
-              print('Image tapped!');
-            },
-            child: Image.asset(
-              'lib/assets/addnew.png',
-              height: 20,
-              width: 20,
-            ),
-          ),
-        ),
-    
-                                   Container(
-                    width: 254, 
-                    child: TextField(
-                      decoration: InputDecoration(
-                        labelText: '',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(10),
-                            bottomRight: Radius.circular(10)
-                          ),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                      ),
-                    ),
-                  ),
-
-                        ],
-                      ),
-                     )
-
-                    ],
-
-
-
-                  ),
-
-                  SizedBox(height: 10,),
+                 
 
                   Container(
                     width: 304,
@@ -437,19 +652,20 @@ class _order_requestState extends State<order_request> {
                               hintText: '',
                               contentPadding: EdgeInsets.symmetric(horizontal: 1),
                             ),
-                            child: DropdownButton<String>(
-                              value: selectbank,
+                            child: DropdownButton<int>(
+                              value: selectedstaffId,
+                                isExpanded: true,
                               underline: Container(), // This removes the underline
-                              onChanged: (String? newValue) {
+                              onChanged: (int? newValue) {
                                 setState(() {
-                                  selectbank = newValue!;
-                                  print(selectbank);
+                                  selectedstaffId = newValue!;
+                                  print(selectedstaffId);
                                 });
                               },
-                              items: bank.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
+                              items: sta.map<DropdownMenuItem<int>>((staff) {
+                                return DropdownMenuItem<int>(
+                                  value:staff['id'],
+                                  child: Text(staff['name']),
                                 );
                               }).toList(),
                               icon: Container(
@@ -463,9 +679,151 @@ class _order_requestState extends State<order_request> {
                       ],
                     ),
                   ),
-                    
+                     SizedBox(height: 8,),
+                 Text("Customer *",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                  SizedBox(height: 5,),
+
                       
-                           
+                       LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          width: constraints.maxWidth * 0.9, // Adjusted width based on screen size
+          child: DropdownButtonHideUnderline(
+            child: Container(
+              height: 46,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey, width: 1.0),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: DropdownButton2<String>(
+                isExpanded: true,
+                hint: Text(
+                  'Select a Customer',
+                  style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
+                ),
+                items: customer
+                    .map((item) => DropdownMenuItem<String>(
+                          value: item['name'], // Use the customer's name as the value
+                          child: Text(
+                            item['name'],
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ))
+                    .toList(),
+                value: selectedValue,
+                onChanged: (value) {
+                  setState(() {
+                    // Update the selected value with the chosen customer's name
+                    selectedValue = value;
+                  });
+                },
+                buttonStyleData: const ButtonStyleData(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 40,
+                ),
+                dropdownStyleData: const DropdownStyleData(
+                  maxHeight: 200,
+                ),
+                menuItemStyleData: const MenuItemStyleData(
+                  height: 40,
+                ),
+                dropdownSearchData: DropdownSearchData(
+                  searchController: textEditingController,
+                  searchInnerWidgetHeight: 50,
+                  searchInnerWidget: Container(
+                    height: 50,
+                    padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
+                    child: TextFormField(
+                      expands: true,
+                      maxLines: null,
+                      controller: textEditingController,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        hintText: 'Search for a customer...',
+                        hintStyle: const TextStyle(fontSize: 12),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ),
+                  searchMatchFn: (item, searchValue) {
+                    // Perform case-insensitive search
+                    return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
+                  },
+                ),
+                // Clear the search value when the menu is closed
+                onMenuStateChange: (isOpen) {
+                  if (!isOpen) {
+                    textEditingController.clear();
+                  }
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    ),    
+
+
+
+      SizedBox(height: 8,),
+                 Text("State",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                  SizedBox(height: 5,),
+
+
+                
+
+                 
+
+                  Container(
+                    width: 304,
+                    height: 49,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(width: 20),
+                        Container(
+                          width: 276,
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: '',
+                              contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                            ),
+                            child: DropdownButton<int>(
+                              hint:  Text(
+                  'State',
+                  style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
+                ),
+                              value: selectedstateId,
+                                isExpanded: true,
+                              underline: Container(), // This removes the underline
+                              onChanged: (int? newValue) {
+                                setState(() {
+                                  selectedstateId = newValue!;
+                                  print(selectedstateId);
+                                });
+                              },
+                              items: stat.map<DropdownMenuItem<int>>((State) {
+                                return DropdownMenuItem<int>(
+                                  value:State['id'],
+                                  child: Text(State['name']),
+                                );
+                              }).toList(),
+                              icon: Container(
+                                padding: EdgeInsets.only(left: 190), // Adjust padding as needed
+                                alignment: Alignment.centerRight,
+                                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 SizedBox(height: 10,),
                  Text("Invoice ID",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
                   SizedBox(height: 10,),

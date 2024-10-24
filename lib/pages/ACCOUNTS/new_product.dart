@@ -424,8 +424,7 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
   //   }
   // }
 
-  List<File> selectedImagesList =
-      []; // Single list to store all selected images
+  List<File> selectedImagesList =[]; // Single list to store all selected images
 
   Future<void> getfamily() async {
     try {

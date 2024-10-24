@@ -60,7 +60,7 @@ var departments;
       var response = await http.get(
         Uri.parse('$api/api/states/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );

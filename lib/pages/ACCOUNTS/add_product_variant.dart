@@ -557,7 +557,7 @@ class _add_product_variantState extends State<add_product_variant> {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        print("profileeeeeee$parsed");
 
         setState(() {
           name.text = productsData['name'] ?? '';

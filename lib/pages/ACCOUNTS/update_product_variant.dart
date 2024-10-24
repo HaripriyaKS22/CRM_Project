@@ -83,14 +83,14 @@ class _update_product_variantState extends State<update_product_variant> {
   final TextEditingController textEditingController = TextEditingController();
 List<Map<String,dynamic>> size=[];
 List<Map<String,dynamic>> img=[];
-
+ List<TextEditingController> _controllers = [];
   List<Map<String, dynamic>> fam = [];
   List<bool> _checkboxValues = [];
   List<Map<String, dynamic>> attribute = [];
   List<Map<String, dynamic>> valuess = [];
   List<Map<String, dynamic>> variantProducts = [];
   List<Map<String, dynamic>> singleProducts = [];
-  List<TextEditingController> _controllers = [];
+ bool _isLoading = true; // Added loading state
   @override
   void initState() {
     super.initState();
@@ -100,10 +100,15 @@ List<Map<String,dynamic>> img=[];
     getattributes();
     get_product_values();
     get_product_images();
-_controllers = List.generate(size.length, (index) {
-      return TextEditingController(text: size[index]['stock'].toString());
-    });
-    
+if (size != null && size.isNotEmpty) {
+      // Initialize TextEditingControllers for each item
+      _controllers = List.generate(size.length, (index) {
+        return TextEditingController(text: size[index]['stock'].toString());
+      });
+      print("Controllers initialized with ${_controllers.length} items.");
+    } else {
+      print("The size list is null or empty.");
+    }
   }
 
   @override
@@ -256,7 +261,7 @@ Future<void> pickImagemain() async {
       print("Error: $error");
     }
   }
-Future<void> updatestock(int id,var stock) async {
+Future<void> updatestock(int id,var stock,var size) async {
     try {
       final token = await gettokenFromPrefs();
 
@@ -268,13 +273,15 @@ Future<void> updatestock(int id,var stock) async {
         },
         body: jsonEncode(
           {
-           'stock':stock.text
-            
+           'stock':stock,
+           'variant_product':widget.id,
+           'attribute':size        
           },
         ),
       );
 
-    
+    print("resss:${response.body}");
+    print("resss:${response.statusCode}");
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -344,10 +351,10 @@ Future<void> updatestock(int id,var stock) async {
       print("Error: $error");
     }
   }
-   Future<void> get_product_values() async {
+     Future<void> get_product_values() async {
     try {
       final token = await gettokenFromPrefs();
-print('$api/api/variant/product/${widget.id}/size/view/');
+      print('$api/api/variant/product/${widget.id}/size/view/');
       var response = await http.get(
         Uri.parse('$api/api/variant/product/${widget.id}/size/view/'),
         headers: {
@@ -360,26 +367,38 @@ print('$api/api/variant/product/${widget.id}/size/view/');
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
-print(productsData);
-List<Map<String, dynamic>> sizes=[];
-for(var productData in productsData){
-sizes.add(
-  {
-    'id': productData['id'],
-    'size': productData['attribute'],
-    'stock': productData['stock'],
+        print(productsData);
+        List<Map<String, dynamic>> sizes = [];
+        for (var productData in productsData) {
+          sizes.add(
+            {
+              'id': productData['id'],
+              'size': productData['attribute'],
+              'stock': productData['stock'],
+            },
+          );
+        }
 
-  }
-);
-
-}
+        // Update state with the fetched sizes and set loading to false
         setState(() {
-        size=sizes;
+          size = sizes;
+          _controllers = List.generate(size.length, (index) {
+            return TextEditingController(text: size[index]['stock'].toString());
+          });
+          _isLoading = false; // Data has been fetched
         });
 
         print("sizesssssssssss: $size");
+      } else {
+        setState(() {
+          _isLoading = false; // Stop loading if there's an error
+        });
+        print("Failed to fetch data. Status code: ${response.statusCode}");
       }
     } catch (error) {
+      setState(() {
+        _isLoading = false; // Stop loading on error
+      });
       print("Error: $error");
     }
   }
@@ -1485,7 +1504,7 @@ void addsizes(BuildContext scaffoldContext) async {
                         DataCell(
                           ElevatedButton(
                             onPressed: () {
-                              updatestock(item['id'], _controllers[index].text);
+                              updatestock(item['id'], _controllers[index].text,item['size']);
                             },
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
