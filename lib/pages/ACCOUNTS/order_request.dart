@@ -208,7 +208,7 @@ List<Map<String, dynamic>> stat = [];
       final token = await gettokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/add/customer/address/$staffid/'),
+        Uri.parse('$api/api/add/customer/address/$selectedValue/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
