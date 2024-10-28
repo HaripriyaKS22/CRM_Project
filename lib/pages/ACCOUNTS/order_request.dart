@@ -62,20 +62,25 @@ class _order_requestState extends State<order_request> {
       }).toList(),
     );
   }
-
+  List<Map<String, dynamic>> products = [];
+final TextEditingController searchController = TextEditingController();
+List<Map<String, dynamic>> filteredProducts = [];
   List<String>  manager= ["jeshiya",'hanvi','nimitha','sandheep','sulfi'];
   String selectmanager="jeshiya";
   List<String>  address= ["empty",];
   String selectaddress="empty";
   List<Map<String, dynamic>> fam = [];
     List<Map<String, dynamic>> customer = [];
+    List<Map<String, dynamic>> variant= [];
 
     int? selectedFamilyId;
     String selectedstaff='';
     int? selectedstaffId;
     int? selectedstateId;
+  int? selectedAddressId; // Variable to store the selected address ID
+  String? selectedAddressName; // Variable to store the selected address name
 
-
+ Set<int> expandedRows = {};
     var famid;
     var staffid;
 
@@ -94,14 +99,37 @@ class _order_requestState extends State<order_request> {
     selectedstaffId=staffid;
     getcustomer();
      getstate();
-     getaddress();
+    await fetchProductList();
+
+      searchController.addListener(() {
+      filterProducts();
+    });
+     
 
   }
-
+   void toggleExpansion(int productId) {
+    setState(() {
+      if (expandedRows.contains(productId)) {
+        expandedRows.remove(productId);
+      } else {
+        expandedRows.add(productId);
+      }
+    });
+  }
+void filterProducts() {
+    final query = searchController.text.toLowerCase();
+    setState(() {
+      filteredProducts = products
+          .where((product) => product['name'].toLowerCase().contains(query))
+          .toList();
+    });
+  }
 //dateselection
    DateTime selectedDate = DateTime.now();
+     
 
   Future<void> _selectDate(BuildContext context) async {
+       print(selectedDate);
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
@@ -111,6 +139,7 @@ class _order_requestState extends State<order_request> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+        print("dateeee$selectedDate");
       });
     }
   }
@@ -119,6 +148,109 @@ class _order_requestState extends State<order_request> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+
+
+   Future<void> fetchProductList() async {
+  final token = await gettokenFromPrefs();
+
+  try {
+    final response = await http.get(
+      Uri.parse("$api/api/products/"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
+      List<Map<String, dynamic>> productList = [];
+
+      print("Products Responsehhhhhhhhhhhhhhhhhhhhhhhhh: ${response.body}");
+
+      for (var productData in productsData) {
+        // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
+        List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
+            (famItem) => famItem['id'] == id,
+            orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
+var imgurl='$api/${productData['image']}';
+        // Add the product data to the list
+        productList.add({
+          'id': productData['id'],
+          'name': productData['name'],
+          'hsn_code': productData['hsn_code'],
+          'type': productData['type'],
+          'unit': productData['unit'],
+          'purchase_rate': productData['purchase_rate'],
+          'tax': productData['tax'],
+          'exclude_price': productData['exclude_price'],
+          'selling_price': productData['selling_price'],
+          'stock': productData['stock'],
+          'created_user': productData['created_user'],
+          'family': familyNames, // Add family names here
+          'image': imgurl, // Main product image
+          // Don't process single_products or variant_products
+        });
+      }
+
+      setState(() {
+        products = productList;
+         print("productss$products");
+              filteredProducts = products;
+
+      });
+    }
+  } catch (error) {
+    print("Error: $error");
+  }
+}
+Future<void> getvariant(int id, var type) async {
+  print("iddddddddddddddddddd$id");
+  try {
+    final token = await gettokenFromPrefs();
+    List<Map<String, dynamic>> productList = [];
+    var response = await http.get(
+      Uri.parse('$api/api/products/$id/variants/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print("Response: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['products'];
+      print("varianttttt:$productsData");
+
+      for (var product in productsData) {
+        // Check if there is at least one image in 'variant_images'
+        String firstImageUrl = product['variant_images'].isNotEmpty
+            ? product['variant_images'][0]['image']
+            : '';
+var imgurl="$api/$firstImageUrl";
+        productList.add({
+          'name': product['name'],
+          'color': product['color'],
+          'image': imgurl, // Add the first image URL
+          'is_variant:': product['is_variant:'],
+          'stock': product['stock'],
+
+        });
+      }
+      setState(() {
+        variant = productList;
+        print("variantss$variant");
+      });
+
+      print("Fetched Products: $productList");
+    }
+  } catch (error) {
+    print("Error: $error");
+  }
+}
+
  Future<void> getcustomer() async {
     try {
       final token = await gettokenFromPrefs();
@@ -200,15 +332,20 @@ List<Map<String, dynamic>> stat = [];
     }
   }
 
+  
+
+
+
+
 
   List<Map<String, dynamic>> addres = [];
 
-    Future<void> getaddress() async {
+    Future<void> getaddress(var id) async {
     try {
       final token = await gettokenFromPrefs();
-
+print('urlllllllllllllllll$api/api/add/customer/address/$id/');
       var response = await http.get(
-        Uri.parse('$api/api/add/customer/address/$selectedValue/'),
+        Uri.parse('$api/api/add/customer/address/$id/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -227,6 +364,15 @@ List<Map<String, dynamic>> stat = [];
           addresslist.add({
             'id': productData['id'],
             'name': productData['name'],
+            'email': productData['email'],
+            'zipcode': productData['zipcode'],
+            'address': productData['address'],
+            'phone': productData['phone'],
+            'country': productData['country'],
+            'city': productData['city'],
+            'state': productData['state'],
+
+
             
           });
         
@@ -365,6 +511,7 @@ List<Map<String, dynamic>> sta = [];
   ];
 
   String? selectedValue;
+  int? selectedCustomerId;
   final TextEditingController textEditingController = TextEditingController();
 
   @override
@@ -684,10 +831,10 @@ List<Map<String, dynamic>> sta = [];
                   SizedBox(height: 5,),
 
                       
-                       LayoutBuilder(
+                      LayoutBuilder(
       builder: (context, constraints) {
         return Container(
-          width: constraints.maxWidth * 0.9, // Adjusted width based on screen size
+          width: 300, // Adjusted width based on screen size
           child: DropdownButtonHideUnderline(
             child: Container(
               height: 46,
@@ -715,7 +862,13 @@ List<Map<String, dynamic>> sta = [];
                   setState(() {
                     // Update the selected value with the chosen customer's name
                     selectedValue = value;
+                    // Find the corresponding customer ID
+                    selectedCustomerId = customer
+                        .firstWhere((item) => item['name'] == value)['id'];
+                    print("Selected Customer ID: $selectedCustomerId");
                   });
+
+              getaddress(selectedCustomerId);
                 },
                 buttonStyleData: const ButtonStyleData(
                   padding: EdgeInsets.symmetric(horizontal: 16),
@@ -762,9 +915,7 @@ List<Map<String, dynamic>> sta = [];
           ),
         );
       },
-    ),    
-
-
+    ),
 
       SizedBox(height: 8,),
                  Text("State",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
@@ -824,55 +975,14 @@ List<Map<String, dynamic>> sta = [];
                       ],
                     ),
                   ),
-                SizedBox(height: 10,),
-                 Text("Invoice ID",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 10,),
 
- Container(
-                              width: 304,
-                              child:  TextField(
-                                  decoration: InputDecoration(
-                                    labelText: 'IN/--',
-                                    prefixIcon: Icon(Icons.insert_drive_file),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
-                                  ),
-                                ),
-                    
-                            ),
+ SizedBox(height: 10,),
 
-                        
-                    
-                        SizedBox(height: 10,),
-                           Text("Name of new invoice",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                            SizedBox(height: 10,),
-                    
-                            Container(
-                              width: 304,
-                              child:  TextField(
-                                  decoration: InputDecoration(
-                                    labelText: 'IN/--',
-                                    prefixIcon: Icon(Icons.info_outline),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
-                                  ),
-                                ),
-                    
-                            ),
+   Text("Shipping Address",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                  SizedBox(height: 5,),
 
-                                                           SizedBox(height: 10,),
-                         Text("User management",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                          SizedBox(height: 10,),
-
-
-                          Container(
-                    width: 310,
+                    Container(
+                    width: 304,
                     height: 49,
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
@@ -889,23 +999,28 @@ List<Map<String, dynamic>> sta = [];
                               hintText: '',
                               contentPadding: EdgeInsets.symmetric(horizontal: 1),
                             ),
-                            child: DropdownButton<String>(
-                              value: selectmanager,
+                            child: DropdownButton<int>(
+                              hint:  Text(
+                  'Address',
+                  style: TextStyle(fontSize: 13, color: Theme.of(context).hintColor),
+                ),
+                              value: selectedAddressId,
+                                isExpanded: true,
                               underline: Container(), // This removes the underline
-                              onChanged: (String? newValue) {
+                              onChanged: (int? newValue) {
                                 setState(() {
-                                  selectmanager = newValue!;
-                                  print(selectmanager);
+                                  selectedAddressId = newValue!;
+                                  print(selectedAddressId);
                                 });
                               },
-                              items: manager.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
+                              items: addres.map<DropdownMenuItem<int>>((address) {
+                                return DropdownMenuItem<int>(
+                                  value:address['id'],
+                                  child: Text("${address['name']},${address['address']}"),
                                 );
                               }).toList(),
                               icon: Container(
-                                padding: EdgeInsets.only(left: 167), // Adjust padding as needed
+                                padding: EdgeInsets.only(left: 190), // Adjust padding as needed
                                 alignment: Alignment.centerRight,
                                 child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
                               ),
@@ -915,121 +1030,21 @@ List<Map<String, dynamic>> sta = [];
                       ],
                     ),
                   ),
-                     
+
+                  
+
+
                             
 
                   
 
         
 
-              SizedBox(height: 25,),
              
-                  Text("Bill To*",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-              SizedBox(height: 10,),
-
-              
-                          Container(
-                    width: 304,
-                    height: 49,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Container(
-                          width: 276,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                            ),
-                            child: DropdownButton<String>(
-                              value: selectaddress,
-                              underline: Container(), // This removes the underline
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectaddress = newValue!;
-                                  print(selectaddress);
-                                });
-                              },
-                              items: address.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              icon: Container(
-                                padding: EdgeInsets.only(left: 190), // Adjust padding as needed
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-
-                  SizedBox(height: 25,),
-             
-                  Text("Ship To*",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-              SizedBox(height: 10,),
-
-              
-                          Container(
-                    width: 304,
-                    height: 49,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Container(
-                          width: 276,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                            ),
-                            child: DropdownButton<String>(
-                              value: selectaddress,
-                              underline: Container(), // This removes the underline
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectaddress = newValue!;
-                                  print(selectaddress);
-                                });
-                              },
-                              items: address.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              icon: Container(
-                                padding: EdgeInsets.only(left: 190), // Adjust padding as needed
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-
 
                    SizedBox(height: 10,),
                  Text("Invoice Date",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 10,),
+                  SizedBox(height: 5,),
 
  Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1081,26 +1096,153 @@ List<Map<String, dynamic>> sta = [];
                            
                    SizedBox(height: 15,),
 
-                   ElevatedButton(
-                  onPressed: () {
-                    // Your onPressed logic goes here
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(255, 17, 173, 0),
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), 
+                   SizedBox(
+                    width: 150,
+                     child: ElevatedButton(
+                                       onPressed: () {
+                                       },
+                                       style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        Color.fromARGB(255, 17, 173, 0),
                       ),
-                    ),
-                    fixedSize: MaterialStateProperty.all<Size>(
-                      Size(95, 15), 
-                    ),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10), 
+                        ),
+                      ),
+                      fixedSize: MaterialStateProperty.all<Size>(
+                        Size(95, 15), 
+                      ),
+                                       ),
+                                       child: Text("Add Product",style: TextStyle(color: Colors.white)),
+                                     ),
+                   ),
+                SizedBox(height: 20,) ,  
+
+            Container(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                labelText: 'Search for products...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+  scrollDirection: Axis.horizontal,
+  child: DataTable(
+    columns: [
+      DataColumn(label: Text('Image')),
+      DataColumn(label: Text('Name')),
+      DataColumn(label: Text('Price')),
+      DataColumn(label: Text('Stock')),
+      DataColumn(label: Text('Quantity')),
+      DataColumn(label: Text('Action')),
+    ],
+    rows: [
+      for (var product in filteredProducts) ...[
+        // Main Product Row
+        DataRow(
+          cells: [
+            DataCell(
+              Image.network(
+                product['image'],
+                width: 40,
+                height: 40,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.error, color: Colors.red);
+                },
+              ),
+            ),
+            DataCell(
+              Text(
+                product['name'].length > 20
+                    ? product['name'].substring(0, 20) + '...'
+                    : product['name'],
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            DataCell(Text('\$${product['selling_price']}')),
+            DataCell(Text(product['stock']?.toString() ?? 'N/A')),
+            DataCell(
+              SizedBox(
+                width: 60,
+                child: TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
                   ),
-                  child: Text("Add Product",style: TextStyle(color: Colors.white)),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    // Handle quantity change
+                  },
                 ),
-                SizedBox(height: 20,)     
+              ),
+            ),
+            DataCell(
+              ElevatedButton(
+                onPressed: () async {
+                  await getvariant(product['id'], product['type']);
+                  toggleExpansion(product['id']);
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    expandedRows.contains(product['id'])
+                        ? Color.fromARGB(255, 255, 160, 0)
+                        : Color.fromARGB(255, 15, 168, 233),
+                  ),
+                ),
+                child: Text(
+                  expandedRows.contains(product['id']) ? 'Hide Variants' : 'Variants',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+        // Rows for each variant if the product row is expanded
+        if (expandedRows.contains(product['id']))
+          for (var variantItem in variant) 
+            DataRow(
+              cells: [
+                DataCell(
+                  Image.network(
+                    variantItem['image'] ?? '', // Image URL for the variant
+                    width: 40,
+                    height: 40,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.error, color: Colors.red);
+                    },
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    variantItem['name'].length > 20
+                        ? variantItem['name'].substring(0, 20) + '...'
+                        : variantItem['name'],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                DataCell(Text('\$${variantItem['price'] ?? 'N/A'}')), // Price if available
+                DataCell(Text(variantItem['stock']?.toString() ?? 'N/A')), // Stock if available
+                DataCell(Container()), // Empty cell to align with main table
+                DataCell(Container()), // Empty cell to align with main table
+              ],
+            ),
+      ],
+    ],
+  ),
+),
+
+        ],
+      ),
+    ),
                     
                       ],
                     ),
