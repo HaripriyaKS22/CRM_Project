@@ -664,7 +664,7 @@ List<Map<String, dynamic>> sta = [];
                       children: [
                         SizedBox(height: 20,),
 
-                 Text("Select Company *",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                 Text("Select Company *",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                   SizedBox(height: 10,),
 
 
@@ -709,7 +709,7 @@ List<Map<String, dynamic>> sta = [];
                         
                                     
                 SizedBox(height: 8,),
-                 Text("Select Family *",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                 Text("Select Family *",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                   SizedBox(height: 5,),
 
                       Container(
@@ -734,7 +734,11 @@ List<Map<String, dynamic>> sta = [];
               child: DropdownButton<int>(
             hint: Text(
               'Select a Family',
-              style: TextStyle(color: Colors.grey[600]),
+              
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600]),
+              
             ),
             value: selectedFamilyId,
             isExpanded: true,
@@ -770,7 +774,7 @@ List<Map<String, dynamic>> sta = [];
 
                                          
                 SizedBox(height: 8,),
-                 Text("Maneger *",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                 Text("Maneger",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                   SizedBox(height: 5,),
 
 
@@ -824,7 +828,7 @@ List<Map<String, dynamic>> sta = [];
                     ),
                   ),
                      SizedBox(height: 8,),
-                 Text("Customer *",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                 Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                   SizedBox(height: 5,),
 
                       
@@ -843,7 +847,7 @@ List<Map<String, dynamic>> sta = [];
                 isExpanded: true,
                 hint: Text(
                   'Select a Customer',
-                  style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
                 ),
                 items: customer
                     .map((item) => DropdownMenuItem<String>(
@@ -915,7 +919,7 @@ List<Map<String, dynamic>> sta = [];
     ),
 
       SizedBox(height: 8,),
-                 Text("State",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                 Text("State",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                   SizedBox(height: 5,),
 
 
@@ -944,7 +948,7 @@ List<Map<String, dynamic>> sta = [];
                             child: DropdownButton<int>(
                               hint:  Text(
                   'State',
-                  style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
                 ),
                               value: selectedstateId,
                                 isExpanded: true,
@@ -973,9 +977,9 @@ List<Map<String, dynamic>> sta = [];
                     ),
                   ),
 
- SizedBox(height: 10,),
+ SizedBox(height:8,),
 
-   Text("Shipping Address",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+   Text("Shipping Address",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                   SizedBox(height: 5,),
 
                     Container(
@@ -1027,79 +1031,51 @@ List<Map<String, dynamic>> sta = [];
                       ],
                     ),
                   ),
-
-                  
-
-
-                            
-
-                  
-
-        
-
-             
-
-                   SizedBox(height: 10,),
-                 Text("Invoice Date",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                 SizedBox(height:8,),
+                 Text("Invoice Date",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                   SizedBox(height: 5,),
 
- Column(
+          Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-  width: 304, 
-  height: 46, 
-  decoration: BoxDecoration(
-    border: Border.all(
-      color: Colors.grey, 
-      width: 1.0, 
-    ),
-    borderRadius: BorderRadius.circular(8.0), 
-  ),
-  child: Row(
-    children: [
-      SizedBox(width: 30,),
-      Text(
-        '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-        style: TextStyle(fontSize:15,color:Color.fromARGB(255, 116, 116, 116)),
-      ),
-      SizedBox(width: 162,),
-       GestureDetector(
-        onTap: () {
-         _selectDate(context);
-          print('Icon pressed');
-        },
-        child: Icon(Icons.date_range),
-      ),
-    ],
-  ),
-),
-
-           
-           
+        width: 304, 
+        height: 46, 
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.grey, 
+            width: 1.0, 
+          ),
+          borderRadius: BorderRadius.circular(8.0), 
+        ),
+        child: Row(
+          children: [
+            SizedBox(width: 30,),
+            Text(
+              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+              style: TextStyle(fontSize:12,color:Color.fromARGB(255, 116, 116, 116)),
+            ),
+            SizedBox(width: 162,),
+            GestureDetector(
+              onTap: () {
+              _selectDate(context);
+                print('Icon pressed');
+              },
+              child: Icon(Icons.date_range),
+            ),
           ],
         ),
-                 
-
-             
-             
-
-
-                          
-
-                  
-
-
-                           
-                   SizedBox(height: 15,),
-
+      ),
+        ],
+              ),          
+                        SizedBox(height: 15,),
                    SizedBox(
                     width: 150,
                      child: ElevatedButton(
                        onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
                             },
-                                       style: ButtonStyle(
+                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
                         Color.fromARGB(255, 17, 173, 0),
                       ),
@@ -1110,12 +1086,11 @@ List<Map<String, dynamic>> sta = [];
                       ),
                       fixedSize: MaterialStateProperty.all<Size>(
                         Size(95, 15), 
+                      ), ),
+                      child: Text("Add Product",style: TextStyle(color: Colors.white)),
                       ),
-                                       ),
-                                       child: Text("Add Product",style: TextStyle(color: Colors.white)),
-                                     ),
                    ),
-                SizedBox(height: 20,) ,  
+                SizedBox(height: 20,),
 
 //             Container(
 //       child: Column(
