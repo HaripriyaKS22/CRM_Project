@@ -1,1 +1,1 @@
-var api="https://enlargement-furthermore-receiving-enters.trycloudflare.com";
+var api="https://brazilian-garcia-revision-readers.trycloudflare.com";

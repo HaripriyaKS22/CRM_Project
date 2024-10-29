@@ -9,14 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Product_List extends StatefulWidget {
-  const Product_List({super.key});
+class order_products extends StatefulWidget {
+  const order_products({super.key});
 
   @override
-  State<Product_List> createState() => _Product_ListState();
+  State<order_products> createState() => _order_productsState();
 }
 
-class _Product_ListState extends State<Product_List> {
+class _order_productsState extends State<order_products> {
   drower d = drower();
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
@@ -34,18 +34,18 @@ class _Product_ListState extends State<Product_List> {
       }).toList(),
     );
   }
-
+  Map<int, bool> expandedProducts = {}; // Track expanded state for products
   List<Map<String, dynamic>> fam = [];
   List<Map<String, dynamic>> products = [];
   List<bool> _checkboxValues = [];
   List<Map<String, dynamic>> filteredProducts = [];
-  TextEditingController searchController =
-      TextEditingController(); // Search controller
+  List<Map<String, dynamic>> variant= [];
+
+  TextEditingController searchController =TextEditingController(); // Search controller
 
   @override
   void initState() {
     super.initState();
-    getFamily();
     initdata();
   }
 
@@ -56,6 +56,12 @@ class _Product_ListState extends State<Product_List> {
     });
   }
 
+Future<void> _getAndShowVariants(int productId) async {
+    await getvariant(productId, "type"); // Call your existing getvariant function
+    setState(() {
+      expandedProducts[productId] = !(expandedProducts[productId] ?? false);
+    });
+  }
   void _filterProducts(String query) {
     if (query.isEmpty) {
       setState(() {
@@ -76,42 +82,7 @@ class _Product_ListState extends State<Product_List> {
     return prefs.getString('token');
   }
 
-  Future<void> getFamily() async {
-    try {
-      final token = await getTokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/familys/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      print("Family Data Response: ${response.body}");
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-        List<Map<String, dynamic>> familyList = [];
-
-        for (var productData in productsData) {
-          familyList.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-
-        setState(() {
-          fam = familyList;
-          _checkboxValues = List<bool>.filled(fam.length, false);
-        });
-      }
-    } catch (error) {
-      print("Error: $error");
-    }
-  }
-
+  
   Future<void> fetchProductList() async {
   final token = await getTokenFromPrefs();
 
@@ -158,12 +129,80 @@ class _Product_ListState extends State<Product_List> {
 
       setState(() {
         products = productList;
+        print("Productsssssssssssss$products");
       });
     }
   } catch (error) {
     print("Error: $error");
   }
 }
+
+Future<void> getvariant(int id, var type) async {
+  print("id: $id");
+  try {
+    final token = await getTokenFromPrefs();
+    List<Map<String, dynamic>> productList = [];
+    
+    var response = await http.get(
+      Uri.parse('$api/api/products/$id/variants/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print("Response: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['products'];
+      print("Variants: $productsData");
+
+      for (var product in productsData) {
+        if (product['is_variant'] == false) {
+          // Add product details for non-variant product
+          productList.add({
+            'name': product['name'],
+            'color': product['color'],
+            'stock': product['stock'],
+          });
+        } else {
+          // Add product details including the first image and sizes for variant product
+          String firstImageUrl = product['variant_images'].isNotEmpty
+              ? product['variant_images'][0]['image']
+              : '';
+          var imgurl = "$api/$firstImageUrl";
+          
+          // Extract sizes as a list of maps with attribute and stock
+          List<Map<String, dynamic>> sizesList = product['sizes'].map<Map<String, dynamic>>((size) {
+            return {
+              'attribute': size['attribute'],
+              'stock': size['stock'],
+            };
+          }).toList();
+          
+          productList.add({
+            'name': product['name'],
+            'color': product['color'],
+            'image': imgurl, // Add the first image URL for variants
+            'is_variant': product['is_variant'],
+            'sizes': sizesList, // Add sizes list
+          });
+        }
+      }
+      
+      setState(() {
+        variant = productList;
+        print("Variants List: $variant");
+      });
+
+      print("Fetched Products: $productList");
+    }
+  } catch (error) {
+    print("Error: $error");
+  }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -333,79 +372,145 @@ Padding(
 
 
 
-           Expanded(
-             child: ListView.builder(
-               itemCount: filteredProducts.length, // Show filtered products
-               itemBuilder: (context, index) {
-                 final product = filteredProducts[index];
-                 return Padding(
-               padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-               child: Container(
-                 height: 80,
-                 decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10.0), // Add border radius here
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3), // changes position of shadow
-                ),
-              ],
-                 ),
-                 child: ListTile(
-              leading: product['image'] != null && product['image'].isNotEmpty
-                  ? Image.network(
-                      '$api${product['image']}', // Display product image
-                      width: 50, // Set width for the image
-                      height: 50, // Set height for the image
-                      fit: BoxFit.cover, // Adjust the image aspect ratio
-                      errorBuilder: (context, error, stackTrace) => Icon(Icons.error), // Handle image load error
-                    )
-                  : Icon(Icons.image_not_supported), // Placeholder if no image
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "${product['name']}",
-                      style: TextStyle(fontSize: 14),
-                      maxLines: 1, // Ensures the text only takes up one line
-                      overflow: TextOverflow.ellipsis, // Adds ellipsis if the text is too long
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => add_product_variant(id: product['id'], type: product['type']),
-                        ),
-                      );
-                    },
-                    label: Text(
-                      "View",
-                      style: TextStyle(color: Colors.white, fontSize: 10), // White text with smaller font size
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Blue background color
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
-                      minimumSize: const Size(60, 24), // Set a smaller minimum size
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // Rounded corners
+     Expanded(
+      child: ListView.builder(
+        itemCount: filteredProducts.length,
+        itemBuilder: (context, index) {
+          final product = filteredProducts[index];
+          final isExpanded = expandedProducts[product['id']] ?? false;
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
                       ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: product['image'] != null && product['image'].isNotEmpty
+                        ? Image.network(
+                            '$api${product['image']}',
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                          )
+                        : Icon(Icons.image_not_supported),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "${product['name']}",
+                            style: TextStyle(fontSize: 14),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        product['type'] == 'single'
+                            ? ElevatedButton.icon(
+                                onPressed: () {
+                                  // Add functionality for Add button
+                                },
+                                icon: Icon(
+                                  Icons.add,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
+                                label: Text("Add", style: TextStyle(color: Colors.white, fontSize: 10)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  minimumSize: const Size(60, 24),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                              )
+                            : ElevatedButton.icon(
+                                onPressed: () => _getAndShowVariants(product['id']),
+                                icon: Icon(Icons.view_agenda, size: 14),
+                                label: Text("View", style: TextStyle(color: Colors.white, fontSize: 10)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  minimumSize: const Size(60, 24),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                              ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-                 ),
-               ),
-             );
-             
-               },
-             ),
-           ),
+                ),
+                // Display variant list if expanded
+                if (isExpanded && variant.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, left: 10, right: 10),
+                    child: Column(
+                      children: variant.map((variantProduct) {
+                        return Container(
+                          height: 70,
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              if (variantProduct['image'] != null && variantProduct['image'].isNotEmpty)
+                                Image.network(
+                                  variantProduct['image'],
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                                )
+                              else
+                                Icon(Icons.image_not_supported),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  "${variantProduct['name']} - ${variantProduct['color']} - Stock: ${variantProduct['stock']}",
+                                  style: TextStyle(fontSize: 12),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    ),
          ],
        ),
      ),

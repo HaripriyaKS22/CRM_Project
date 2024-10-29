@@ -186,6 +186,14 @@ class _dashboardState extends State<dashboard> {
                 // Navigate to the Settings page or perform any other action
               },
             ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Bank'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
              ListTile(
               leading: Icon(Icons.person),
               title: Text('States'),

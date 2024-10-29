@@ -1,5 +1,7 @@
 
 
+import 'dart:convert';
+
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,9 @@ import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:beposoft/pages/api.dart';
 
 
 
@@ -27,15 +32,7 @@ class add_bank extends StatefulWidget {
 }
 
 class _add_bankState extends State<add_bank> {
-   List<String>  bank = ["ICIC",'SBI','PETTY CASH','HDFC'];
-  String selectbank="ICIC";
-
-    List<String>  addedby = ["jeshiya",'nimitha','hanvi','sulfi','yeshitha'];
-  String selectaddby="jeshiya";
-  double number = 0.00;
-    double rate = 0.00;
-     double margin = 0.00;
-
+ 
      drower d=drower();
    Widget _buildDropdownTile(BuildContext context, String title, List<String> options) {
     return ExpansionTile(
@@ -52,82 +49,114 @@ class _add_bankState extends State<add_bank> {
     );
   }
 
+TextEditingController name=TextEditingController();
+TextEditingController account_number=TextEditingController();
+TextEditingController branch=TextEditingController();
+TextEditingController ifsc=TextEditingController();
+TextEditingController balance=TextEditingController();
+  List<Map<String, dynamic>> bank = [];
 
-  void incrementNumber() {
-    setState(() {
-      number += 0.01; // Increment by 0.01 (you can adjust the increment value as needed)
-      controller.text = number.toStringAsFixed(2);
-      
-    });
-  }
-  void incrementrate() {
-    setState(() {
-      rate += 0.01; // Increment by 0.01 (you can adjust the increment value as needed)
-      controller2.text = rate.toStringAsFixed(2);
-      
-    });
-  }
+Future<String?> gettoken()async{
+  SharedPreferences pref=await SharedPreferences.getInstance();
+  return pref.getString('token');
+  
+}
 
-  void incrementmargin() {
-    setState(() {
-      margin += 0.01; // Increment by 0.01 (you can adjust the increment value as needed)
-      controller3.text = margin.toStringAsFixed(2);
-      
-    });
-  }
-
-
-  void decrementNumber() {
-    setState(() {
-      if (number >= 0.01) {
-        number -= 0.01; // Decrement by 0.01 (you can adjust the decrement value as needed)
-        controller.text = number.toStringAsFixed(2);
-         
-      }
-    });
-  }
-
-   void decrementrate() {
-    setState(() {
-      if (rate >= 0.01) {
-        rate -= 0.01; // Decrement by 0.01 (you can adjust the decrement value as needed)
-        controller2.text = rate.toStringAsFixed(2);
-         
-      }
-    });
-  }
-  void decrementmargin() {
-    setState(() {
-      if (margin >= 0.01) {
-        margin -= 0.01; // Decrement by 0.01 (you can adjust the decrement value as needed)
-        controller3.text = margin.toStringAsFixed(2);
-         
-      }
-    });
-  }
-  final TextEditingController controller = TextEditingController();
-  final TextEditingController controller2 = TextEditingController();
-  final TextEditingController controller3 = TextEditingController();
-  var selectedfile;
    @override
   void initState() {
     super.initState();
-    controller.text = number.toStringAsFixed(2);
-
-     
-    
-
+    getbank();
   }
 
-  Color currentColor = Colors.black;
-
-  void changeColor(Color color) {
-    setState(() {
-      currentColor = color;
-    });
-  }
 
   
+
+Future<void> Addbank(    BuildContext scaffoldContext,
+) async{
+  final token=await gettoken();
+ try{
+   final response= await http.post(Uri.parse('$api/api/add/bank/'),
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+  },
+  body:jsonEncode(
+    {
+      'name':name.text,
+      'account_number':account_number.text,
+      'branch':branch.text,
+      'ifsc_code':ifsc.text,
+      'open_balance':balance.text
+    }
+  )
+  );
+   print("Response: ${response.body}");
+   print("ressss${response.statusCode}");
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+             backgroundColor: Colors.green,
+            content: Text('Bank added Successfully.'),
+          ),
+        );
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Adding Bank failed.'),
+          ),
+        );
+      }
+ }
+ catch(e){
+  print("error:$e");
+ }
+}
+
+Future<void> getbank() async{
+  final token=await gettoken();
+  try{
+    final response= await http.get(Uri.parse('$api/api/banks/'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    }
+    );
+    List<Map<String, dynamic>> banklist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          banklist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'branch':productData['branch']
+            
+          });
+        
+        }
+        setState(() {
+          bank = banklist;
+                  print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+
+          
+        });
+      }
+
+  }
+  catch(e){
+    print("error:$e");
+  }
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +300,6 @@ class _add_bankState extends State<add_bank> {
                       ),
                     ),
 
-                      SizedBox(height: 30,),
 
 
                 Padding(
@@ -291,334 +319,117 @@ class _add_bankState extends State<add_bank> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
-                          SizedBox(height: 20,),
-
-                               Text("Select Bank For Update",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                          SizedBox(height: 10,),
-
-                           Container(
-                    width: 304,
-                    height: 49,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Container(
-                          width: 276,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                            ),
-                            child: DropdownButton<String>(
-                              value: selectbank,
-                              underline: Container(), // This removes the underline
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectbank = newValue!;
-                                  print(selectbank);
-                                });
-                              },
-                              items: bank.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              icon: Container(
-                                padding: EdgeInsets.only(left: 153), // Adjust padding as needed
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),SizedBox(height: 60,),
-                  Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 1,
-                    width: 300,
-                    color: Color.fromARGB(255, 215, 201, 201),
-                  ),
-                  
-                  
-                ],
-              ),
-
-
-
-
-
                          SizedBox(height: 10,),
-                           Text("Bank Name",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                            SizedBox(height: 13,),
+                           Text("Bank Name",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                            SizedBox(height: 5,),
                     
-                            Container(
-                              width: 304,
-                              child:  TextField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Bank Name',
-                                   
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
-                                  ),
-                                ),
-                    
-                            ),
+                         Container(
+  width: 304,
+  child: TextField(
+    controller: name,
+    decoration: InputDecoration(
+      labelText: 'Bank Name',
+      
+      labelStyle: TextStyle(
+        fontSize: 12.0, // Set your desired font size
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+    ),
+  ),
+),
+
                           
 
 
                        
                         SizedBox(height: 10,),
-                           Text("Account Number",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                            SizedBox(height: 13,),
-                    
-                            Container(
-                              width: 304,
-                              child:  TextField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Account Number',
-                                    
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
-                                  ),
-                                ),
-                    
-                            ),
+                           Text("Account Number",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                            SizedBox(height: 5,),
+                    Container(
+  width: 304,
+  child: TextField(
+    controller: account_number,
+    decoration: InputDecoration(
+      labelText: 'Account Number',
+      labelStyle: TextStyle(
+        fontSize: 12.0, // Set your desired font size
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+    ),
+  ),
+),
 
                               SizedBox(height: 10,),
-                           Text("Branch",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                            SizedBox(height: 13,),
+                           Text("Branch",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                            SizedBox(height: 5,),
                     
                             Container(
-                              width: 304,
-                              child:  TextField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Branch',
-                                   
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
-                                  ),
-                                ),
-                    
-                            ),
-                            SizedBox(height: 10,),
-
-
-                       
-                        SizedBox(height: 10,),
-                           Text("IFSC Code",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                            SizedBox(height: 13,),
+  width: 304,
+  child: TextField(
+    controller: branch,
+    decoration: InputDecoration(
+      labelText: 'Branch',
+      labelStyle: TextStyle(
+        fontSize: 12.0, // Set your desired font size
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+    ),
+  ),
+),
+  SizedBox(height: 10,),
+                           Text("IFSC Code",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                            SizedBox(height: 5,),
                     
                             Container(
-                              width: 304,
-                              child:  TextField(
-                                  decoration: InputDecoration(
-                                    labelText: 'IFSC Code',
-                                
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
-                                  ),
-                                ),
-                    
-                            ),
-
-                    
-
-                    
-                       
-                  
-                               Text("Opening Balance ",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                          SizedBox(height: 10,),
-
-
-        Container(
-          width: 310,
-          height: 49,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-            
-              Expanded(
-                child: Container(
-        
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  
-                  controller: controller2,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                   
-                    border: InputBorder.none,
-                    hintText: '0',
-                    // Adjust horizontal padding
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      rate = double.tryParse(value) ?? 0.00;
-                    });
-                  },
-                ),
-              ),
-               Container(
-                width: 30,
-                color:  Color.fromARGB(255, 88, 184, 248),
-                 child: IconButton(
-                         icon: Icon(Icons.keyboard_arrow_down_rounded, size: 20,color: Colors.white), // Down arrow icon with size 20
-                         onPressed: decrementrate,
-                         
-                       ),
-               ),
-              Container(
-                width: 30,
-              
-                decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 64, 176, 251),
-    border: Border.all(color: Color.fromARGB(255, 64, 176, 251)),
-    borderRadius: BorderRadius.only(
-      bottomRight: Radius.circular(10),
-      topRight: Radius.circular(10)
-    )
-  ),
-                child: IconButton(
-                  icon: Icon(Icons.keyboard_arrow_up_rounded, size: 20,color: Colors.white), // Up arrow icon with size 20
-                  onPressed: incrementrate,
-                ),
-              ),
-            ],
-          ),
-        ),
+  width: 304,
+  child: TextField(
+    controller: ifsc,
+    decoration: InputDecoration(
+      labelText: 'IFSC Code',
+      labelStyle: TextStyle(
+        fontSize: 12.0, // Set your desired font size
       ),
-    ],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+    ),
   ),
 ),
-
-
-                               Text("Closing Balance",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                          SizedBox(height: 10,),
-
-
-        Container(
-          width: 310,
-          height: 49,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-            
-              Expanded(
-                child: Container(
-        
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  
-                  controller: controller3,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                   
-                    border: InputBorder.none,
-                    hintText: '0',
-                    // Adjust horizontal padding
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      margin = double.tryParse(value) ?? 0.00;
-                    });
-                  },
-                ),
-              ),
-               Container(
-                width: 30,
-                color:  Color.fromARGB(255, 88, 184, 248),
-                 child: IconButton(
-                         icon: Icon(Icons.keyboard_arrow_down_rounded, size: 20,color: Colors.white), // Down arrow icon with size 20
-                         onPressed: decrementmargin,
-                         
-                       ),
-               ),
-              Container(
-                width: 30,
-              
-                decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 64, 176, 251),
-    border: Border.all(color: Color.fromARGB(255, 64, 176, 251)),
-    borderRadius: BorderRadius.only(
-      bottomRight: Radius.circular(10),
-      topRight: Radius.circular(10)
-    )
-  ),
-                child: IconButton(
-                  icon: Icon(Icons.keyboard_arrow_up_rounded, size: 20,color: Colors.white), // Up arrow icon with size 20
-                  onPressed: incrementmargin,
-                ),
-              ),
-            ],
-          ),
-        ),
+       SizedBox(height: 10,),
+       Text("Opening Balance ",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+       SizedBox(height: 5,),
+Container(
+  width: 304,
+  child: TextField(
+    controller: balance,
+    decoration: InputDecoration(
+      labelText: 'Opening Balance',
+      labelStyle: TextStyle(
+        fontSize: 12.0, // Set your desired font size
       ),
-    ],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+    ),
   ),
 ),
-
-
-                        
-
-
-                            SizedBox(height: 10,),
-
-                  
-
-         SizedBox(height: 20,),
-
-                 Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 1,
-                    width: 300,
-                    color: Color.fromARGB(255, 215, 201, 201),
-                  ),
-                  
-                  
-                ],
-              ),
-              
-
-              SizedBox(height: 25,),
-             
-                
-                     
-                
-                   SizedBox(height: 15,),
+        SizedBox(height: 15,),
 
                    Row(
                      children:[
@@ -628,7 +439,7 @@ class _add_bankState extends State<add_bank> {
                       width: 270,
                        child: ElevatedButton(
                                          onPressed: () {
-                        // Your onPressed logic goes here
+                        Addbank(context);
                                          },
                                          style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
@@ -660,7 +471,97 @@ class _add_bankState extends State<add_bank> {
 ),
 
                 ),
-
+SizedBox(height: 15),
+ Padding(
+   padding: const EdgeInsets.only(left: 15),
+   child: Row(
+    mainAxisAlignment: MainAxisAlignment.start,
+     children: [
+       Text(
+                  "Available Bank",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+     ],
+   ),
+ ),
+          SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(right: 15,left: 15),
+            child: Container(
+              color: Colors.white,
+              child: Table(
+                
+                border: TableBorder.all(color: Color.fromARGB(255, 214, 213, 213)),
+                columnWidths: {
+                     0: FixedColumnWidth(40.0), // Fixed width for the first column (No.)
+                  1: FlexColumnWidth(2),     // Flex width for the second column (Department Name)
+                  2: FixedColumnWidth(50.0), // Fixed width for the third column (Edit)
+              
+                },
+                children: [
+                  const TableRow(
+                    decoration: BoxDecoration(
+                      color:   Color.fromARGB(255, 64, 176, 251),
+                    ),
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "No.",
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "Department Name",
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                        ),
+                      ),
+                        Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "Edit",
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                        ),
+                      ),
+                     
+                    ],
+                  ),
+                  for (int i = 0; i < bank.length; i++)
+                    TableRow(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text((i + 1).toString()),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(bank[i]['name']),
+                        ),
+                                     Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: GestureDetector(
+                                            onTap: () {
+                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>update_family(id:fam[i]['id'])));
+                                       
+                                            },
+                                            child: Image.asset(
+                                                            "lib/assets/edit.jpg",
+                                       
+                                              width: 20,
+                                              height: 20,
+                                             
+                                            ),
+                                          ),
+                                     ),
+                        
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
                
 
               ],

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/order_products.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -244,7 +245,7 @@ var imgurl="$api/$firstImageUrl";
         print("variantss$variant");
       });
 
-      print("Fetched Products: $productList");
+      print("Fetched Products : $productList");
     }
   } catch (error) {
     print("Error: $error");
@@ -331,13 +332,6 @@ List<Map<String, dynamic>> stat = [];
       print("Error: $error");
     }
   }
-
-  
-
-
-
-
-
   List<Map<String, dynamic>> addres = [];
 
     Future<void> getaddress(var id) async {
@@ -426,7 +420,7 @@ print('urlllllllllllllllll$api/api/add/customer/address/$id/');
   //searchable dropdown
 
 
-  Future<void> getprofiledata() async {
+  Future<void> getprofiledata() async{
     try {
       final token = await gettokenFromPrefs();
 
@@ -456,6 +450,9 @@ print('urlllllllllllllllll$api/api/add/customer/address/$id/');
       print("Error: $error");
     }
   }
+
+
+  
 
 
 List<Map<String, dynamic>> sta = [];
@@ -498,6 +495,7 @@ List<Map<String, dynamic>> sta = [];
   }
 
 
+
  final List<String> items = [
     'A_Item1',
     'A_Item2',
@@ -509,7 +507,6 @@ List<Map<String, dynamic>> sta = [];
     'B_Item4',
     "anii"
   ];
-
   String? selectedValue;
   int? selectedCustomerId;
   final TextEditingController textEditingController = TextEditingController();
@@ -1099,8 +1096,9 @@ List<Map<String, dynamic>> sta = [];
                    SizedBox(
                     width: 150,
                      child: ElevatedButton(
-                                       onPressed: () {
-                                       },
+                       onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
+                            },
                                        style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
                         Color.fromARGB(255, 17, 173, 0),
@@ -1119,130 +1117,130 @@ List<Map<String, dynamic>> sta = [];
                    ),
                 SizedBox(height: 20,) ,  
 
-            Container(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                labelText: 'Search for products...',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-  scrollDirection: Axis.horizontal,
-  child: DataTable(
-    columns: [
-      DataColumn(label: Text('Image')),
-      DataColumn(label: Text('Name')),
-      DataColumn(label: Text('Price')),
-      DataColumn(label: Text('Stock')),
-      DataColumn(label: Text('Quantity')),
-      DataColumn(label: Text('Action')),
-    ],
-    rows: [
-      for (var product in filteredProducts) ...[
-        // Main Product Row
-        DataRow(
-          cells: [
-            DataCell(
-              Image.network(
-                product['image'],
-                width: 40,
-                height: 40,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(Icons.error, color: Colors.red);
-                },
-              ),
-            ),
-            DataCell(
-              Text(
-                product['name'].length > 20
-                    ? product['name'].substring(0, 20) + '...'
-                    : product['name'],
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            DataCell(Text('\$${product['selling_price']}')),
-            DataCell(Text(product['stock']?.toString() ?? 'N/A')),
-            DataCell(
-              SizedBox(
-                width: 60,
-                child: TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Handle quantity change
-                  },
-                ),
-              ),
-            ),
-            DataCell(
-              ElevatedButton(
-                onPressed: () async {
-                  await getvariant(product['id'], product['type']);
-                  toggleExpansion(product['id']);
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    expandedRows.contains(product['id'])
-                        ? Color.fromARGB(255, 255, 160, 0)
-                        : Color.fromARGB(255, 15, 168, 233),
-                  ),
-                ),
-                child: Text(
-                  expandedRows.contains(product['id']) ? 'Hide Variants' : 'Variants',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-        // Rows for each variant if the product row is expanded
-        if (expandedRows.contains(product['id']))
-          for (var variantItem in variant) 
-            DataRow(
-              cells: [
-                DataCell(
-                  Image.network(
-                    variantItem['image'] ?? '', // Image URL for the variant
-                    width: 40,
-                    height: 40,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.error, color: Colors.red);
-                    },
-                  ),
-                ),
-                DataCell(
-                  Text(
-                    variantItem['name'].length > 20
-                        ? variantItem['name'].substring(0, 20) + '...'
-                        : variantItem['name'],
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                DataCell(Text('\$${variantItem['price'] ?? 'N/A'}')), // Price if available
-                DataCell(Text(variantItem['stock']?.toString() ?? 'N/A')), // Stock if available
-                DataCell(Container()), // Empty cell to align with main table
-                DataCell(Container()), // Empty cell to align with main table
-              ],
-            ),
-      ],
-    ],
-  ),
-),
+//             Container(
+//       child: Column(
+//         children: [
+//           Padding(
+//             padding: const EdgeInsets.all(8.0),
+//             child: TextField(
+//               controller: searchController,
+//               decoration: InputDecoration(
+//                 labelText: 'Search for products...',
+//                 border: OutlineInputBorder(),
+//               ),
+//             ),
+//           ),
+//           SingleChildScrollView(
+//   scrollDirection: Axis.horizontal,
+//   child: DataTable(
+//     columns: [
+//       DataColumn(label: Text('Image')),
+//       DataColumn(label: Text('Name')),
+//       DataColumn(label: Text('Price')),
+//       DataColumn(label: Text('Stock')),
+//       DataColumn(label: Text('Quantity')),
+//       DataColumn(label: Text('Action')),
+//     ],
+//     rows: [
+//       for (var product in filteredProducts) ...[
+//         // Main Product Row
+//         DataRow(
+//           cells: [
+//             DataCell(
+//               Image.network(
+//                 product['image'],
+//                 width: 40,
+//                 height: 40,
+//                 errorBuilder: (context, error, stackTrace) {
+//                   return Icon(Icons.error, color: Colors.red);
+//                 },
+//               ),
+//             ),
+//             DataCell(
+//               Text(
+//                 product['name'].length > 20
+//                     ? product['name'].substring(0, 20) + '...'
+//                     : product['name'],
+//                 maxLines: 1,
+//                 overflow: TextOverflow.ellipsis,
+//               ),
+//             ),
+//             DataCell(Text('\$${product['selling_price']}')),
+//             DataCell(Text(product['stock']?.toString() ?? 'N/A')),
+//             DataCell(
+//               SizedBox(
+//                 width: 60,
+//                 child: TextField(
+//                   decoration: InputDecoration(
+//                     border: OutlineInputBorder(),
+//                     contentPadding: EdgeInsets.symmetric(horizontal: 8),
+//                   ),
+//                   keyboardType: TextInputType.number,
+//                   onChanged: (value) {
+//                     // Handle quantity change
+//                   },
+//                 ),
+//               ),
+//             ),
+//             DataCell(
+//               ElevatedButton(
+//                 onPressed: () async {
+//                   await getvariant(product['id'], product['type']);
+//                   toggleExpansion(product['id']);
+//                 },
+//                 style: ButtonStyle(
+//                   backgroundColor: MaterialStateProperty.all<Color>(
+//                     expandedRows.contains(product['id'])
+//                         ? Color.fromARGB(255, 255, 160, 0)
+//                         : Color.fromARGB(255, 15, 168, 233),
+//                   ),
+//                 ),
+//                 child: Text(
+//                   expandedRows.contains(product['id']) ? 'Hide Variants' : 'Variants',
+//                   style: TextStyle(color: Colors.white),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//         // Rows for each variant if the product row is expanded
+//         if (expandedRows.contains(product['id']))
+//           for (var variantItem in variant) 
+//             DataRow(
+//               cells: [
+//                 DataCell(
+//                   Image.network(
+//                     variantItem['image'] ?? '', // Image URL for the variant
+//                     width: 40,
+//                     height: 40,
+//                     errorBuilder: (context, error, stackTrace) {
+//                       return Icon(Icons.error, color: Colors.red);
+//                     },
+//                   ),
+//                 ),
+//                 DataCell(
+//                   Text(
+//                     variantItem['name'].length > 20
+//                         ? variantItem['name'].substring(0, 20) + '...'
+//                         : variantItem['name'],
+//                     maxLines: 1,
+//                     overflow: TextOverflow.ellipsis,
+//                   ),
+//                 ),
+//                 DataCell(Text('\$${variantItem['price'] ?? 'N/A'}')), // Price if available
+//                 DataCell(Text(variantItem['stock']?.toString() ?? 'N/A')), // Stock if available
+//                 DataCell(Container()), // Empty cell to align with main table
+//                 DataCell(Container()), // Empty cell to align with main table
+//               ],
+//             ),
+//       ],
+//     ],
+//   ),
+// ),
 
-        ],
-      ),
-    ),
+//         ],
+//       ),
+//     ),
                     
                       ],
                     ),
