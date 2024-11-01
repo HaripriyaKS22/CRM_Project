@@ -1,1 +1,1 @@
-var api="https://brazilian-garcia-revision-readers.trycloudflare.com";
+var api="https://calgary-message-none-certification.trycloudflare.com";

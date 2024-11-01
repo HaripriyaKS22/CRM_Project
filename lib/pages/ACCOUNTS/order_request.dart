@@ -1,4 +1,6 @@
 
+
+
 import 'dart:convert';
 
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
@@ -73,13 +75,15 @@ List<Map<String, dynamic>> filteredProducts = [];
   List<Map<String, dynamic>> fam = [];
     List<Map<String, dynamic>> customer = [];
     List<Map<String, dynamic>> variant= [];
-
     int? selectedFamilyId;
+
+    int? selectedbankId;
     String selectedstaff='';
     int? selectedstaffId;
     int? selectedstateId;
   int? selectedAddressId; // Variable to store the selected address ID
   String? selectedAddressName; // Variable to store the selected address name
+  List<Map<String, dynamic>> bank = [];
 
  Set<int> expandedRows = {};
     var famid;
@@ -104,10 +108,19 @@ List<Map<String, dynamic>> filteredProducts = [];
 
       searchController.addListener(() {
       filterProducts();
+
     });
      
-
+      getbank();
   }
+
+
+
+
+
+
+ 
+
    void toggleExpansion(int productId) {
     setState(() {
       if (expandedRows.contains(productId)) {
@@ -150,8 +163,47 @@ void filterProducts() {
     return prefs.getString('token');
   }
 
+Future<void> getbank() async{
+  final token=await gettokenFromPrefs();
+  try{
+    final response= await http.get(Uri.parse('$api/api/banks/'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    }
+    );
+    List<Map<String, dynamic>> banklist = [];
+        print("bankkkkkkkkkkkkkkkkkkkkkresssssss${response.body}");
 
-   Future<void> fetchProductList() async {
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("bankkkkkkkkkkkkkkkkkkkkkresssssss$parsed");
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          banklist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'branch':productData['branch']
+            
+          });
+        
+        }
+        setState(() {
+          bank = banklist;
+                  print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+
+          
+        });
+      }
+
+  }
+  catch(e){
+    print("error:$e");
+  }
+}
+  Future<void> fetchProductList() async {
   final token = await gettokenFromPrefs();
 
   try {
@@ -168,44 +220,65 @@ void filterProducts() {
       var productsData = parsed['data'];
       List<Map<String, dynamic>> productList = [];
 
-      print("Products Responsehhhhhhhhhhhhhhhhhhhhhhhhh: ${response.body}");
+      print("Products Response: ${response.body}");
 
       for (var productData in productsData) {
-        // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
         List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
             (famItem) => famItem['id'] == id,
             orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
-var imgurl='$api/${productData['image']}';
-        // Add the product data to the list
-        productList.add({
-          'id': productData['id'],
-          'name': productData['name'],
-          'hsn_code': productData['hsn_code'],
-          'type': productData['type'],
-          'unit': productData['unit'],
-          'purchase_rate': productData['purchase_rate'],
-          'tax': productData['tax'],
-          'exclude_price': productData['exclude_price'],
-          'selling_price': productData['selling_price'],
-          'stock': productData['stock'],
-          'created_user': productData['created_user'],
-          'family': familyNames, // Add family names here
-          'image': imgurl, // Main product image
-          // Don't process single_products or variant_products
-        });
+        var imgurl = '$api/${productData['image']}';
+
+        // Check if the product type is 'variant'
+        if (productData['type'] == "variant") {
+                      print("nameeeeeeeeeeeeeeeeeeeeeeee====${productData['name']}");
+
+
+          for (var variant in productData['variant_products']) {
+            print("nameeeeeeeeeeeeeeeeeeeeeeee${variant['name']}");
+            // Process each variant product
+            productList.add({
+              'id': variant['id'],
+              'name': variant['name'],
+              'color': variant['color'],
+              'stock': variant['stock'],
+              'created_user': variant['created_user'],
+              'family': familyNames,
+              'image': variant['variant_images'].isNotEmpty
+                  ? '$api/${variant['variant_images'][0]['image']}'
+                  : imgurl, // Use variant image or fallback to main image
+            });
+          }
+        } else {
+          // Process non-variant products
+          productList.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'hsn_code': productData['hsn_code'],
+            'type': productData['type'],
+            'unit': productData['unit'],
+            'purchase_rate': productData['purchase_rate'],
+            'tax': productData['tax'],
+            'exclude_price': productData['exclude_price'],
+            'selling_price': productData['selling_price'],
+            'stock': productData['stock'],
+            'created_user': productData['created_user'],
+            'family': familyNames,
+            'image': imgurl,
+          });
+        }
       }
 
       setState(() {
         products = productList;
-         print("productss$products");
-              filteredProducts = products;
-
+        print("Products: $products");
+        filteredProducts = products;
       });
     }
   } catch (error) {
     print("Error: $error");
   }
 }
+
 Future<void> getvariant(int id, var type) async {
   print("iddddddddddddddddddd$id");
   try {
@@ -518,9 +591,16 @@ List<Map<String, dynamic>> sta = [];
   }
   List<String>  company = ["BEPOSITIVE RACING PRIVATE LIMITED",'MICHAEL EXPORT AND IMPORT PRIVATE LIMITED'];
   String selectcomp="BEPOSITIVE RACING PRIVATE LIMITED";
+   List<String>  paystatus = ["Paid",'COD','credit'];
+  String selectpaystatus="COD";
+   List<String>  paymethod = ['Razorpay',"Credit Card",'Debit Card','Net Bankng','PayPal','Cash on Delivery','Bank Transfer'];
+  String selectpaymethod="Razorpay";
+
+
   
   @override
   Widget build(BuildContext context) {
+      double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
 
 
@@ -638,599 +718,712 @@ List<Map<String, dynamic>> sta = [];
 
         body: SingleChildScrollView(
 
-          child: Container(
-            child: Column(
-              children: [
-                SizedBox(height: 15,),
-
-
-                Text("ORDER REQUEST ",style: TextStyle(fontSize: 20,letterSpacing: 9.0,fontWeight: FontWeight.bold),),
-
-                Padding(
-                  padding: const EdgeInsets.only(top: 25,left: 15,right: 15),
-                child:Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
-                    
-                  ),
-                  width: 700,
-
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 20,),
-
-                 Text("Select Company *",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 10,),
-
-
-                         Container(
-                             width: 304,
-                             decoration: BoxDecoration(
-                               border: Border.all(color: Colors.grey), // Add border to the Container
-                               borderRadius: BorderRadius.circular(10.0), // Optional: Add border radius
-                             ),
-                             child: InputDecorator(
-                               decoration: InputDecoration(
-                                 border: InputBorder.none,
-                                 hintText: '',
-                                 contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                               ),
-                               child: DropdownButton<String>(
-                                 value: selectcomp,
-                                 underline: Container(), // This removes the underline
-                                 onChanged: (String? newValue) {
-                                   setState(() {
-                                     selectcomp = newValue!;
-                                     print(selectcomp);
-                                   });
-                                 },
-                                 items: company.map<DropdownMenuItem<String>>((String value) {
-                                   return DropdownMenuItem<String>(
-                                     value: value,
-                                     child: Text(
-                                       value,
-                                       style: TextStyle(fontSize: 10), // Set the font size here
-                                     ),
-                                   );
-                                 }).toList(),
-                                 icon: Container(
-                                   padding: EdgeInsets.only(left: 30), // Adjust padding as needed
-                                   alignment: Alignment.centerRight,
-                                   child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                                 ),
-                               ),
-                             ),
-                           ),
+          child: Column(
+            children: [
+              Container(
+                child: Column(
+                  children: [
+                    SizedBox(height: 15,),
+              
+              
+                    Text("ORDER REQUEST ",style: TextStyle(fontSize: 20,letterSpacing: 9.0,fontWeight: FontWeight.bold),),
+              
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15,left: 15,right: 15),
+                    child:Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
                         
+                      ),
+                   
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 15,),
+              
+                     Text("Company ",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height:5,),
+              
+              
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectcomp,
+                                        underline: Container(), // Removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectcomp = newValue!;
+                                            print(selectcomp);
+                                          });
+                                        },
+                                        items: company.map<DropdownMenuItem<String>>((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: TextStyle(
+                                                fontSize: screenWidth < 400 ? 8 : 10, // Adjust font size for smaller screens
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(left: 30),
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons.arrow_drop_down),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            ),
+                            
+                                        
+                    SizedBox(height: 8,),
+                     Text("Family",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height: 5,),
+              
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                                              
+                                                height: 49,
+                                                decoration: BoxDecoration(
+                            border: Border.all(color: const Color.fromARGB(255, 206, 206, 206)),
+                            borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Container(
+                                width: 280,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Select your class',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                  ),
+                                  child:DropdownButtonHideUnderline(
+                                          child: DropdownButton<int>(
+                                        hint: Text(
+                                          'Select a Family',
+                                          
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600]),
+                                          
+                                        ),
+                                        value: selectedFamilyId,
+                                        isExpanded: true,
+                                        dropdownColor: const Color.fromARGB(255, 255, 255, 255),
+                                        icon: Icon(Icons.arrow_drop_down, color:const Color.fromARGB(255, 107, 107, 107)),
+                                        onChanged: (int? newValue) {
+                                          setState(() {
+                                            selectedFamilyId = newValue; // Store the selected family ID
+                                          });
+                                        },
+                                        items: fam.map<DropdownMenuItem<int>>((family) {
+                                          return DropdownMenuItem<int>(
+                                            value: family['id'],
+                                            child: Text(
+                                              family['name'],
+                                              style: TextStyle(color: Colors.black87, fontSize: 12),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),)
+                                      
                                     
-                SizedBox(height: 8,),
-                 Text("Select Family *",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-
-                      Container(
-                    width: 310,
-                    height: 49,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color.fromARGB(255, 62, 62, 62)),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Container(
-                          width: 280,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Select your class',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                            ),
-                            child:DropdownButtonHideUnderline(
-              child: DropdownButton<int>(
-            hint: Text(
-              'Select a Family',
-              
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600]),
-              
-            ),
-            value: selectedFamilyId,
-            isExpanded: true,
-            dropdownColor: const Color.fromARGB(255, 255, 255, 255),
-            icon: Icon(Icons.arrow_drop_down, color: Colors.blueAccent),
-            onChanged: (int? newValue) {
-              setState(() {
-                selectedFamilyId = newValue; // Store the selected family ID
-              });
-            },
-            items: fam.map<DropdownMenuItem<int>>((family) {
-              return DropdownMenuItem<int>(
-                value: family['id'],
-                child: Text(
-                  family['name'],
-                  style: TextStyle(color: Colors.black87, fontSize: 16),
-                ),
-              );
-            }).toList(),
-          ),)
-          
-        
-      
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-
-
-                  
-
-                                         
-                SizedBox(height: 8,),
-                 Text("Maneger",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-
-
-                
-
-                 
-
-                  Container(
-                    width: 304,
-                    height: 49,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Container(
-                          width: 276,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                            ),
-                            child: DropdownButton<int>(
-                              value: selectedstaffId,
-                                isExpanded: true,
-                              underline: Container(), // This removes the underline
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  selectedstaffId = newValue!;
-                                  print(selectedstaffId);
-                                });
-                              },
-                              items: sta.map<DropdownMenuItem<int>>((staff) {
-                                return DropdownMenuItem<int>(
-                                  value:staff['id'],
-                                  child: Text(staff['name']),
-                                );
-                              }).toList(),
-                              icon: Container(
-                                padding: EdgeInsets.only(left: 190), // Adjust padding as needed
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                                  
+                                ),
                               ),
-                            ),
+                            ],
+                                                ),
+                                              ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
                      SizedBox(height: 8,),
-                 Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-
-                      
-                      LayoutBuilder(
-      builder: (context, constraints) {
-        return Container(
-          width: 300, // Adjusted width based on screen size
-          child: DropdownButtonHideUnderline(
-            child: Container(
-              height: 46,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey, width: 1.0),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: DropdownButton2<String>(
-                isExpanded: true,
-                hint: Text(
-                  'Select a Customer',
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
-                ),
-                items: customer
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item['name'], // Use the customer's name as the value
-                          child: Text(
-                            item['name'],
-                            style: const TextStyle(fontSize: 14),
+                     Text("Maneger",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height: 5,),
+              
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Container(
+                          
+                          height: 49,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ))
-                    .toList(),
-                value: selectedValue,
-                onChanged: (value) {
-                  setState(() {
-                    // Update the selected value with the chosen customer's name
-                    selectedValue = value;
-                    // Find the corresponding customer ID
-                    selectedCustomerId = customer
-                        .firstWhere((item) => item['name'] == value)['id'];
-                    print("Selected Customer ID: $selectedCustomerId");
-                  });
-
-              getaddress(selectedCustomerId);
-                },
-                buttonStyleData: const ButtonStyleData(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  height: 40,
-                ),
-                dropdownStyleData: const DropdownStyleData(
-                  maxHeight: 200,
-                ),
-                menuItemStyleData: const MenuItemStyleData(
-                  height: 40,
-                ),
-                dropdownSearchData: DropdownSearchData(
-                  searchController: textEditingController,
-                  searchInnerWidgetHeight: 50,
-                  searchInnerWidget: Container(
-                    height: 50,
-                    padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
-                    child: TextFormField(
-                      expands: true,
-                      maxLines: null,
-                      controller: textEditingController,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        hintText: 'Search for a customer...',
-                        hintStyle: const TextStyle(fontSize: 12),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Container(
+                                width: 276,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                  ),
+                                  child: DropdownButton<int>(
+                                    value: selectedstaffId,
+                                      isExpanded: true,
+                                    underline: Container(), // This removes the underline
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedstaffId = newValue!;
+                                        print(selectedstaffId);
+                                      });
+                                    },
+                                    items: sta.map<DropdownMenuItem<int>>((staff) {
+                                      return DropdownMenuItem<int>(
+                                        value:staff['id'],
+                                        child: Text(staff['name'],style: TextStyle(fontSize: 12),),
+                                      );
+                                    }).toList(),
+                                    icon: Container(
+                                      padding: EdgeInsets.only(left: 190), // Adjust padding as needed
+                                      alignment: Alignment.centerRight,
+                                      child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
+                         SizedBox(height: 8,),
+                     Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height: 5,),
+              
+                          
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Container(
+                                      child: DropdownButtonHideUnderline(
+                                        child: Container(
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(color: Colors.grey, width: 1.0),
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          child: DropdownButton2<String>(
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Select a Customer',
+                                              style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                                            ),
+                                            items: customer
+                                                .map((item) => DropdownMenuItem<String>(
+                                value: item['name'], // Use the customer's name as the value
+                                child: Text(
+                                  item['name'],
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ))
+                                                .toList(),
+                                            value: selectedValue,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                // Update the selected value with the chosen customer's name
+                                                selectedValue = value;
+                                                // Find the corresponding customer ID
+                                                selectedCustomerId = customer
+                              .firstWhere((item) => item['name'] == value)['id'];
+                                                print("Selected Customer ID: $selectedCustomerId");
+                                              });
+                            
+                                          getaddress(selectedCustomerId);
+                                            },
+                                            buttonStyleData: const ButtonStyleData(
+                                              padding: EdgeInsets.symmetric(horizontal: 16),
+                                              height: 40,
+                                            ),
+                                            dropdownStyleData: const DropdownStyleData(
+                                              maxHeight: 200,
+                                            ),
+                                            menuItemStyleData: const MenuItemStyleData(
+                                              height: 40,
+                                            ),
+                                            dropdownSearchData: DropdownSearchData(
+                                              searchController: textEditingController,
+                                              searchInnerWidgetHeight: 50,
+                                              searchInnerWidget: Container(
+                                                height: 50,
+                                                padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
+                                                child: TextFormField(
+                            expands: true,
+                            maxLines: null,
+                            controller: textEditingController,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              hintText: 'Search for a customer...',
+                              hintStyle: const TextStyle(fontSize: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                                                ),
+                                              ),
+                                              searchMatchFn: (item, searchValue) {
+                                                // Perform case-insensitive search
+                                                return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
+                                              },
+                                            ),
+                                            // Clear the search value when the menu is closed
+                                            onMenuStateChange: (isOpen) {
+                                              if (!isOpen) {
+                                                textEditingController.clear();
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                          ),
+              
+                    SizedBox(height: 8,),
+                    Text("State",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                    SizedBox(height: 5,),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Container(
+                         
+                          height: 49,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Container(
+                                width: 276,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                  ),
+                                  child: DropdownButton<int>(
+                                    hint:  Text(
+                        'State',
+                        style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                      ),
+                                    value: selectedstateId,
+                                      isExpanded: true,
+                                    underline: Container(), // This removes the underline
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedstateId = newValue!;
+                                        print(selectedstateId);
+                                      });
+                                    },
+                                    items: stat.map<DropdownMenuItem<int>>((State) {
+                                      return DropdownMenuItem<int>(
+                                        value:State['id'],
+                                        child: Text(State['name']),
+                                      );
+                                    }).toList(),
+                                    icon: Container(
+                                      padding: EdgeInsets.only(left: 190), // Adjust padding as needed
+                                      alignment: Alignment.centerRight,
+                                      child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ),
+              
+               SizedBox(height: 8),
+              Text("Shipping Address", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              SizedBox(height: 5),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Container(
+                  height: 49,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  searchMatchFn: (item, searchValue) {
-                    // Perform case-insensitive search
-                    return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
+                  child: Row(
+                    children: [
+                      SizedBox(width: 20),
+                      Container(
+              width: 276,
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                ),
+                child: DropdownButton<int>(
+                  hint: Text(
+                    'Address',
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                  ),
+                  value: selectedAddressId,
+                  isExpanded: true,
+                  underline: Container(), // This removes the underline
+                  onChanged: (int? newValue) {
+                    setState(() {
+                      selectedAddressId = newValue!;
+                      print(selectedAddressId);
+                    });
                   },
+                  items: addres.map<DropdownMenuItem<int>>((address) {
+                    return DropdownMenuItem<int>(
+                      value: address['id'],
+                      child: Text("${address['address']}", style: TextStyle(fontSize: 12)),
+                    );
+                  }).toList(),
+                  selectedItemBuilder: (BuildContext context) {
+                    return addres.map<Widget>((address) {
+                      return Text(
+                        selectedAddressId != null && selectedAddressId == address['id']
+                            ? "${address['address']}"
+                            : "Address",
+                        style: TextStyle(fontSize: 12, color: Colors.black),
+                      );
+                    }).toList();
+                  },
+                  icon: Container(
+                    padding: EdgeInsets.only(left: 190), // Adjust padding as needed
+                    alignment: Alignment.centerRight,
+                    child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                  ),
                 ),
-                // Clear the search value when the menu is closed
-                onMenuStateChange: (isOpen) {
-                  if (!isOpen) {
-                    textEditingController.clear();
-                  }
-                },
               ),
-            ),
-          ),
-        );
-      },
-    ),
-
-      SizedBox(height: 8,),
-                 Text("State",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-
-
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Display the selected address below the dropdown
+              if (selectedAddressId != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    " ${addres.firstWhere((address) => address['id'] == selectedAddressId)['address']}",
+                    style: TextStyle(fontSize: 12, color: Colors.black),
+                  ),
+                ),
+              
+                     SizedBox(height:8,),
+                     Text("Invoice Date",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                     SizedBox(height: 5,),
+              
+              Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Container(
+                          height: 46, 
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                  color: Colors.grey, 
+                  width: 1.0, 
+                            ),
+                            borderRadius: BorderRadius.circular(8.0), 
+                          ),
+                          child: Row(
+                            children: [
+                  SizedBox(width: 30,),
+                  Text(
+                    '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                    style: TextStyle(fontSize:12,color:Color.fromARGB(255, 116, 116, 116)),
+                  ),
+                  SizedBox(width: 162,),
+                  GestureDetector(
+                    onTap: () {
+                    _selectDate(context);
+                      print('Icon pressed');
+                    },
+                    child: Icon(Icons.date_range),
+                  ),
+                            ],
+                          ),
+                        ),
+                ),
+                      ],
+                  ),          
+                            
+                    SizedBox(height: 20,),
+              
+              
+                        
+                          ],
+                        ),
+                      )
+                      
                 
-
-                 
-
-                  Container(
-                    width: 304,
-                    height: 49,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
+                
+              ),
+              
                     ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Container(
-                          width: 276,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                            ),
-                            child: DropdownButton<int>(
-                              hint:  Text(
-                  'State',
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+              
+                   
+              
+                  ],
                 ),
-                              value: selectedstateId,
-                                isExpanded: true,
-                              underline: Container(), // This removes the underline
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  selectedstateId = newValue!;
-                                  print(selectedstateId);
-                                });
-                              },
-                              items: stat.map<DropdownMenuItem<int>>((State) {
-                                return DropdownMenuItem<int>(
-                                  value:State['id'],
-                                  child: Text(State['name']),
-                                );
-                              }).toList(),
-                              icon: Container(
-                                padding: EdgeInsets.only(left: 190), // Adjust padding as needed
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+              ),
 
- SizedBox(height:8,),
-
-   Text("Shipping Address",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-
-                    Container(
-                    width: 304,
-                    height: 49,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Container(
-                          width: 276,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                            ),
-                            child: DropdownButton<int>(
-                              hint:  Text(
-                  'Address',
-                  style: TextStyle(fontSize: 13, color: Theme.of(context).hintColor),
-                ),
-                              value: selectedAddressId,
-                                isExpanded: true,
-                              underline: Container(), // This removes the underline
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  selectedAddressId = newValue!;
-                                  print(selectedAddressId);
-                                });
-                              },
-                              items: addres.map<DropdownMenuItem<int>>((address) {
-                                return DropdownMenuItem<int>(
-                                  value:address['id'],
-                                  child: Text("${address['name']},${address['address']}"),
-                                );
-                              }).toList(),
-                              icon: Container(
-                                padding: EdgeInsets.only(left: 190), // Adjust padding as needed
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                 SizedBox(height:8,),
-                 Text("Invoice Date",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-
-          Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-        width: 304, 
-        height: 46, 
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey, 
-            width: 1.0, 
-          ),
-          borderRadius: BorderRadius.circular(8.0), 
-        ),
-        child: Row(
-          children: [
-            SizedBox(width: 30,),
-            Text(
-              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-              style: TextStyle(fontSize:12,color:Color.fromARGB(255, 116, 116, 116)),
-            ),
-            SizedBox(width: 162,),
-            GestureDetector(
-              onTap: () {
-              _selectDate(context);
-                print('Icon pressed');
-              },
-              child: Icon(Icons.date_range),
-            ),
-          ],
-        ),
-      ),
-        ],
-              ),          
-                        SizedBox(height: 15,),
-                   SizedBox(
-                    width: 150,
-                     child: ElevatedButton(
-                       onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
-                            },
-                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Color.fromARGB(255, 17, 173, 0),
-                      ),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10), 
-                        ),
-                      ),
-                      fixedSize: MaterialStateProperty.all<Size>(
-                        Size(95, 15), 
-                      ), ),
-                      child: Text("Add Product",style: TextStyle(color: Colors.white)),
-                      ),
-                   ),
-                SizedBox(height: 20,),
-
-//             Container(
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: TextField(
-//               controller: searchController,
-//               decoration: InputDecoration(
-//                 labelText: 'Search for products...',
-//                 border: OutlineInputBorder(),
-//               ),
-//             ),
-//           ),
-//           SingleChildScrollView(
-//   scrollDirection: Axis.horizontal,
-//   child: DataTable(
-//     columns: [
-//       DataColumn(label: Text('Image')),
-//       DataColumn(label: Text('Name')),
-//       DataColumn(label: Text('Price')),
-//       DataColumn(label: Text('Stock')),
-//       DataColumn(label: Text('Quantity')),
-//       DataColumn(label: Text('Action')),
-//     ],
-//     rows: [
-//       for (var product in filteredProducts) ...[
-//         // Main Product Row
-//         DataRow(
-//           cells: [
-//             DataCell(
-//               Image.network(
-//                 product['image'],
-//                 width: 40,
-//                 height: 40,
-//                 errorBuilder: (context, error, stackTrace) {
-//                   return Icon(Icons.error, color: Colors.red);
-//                 },
-//               ),
-//             ),
-//             DataCell(
-//               Text(
-//                 product['name'].length > 20
-//                     ? product['name'].substring(0, 20) + '...'
-//                     : product['name'],
-//                 maxLines: 1,
-//                 overflow: TextOverflow.ellipsis,
-//               ),
-//             ),
-//             DataCell(Text('\$${product['selling_price']}')),
-//             DataCell(Text(product['stock']?.toString() ?? 'N/A')),
-//             DataCell(
-//               SizedBox(
-//                 width: 60,
-//                 child: TextField(
-//                   decoration: InputDecoration(
-//                     border: OutlineInputBorder(),
-//                     contentPadding: EdgeInsets.symmetric(horizontal: 8),
-//                   ),
-//                   keyboardType: TextInputType.number,
-//                   onChanged: (value) {
-//                     // Handle quantity change
-//                   },
-//                 ),
-//               ),
-//             ),
-//             DataCell(
-//               ElevatedButton(
-//                 onPressed: () async {
-//                   await getvariant(product['id'], product['type']);
-//                   toggleExpansion(product['id']);
-//                 },
-//                 style: ButtonStyle(
-//                   backgroundColor: MaterialStateProperty.all<Color>(
-//                     expandedRows.contains(product['id'])
-//                         ? Color.fromARGB(255, 255, 160, 0)
-//                         : Color.fromARGB(255, 15, 168, 233),
-//                   ),
-//                 ),
-//                 child: Text(
-//                   expandedRows.contains(product['id']) ? 'Hide Variants' : 'Variants',
-//                   style: TextStyle(color: Colors.white),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//         // Rows for each variant if the product row is expanded
-//         if (expandedRows.contains(product['id']))
-//           for (var variantItem in variant) 
-//             DataRow(
-//               cells: [
-//                 DataCell(
-//                   Image.network(
-//                     variantItem['image'] ?? '', // Image URL for the variant
-//                     width: 40,
-//                     height: 40,
-//                     errorBuilder: (context, error, stackTrace) {
-//                       return Icon(Icons.error, color: Colors.red);
-//                     },
-//                   ),
-//                 ),
-//                 DataCell(
-//                   Text(
-//                     variantItem['name'].length > 20
-//                         ? variantItem['name'].substring(0, 20) + '...'
-//                         : variantItem['name'],
-//                     maxLines: 1,
-//                     overflow: TextOverflow.ellipsis,
-//                   ),
-//                 ),
-//                 DataCell(Text('\$${variantItem['price'] ?? 'N/A'}')), // Price if available
-//                 DataCell(Text(variantItem['stock']?.toString() ?? 'N/A')), // Stock if available
-//                 DataCell(Container()), // Empty cell to align with main table
-//                 DataCell(Container()), // Empty cell to align with main table
-//               ],
-//             ),
-//       ],
-//     ],
-//   ),
-// ),
-
-//         ],
-//       ),
-//     ),
-                    
-                      ],
-                    ),
-                  )
+              Container(
+                child: Column(
+                  children: [
                   
-  
-  
-),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15,left: 15,right: 15),
+                    child:Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
+                        
+                      ),
+                   
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 15,),
+              
+                     Text("Bank Details ",style: TextStyle(fontSize: 13,fontWeight: FontWeight.bold,color: Colors.blue),),
+                      SizedBox(height:5,),
+              
+                            SizedBox(height: 15,),
+              
+                     Text("Payment Status ",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height:5,),
+              
+              
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectpaystatus,
+                                        underline: Container(), // Removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectpaystatus = newValue!;
+                                            print(selectpaystatus);
+                                          });
+                                        },
+                                        items: paystatus.map<DropdownMenuItem<String>>((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: TextStyle(
+                                                fontSize: 12
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(left: 240),
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons.arrow_drop_down),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            ),
+                            
+                                        
+                    SizedBox(height: 8,),
+                     Text("Bank",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height: 5,),
+              
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                                              
+                                                height: 49,
+                                                decoration: BoxDecoration(
+                            border: Border.all(color: const Color.fromARGB(255, 206, 206, 206)),
+                            borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Container(
+                                width: 280,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Select',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                  ),
+                                  child:DropdownButtonHideUnderline(
+                                          child: DropdownButton<int>(
+                                        hint: Text(
+                                          'Select',
+                                          
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600]),
+                                          
+                                        ),
+                                        value: selectedbankId,
+                                        isExpanded: true,
+                                        dropdownColor: const Color.fromARGB(255, 255, 255, 255),
+                                        icon: Icon(Icons.arrow_drop_down, color:const Color.fromARGB(255, 107, 107, 107)),
+                                        onChanged: (int? newValue) {
+                                          setState(() {
+                                            selectedbankId = newValue; // Store the selected family ID
+                                            print("$selectedbankId");
+                                          });
+                                        },
+                                        items: bank.map<DropdownMenuItem<int>>((bank) {
+                                          return DropdownMenuItem<int>(
+                                            value: bank['id'],
+                                            child: Text(
+                                              bank['name'],
+                                              style: TextStyle(color: Colors.black87, fontSize: 12),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),)
+                                      
+                                    
+                                  
+                                ),
+                              ),
+                            ],
+                                                ),
+                                              ),
+                          ),
 
+                          SizedBox(height: 15,),
+              
+                     Text("Payment Method ",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height:5,),
+              
+              
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectpaymethod,
+                                        underline: Container(), // Removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectpaymethod= newValue!;
+                                            print(selectpaymethod);
+                                          });
+                                        },
+                                        items: paymethod.map<DropdownMenuItem<String>>((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: TextStyle(
+                                                fontSize: 12
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(left: 180),
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons.arrow_drop_down),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            ),
+                     SizedBox(height: 8,),
+                    
+              
+                       Padding(
+                         padding: const EdgeInsets.only(right: 10),
+                         child: SizedBox(
+                          width: double.infinity,
+                           child: ElevatedButton(
+                             onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
+                                  },
+                           style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.blue,
+                            ),
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10), 
+                              ),
+                            ),
+                            fixedSize: MaterialStateProperty.all<Size>(
+                              Size(95, 15), 
+                            ), ),
+                            child: Text("Add Product",style: TextStyle(color: Colors.white)),
+                            ),
+                         ),
+                       ),
+                    SizedBox(height: 20,),
+              
+              
+                        
+                          ],
+                        ),
+                      )
+                      
+                
+                
+              ),
+              
+                    ),
+              
+                   
+              
+                  ],
                 ),
-
-               
-
-              ],
-            ),
+              ),
+            ],
           )
 
         ),
@@ -1240,9 +1433,10 @@ List<Map<String, dynamic>> sta = [];
   }
 
 
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
+void _navigateToSelectedPage(BuildContext context, String selectedOption) {
     
-    switch (selectedOption) {
+    switch (selectedOption) 
+    {
       case 'Option 1':
         Navigator.push(
           context,

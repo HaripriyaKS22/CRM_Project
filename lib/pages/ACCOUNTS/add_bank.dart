@@ -71,8 +71,7 @@ Future<String?> gettoken()async{
 
   
 
-Future<void> Addbank(    BuildContext scaffoldContext,
-) async{
+Future<void> Addbank(BuildContext scaffoldContext,) async{
   final token=await gettoken();
  try{
    final response= await http.post(Uri.parse('$api/api/add/bank/'),

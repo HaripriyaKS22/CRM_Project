@@ -13,6 +13,7 @@ import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_proforma_invoice.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/order_products.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/proforma_invoice_list.dart';
@@ -83,7 +84,7 @@ class drower{
       case 'New Orders':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => order_request()),
+          MaterialPageRoute(builder: (context) => order_products()),
         );
         break;
       case 'Orders List':
@@ -250,7 +251,7 @@ class drower{
       case 'New Orders':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => order_request()),
+          MaterialPageRoute(builder: (context) => order_products()),
         );
         break;
       case 'Orders List':

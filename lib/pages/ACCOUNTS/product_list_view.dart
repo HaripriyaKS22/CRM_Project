@@ -60,6 +60,7 @@ class _Productlist_viewState extends State<Productlist_view> {
   }
 
   void initdata() async {
+    
     await fetchImages();
   }
 
