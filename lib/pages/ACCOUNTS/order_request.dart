@@ -76,6 +76,9 @@ List<Map<String, dynamic>> filteredProducts = [];
     List<Map<String, dynamic>> customer = [];
     List<Map<String, dynamic>> variant= [];
     int? selectedFamilyId;
+  List<Map<String, dynamic>> cartdata = [];
+  double total=0.0;
+  var Discount;
 
     int? selectedbankId;
     String selectedstaff='';
@@ -112,6 +115,7 @@ List<Map<String, dynamic>> filteredProducts = [];
     });
      
       getbank();
+     await fetchCartData();
   }
 
 
@@ -203,6 +207,74 @@ Future<void> getbank() async{
     print("error:$e");
   }
 }
+ void calculateTotalPrice() {
+  print("feffffwwwwwwwwwwwwwwwwwwww");
+    for (var item in cartdata) {
+      final discountPerQuantity = item['discount'] ?? 0.0;
+      final quantity = item['quantity'] ?? 0;
+      final price = item['price'] ?? 0.0;
+      final totalItemPrice = quantity * price;
+          print("totpriceeeeeeeeeeeeeeeeeeeeee$totalItemPrice");
+
+      final totalDiscount = quantity * discountPerQuantity;
+                print("dispriceeeeeeeeeeeeeeeeeeeeee$totalDiscount");
+
+      total += totalItemPrice - totalDiscount;
+    }
+    print("priceeeeeeeeeeeeeeeeeeeeee$total");
+  }
+
+
+Future<void> fetchCartData() async {
+  try {
+    final token = await gettokenFromPrefs();
+
+    final response = await http.get(
+      Uri.parse("$api/api/cart/products/"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print("Response Body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      final List<dynamic> cartsData = parsed['data'];
+      List<Map<String, dynamic>> cartList = [];
+
+      for (var cartData in cartsData) {
+        String imageUrl = cartData['images'][0];
+        
+
+        cartList.add({
+          'id': cartData['id'],
+          'name': cartData['name'],
+          'image': imageUrl,
+          'slug': cartData['slug'],
+          'size': cartData['size'],
+          'quantity': cartData['quantity'],
+          'price': cartData['price'],
+          'discount':cartData['discount']
+        });
+      }
+
+      setState(() {
+        cartdata = cartList;
+
+
+      });
+           calculateTotalPrice();
+
+    } else {
+      throw Exception('Failed to load cart data');
+    }
+  } catch (error) {
+    print(error); // Consider adding error handling in the UI
+  }
+}
+
   Future<void> fetchProductList() async {
   final token = await gettokenFromPrefs();
 
@@ -596,8 +668,78 @@ List<Map<String, dynamic>> sta = [];
    List<String>  paymethod = ['Razorpay',"Credit Card",'Debit Card','Net Bankng','PayPal','Cash on Delivery','Bank Transfer'];
   String selectpaymethod="Razorpay";
 
+void showInvoiceDialog(BuildContext context,  double total) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Invoice",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              Divider(),
+             
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                Text(
+  '\$${total != null ? total.toStringAsFixed(2) : '0.00'}',
+  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+),
 
-  
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Discount',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '\$${Discount.toStringAsFixed(2)}',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    Colors.blue,
+                  ),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                child: Text("Close", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
   @override
   Widget build(BuildContext context) {
       double screenWidth = MediaQuery.of(context).size.width;
@@ -1386,7 +1528,8 @@ List<Map<String, dynamic>> sta = [];
                           width: double.infinity,
                            child: ElevatedButton(
                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
+                                showInvoiceDialog(context,total);
+                                // Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
                                   },
                            style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
@@ -1400,7 +1543,7 @@ List<Map<String, dynamic>> sta = [];
                             fixedSize: MaterialStateProperty.all<Size>(
                               Size(95, 15), 
                             ), ),
-                            child: Text("Add Product",style: TextStyle(color: Colors.white)),
+                            child: Text("Generate Invoice",style: TextStyle(color: Colors.white)),
                             ),
                          ),
                        ),

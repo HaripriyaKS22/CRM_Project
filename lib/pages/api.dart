@@ -1,1 +1,1 @@
-var api="https://calgary-message-none-certification.trycloudflare.com";
+var api="https://purchases-fact-reflected-assess.trycloudflare.com";

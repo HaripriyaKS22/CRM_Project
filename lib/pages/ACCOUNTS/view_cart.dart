@@ -18,24 +18,7 @@ class View_Cart extends StatefulWidget {
 
 class _View_CartState extends State<View_Cart> {
   List<Map<String, dynamic>> cartdata = [];
-
   drower d = drower();
-
-  Widget _buildDropdownTile(
-      BuildContext context, String title, List<String> options) {
-    return ExpansionTile(
-      title: Text(title),
-      children: options.map((option) {
-        return ListTile(
-          title: Text(option),
-          onTap: () {
-            Navigator.pop(context);
-            d.navigateToSelectedPage(context, option);
-          },
-        );
-      }).toList(),
-    );
-  }
 
   @override
   void initState() {
@@ -43,15 +26,16 @@ class _View_CartState extends State<View_Cart> {
     fetchCartData();
   }
 
+  // Fetch token from shared preferences
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
 
+  // Fetch cart data from API
   Future<void> fetchCartData() async {
     try {
       final token = await getTokenFromPrefs();
-
       final response = await http.get(
         Uri.parse("$api/api/cart/products/"),
         headers: {
@@ -60,7 +44,7 @@ class _View_CartState extends State<View_Cart> {
         },
       );
 
-      print("Response Body: ${response.body}");
+      print("API Response: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -68,18 +52,19 @@ class _View_CartState extends State<View_Cart> {
         List<Map<String, dynamic>> cartList = [];
 
         for (var cartData in cartsData) {
-          String imageUrl = cartData['images'][0];
           cartList.add({
             'id': cartData['id'],
             'name': cartData['name'],
-            'image': imageUrl,
+            'image': cartData['images'][0],
             'slug': cartData['slug'],
             'size': cartData['size'],
             'quantity': cartData['quantity'],
-            'price': cartData['price']
+            'price': cartData['price'],
+            'note': cartData['note'] ?? '',
+            'discount': cartData['discount'] ?? 0.0,
+            'tax': cartData['tax']
           });
         }
-
         setState(() {
           cartdata = cartList;
         });
@@ -87,202 +72,313 @@ class _View_CartState extends State<View_Cart> {
         throw Exception('Failed to load cart data');
       }
     } catch (error) {
-      print(error); // Consider adding error handling in the UI
+      print(error);
     }
   }
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(
-        "Product List",
-        style: TextStyle(color: Colors.grey, fontSize: 14),
-      ),
-    ),
-    drawer: Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 110, 110, 110),
+
+  // Calculate total price of cart items
+  double calculateTotalPrice() {
+    double total = 0;
+    for (var item in cartdata) {
+      final discountPerQuantity = item['discount'] ?? 0.0;
+      final quantity = item['quantity'] ?? 0;
+      final price = item['price'] ?? 0.0;
+      final totalItemPrice = quantity * price;
+      final totalDiscount = quantity * discountPerQuantity;
+      total += totalItemPrice - totalDiscount;
+    }
+    return total;
+  }
+
+  Future<void> updatecartdetails(
+      int id, int quantity, String description, double discount) async {
+    try {
+      final token = await getTokenFromPrefs();
+      final response = await http.put(
+        Uri.parse('$api/api/cart/update/$id/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'quantity': quantity,
+          'note': description,
+          'discount': discount,
+        }),
+      );
+
+      print("Response from update: ${response.body}");
+
+      if (response.statusCode == 200) {
+        fetchCartData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Cart item updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        throw Exception('Failed to update cart item');
+      }
+    } catch (error) {
+      print(error);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update cart item'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // Delete cart item from server
+  Future<void> deletecartitem(int id) async {
+    final token = await getTokenFromPrefs();
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$api/api/cart/update/$id/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 204) {
+        setState(() {
+          cartdata.removeWhere((item) => item['id'] == id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Product deleted from Cart Successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        throw Exception('Failed to delete cart ID: $id');
+      }
+    } catch (error) {
+      print(error);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete item from cart'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // Popup dialog to edit cart item details
+  void showPopupDialog(BuildContext context, Map<String, dynamic> item) {
+    TextEditingController descriptionController =
+        TextEditingController(text: item['note'] ?? '');
+    TextEditingController quantityController =
+        TextEditingController(text: item['quantity']?.toString() ?? '');
+    TextEditingController discountController =
+        TextEditingController(text: item['discount']?.toString() ?? '');
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Edit Item Details',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: descriptionController,
+                decoration: InputDecoration(labelText: 'Description'),
+              ),
+              TextField(
+                controller: quantityController,
+                decoration: InputDecoration(labelText: 'Quantity'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: discountController,
+                decoration: InputDecoration(labelText: 'Discount (in Rs for each product)'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
-            child: Row(
-              children: [
-                Image.asset(
-                  "lib/assets/logo-white.png",
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.contain,
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                SizedBox(width: 70),
-                Text(
-                  'BepoSoft',
-                  style: TextStyle(
-                    color: Color.fromARGB(236, 255, 255, 255),
-                    fontSize: 20,
-                  ),
-                ),
-              ],
+              ),
+              onPressed: () {
+                final description = descriptionController.text;
+                final quantity = int.tryParse(quantityController.text) ?? item['quantity'];
+                final discount = double.tryParse(discountController.text) ?? item['discount'];
+
+                updatecartdetails(item['id'], quantity, description, discount);
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
             ),
-          ),
-          ListTile(
-            leading: Icon(Icons.dashboard),
-            title: Text('Dashboard'),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => dashboard()));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Customer'),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => customer_list()));
-            },
-          ),
-          Divider(),
-          _buildDropdownTile(context, 'Credit Note', [
-            'Add Credit Note',
-            'Credit Note List',
-          ]),
-          _buildDropdownTile(context, 'Recipts', ['Add recipts', 'Recipts List']),
-          _buildDropdownTile(context, 'Proforma Invoice', [
-            'New Proforma Invoice',
-            'Proforma Invoice List',
-          ]),
-          _buildDropdownTile(context, 'Delivery Note',
-              ['Delivery Note List', 'Daily Goods Movement']),
-          _buildDropdownTile(context, 'Orders', ['New Orders', 'Orders List']),
-          Divider(),
-          Text("Others"),
-          Divider(),
-          _buildDropdownTile(context, 'Product', [
-            'Product List',
-            'Stock',
-          ]),
-          _buildDropdownTile(context, 'Purchase', [' New Purchase', 'Purchase List']),
-          _buildDropdownTile(context, 'Expence', [
-            'Add Expence',
-            'Expence List',
-          ]),
-          _buildDropdownTile(context, 'Reports', [
-            'Sales Report',
-            'Credit Sales Report',
-            'COD Sales Report',
-            'Statewise Sales Report',
-            'Expence Report',
-            'Delivery Report',
-            'Product Sale Report',
-            'Stock Report',
-            'Damaged Stock'
-          ]),
-          _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
-          _buildDropdownTile(context, 'Banking Module',
-              ['Add Bank ', 'List', 'Other Transfer']),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Methods'),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => Methods()));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.chat),
-            title: Text('Chat'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Logout'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Product List",
+          style: TextStyle(color: Colors.grey, fontSize: 14),
+        ),
       ),
-    ),
-    body: SingleChildScrollView(
-      child: Column(
-        children: [
-          cartdata.isEmpty
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: cartdata.length,
-                  itemBuilder: (context, index) {
-                    final item = cartdata[index];
-                    return Card(
-                      elevation: 4,
-                      color: Colors.white,
-                      margin: EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
+      drawer: Drawer(
+        // Drawer content here
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            cartdata.isEmpty
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: cartdata.length,
+                    itemBuilder: (context, index) {
+                      final item = cartdata[index];
+                      final discountPerQuantity = item['discount'] ?? 0.0;
+                      final quantity = item['quantity'] ?? 0;
+                      final price = item['price'] ?? 0.0;
+                      final totalItemPrice = quantity * price;
+                      final totalDiscount = quantity * discountPerQuantity;
+                      final discountedTotalPrice = totalItemPrice - totalDiscount;
+
+                      return InkWell(
+                        onTap: () => showPopupDialog(context, item),
+                        child: Stack(
                           children: [
-                            Image.network(
-                              "$api${item['image']}", // Ensure the API base URL is added
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
+                            Card(
+                              elevation: 4,
+                              color: Colors.white,
+                              margin: EdgeInsets.all(10),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    Image.network(
+                                      "$api${item['image']}",
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item['name'],
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text("Size: ${item['size']}"),
+                                          Text("Tax: ${item['tax']}"),
+
+                                          if (item['note'] != null && item['note'].isNotEmpty)
+                                            Text(
+                                              "Description: ${item['note']}",
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          if (quantity > 0)
+                                            Text("Quantity: $quantity"),
+                                          if (discountPerQuantity > 0)
+                                            Text("Discount per item: ₹$discountPerQuantity"),
+
+                                          Text("Price per item: ₹$price"),
+                                          Text("Total price: ₹${totalItemPrice.toStringAsFixed(2)}"),
+                                          Text(
+                                            "Total discount: -₹${totalDiscount.toStringAsFixed(2)}",
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                          Text(
+                                            "Final price after discount: ₹${discountedTotalPrice.toStringAsFixed(2)}",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item['name'],
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text("Size: ${item['size']}"),
-                                  Text("Quantity: ${item['quantity']}"),
-                                  Text("Price: ₹${item['price']}"),
-                                ],
+                            Positioned(
+                              bottom: 4,
+                              right: 4,
+                              child: IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () async {
+                                  await deletecartitem(item['id']);
+                                },
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    );
-                  },
-                ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity, 
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>order_request()));
-                  // Add your onPressed action here
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Rounded edges
+                      );
+                    },
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                ),
-                child: Text(
-                  'Continue', // Customize the text here
-                  style: TextStyle(fontSize: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Text(
+                'Total Price: ₹${calculateTotalPrice().toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+Navigator.push(context, MaterialPageRoute(builder: (context)=>order_request()));                 },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }
