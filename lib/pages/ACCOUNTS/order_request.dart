@@ -77,7 +77,6 @@ List<Map<String, dynamic>> filteredProducts = [];
     List<Map<String, dynamic>> variant= [];
     int? selectedFamilyId;
   List<Map<String, dynamic>> cartdata = [];
-  double total=0.0;
   var Discount;
 
     int? selectedbankId;
@@ -87,7 +86,7 @@ List<Map<String, dynamic>> filteredProducts = [];
   int? selectedAddressId; // Variable to store the selected address ID
   String? selectedAddressName; // Variable to store the selected address name
   List<Map<String, dynamic>> bank = [];
-
+double total=0.0;
  Set<int> expandedRows = {};
     var famid;
     var staffid;
@@ -207,22 +206,23 @@ Future<void> getbank() async{
     print("error:$e");
   }
 }
- void calculateTotalPrice() {
-  print("feffffwwwwwwwwwwwwwwwwwwww");
-    for (var item in cartdata) {
-      final discountPerQuantity = item['discount'] ?? 0.0;
-      final quantity = item['quantity'] ?? 0;
-      final price = item['price'] ?? 0.0;
-      final totalItemPrice = quantity * price;
-          print("totpriceeeeeeeeeeeeeeeeeeeeee$totalItemPrice");
+//  void calculateTotalPrice() {
+// double total = 0.0;
+//   print("feffffwwwwwwwwwwwwwwwwwwww");
+//     for (var item in cartdata) {
+//       final discountPerQuantity = item['discount'] ?? 0.0;
+//       final quantity = item['quantity'] ?? 0;
+//       final price = item['price'] ?? 0.0;
+//       final totalItemPrice = quantity * price;
+//           print("totpriceeeeeeeeeeeeeeeeeeeeee$totalItemPrice");
 
-      final totalDiscount = quantity * discountPerQuantity;
-                print("dispriceeeeeeeeeeeeeeeeeeeeee$totalDiscount");
+//       final totalDiscount = quantity * discountPerQuantity;
+//                 print("dispriceeeeeeeeeeeeeeeeeeeeee$totalDiscount");
 
-      total += totalItemPrice - totalDiscount;
-    }
-    print("priceeeeeeeeeeeeeeeeeeeeee$total");
-  }
+//       total += totalItemPrice - totalDiscount;
+//     }
+//     print("priceeeeeeeeeeeeeeeeeeeeee$total");
+//   }
 
 
 Future<void> fetchCartData() async {
@@ -244,10 +244,11 @@ Future<void> fetchCartData() async {
       final List<dynamic> cartsData = parsed['data'];
       List<Map<String, dynamic>> cartList = [];
 
+      double total = 0.0; // Initialize total here
+
       for (var cartData in cartsData) {
         String imageUrl = cartData['images'][0];
         
-
         cartList.add({
           'id': cartData['id'],
           'name': cartData['name'],
@@ -256,16 +257,25 @@ Future<void> fetchCartData() async {
           'size': cartData['size'],
           'quantity': cartData['quantity'],
           'price': cartData['price'],
-          'discount':cartData['discount']
+          'discount': cartData['discount'],
         });
       }
 
       setState(() {
         cartdata = cartList;
 
-
+        // Calculate total
+        for (var item in cartdata) {
+          final discountPerQuantity = item['discount'] ?? 0.0;
+          final quantity = item['quantity'] ?? 0;
+          final price = item['price'] ?? 0.0;
+          final totalItemPrice = quantity * price;
+          final totalDiscount = quantity * discountPerQuantity;
+          total += totalItemPrice - totalDiscount;
+        }
       });
-           calculateTotalPrice();
+print("totaaaaaaaaaaaaaaaaallllll$total");
+      // Call the function to show total in a dialog box
 
     } else {
       throw Exception('Failed to load cart data');
@@ -274,7 +284,102 @@ Future<void> fetchCartData() async {
     print(error); // Consider adding error handling in the UI
   }
 }
+void showTotalDialog(BuildContext context) {
+double total=0.0;
+double totalDiscount=0.0;
+double totalItemPrice=0.0;
+   // Calculate total
+        for (var item in cartdata) {
+          final discountPerQuantity = item['discount'] ?? 0.0;
+          final quantity = item['quantity'] ?? 0;
+          final price = item['price'] ?? 0.0;
+           totalItemPrice += quantity * price;
+           totalDiscount += quantity * discountPerQuantity;
+           print("==================================$totalDiscount");
+          total = totalItemPrice - totalDiscount;
+        }
+  print(total);
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Cart Total"),
+        
+        content: SizedBox(
+           width: 300, // Set the desired width
+          height: 180, // Set the desired height
+          child: Column(
+            children: [
+                          Row(
+                            children: [
+                              Text("Total:"),
+                              Spacer(),
+                              Text("$totalItemPrice"),
+                            ],
+                          ),
+                          Divider(),
+                          Row(
+                            children: [
+                              Text("Advance paid:"),
+                              Spacer(),
+                              Text("0.0"),
+                            ],
+                          ),
+                          Row(
+                children: [
+                                  Text("Total Discount:"),
+          Spacer(),
+                  Text("$totalDiscount"),
+                ],
+              ),
+                          Divider(),
+                          Row(
+                            children: [
+                              Text("Shipping Charge:"),
+                              Spacer(),
+                              Text("0.0"),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text("Total Cart Discount:"),
+                              Spacer(),
+                              Text("0.0"),
+                            ],
+                          ),
+          
+              
+          Divider(),
+              Row(
+                children: [
+                                  Text("Net Amount:"),
+          Spacer(),
+                  Text("${total.toStringAsFixed(2)}"),
+                ],
+              ),
+          
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          SizedBox(
+  width: 100,
+  child: TextButton(
+    style: TextButton.styleFrom(
+      foregroundColor: Colors.white, backgroundColor: Colors.blue, // Set the text color to white
+    ),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+    child: Text("OK"),
+  ),
+),
 
+        ],
+      );
+    },
+  );
+}
   Future<void> fetchProductList() async {
   final token = await gettokenFromPrefs();
 
@@ -692,9 +797,10 @@ void showInvoiceDialog(BuildContext context,  double total) {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Total',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+  '\$${total?.toStringAsFixed(2) ?? '0.00'}',
+  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+),
+
                 Text(
   '\$${total != null ? total.toStringAsFixed(2) : '0.00'}',
   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -1527,8 +1633,9 @@ void showInvoiceDialog(BuildContext context,  double total) {
                          child: SizedBox(
                           width: double.infinity,
                            child: ElevatedButton(
-                             onPressed: () {
-                                showInvoiceDialog(context,total);
+                             onPressed: () async{
+print("shoooooooooooooooooooooooooooo$total");
+                                showTotalDialog(context);
                                 // Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
                                   },
                            style: ButtonStyle(
