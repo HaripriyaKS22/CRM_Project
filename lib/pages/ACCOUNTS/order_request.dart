@@ -117,7 +117,66 @@ double total=0.0;
      await fetchCartData();
   }
 
+ void ordercreate(
+    
+    BuildContext scaffoldContext,
+  ) async {
+    try {
+      final token = await gettokenFromPrefs();
 
+      var response = await http.post(
+        Uri.parse('$api/api/order/create/'),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          "company":selectcomp,
+          "customer": selectedFamilyId,
+          'billing_address':selectedAddressId,
+          'order_date':selectedDate,
+          "family_id": selectedFamilyId,
+          "state": selectedstateId,
+          'paymet_status':paymethod,
+          'status':paystatus,
+          'total_amount':tot,
+          'bank':selectedbankId,
+          'payment_method':selectpaymethod,
+          
+
+
+
+          
+          
+        }),
+      );
+
+      print("Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+                        backgroundColor: Colors.green,
+
+            content: Text('Address added Successfully.'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Adding address failed.'),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Enter valid information'),
+        ),
+      );
+    }
+  }
 
 
 
@@ -284,6 +343,7 @@ print("totaaaaaaaaaaaaaaaaallllll$total");
     print(error); // Consider adding error handling in the UI
   }
 }
+var tot;
 void showTotalDialog(BuildContext context) {
 double total=0.0;
 double totalDiscount=0.0;
@@ -298,6 +358,9 @@ double totalItemPrice=0.0;
            print("==================================$totalDiscount");
           total = totalItemPrice - totalDiscount;
         }
+        setState(() {
+          tot=total;  
+        });
   print(total);
   showDialog(
     context: context,
@@ -369,7 +432,8 @@ double totalItemPrice=0.0;
       foregroundColor: Colors.white, backgroundColor: Colors.blue, // Set the text color to white
     ),
     onPressed: () {
-      Navigator.of(context).pop();
+
+
     },
     child: Text("OK"),
   ),

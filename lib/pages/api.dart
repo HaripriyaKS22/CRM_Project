@@ -1,1 +1,1 @@
-var api="https://purchases-fact-reflected-assess.trycloudflare.com";
+var api="https://restructuring-smaller-quantitative-wife.trycloudflare.com";
