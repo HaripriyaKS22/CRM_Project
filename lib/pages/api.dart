@@ -1,1 +1,1 @@
-var api="https://restructuring-smaller-quantitative-wife.trycloudflare.com";
+var api="https://details-synopsis-civic-st.trycloudflare.com";

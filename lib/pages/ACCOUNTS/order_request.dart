@@ -141,13 +141,7 @@ double total=0.0;
           'status':paystatus,
           'total_amount':tot,
           'bank':selectedbankId,
-          'payment_method':selectpaymethod,
-          
-
-
-
-          
-          
+          'payment_method':selectpaymethod,    
         }),
       );
 
@@ -432,13 +426,11 @@ double totalItemPrice=0.0;
       foregroundColor: Colors.white, backgroundColor: Colors.blue, // Set the text color to white
     ),
     onPressed: () {
-
-
+      ordercreate(context);
     },
     child: Text("OK"),
   ),
 ),
-
         ],
       );
     },
