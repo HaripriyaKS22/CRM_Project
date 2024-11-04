@@ -208,9 +208,10 @@ class _add_addressState extends State<add_address> {
   ) async {
     try {
       final token = await gettokenFromPrefs();
-
+print('$api/api/add/cutomer/address/${widget.customerid}/');
       var response = await http.post(
-        Uri.parse('$api/api/add/cutomer/address/${widget.customerid}/'),
+        
+        Uri.parse('$api/api/add/customer/address/${widget.customerid}/'),
         headers: {
           "Content-Type": "application/json",
           'Authorization': 'Bearer $token',
@@ -227,7 +228,7 @@ class _add_addressState extends State<add_address> {
           "email": email,
         }),
       );
-
+print(response.statusCode);
       print("Response: ${response.body}");
 
       if (response.statusCode == 200) {
@@ -238,6 +239,7 @@ class _add_addressState extends State<add_address> {
             content: Text('Address added Successfully.'),
           ),
         );
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>add_address(customerid:widget.customerid)));
       } else {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(

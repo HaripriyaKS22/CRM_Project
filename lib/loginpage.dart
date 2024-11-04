@@ -27,6 +27,8 @@ class _loginState extends State<login> {
     super.initState();
     print(api);
   }
+  
+  
 
   Future<void> storeUserData(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -46,6 +48,7 @@ void login(String email, String password, BuildContext context) async {
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
+
 
       print("RRRRRRRRRRRRRRDDDDDDDDDDDDDDDDDDDDDDDDDDDD$responseData");
       print(status);
@@ -72,7 +75,7 @@ void login(String email, String password, BuildContext context) async {
           print("Token decode error: $e");
         }
 
-        if (active == 'IT (Information Technology) Department') {
+        if (active == 'IT') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,
@@ -92,8 +95,7 @@ void login(String email, String password, BuildContext context) async {
               content: Text('Successfully logged in.'),
             ),
           );
-          Navigator.push(
-            context,
+          Navigator.push(context,
             MaterialPageRoute(builder: (context) => dashboard()),
           );
         }

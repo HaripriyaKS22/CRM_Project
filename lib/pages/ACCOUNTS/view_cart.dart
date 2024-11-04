@@ -26,13 +26,11 @@ class _View_CartState extends State<View_Cart> {
     fetchCartData();
   }
 
-  // Fetch token from shared preferences
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
 
-  // Fetch cart data from API
   Future<void> fetchCartData() async {
     try {
       final token = await getTokenFromPrefs();
@@ -76,7 +74,6 @@ class _View_CartState extends State<View_Cart> {
     }
   }
 
-  // Calculate total price of cart items
   double calculateTotalPrice() {
     double total = 0;
     for (var item in cartdata) {
@@ -131,7 +128,6 @@ class _View_CartState extends State<View_Cart> {
     }
   }
 
-  // Delete cart item from server
   Future<void> deletecartitem(int id) async {
     final token = await getTokenFromPrefs();
 
@@ -167,7 +163,6 @@ class _View_CartState extends State<View_Cart> {
     }
   }
 
-  // Popup dialog to edit cart item details
   void showPopupDialog(BuildContext context, Map<String, dynamic> item) {
     TextEditingController descriptionController =
         TextEditingController(text: item['note'] ?? '');
@@ -246,138 +241,147 @@ class _View_CartState extends State<View_Cart> {
       drawer: Drawer(
         // Drawer content here
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            cartdata.isEmpty
-                ? Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: cartdata.length,
-                    itemBuilder: (context, index) {
-                      final item = cartdata[index];
-                      final discountPerQuantity = item['discount'] ?? 0.0;
-                      final quantity = item['quantity'] ?? 0;
-                      final price = item['price'] ?? 0.0;
-                      final totalItemPrice = quantity * price;
-                      final totalDiscount = quantity * discountPerQuantity;
-                      final discountedTotalPrice = totalItemPrice - totalDiscount;
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 80),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  cartdata.isEmpty
+                      ? Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: cartdata.length,
+                          itemBuilder: (context, index) {
+                            final item = cartdata[index];
+                            final discountPerQuantity = item['discount'] ?? 0.0;
+                            final quantity = item['quantity'] ?? 0;
+                            final price = item['price'] ?? 0.0;
+                            final totalItemPrice = quantity * price;
+                            final totalDiscount = quantity * discountPerQuantity;
+                            final discountedTotalPrice = totalItemPrice - totalDiscount;
 
-                      return InkWell(
-                        onTap: () => showPopupDialog(context, item),
-                        child: Stack(
-                          children: [
-                            Card(
-                              elevation: 4,
-                              color: Colors.white,
-                              margin: EdgeInsets.all(10),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    Image.network(
-                                      "$api${item['image']}",
-                                      width: 80,
-                                      height: 80,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                            return InkWell(
+                              onTap: () => showPopupDialog(context, item),
+                              child: Stack(
+                                children: [
+                                  Card(
+                                    elevation: 4,
+                                    color: Colors.white,
+                                    margin: EdgeInsets.all(10),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
                                         children: [
-                                          Text(
-                                            item['name'],
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          Image.network(
+                                            "$api${item['image']}",
+                                            width: 80,
+                                            height: 80,
+                                            fit: BoxFit.cover,
                                           ),
-                                          Text("Size: ${item['size']}"),
-                                          Text("Tax: ${item['tax']}"),
-
-                                          if (item['note'] != null && item['note'].isNotEmpty)
-                                            Text(
-                                              "Description: ${item['note']}",
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(fontSize: 14),
-                                            ),
-                                          if (quantity > 0)
-                                            Text("Quantity: $quantity"),
-                                          if (discountPerQuantity > 0)
-                                            Text("Discount per item: ₹$discountPerQuantity"),
-
-                                          Text("Price per item: ₹$price"),
-                                          Text("Total price: ₹${totalItemPrice.toStringAsFixed(2)}"),
-                                          Text(
-                                            "Total discount: -₹${totalDiscount.toStringAsFixed(2)}",
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                          Text(
-                                            "Final price after discount: ₹${discountedTotalPrice.toStringAsFixed(2)}",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.green,
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  item['name'],
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Text("Size: ${item['size']}"),
+                                                Text("Tax: ${item['tax']} %"),
+                                                if (item['note'] != null && item['note'].isNotEmpty)
+                                                  Text(
+                                                    "Description: ${item['note']}",
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(fontSize: 14),
+                                                  ),
+                                                if (quantity > 0)
+                                                  Text("Quantity: $quantity"),
+                                                if (discountPerQuantity > 0)
+                                                  Text("Discount per item: ₹$discountPerQuantity"),
+                                                Text("Price per item: ₹$price"),
+                                                Text("Total price: ₹${totalItemPrice.toStringAsFixed(2)}"),
+                                                Text(
+                                                  "Total discount: -₹${totalDiscount.toStringAsFixed(2)}",
+                                                  style: TextStyle(color: Colors.red),
+                                                ),
+                                                Text(
+                                                  "Final price after discount: ₹${discountedTotalPrice.toStringAsFixed(2)}",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  Positioned(
+                                    bottom: 4,
+                                    right: 4,
+                                    child: IconButton(
+                                      icon: Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () async {
+                                        await deletecartitem(item['id']);
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Positioned(
-                              bottom: 4,
-                              right: 4,
-                              child: IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () async {
-                                  await deletecartitem(item['id']);
-                                },
-                              ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Text(
-                'Total Price: ₹${calculateTotalPrice().toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-Navigator.push(context, MaterialPageRoute(builder: (context)=>order_request()));                 },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Price: ₹${calculateTotalPrice().toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                  child: Text(
-                    'Continue',
-                    style: TextStyle(fontSize: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>order_request()));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
