@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_products.dart';
+import 'package:beposoft/pages/ACCOUNTS/view_cart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,7 +69,7 @@ class _order_requestState extends State<order_request> {
   List<Map<String, dynamic>> products = [];
 final TextEditingController searchController = TextEditingController();
 List<Map<String, dynamic>> filteredProducts = [];
-  List<String>  manager= ["jeshiya",'hanvi','nimitha','sandheep','sulfi'];
+  List<Map<String, dynamic>> manager= [];
   String selectmanager="jeshiya";
   List<String>  address= ["empty",];
   String selectaddress="empty";
@@ -121,9 +122,10 @@ double total=0.0;
     
     BuildContext scaffoldContext,
   ) async {
+    print("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW$selectpaystatus");
     try {
       final token = await gettokenFromPrefs();
-
+print('$api/api/order/create/');
       var response = await http.post(
         Uri.parse('$api/api/order/create/'),
         headers: {
@@ -131,14 +133,14 @@ double total=0.0;
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
+          'manage_staff':selectedstaffId,
           "company":selectcomp,
-          "customer": selectedFamilyId,
+          "customer": selectedCustomerId,
           'billing_address':selectedAddressId,
-          'order_date':selectedDate,
-          "family_id": selectedFamilyId,
+          'order_date': "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
+          "family": selectedFamilyId,
           "state": selectedstateId,
-          'paymet_status':paymethod,
-          'status':paystatus,
+          'paymet_status':selectpaystatus,
           'total_amount':tot,
           'bank':selectedbankId,
           'payment_method':selectpaymethod,    
@@ -147,7 +149,7 @@ double total=0.0;
 
       print("Response: ${response.body}");
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
                         backgroundColor: Colors.green,
@@ -155,6 +157,8 @@ double total=0.0;
             content: Text('Address added Successfully.'),
           ),
         );
+                Navigator.push(context, MaterialPageRoute(builder:(context)=>order_products()));
+
       } else {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -164,6 +168,7 @@ double total=0.0;
         );
       }
     } catch (e) {
+      print("errorrr:$e");
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Enter valid information'),
@@ -172,10 +177,6 @@ double total=0.0;
     }
   }
 
-
-
-
- 
 
    void toggleExpansion(int productId) {
     setState(() {
@@ -822,9 +823,9 @@ List<Map<String, dynamic>> sta = [];
     textEditingController.dispose();
     super.dispose();
   }
-  List<String>  company = ["BEPOSITIVE RACING PRIVATE LIMITED",'MICHAEL EXPORT AND IMPORT PRIVATE LIMITED'];
-  String selectcomp="BEPOSITIVE RACING PRIVATE LIMITED";
-   List<String>  paystatus = ["Paid",'COD','credit'];
+  List<String>  company = ["BEPOSITIVERACING PVT LTD",'MICHEAL IMPORT EXPORT PVT LTD'];
+  String selectcomp="MICHEAL IMPORT EXPORT PVT LTD";
+   List<String>  paystatus = ["Payed",'COD','credit'];
   String selectpaystatus="COD";
    List<String>  paymethod = ['Razorpay',"Credit Card",'Debit Card','Net Bankng','PayPal','Cash on Delivery','Bank Transfer'];
   String selectpaymethod="Razorpay";
@@ -1048,12 +1049,15 @@ void showInvoiceDialog(BuildContext context,  double total) {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: 15,),
+
+
+                            
               
                      Text("Company ",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height:5,),
               
               
-                            Padding(
+                           Padding(
                               padding: const EdgeInsets.only(right: 10),
                               child: Container(
                                     decoration: BoxDecoration(
@@ -1081,13 +1085,13 @@ void showInvoiceDialog(BuildContext context,  double total) {
                                             child: Text(
                                               value,
                                               style: TextStyle(
-                                                fontSize: screenWidth < 400 ? 8 : 10, // Adjust font size for smaller screens
+                                                fontSize: 12
                                               ),
                                             ),
                                           );
                                         }).toList(),
                                         icon: Container(
-                                          padding: EdgeInsets.only(left: 30),
+                                          padding: EdgeInsets.only(left: 120),
                                           alignment: Alignment.centerRight,
                                           child: Icon(Icons.arrow_drop_down),
                                         ),
@@ -1095,123 +1099,7 @@ void showInvoiceDialog(BuildContext context,  double total) {
                                     ),
                                   ),
                             ),
-                            
-                                        
-                    SizedBox(height: 8,),
-                     Text("Family",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                      SizedBox(height: 5,),
-              
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                                              
-                                                height: 49,
-                                                decoration: BoxDecoration(
-                            border: Border.all(color: const Color.fromARGB(255, 206, 206, 206)),
-                            borderRadius: BorderRadius.circular(10),
-                                                ),
-                                                child: Row(
-                            children: [
-                              SizedBox(width: 20),
-                              Container(
-                                width: 280,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Select your class',
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child:DropdownButtonHideUnderline(
-                                          child: DropdownButton<int>(
-                                        hint: Text(
-                                          'Select a Family',
-                                          
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600]),
-                                          
-                                        ),
-                                        value: selectedFamilyId,
-                                        isExpanded: true,
-                                        dropdownColor: const Color.fromARGB(255, 255, 255, 255),
-                                        icon: Icon(Icons.arrow_drop_down, color:const Color.fromARGB(255, 107, 107, 107)),
-                                        onChanged: (int? newValue) {
-                                          setState(() {
-                                            selectedFamilyId = newValue; // Store the selected family ID
-                                          });
-                                        },
-                                        items: fam.map<DropdownMenuItem<int>>((family) {
-                                          return DropdownMenuItem<int>(
-                                            value: family['id'],
-                                            child: Text(
-                                              family['name'],
-                                              style: TextStyle(color: Colors.black87, fontSize: 12),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),)
-                                      
-                                    
-                                  
-                                ),
-                              ),
-                            ],
-                                                ),
-                                              ),
-                          ),
-                     SizedBox(height: 8,),
-                     Text("Maneger",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                      SizedBox(height: 5,),
-              
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Container(
-                          
-                          height: 49,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 20),
-                              Container(
-                                width: 276,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child: DropdownButton<int>(
-                                    value: selectedstaffId,
-                                      isExpanded: true,
-                                    underline: Container(), // This removes the underline
-                                    onChanged: (int? newValue) {
-                                      setState(() {
-                                        selectedstaffId = newValue!;
-                                        print(selectedstaffId);
-                                      });
-                                    },
-                                    items: sta.map<DropdownMenuItem<int>>((staff) {
-                                      return DropdownMenuItem<int>(
-                                        value:staff['id'],
-                                        child: Text(staff['name'],style: TextStyle(fontSize: 12),),
-                                      );
-                                    }).toList(),
-                                    icon: Container(
-                                      padding: EdgeInsets.only(left: 190), // Adjust padding as needed
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                         SizedBox(height: 8,),
+                              SizedBox(height: 8,),
                      Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height: 5,),
               
@@ -1296,6 +1184,7 @@ void showInvoiceDialog(BuildContext context,  double total) {
                                                 textEditingController.clear();
                                               }
                                             },
+                                            
                                           ),
                                         ),
                                       ),
@@ -1303,6 +1192,125 @@ void showInvoiceDialog(BuildContext context,  double total) {
                                   },
                                 ),
                           ),
+                            
+                                        
+                    SizedBox(height: 8,),
+                     Text("Family",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height: 5,),
+              
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                                              
+                                                height: 49,
+                                                decoration: BoxDecoration(
+                            border: Border.all(color: const Color.fromARGB(255, 206, 206, 206)),
+                            borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Container(
+                                width: 280,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Select your class',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                  ),
+                                  child:DropdownButtonHideUnderline(
+                                          child: DropdownButton<int>(
+                                        hint: Text(
+                                          'Select a Family',
+                                          
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600]),
+                                          
+                                        ),
+                                        value: selectedFamilyId,
+                                        isExpanded: true,
+                                        dropdownColor: const Color.fromARGB(255, 255, 255, 255),
+                                        onChanged: (int? newValue) {
+                                          setState(() {
+                                            selectedFamilyId = newValue; // Store the selected family ID
+                                          });
+                                        },
+                                        items: fam.map<DropdownMenuItem<int>>((family) {
+                                          return DropdownMenuItem<int>(
+                                            value: family['id'],
+                                            child: Text(
+                                              family['name'],
+                                              style: TextStyle(color: Colors.black87, fontSize: 12),
+                                            ),
+                                          );
+                                        }).toList(),
+                                         icon: Container(
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons.arrow_drop_down),
+                                        ),
+                                      ),)
+                                      
+                                    
+                                  
+                                ),
+                              ),
+                            ],
+                                                ),
+                                              ),
+                          ),
+                     SizedBox(height: 8,),
+                     Text("Maneger",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height: 5,),
+              
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Container(
+                          
+                          height: 49,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Container(
+                                width: 276,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                  ),
+                                  child: DropdownButton<int>(
+                                    value: selectedstaffId,
+                                      isExpanded: true,
+                                    underline: Container(), // This removes the underline
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedstaffId = newValue!;
+                                        print(selectedstaffId);
+                                      });
+                                    },
+                                    items: sta.map<DropdownMenuItem<int>>((staff) {
+                                      return DropdownMenuItem<int>(
+                                        value:staff['id'],
+                                        child: Text(staff['name'],style: TextStyle(fontSize: 12),),
+                                      );
+                                    }).toList(),
+                                    icon: Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                       
               
                     SizedBox(height: 8,),
                     Text("State",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
@@ -1413,9 +1421,8 @@ void showInvoiceDialog(BuildContext context,  double total) {
                     }).toList();
                   },
                   icon: Container(
-                    padding: EdgeInsets.only(left: 190), // Adjust padding as needed
                     alignment: Alignment.centerRight,
-                    child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                    child: Icon(Icons.arrow_drop_down,color: const Color.fromARGB(255, 151, 150, 150),), // Dropdown arrow icon
                   ),
                 ),
               ),
@@ -1455,7 +1462,7 @@ void showInvoiceDialog(BuildContext context,  double total) {
                           ),
                           child: Row(
                             children: [
-                  SizedBox(width: 30,),
+                  SizedBox(width: 25,),
                   Text(
                     '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
                     style: TextStyle(fontSize:12,color:Color.fromARGB(255, 116, 116, 116)),
@@ -1466,7 +1473,9 @@ void showInvoiceDialog(BuildContext context,  double total) {
                     _selectDate(context);
                       print('Icon pressed');
                     },
-                    child: Icon(Icons.date_range),
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 35),
+                      child: Icon(Icons.date_range)),
                   ),
                             ],
                           ),
@@ -1723,6 +1732,8 @@ print("shoooooooooooooooooooooooooooo$total");
               ),
               
                     ),
+              
+                    SizedBox(height: 20,),
               
                    
               

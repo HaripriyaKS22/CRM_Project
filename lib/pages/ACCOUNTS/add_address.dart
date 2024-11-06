@@ -15,16 +15,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beposoft/pages/api.dart';
 
 class add_address extends StatefulWidget {
-  const add_address({super.key, required this.customerid});
+  const add_address({super.key, required this.customerid,required this.name});
 
   final int customerid;
+  final name;
   @override
   State<add_address> createState() => _add_addressState();
 }
 
 class _add_addressState extends State<add_address> {
   double number = 0.00;
-  TextEditingController customer = TextEditingController();
+   late TextEditingController customer;
   TextEditingController name = TextEditingController();
   TextEditingController address = TextEditingController();
 
@@ -89,6 +90,7 @@ class _add_addressState extends State<add_address> {
   void initState() {
     getstates();
     getcustomers();
+      customer = TextEditingController(text: widget.name);
     super.initState();
     print("CUUUUUUUUSSSSSSSSIDDr${widget.customerid}");
   }
@@ -239,7 +241,7 @@ print(response.statusCode);
             content: Text('Address added Successfully.'),
           ),
         );
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>add_address(customerid:widget.customerid)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>add_address(customerid:widget.customerid,name:widget.name)));
       } else {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
