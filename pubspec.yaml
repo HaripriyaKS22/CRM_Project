@@ -92,6 +92,8 @@ flutter:
     - lib/assets/box.png
     - lib/assets/open-box.png
     - lib/assets/card.png
+    - lib/assets/money.png
+    - lib/assets/delete.png
 
    
 

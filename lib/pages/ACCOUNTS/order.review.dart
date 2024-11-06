@@ -30,7 +30,7 @@
     Future<void> initData() async {
       await fetchOrderItems();
     }
-
+ bool showAllProducts = false;
     Future<String?> getTokenFromPrefs() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       return prefs.getString('token');
@@ -81,6 +81,7 @@
 
    @override
 Widget build(BuildContext context) {
+   final visibleItems = showAllProducts ? items : items.take(2).toList();
   return Scaffold(
     backgroundColor: const Color.fromARGB(255, 255, 255, 255),
     body: SingleChildScrollView(
@@ -139,7 +140,7 @@ Widget build(BuildContext context) {
               ],
             ),
           ),
-          SizedBox(height: 10),
+          
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Card(
@@ -348,74 +349,266 @@ Padding(
   ),
 ),
 Padding(
-  padding: const EdgeInsets.only(left: 20, top: 10),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'Products',
-        style: TextStyle(
-          color: Color.fromARGB(255, 0, 0, 0),
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      SizedBox(height: 10),
-      // Display each item in the list within a card
-      for (var item in items)
-        Card(
-          margin: const EdgeInsets.only(bottom: 8.0, right: 20), // Card margin
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 4, // Add shadow to the card
-          child: Padding(
-            padding: const EdgeInsets.all(12.0), // Padding inside the card
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Display the first image in a small container
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: NetworkImage('$api${item["images"][0]}'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                // Display product details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['name'],
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Quantity: ${item["quantity"]}, Rate: ${item["rate"]}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      Text(
-                        'Total: ${item["actual_price"] * item["quantity"]}',
-                        style: TextStyle(fontSize: 12, color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+      padding: const EdgeInsets.only( top: 10,right: 15,left: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Products',
+            style: TextStyle(
+              color: Color.fromARGB(255, 0, 0, 0),
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-    ],
-  ),
-),
+          SizedBox(height: 10),
 
+          // Display each item in the visibleItems list within a card
+          for (var item in visibleItems)
+            Card(
+              color: Colors.white,
+              margin: const EdgeInsets.only(bottom: 8.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Display the first image in a small container
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: NetworkImage('$api${item["images"][0]}'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    // Display product details
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['name'],
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Quantity: ${item["quantity"]}, Rate: ${item["rate"]}',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          Text(
+                            'Total: ${item["actual_price"] * item["quantity"]}',
+                            style: TextStyle(fontSize: 12, color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // "See More" or "See Less" Button
+          if (items.length > 3) // Show button only if there are more than 3 items
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  showAllProducts = !showAllProducts; // Toggle the visibility
+                });
+              },
+              child: Text(showAllProducts ? 'See Less' : 'See More',style: TextStyle(color: Colors.blue),),
+            ),
+        ],
+      ),
+    ),
+
+    Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 2, 65, 96),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 3,
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Bank Details',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Icon(
+                          Icons.credit_card,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ],
+                    ),
+                    
+                    Row(
+                      children: [
+                        Text(
+                          ord != null ? ord["bank"]["name"] : 'Loading...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        Spacer(),
+                        Image.asset(
+                          height: 40,
+                          width: 40,
+                          'lib/assets/money.png'
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 18),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Account Holder',
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              ord != null
+                                  ? ord["customer"]["name"]
+                                  : 'Loading...',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Account No: ',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  ord != null
+                                      ? ord["bank"]["account_number"]
+                                      : 'Loading...',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  'IFSC CODE: ',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  ord != null
+                                      ? ord["bank"]["ifsc_code"]
+                                      : 'Loading...',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  'Branch: ',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  ord != null
+                                      ? ord["bank"]["branch"]
+                                      : 'Loading...',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  'Open Balance: ',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  ord != null
+                                      ? ord["bank"]["open_balance"]
+                                          .toStringAsFixed(
+                                              2) // Formats to 2 decimal places
+                                      : 'Loading...',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+SizedBox(height: 30,),
         ],
       ),
     ),
