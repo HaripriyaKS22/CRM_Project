@@ -38,6 +38,7 @@
 
     Future<void> fetchOrderItems() async {
       try {
+        print('$api/api/order/${widget.id}/items/');
         final token = await getTokenFromPrefs();
         var response = await http.get(
           Uri.parse('$api/api/order/${widget.id}/items/'),
@@ -404,9 +405,31 @@ Padding(
                             'Quantity: ${item["quantity"]}, Rate: ${item["rate"]}',
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
-                          Text(
-                            'Total: ${item["actual_price"] * item["quantity"]}',
-                            style: TextStyle(fontSize: 12, color: Colors.black),
+                          Row(
+                            children: [
+                              Text(
+                                'Tax: ${item["tax"]}',
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                              if(item["tax"]!=0)
+                               Text('Tax: ${item["tax"]}',
+                                style: TextStyle(fontSize: 12, color: Colors.grey),)
+                            ],
+                          ),
+                          Text('Tax Amount: ${item["rate"] - item["exclude_price"]}'),
+                          Row(
+                            children: [
+                              Text(
+                                'Total: ${item["actual_price"] * item["quantity"]}',
+                                style: TextStyle(fontSize: 12, color: Colors.black),
+                              ),
+                              Spacer(),
+                              Image.asset(
+                                height: 25,
+                                width: 25,
+                                "lib/assets/delete.png"
+                              )
+                            ],
                           ),
                         ],
                       ),
