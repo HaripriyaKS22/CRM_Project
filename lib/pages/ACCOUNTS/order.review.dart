@@ -347,7 +347,74 @@ Padding(
     ],
   ),
 ),
-
+Padding(
+  padding: const EdgeInsets.only(left: 20, top: 10),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        'Products',
+        style: TextStyle(
+          color: Color.fromARGB(255, 0, 0, 0),
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      SizedBox(height: 10),
+      // Display each item in the list within a card
+      for (var item in items)
+        Card(
+          margin: const EdgeInsets.only(bottom: 8.0, right: 20), // Card margin
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4, // Add shadow to the card
+          child: Padding(
+            padding: const EdgeInsets.all(12.0), // Padding inside the card
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Display the first image in a small container
+                Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                      image: NetworkImage('$api${item["images"][0]}'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                // Display product details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['name'],
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Quantity: ${item["quantity"]}, Rate: ${item["rate"]}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      Text(
+                        'Total: ${item["actual_price"] * item["quantity"]}',
+                        style: TextStyle(fontSize: 12, color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+    ],
+  ),
+),
 
         ],
       ),
