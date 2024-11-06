@@ -69,6 +69,7 @@
 
           setState(() {
             items = orderList;
+            print("itemmmmmmmmmmmmmmmmmm$items");
           });
         } else {
           print("Failed to fetch data. Status Code: ${response.statusCode}");
@@ -208,24 +209,25 @@ Widget build(BuildContext context) {
                           ],
                         ),
                         SizedBox(height: 4.0),
-                        if(ord['shipping_mode']!=null)
-                        Row(
-                          children: [
-                            Text(
-                              'Shipping Mode',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                            ),
-                            Spacer(),
-                            Text(
-                              ord != null ? ' ${ord['shipping_mode']}' : 'Loading...',
-                              style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 12),
-                            ),
-                          ],
-                        ),
-                        
-                        if(ord['code_charge']!=0)
                          SizedBox(height: 4.0),
-                        if(ord['code_charge']!=0)
+              if (ord != null && ord['shipping_mode'] != null)
+                Row(
+                  children: [
+                    Text(
+                      'Shipping Mode',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                    Spacer(),
+                    Text(
+                      '${ord['shipping_mode']}',
+                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 12),
+                    ),
+                  ],
+                ),
+                        
+                        if (ord != null && ord['code_charge'] != null && ord['code_charge'] != 0)
+                         SizedBox(height: 4.0),
+                        if (ord != null && ord['code_charge'] != null && ord['code_charge'] != 0)
                          Row(
                           children: [
                             Text(
@@ -235,7 +237,7 @@ Widget build(BuildContext context) {
                             Spacer(),
                             
                             Text(
-                              ord != null ? ' ${ord['code_charge']}' : 'Loading...',
+                              ' ${ord['code_charge']}',
                               style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 12),
                             ),
                           ],
@@ -346,128 +348,10 @@ Padding(
   ),
 ),
 
+
         ],
       ),
     ),
   );
 }
 }
-
-  //   Widget _buildPackageHeader() {
-  //     return Container(
-      
-  //       decoration: BoxDecoration(
-  //         color: Colors.blue,
-  //         borderRadius: BorderRadius.circular(10),
-  //       ),
-  //       child: Row(
-  //         children: [
-  //           Icon(Icons.local_shipping, size: 40, color: Colors.white),
-  //           SizedBox(width: 10),
-  //           Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               Text(
-  //                 ord["invoice"] ?? 'Invoice Number',
-  //                 style: TextStyle(
-  //                   fontSize: 18,
-  //                   fontWeight: FontWeight.bold,
-  //                   color: Colors.black,
-  //                 ),
-  //               ),
-  //               Text(
-  //                 'Package Delivered',
-  //                 style: TextStyle(color: Colors.black),
-  //               ),
-  //             ],
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }
-
-  //   Widget _buildDeliveryInfo() {
-  //     return Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text(
-  //           'Picked on ${ord["order_date"] ?? 'Date Not Available'}',
-  //           style: TextStyle(color: Colors.grey),
-  //         ),
-  //         Text(
-  //           '${ord["customer"]["address"]}, ${ord["customer"]["city"]}',
-  //           style: TextStyle(fontWeight: FontWeight.bold),
-  //         ),
-  //         Divider(),
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Text('Delivery Charges', style: TextStyle(color: Colors.grey)),
-  //             Text('₹${ord["code_charge"]}', style: TextStyle(fontWeight: FontWeight.bold)),
-  //           ],
-  //         ),
-  //         Divider(),
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Text('Package Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-  //             Text('₹${ord["total_amount"]}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-  //           ],
-  //         ),
-  //       ],
-  //     );
-  //   }
-
-  //  Widget _buildPackageDetails() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Text(
-  //         'Package Details',
-  //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //       ),
-  //       SizedBox(height: 10),
-  //       Text('Invoice Number'),
-  //       Text(ord["invoice"] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
-  //       SizedBox(height: 5),
-  //       Text('Package Items'),
-  //       if (ord["items"] != null && ord["items"].isNotEmpty) ...ord["items"].map<Widget>((item) {
-  //         return Padding(
-  //           padding: const EdgeInsets.symmetric(vertical: 4.0),
-  //           child: Text(
-  //             '${item["name"]} - ₹${item["rate"]} x ${item["quantity"]}',
-  //             style: TextStyle(fontWeight: FontWeight.bold),
-  //           ),
-  //         );
-  //       }).toList() else
-  //         Text('No items available', style: TextStyle(color: Colors.grey)),
-  //       SizedBox(height: 5),
-  //       Text('Delivery Type'),
-  //       Text(ord["shipping_mode"] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
-  //       SizedBox(height: 5),
-  //       Text('Date'),
-  //       Text(ord["order_date"] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
-  //     ],
-  //   );
-  // }
-
-  //   Widget _buildFooterButtons() {
-  //     return ButtonBar(
-  //       alignment: MainAxisAlignment.spaceEvenly,
-  //       children: [
-  //         ElevatedButton.icon(
-  //           onPressed: () {},
-  //           icon: Icon(Icons.email),
-  //           label: Text("Email Invoice"),
-  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
-  //         ),
-  //         ElevatedButton.icon(
-  //           onPressed: () {},
-  //           icon: Icon(Icons.help),
-  //           label: Text("Need help?"),
-  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
-  //         ),
-  //       ],
-  //     );
-  //   }
-  // }
