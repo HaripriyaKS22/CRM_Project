@@ -1,1 +1,1 @@
-var api="https://grey-leu-belkin-tennessee.trycloudflare.com";
+var api="https://pressed-arms-coaches-asset.trycloudflare.com";

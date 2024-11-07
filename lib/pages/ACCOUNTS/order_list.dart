@@ -330,21 +330,31 @@ void _filterOrdersByDateRange() {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: () => _selectSingleDate(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey, // Set button color to grey
-                  ),
-                  child: Text(
-                    'Select Date',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
+                SizedBox(
+  width: 175,
+  child: ElevatedButton(
+    onPressed: () => _selectSingleDate(context),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color.fromARGB(255, 2, 65, 96), // Set button color to grey
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8), // Set the border radius
+      ),
+    ),
+    child: Text(
+      'Select Date',
+      style: TextStyle(color: Colors.white),
+    ),
+  ),
+),
+
                 SizedBox(width: 10),
               ElevatedButton(
   onPressed: () => _selectDateRange(context),
   style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.grey, // Set button color to grey
+    backgroundColor: const Color.fromARGB(255, 2, 65, 96), // Set button color to grey
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8), // Set the border radius
+      ),
   ),
   child: Text(
     'Select Date Range',
@@ -364,12 +374,12 @@ void _filterOrdersByDateRange() {
                               (startDate != null && endDate != null)
                           ? 'No orders available in this date range'
                           : 'No orders available',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 2, 65, 96)),
                     ),
                   )
                 : ListView.builder(
                     itemCount: filteredOrders.length,
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.only(right: 10,left:10),
                     itemBuilder: (context, index) {
                       final order = filteredOrders[index];
                       return Padding(
