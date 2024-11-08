@@ -88,104 +88,160 @@ class _CustomerLedgerState extends State<CustomerLedger> {
 
   @override
   Widget build(BuildContext context) {
+    int mainOrderNumber = 1; // Initialize main order number
+    int subOrderNumber = 1;  // Initialize sub-order number
+
     return Scaffold(
       appBar: AppBar(title: Text("Customer Ledger")),
       body: ledgerEntries.isEmpty
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Column(
-                children: [
-                  DataTable(
-                    columns: const [
-                      DataColumn(label: Text('#')),
-                      DataColumn(label: Text('Date')),
-                      DataColumn(label: Text('Invoice')),
-                      DataColumn(label: Text('Particular')),
-                      DataColumn(label: Text('Debit (₹)')),
-                      DataColumn(label: Text('Credit (₹)')),
-                    ],
-                    rows: List.generate(ledgerEntries.length, (index) {
-                      final entry = ledgerEntries[index];
-                      return DataRow(cells: [
-                        DataCell(Text((index + 1).toString())),
-                        DataCell(Text(entry['date'] ?? '')),
-                        DataCell(
-                          Text(
-                            entry['isFirstOfOrder']
-                                ? entry['invoice'] ?? ''
-                                : '',
-                            style: TextStyle(
-                              color: entry['isFirstOfOrder']
-                                  ? Colors.blue
-                                  : Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            entry['particular'] ?? '',
-                            style: TextStyle(
-                              color: entry['particular'] == 'Goods Sale'
-                                  ? Colors.red
-                                  : entry['particular'] == 'Payment received'
-                                      ? Colors.green
-                                      : Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        DataCell(Text(entry['debit'] != null
-                            ? entry['debit'].toString()
-                            : '')),
-                        DataCell(Text(entry['credit'] != null
-                            ? entry['credit'].toString()
-                            : '')),
-                      ]);
-                    }),
-                  ),
-                  // Footer row for totals
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: DataTable(
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Column(
+                  children: [
+                    DataTable(
+                      headingRowColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.blue.shade100),
+                      dataRowColor: MaterialStateColor.resolveWith((states) {
+                        return states.contains(MaterialState.selected)
+                            ? Colors.blue.shade50
+                            : Colors.grey.shade200;
+                      }),
+                      columnSpacing: 20,
                       columns: const [
-                        DataColumn(label: Text('')),
-                        DataColumn(label: Text('')),
-                        DataColumn(label: Text('')),
-                        DataColumn(label: Text('Grand Total')),
-                        DataColumn(label: Text('Debit (₹)')),
-                        DataColumn(label: Text('Credit (₹)')),
+                        DataColumn(
+                            label: Text('#',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Date',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Invoice',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Particular',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Debit (₹)',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Credit (₹)',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
                       ],
-                      rows: [
-                        DataRow(cells: [
-                          DataCell(Text('')),
-                          DataCell(Text('')),
-                          DataCell(Text('')),
-                          DataCell(Text('Grand Total')),
-                          DataCell(Text(totalDebit.toStringAsFixed(2),
-                              style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataCell(Text(totalCredit.toStringAsFixed(2),
-                              style: TextStyle(fontWeight: FontWeight.bold))),
-                        ]),
-                      ],
+                      rows: List.generate(ledgerEntries.length, (index) {
+                        final entry = ledgerEntries[index];
+                        String displayNumber;
+
+                        // Increment main order number and reset sub-number at each new order
+                        if (entry['isFirstOfOrder']) {
+                          displayNumber = mainOrderNumber.toString();
+                          mainOrderNumber++; // Increment for next main order
+                          subOrderNumber = 1; // Reset sub-number for the new main order
+                        } else {
+                          displayNumber = "${mainOrderNumber - 1}.$subOrderNumber";
+                          subOrderNumber++; // Increment sub-number within the same main order
+                        }
+
+                        return DataRow(cells: [
+                          DataCell(Text(displayNumber)), // Display formatted order number
+                          DataCell(Text(entry['date'] ?? '')),
+                          DataCell(
+                            Text(
+                              entry['isFirstOfOrder'] ? entry['invoice'] ?? '' : '',
+                              style: TextStyle(
+                                color: entry['isFirstOfOrder']
+                                    ? Colors.blue
+                                    : Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              entry['particular'] ?? '',
+                              style: TextStyle(
+                                color: entry['particular'] == 'Goods Sale'
+                                    ? Colors.red
+                                    : entry['particular'] == 'Payment received'
+                                        ? Colors.green
+                                        : Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          DataCell(Text(entry['debit'] != null
+                              ? entry['debit'].toString()
+                              : '')),
+                          DataCell(Text(entry['credit'] != null
+                              ? entry['credit'].toString()
+                              : '')),
+                        ]);
+                      }),
                     ),
-                  ),
-                  // Closing Balance
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Closing Balance (₹): ${(totalDebit - totalCredit).toStringAsFixed(2)}",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      ],
+                    // Footer row for totals
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: DataTable(
+                        headingRowColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.blue.shade100),
+                        columnSpacing: 20,
+                        columns: const [
+                          DataColumn(label: Text('')),
+                          DataColumn(label: Text('')),
+                          DataColumn(label: Text('')),
+                          DataColumn(
+                              label: Text('Grand Total',
+                                  style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Debit (₹)',
+                                  style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Credit (₹)',
+                                  style: TextStyle(fontWeight: FontWeight.bold))),
+                        ],
+                        rows: [
+                          DataRow(cells: [
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                            DataCell(Text('')),
+                            DataCell(Text('Grand Total',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black))),
+                            DataCell(Text(totalDebit.toStringAsFixed(2),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade800,
+                                ))),
+                            DataCell(Text(totalCredit.toStringAsFixed(2),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green.shade800,
+                                ))),
+                          ]),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    // Closing Balance
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Closing Balance (₹): ${(totalDebit - totalCredit).toStringAsFixed(2)}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.deepOrangeAccent),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
     );
