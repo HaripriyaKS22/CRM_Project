@@ -44,10 +44,9 @@ class _customer_listState extends State<customer_list> {
   void initState() {
     super.initState();
     getcustomer();
-    // getfamily();
   }
 
-  List<String> categories = ["cycling", 'skating', 'fitnass', 'bepocart'];
+  List<String> categories = ["cycling", 'skating', 'fitness', 'bepocart'];
   String selectededu = "cycling";
   drower d = drower();
   Widget _buildDropdownTile(
@@ -73,54 +72,6 @@ class _customer_listState extends State<customer_list> {
     return prefs.getString('token');
   }
 
-  //  void _filterProducts(String query) {
-  //   if (query.isEmpty) {
-  //     setState(() {
-  //       filteredProducts = customer; // Show all products if search is cleared
-  //     });
-  //   } else {
-  //     setState(() {
-  //       filteredProducts = customer
-  //           .where((product) =>
-  //               product['name'].toLowerCase().contains(query.toLowerCase()))
-  //           .toList(); // Filter products by name (case-insensitive)
-  //     });
-  //   }
-  // }
-
-  // Future<void> getfamily() async {
-  //   try {
-  //     final token = await gettokenFromPrefs();
-
-  //     var response = await http.get(
-  //       Uri.parse('$api/api/familys/'),
-  //       headers: {
-  //         'Authorization': 'Bearer $token',
-  //         'Content-Type': 'application/json',
-  //       },
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final parsed = jsonDecode(response.body);
-  //       var productsData = parsed['data'];
-  //       List<Map<String, dynamic>> familylist = [];
-
-  //       for (var productData in productsData) {
-  //         familylist.add({
-  //           'id': productData['id'],
-  //           'name': productData['name'],
-  //         });
-  //       }
-
-  //       setState(() {
-  //         fam = familylist;
-  //         _checkboxValues = List<bool>.filled(fam.length, false);
-  //       });
-  //     }
-  //   } catch (error) {
-  //     print("Error: $error");
-  //   }
-  // }
   Future<void> getcustomer() async {
     try {
       final token = await gettokenFromPrefs();
@@ -133,7 +84,7 @@ class _customer_listState extends State<customer_list> {
       );
 
       print(
-          "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq============================${response.body}");
+          "Customer data: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -150,8 +101,7 @@ class _customer_listState extends State<customer_list> {
 
         setState(() {
           customer = managerlist; // Update full customer list
-          filteredProducts =
-              List.from(customer); // Show all customers initially
+          filteredProducts = List.from(customer); // Show all customers initially
         });
       }
     } catch (error) {
@@ -159,7 +109,6 @@ class _customer_listState extends State<customer_list> {
     }
   }
 
-  // Function to filter products based on search input
   void _filterProducts(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -201,10 +150,9 @@ class _customer_listState extends State<customer_list> {
                   children: [
                     Image.asset(
                       "lib/assets/logo-white.png",
-                      width: 100, // Change width to desired size
-                      height: 100, // Change height to desired size
-                      fit: BoxFit
-                          .contain, // Use BoxFit.contain to maintain aspect ratio
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.contain,
                     ),
                     SizedBox(
                       width: 70,
@@ -232,7 +180,6 @@ class _customer_listState extends State<customer_list> {
               onTap: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => customer_list()));
-                // Navigate to the Settings page or perform any other action
               },
             ),
             Divider(),
@@ -290,7 +237,7 @@ class _customer_listState extends State<customer_list> {
               leading: Icon(Icons.chat),
               title: Text('Chat'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
             Divider(),
@@ -298,213 +245,110 @@ class _customer_listState extends State<customer_list> {
               leading: Icon(Icons.exit_to_app),
               title: Text('Logout'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Perform logout action
+                Navigator.pop(context);
               },
             ),
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search customers...",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                    ),
-                    onChanged: _filterProducts, // Filter as user types
-                  ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: "Search customers...",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
                 ),
-
-                // fam.isEmpty
-                //     ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
-                //     : Padding(
-                //       padding: const EdgeInsets.only(left: 8,right: 8),
-                //       child: DropdownButtonFormField<String>(
-                //           decoration: InputDecoration(
-                //             labelText: "Select Family", // Adds a label like a form field
-                //             border: OutlineInputBorder(),
-                //             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                //           ),
-                //           value: _selectedFamily,
-                //           items: fam.map((family) {
-                //             return DropdownMenuItem<String>(
-                //               value: family['id'].toString(), // Store ID as String
-                //               child: Text(family['name']),
-                //             );
-                //           }).toList(),
-                //           onChanged: (value) {
-                //             setState(() {
-                //               _selectedFamily = value;
-                //               print("Selected Family ID: $_selectedFamily");
-                //             });
-                //           },
-                //           hint: Text("Select a Family"), // Initial hint text
-                //         ),
-                //     ),
-                SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        // width: MediaQuery.of(context).size.width *
-                        //     0.4, // Adjust width based on screen size
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => add_new_customer()));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors
-                                .blueGrey, // Or another color for consistency
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          child: Text("New Customer",
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                      SizedBox(width: 5),
-                      SizedBox(
-                        // width: MediaQuery.of(context).size.width *
-                        //     0.45, // Adjust width based on screen size
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        customer_singleview()));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors
-                                .blueGrey, // Or another color for consistency
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          child: Text("New Customer",
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 400,
-                  child: ListView.builder(
-                      itemCount: filteredProducts.length,
-                      itemBuilder: (context, index) {
-                        final customerData = filteredProducts[index];
-                        return Card(
-                          elevation: 4,
-                          color: Colors.white,
-                          margin: EdgeInsets.symmetric(vertical: 8.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'ID: ${customerData['id']}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text('Name: ${customerData['name']}'),
-                                Text(
-                                    'Created At: ${customerData['created_at']}'),
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          // Action for first button
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          foregroundColor: Colors.black,
-                                          backgroundColor:
-                                              Colors.white, // Text color
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                10), // Curved edges
-                                          ),
-                                          side: BorderSide(
-                                              color: Colors.black,
-                                              width:
-                                                  1), // Optional: Border color and width
-                                        ),
-                                        child: Text(
-                                          "View",
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    add_address(customerid: customerData['id'],name: customerData['name'])),
-                                          );
-                                        },
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.blue),
-                                          shape: MaterialStateProperty.all<
-                                              RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      10), // Curved edges
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          "Add Address",
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                )
-              ],
+              ),
+              onChanged: _filterProducts,
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredProducts.length,
+              itemBuilder: (context, index) {
+                final customerData = filteredProducts[index];
+                return Card(
+                  color: Colors.white,
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          customerData['name'] ?? '',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Created on: ${customerData['created_at']}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => customer_singleview(),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text('View',style: TextStyle(color: Colors.white),),
+                            ),
+                            SizedBox(width: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) => add_address(),
+                                //   ),
+                                // );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text('Add Address',style: TextStyle(color: Colors.white),),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

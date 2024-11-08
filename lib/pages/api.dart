@@ -1,1 +1,1 @@
-var api="https://pressed-arms-coaches-asset.trycloudflare.com";
+var api="https://shoulder-ho-stationery-situations.trycloudflare.com";

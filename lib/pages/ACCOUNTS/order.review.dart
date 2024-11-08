@@ -187,7 +187,59 @@ final List<String> statuses = ['Pending', 'In Progress', 'Completed', 'Canceled'
     return pref.getString('token');
   }
 
+ Future<void> updateaddress() async {
+    try {
+      final token = await gettoken();
 
+      var response = await http.put(
+        Uri.parse('$api/api/shipping/${widget.id}/order/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+            'status':selectedStatus,
+            'billing_address':selectedAddressId,
+            'note':noteController.text,
+            
+          },
+        ),
+      );
+
+    print(response.body);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+             backgroundColor: Colors.green,
+            content: Text('Address updated successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) =>OrderReview(id:widget.id)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+             backgroundColor: Colors.red,
+            content: Text('Failed to update Address'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      print(error);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating profile'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
    List<Map<String, dynamic>> addres = [];
 
@@ -1082,6 +1134,7 @@ Future<void> fetchOrderItems() async {
                           ],
                         ),
                         Column(
+                          
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
@@ -1571,7 +1624,7 @@ Future<void> fetchOrderItems() async {
                   labelText: 'Status',
                 ),
               ),
-              SizedBox(height: 16.0),
+             
 
                SizedBox(height: 8),
               Text("Shipping Address", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
@@ -1579,16 +1632,16 @@ Future<void> fetchOrderItems() async {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: Container(
-                  height: 49,
+                  height: 50,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10),
+                 
                   ),
                   child: Row(
                     children: [
                       SizedBox(width: 20),
                       Container(
-              width: 276,
+              width: 290,
               child: InputDecorator(
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -1637,7 +1690,7 @@ Future<void> fetchOrderItems() async {
                 ),
               ),
               
-              
+               SizedBox(height: 16.0),
               TextField(
                 controller: noteController,
                 maxLines: 3,
@@ -1649,9 +1702,18 @@ Future<void> fetchOrderItems() async {
               SizedBox(height: 16.0),
         
               ElevatedButton(
-                onPressed: (){},
-                child: Text('Submit'),
-              ),
+  onPressed: () {
+    updateaddress();
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.blue, // Change background color
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20), // Add border radius
+    ),
+  ),
+  child: Text('Submit',style: TextStyle(color: Colors.white),),
+)
+
             ],
           ),
         ),
