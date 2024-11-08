@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:beposoft/pages/ACCOUNTS/add_address.dart';
+import 'package:beposoft/pages/ACCOUNTS/customer_ledger.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer_singleview.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
@@ -251,37 +252,60 @@ class _customer_listState extends State<customer_list> {
           ],
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: "Search customers...",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-              ),
-              onChanged: _filterProducts,
+      body:Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+   Padding(
+  padding: const EdgeInsets.all(8.0),
+  child: TextField(
+    controller: searchController,
+    decoration: InputDecoration(
+      hintText: "Search customers...",
+      prefixIcon: Icon(Icons.search),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30.0),
+        borderSide: BorderSide(
+          color: Colors.blue, // Set your desired border color here
+          width: 2.0, // Set the border width
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30.0),
+        borderSide: BorderSide(
+          color: Colors.blue, // Border color when TextField is not focused
+          width: 2.0,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30.0),
+        borderSide: BorderSide(
+          color: Colors.blueAccent, // Border color when TextField is focused
+          width: 2.0,
+        ),
+      ),
+    ),
+    onChanged: _filterProducts,
+  ),
+),
+
+    Expanded(
+      child: ListView.builder(
+        itemCount: filteredProducts.length,
+        itemBuilder: (context, index) {
+          final customerData = filteredProducts[index];
+          return Card(
+            color: Colors.white,
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredProducts.length,
-              itemBuilder: (context, index) {
-                final customerData = filteredProducts[index];
-                return Card(
-                  color: Colors.white,
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -292,7 +316,7 @@ class _customer_listState extends State<customer_list> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: 2),
                         Text(
                           'Created on: ${customerData['created_at']}',
                           style: TextStyle(
@@ -300,56 +324,61 @@ class _customer_listState extends State<customer_list> {
                             color: Colors.grey,
                           ),
                         ),
-                        SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => customer_singleview(),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text('View',style: TextStyle(color: Colors.white),),
-                            ),
-                            SizedBox(width: 10),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) => add_address(),
-                                //   ),
-                                // );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text('Add Address',style: TextStyle(color: Colors.white),),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
-                );
-              },
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert,color:Colors.blue),
+                    onSelected: (value) {
+                      if (value == 'View') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => view_customer(customerid:customerData['id']),
+                          ),
+                        );
+                      } else if (value == 'Add Address') {
+                       Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => add_address(customerid:customerData['id'],name:customerData['name']),
+                          ),
+                        );
+                      }
+                      else if (value == 'View Ledger') {
+                       Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CustomerLedger(customerid:customerData['id']),
+                          ),
+                        );
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem<String>(
+                        value: 'View',
+                        child: Text('View'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'Add Address',
+                        child: Text('Add Address'),
+                      ),
+                       PopupMenuItem<String>(
+                        value: 'View Ledger',
+                        child: Text('View Ledger'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
+    ),
+  ],
+)
+
     );
   }
 
