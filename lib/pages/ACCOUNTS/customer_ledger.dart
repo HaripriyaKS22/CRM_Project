@@ -48,7 +48,6 @@ class _CustomerLedgerState extends State<CustomerLedger> {
         double creditSum = 0.0;
 
         for (var entry in data) {
-          // Add main sale entry
           double? debitAmount = entry['total_amount'];
           debitSum += debitAmount ?? 0.0;
 
@@ -58,9 +57,9 @@ class _CustomerLedgerState extends State<CustomerLedger> {
             'particular': 'Goods Sale',
             'debit': debitAmount,
             'credit': null,
+            'isFirstOfOrder': true, // Mark the first entry of an order
           });
 
-          // Add payment receipts
           for (var receipt in entry['payment_receipts']) {
             double creditAmount = double.parse(receipt['amount']);
             creditSum += creditAmount;
@@ -71,6 +70,7 @@ class _CustomerLedgerState extends State<CustomerLedger> {
               'particular': 'Payment received',
               'debit': null,
               'credit': creditAmount,
+              'isFirstOfOrder': false, // Subsequent entries of the same order
             });
           }
         }
@@ -110,8 +110,32 @@ class _CustomerLedgerState extends State<CustomerLedger> {
                       return DataRow(cells: [
                         DataCell(Text((index + 1).toString())),
                         DataCell(Text(entry['date'] ?? '')),
-                        DataCell(Text(entry['invoice'] ?? '')),
-                        DataCell(Text(entry['particular'] ?? '')),
+                        DataCell(
+                          Text(
+                            entry['isFirstOfOrder']
+                                ? entry['invoice'] ?? ''
+                                : '',
+                            style: TextStyle(
+                              color: entry['isFirstOfOrder']
+                                  ? Colors.blue
+                                  : Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            entry['particular'] ?? '',
+                            style: TextStyle(
+                              color: entry['particular'] == 'Goods Sale'
+                                  ? Colors.red
+                                  : entry['particular'] == 'Payment received'
+                                      ? Colors.green
+                                      : Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                         DataCell(Text(entry['debit'] != null
                             ? entry['debit'].toString()
                             : '')),
