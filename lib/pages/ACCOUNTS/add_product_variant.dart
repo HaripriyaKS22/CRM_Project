@@ -579,7 +579,7 @@ class _add_product_variantState extends State<add_product_variant> {
           'Content-Type': 'application/json',
         },
       );
-      print("Response: ${response.body}");
+      print("haiiiiiiiiiiiiiiiiiiiiiiiiiiii: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -990,7 +990,7 @@ class _add_product_variantState extends State<add_product_variant> {
                               height: 10,
                             ),
 
-                            if (widget.type == "single")
+                            if (widget.type != "single")
                               Column(
                                 children:
                                     List.generate(imagePickerCount, (index) {
@@ -1023,7 +1023,7 @@ class _add_product_variantState extends State<add_product_variant> {
 
                             // Display all selected images with a cross icon to remove
                             if (selectedImagesList.isNotEmpty &&
-                                widget.type == "single")
+                                widget.type != "single")
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: selectedImagesList
@@ -1066,6 +1066,7 @@ class _add_product_variantState extends State<add_product_variant> {
                 SizedBox(
                   height: 5,
                 ),
+              if(widget.type!='single')
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -1115,7 +1116,7 @@ class _add_product_variantState extends State<add_product_variant> {
                     ],
                   ),
                 ),
-                if (flag == true)
+                if(widget.type!='single')
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -1215,7 +1216,7 @@ class _add_product_variantState extends State<add_product_variant> {
                       ),
                     ),
                   ),
-                if (flag == true)
+                if(widget.type!='single')
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -1297,10 +1298,11 @@ class _add_product_variantState extends State<add_product_variant> {
                         ),
                       ],
                     ),
-                  ),
+                ),
                 SizedBox(
                   height: 13,
                 ),
+              if(widget.type!='single')
                 Padding(
                   padding: const EdgeInsets.only(),
                   child: Row(
@@ -1331,7 +1333,7 @@ class _add_product_variantState extends State<add_product_variant> {
                       ),
                     ],
                   ),
-                ),
+              ),
                 SizedBox(
                   height: 35,
                 ),

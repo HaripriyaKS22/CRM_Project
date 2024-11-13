@@ -88,7 +88,9 @@ var departments;
         }
         setState(() {
           dep = departmentlist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+          
+          print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+
 
           
         });
@@ -301,14 +303,7 @@ var departments;
         child: Column(
           children: [
             SizedBox(height: 15),
-            Text(
-              "DEPARTMENT",
-              style: TextStyle(
-                fontSize: 20,
-                letterSpacing: 9.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+           
             Padding(
   padding: EdgeInsets.symmetric(horizontal: 1),
   child: Container(
@@ -326,7 +321,7 @@ var departments;
           Container(
             width: constraints.maxWidth * 0.9,
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 121, 121, 121),
+              color:const Color.fromARGB(255, 2, 65, 96),
               border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
             ),
             child: Column(
@@ -375,7 +370,7 @@ var departments;
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
-                Color.fromARGB(255, 244, 66, 66),
+                Color.fromARGB(255, 0, 150, 243),
               ),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
@@ -411,66 +406,90 @@ var departments;
    ),
  ),
           SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.only(right: 15,left: 15),
-            child: Table(
-              border: TableBorder.all(color: const Color.fromARGB(255, 255, 255, 255)),
-              columnWidths: {
-                0: FixedColumnWidth(40.0),
-                1: FlexColumnWidth(),
-              },
-              children: [
-                const TableRow(
-                  decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 234, 231, 231),
-                  ),
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        "No.",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+         Padding(
+                      padding: const EdgeInsets.only(right: 15, left: 15),
+                      child: Container(
+                        color: Colors.white,
+                        child: Table(
+                          border: TableBorder.all(
+                              color: Color.fromARGB(255, 214, 213, 213)),
+                          columnWidths: {
+                            0: FixedColumnWidth(
+                                40.0), // Fixed width for the first column (No.)
+                            1: FlexColumnWidth(
+                                2), // Flex width for the second column (Department Name)
+                            2: FixedColumnWidth(
+                                50.0), // Fixed width for the third column (Edit)
+                            3: FixedColumnWidth(
+                                50.0), // Fixed width for the fourth column (Delete)
+                          },
+                          children: [
+                            const TableRow(
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                              ),
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "No.",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Department Name",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Edit",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            for (int i = 0; i < dep.length; i++)
+                              TableRow(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text((i + 1).toString()),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(dep[i]['name']),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    update_department(
+                                                        id: dep[i]['id'])));
+                                      },
+                                      child: Image.asset(
+                                        "lib/assets/edit.jpg",
+                                        width: 20,
+                                        height: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        "Department Name",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                      Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        "No.",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                   
-                  ],
-                ),
-                for (int i = 0; i < dep.length; i++)
-                  TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text((i + 1).toString()),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(dep[i]['name']),
-                      ),
-                      ElevatedButton(onPressed: (){
-                        
-                       
-                      }, child: Text("delete")),
-                      
-                    ],
-                  ),
-              ],
-            ),
-          ),
-
           ],
         ),
       ),

@@ -738,14 +738,7 @@ void RegisterUserData(
                   child: Column(
                     children: [
                       SizedBox(height: 15),
-                      Text(
-                        "STAFF",
-                        style: TextStyle(
-                          fontSize: 20,
-                          letterSpacing: 9.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 1),
                         child: Container(
@@ -765,7 +758,7 @@ void RegisterUserData(
                                   width:
                                       MediaQuery.of(context).size.width * 0.9,
                                   decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 0, 0, 0),
+                                    color:const Color.fromARGB(255, 2, 65, 96),
                                     border: Border.all(
                                         color:
                                             Color.fromARGB(255, 202, 202, 202)),
@@ -1827,7 +1820,7 @@ Padding(
                                   style: ButtonStyle(
                                     backgroundColor:
                                         MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 244, 66, 66),
+                                      Colors.blue,
                                     ),
                                     shape: MaterialStateProperty.all<
                                         RoundedRectangleBorder>(
@@ -1885,7 +1878,7 @@ Padding(
                             children: [
                               const TableRow(
                                 decoration: BoxDecoration(
-                                  color: Color.fromARGB(255, 234, 231, 231),
+                                  color: Colors.blue,
                                 ),
                                 children: [
                                   Padding(
@@ -1893,7 +1886,7 @@ Padding(
                                     child: Text(
                                       "No.",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold,color: Colors.white),
                                     ),
                                   ),
                                   Padding(
@@ -1901,7 +1894,7 @@ Padding(
                                     child: Text(
                                       "Manager Name",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold,color: Colors.white),
                                     ),
                                   ),
                                   Padding(
@@ -1909,17 +1902,10 @@ Padding(
                                     child: Text(
                                       "Edit",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold,color: Colors.white),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "Delete",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
+                                  
                                 ],
                               ),
                               for (int i = 0; i < sta.length; i++)
@@ -1951,20 +1937,7 @@ Padding(
                                         ),
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          // deletestaff(sta[i]['id']);
-                                          removeProduct(i);
-                                        },
-                                        child: Image.asset(
-                                          "lib/assets/delete.gif",
-                                          width: 20,
-                                          height: 20,
-                                        ),
-                                      ),
-                                    )
+                                    
                                   ],
                                 ),
                             ],

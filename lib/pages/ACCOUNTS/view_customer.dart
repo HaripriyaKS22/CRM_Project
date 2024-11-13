@@ -993,63 +993,47 @@ Future<void> getstates() async {
                 ),
                 SizedBox(height: 13),
                 Padding(
-                  padding: const EdgeInsets.only(left: 120),
+                  padding: const EdgeInsets.only(),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Your onPressed logic goes here
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 164, 164, 164),
-                          ),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          fixedSize: MaterialStateProperty.all<Size>(
-                            Size(85, 15),
-                          ),
-                        ),
-                        child: Text("Close",
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                      SizedBox(width: 13),
-                     ElevatedButton(
-  onPressed: () {
-    updateCustomer(
-      gstno.text,
-      name.text,
-selectedManagerId.toString(),
-      phone.text,
-      altphone.text,
-      email.text,
-      address.text,
-      zipcode.text,
-      city.text,
-      selectedStateId.toString(), // Use selectedStateId instead of states.text
-      comment.text,
-      context,
-    );
-  },
-  style: ButtonStyle(
-    backgroundColor: MaterialStateProperty.all<Color>(
-      Color.fromARGB(255, 244, 66, 66),
-    ),
-    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-    fixedSize: MaterialStateProperty.all<Size>(
-      Size(95, 15),
-    ),
-  ),
-  child: Text("Update", style: TextStyle(color: Colors.white)),
-),
+                    
+                      
+                     SizedBox(
+                      width: 200,
+                       child: ElevatedButton(
+                         onPressed: () {
+                           updateCustomer(
+                             gstno.text,
+                             name.text,
+                       selectedManagerId.toString(),
+                             phone.text,
+                             altphone.text,
+                             email.text,
+                             address.text,
+                             zipcode.text,
+                             city.text,
+                             selectedStateId.toString(), // Use selectedStateId instead of states.text
+                             comment.text,
+                             context,
+                           );
+                         },
+                         style: ButtonStyle(
+                           backgroundColor: MaterialStateProperty.all<Color>(
+                             Colors.blue,
+                           ),
+                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                             RoundedRectangleBorder(
+                               borderRadius: BorderRadius.circular(10),
+                             ),
+                           ),
+                           fixedSize: MaterialStateProperty.all<Size>(
+                             Size(95, 15),
+                           ),
+                         ),
+                         child: Text("Update", style: TextStyle(color: Colors.white)),
+                       ),
+                     ),
 
                     ],
                   ),

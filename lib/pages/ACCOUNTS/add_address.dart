@@ -805,66 +805,46 @@ print(response.statusCode);
                 ),
                 SizedBox(height: 13),
                 Padding(
-                  padding: const EdgeInsets.only(left: 120),
+                  padding: const EdgeInsets.only(),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => View_Address(customerid:widget.customerid)));
-                          // Your onPressed logic goes here
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 164, 164, 164),
-                          ),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          fixedSize: MaterialStateProperty.all<Size>(
-                            Size(85, 15),
-                          ),
-                        ),
-                        child:
-                            Text("View", style: TextStyle(color: Colors.white)),
-                      ),
+                      
                       SizedBox(width: 13),
-                      ElevatedButton(
-                        onPressed: () {
-                          addaddress(
-                           
-                            name.text,
-                            address.text,
-                            email.text,
-                            phone.text,
-                            zipcode.text,
-                            city.text,
-                            state.text,
-                            country.text,
-                            context,
-                          );
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 244, 66, 66),
-                          ),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                      SizedBox(
+                        width: 200,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            addaddress(
+                             
+                              name.text,
+                              address.text,
+                              email.text,
+                              phone.text,
+                              zipcode.text,
+                              city.text,
+                              state.text,
+                              country.text,
+                              context,
+                            );
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.blue,
+                            ),
+                            shape:
+                                MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            fixedSize: MaterialStateProperty.all<Size>(
+                              Size(95, 15),
                             ),
                           ),
-                          fixedSize: MaterialStateProperty.all<Size>(
-                            Size(95, 15),
-                          ),
+                          child: Text("Submit",
+                              style: TextStyle(color: Colors.white)),
                         ),
-                        child: Text("Submit",
-                            style: TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),

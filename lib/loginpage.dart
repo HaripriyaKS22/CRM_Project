@@ -75,7 +75,7 @@ void login(String email, String password, BuildContext context) async {
           print("Token decode error: $e");
         }
 
-        if (active == 'IT Department') {
+        if (active == 'IT (Information Technology)') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,

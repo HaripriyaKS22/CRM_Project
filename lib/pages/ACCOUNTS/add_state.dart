@@ -320,14 +320,7 @@ var departments;
         child: Column(
           children: [
             SizedBox(height: 15),
-            Text(
-              "STATES",
-              style: TextStyle(
-                fontSize: 20,
-                letterSpacing: 9.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            
             Padding(
   padding: EdgeInsets.symmetric(horizontal: 1),
   child: Container(
@@ -345,7 +338,7 @@ var departments;
           Container(
             width: constraints.maxWidth * 0.9,
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 0, 0, 0),
+              color:const Color.fromARGB(255, 2, 65, 96),
               border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
             ),
             child: Column(
@@ -394,7 +387,7 @@ var departments;
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
-                Color.fromARGB(255, 244, 66, 66),
+                Colors.blue,
               ),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
@@ -447,37 +440,31 @@ var departments;
                 children: [
                   const TableRow(
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 234, 231, 231),
+                      color: Colors.blue,
                     ),
                     children: [
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           "No.",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           "Department Name",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                         ),
                       ),
                         Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           "Edit",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "Delete",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                     
                     ],
                   ),
                   for (int i = 0; i < stat.length; i++)
@@ -507,21 +494,7 @@ var departments;
                                             ),
                                           ),
                                      ),
-                         Padding(
-                           padding: const EdgeInsets.all(8.0),
-                           child: GestureDetector(
-                                            onTap: () {
-                                               deletestate(stat[i]['id']);
-                                              removeProduct(i);
-                                            },
-                                            child: Image.asset(
-                                              "lib/assets/delete.gif",
-                                              width: 20,
-                                              height: 20,
-                                              
-                                            ),
-                           ),
-                         )
+                         
                       ],
                     ),
                 ],

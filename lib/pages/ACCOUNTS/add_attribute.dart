@@ -515,14 +515,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                 child: Column(
                   children: [
                     SizedBox(height: 15),
-                    Text(
-                      "ADD ATTRIBUTES",
-                      style: TextStyle(
-                        fontSize: 20,
-                        letterSpacing: 9.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                   
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 1),
                       child: Container(
@@ -541,7 +534,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                               Container(
                                 width: constraints.maxWidth * 0.9,
                                 decoration: BoxDecoration(
-                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  color:const Color.fromARGB(255, 2, 65, 96),
                                   border: Border.all(
                                       color:
                                           Color.fromARGB(255, 202, 202, 202)),
@@ -595,7 +588,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 244, 66, 66),
+                                    Colors.blue,
                                   ),
                                   shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
@@ -639,7 +632,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                               Container(
                                 width: constraints.maxWidth * 0.9,
                                 decoration: BoxDecoration(
-                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  color:const Color.fromARGB(255, 2, 65, 96),
                                   border: Border.all(
                                       color:
                                           Color.fromARGB(255, 202, 202, 202)),
@@ -663,16 +656,16 @@ Future<void> addvalues(String value, int? attributeId) async {
                               Text(
                                 "Select Attribute",
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              SizedBox(height: 4),
 
                               // Dropdown to select an attribute
                               Container(
                                 width: constraints.maxWidth * 0.9,
-                                padding: EdgeInsets.all(8.0),
+                                padding: EdgeInsets.all(4.0),
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.grey),
                                   borderRadius: BorderRadius.circular(10.0),
@@ -703,11 +696,11 @@ Future<void> addvalues(String value, int? attributeId) async {
                               Text(
                                 "Values",
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              SizedBox(height: 4),
                               Container(
                                 width: constraints.maxWidth * 0.9,
                                 child: TextField(
@@ -735,7 +728,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 244, 66, 66),
+                                    Colors.blue,
                                   ),
                                   shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
@@ -793,7 +786,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                           children: [
                             const TableRow(
                               decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 234, 231, 231),
+                                color: Colors.blue,
                               ),
                               children: [
                                 Padding(
@@ -801,7 +794,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                   child: Text(
                                     "No.",
                                     style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                        TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
                                   ),
                                 ),
                                 Padding(
@@ -809,7 +802,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                   child: Text(
                                     "Attribute Name",
                                     style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                        TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                                   ),
                                 ),
                                 Padding(
@@ -817,7 +810,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                   child: Text(
                                     "Values",
                                     style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                        TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                                   ),
                                 ),
                                 // Padding(
@@ -828,14 +821,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                 //         TextStyle(fontWeight: FontWeight.bold),
                                 //   ),
                                 // ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Delete",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
+                                
                               ],
                             ),
                             for (int i = 0; i < attributes.length; i++)
@@ -915,21 +901,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                   //     ),
                                   //   ),
                                   // ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        deleteattributes(
-                                            attributes[i]['id'], context);
-                                        removeProduct(i);
-                                      },
-                                      child: Image.asset(
-                                        "lib/assets/delete.gif",
-                                        width: 20,
-                                        height: 20,
-                                      ),
-                                    ),
-                                  )
+                                  
                                 ],
                               ),
                           ],

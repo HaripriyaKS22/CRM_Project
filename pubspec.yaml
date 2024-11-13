@@ -62,6 +62,8 @@ dev_dependencies:
   intl: ^0.17.0
   image_picker: ^0.8.5+3
   dart_jsonwebtoken: ^2.0.0
+  pdf: ^3.6.0
+  permission_handler: ^10.0.0
 
 
 # For information on the generic Dart part of this file, see the
@@ -94,6 +96,8 @@ flutter:
     - lib/assets/card.png
     - lib/assets/money.png
     - lib/assets/delete.png
+    - lib/assets/view.jpeg
+
 
    
 

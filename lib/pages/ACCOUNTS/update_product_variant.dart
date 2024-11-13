@@ -1081,7 +1081,7 @@ void addsizes(BuildContext scaffoldContext) async {
                     );
                   }).toList(),
                 ),
-                if (img.isNotEmpty)
+            if (img.isNotEmpty)
   Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: img.asMap().entries.map((entry) {
@@ -1100,8 +1100,13 @@ void addsizes(BuildContext scaffoldContext) async {
               fit: BoxFit.cover,
             ),
             SizedBox(width: 10),
-            Text(imageUrl.split('/').last),
-            Spacer(),
+            Expanded(
+              child: Text(
+                imageUrl.split('/').last,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
             IconButton(
               icon: Icon(Icons.close, color: Colors.red),
               onPressed: () {
