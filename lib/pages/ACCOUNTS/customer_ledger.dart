@@ -11,10 +11,14 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
 
 class CustomerLedger extends StatefulWidget {
   final int customerid;
-  const CustomerLedger({Key? key, required this.customerid}) : super(key: key);
+  final String customerName;
+  const CustomerLedger(
+      {Key? key, required this.customerid, required this.customerName})
+      : super(key: key);
 
   @override
   State<CustomerLedger> createState() => _CustomerLedgerState();
@@ -38,6 +42,9 @@ class _CustomerLedgerState extends State<CustomerLedger> {
     getCompanyList().then((_) {
       fetchCustomerLedgerDetails();
     });
+
+    print(widget.customerName);
+    print(widget.customerid);
   }
 
   Future<String?> getTokenFromPrefs() async {
@@ -90,6 +97,8 @@ class _CustomerLedgerState extends State<CustomerLedger> {
         double debitSum = 0.0;
         double creditSum = 0.0;
 
+        print("Fetched Data from API: $data"); // Debugging print for API data
+
         for (var entry in data) {
           double? debitAmount = entry['total_amount'];
           debitSum += debitAmount ?? 0.0;
@@ -99,6 +108,10 @@ class _CustomerLedgerState extends State<CustomerLedger> {
             (comp) => comp['id'] == entry['company'],
             orElse: () => {'name': 'Unknown Company'},
           )['name'];
+
+          // Debugging print for each entry being added
+          print(
+              "Adding Debit Entry: Date: ${entry['order_date']}, Invoice: ${entry['invoice']}/$companyName, Amount: $debitAmount");
 
           entries.add({
             'date': entry['order_date'],
@@ -113,6 +126,9 @@ class _CustomerLedgerState extends State<CustomerLedger> {
           for (var receipt in entry['payment_receipts']) {
             double creditAmount = double.parse(receipt['amount']);
             creditSum += creditAmount;
+
+            print(
+                "Adding Credit Entry: Date: ${receipt['received_at']}, Invoice: ${entry['invoice']}/$companyName, Amount: $creditAmount");
 
             entries.add({
               'date': receipt['received_at'],
@@ -132,6 +148,11 @@ class _CustomerLedgerState extends State<CustomerLedger> {
           totalDebit = debitSum;
           totalCredit = creditSum;
         });
+
+        print(
+            "Final ledgerEntries: $ledgerEntries"); // Debugging print for ledger entries
+        print(
+            "Final filteredEntries: $filteredEntries"); // Debugging print for filtered entries
       } else {
         print("Failed to fetch ledger details: ${response.statusCode}");
       }
@@ -224,35 +245,6 @@ class _CustomerLedgerState extends State<CustomerLedger> {
     await tempFile.writeAsBytes(await excel.encode()!);
 
     await OpenFile.open(tempPath);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Save File"),
-          content:
-              Text("Do you want to save this file to your Downloads folder?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                saveExcelToDownloads(tempPath);
-              },
-              child: Text("Yes"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("File not saved to Downloads."),
-                ));
-              },
-              child: Text("No"),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<void> saveExcelToDownloads(String tempPath) async {
@@ -283,87 +275,128 @@ class _CustomerLedgerState extends State<CustomerLedger> {
       });
     }
   }
+  
+Future<pw.Document> createInvoice() async {
+  final pdf = pw.Document();
 
-  Future<void> downloadPDF() async {
-    if (await Permission.storage.request().isGranted) {
-      final pdf = pw.Document();
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
-            return pw.Column(
-              children: [
-                pw.Text("Customer Ledger",
+  pdf.addPage(
+    pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      build: (pw.Context context) {
+        return pw.Padding(
+          padding: const pw.EdgeInsets.all(24),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              // Title Section
+              pw.Center(
+                child: pw.Text(
+                  '${widget.customerName.toUpperCase()} COMPLETE PDF LEDGER',
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ),
+              pw.SizedBox(height: 20),
+              
+              // Table Headers
+              pw.Table.fromTextArray(
+                headers: [
+                  'No', 'Date', 'Invoice', 'Particular', 'Debit', 'Credit'
+                ],
+                data: [
+                  for (int i = 0; i < filteredEntries.length; i++)
+                    [
+                      i + 1,
+                      filteredEntries[i]['date'] ?? '',
+                      filteredEntries[i]['invoice'] ?? '',
+                      filteredEntries[i]['particular'] ?? '',
+                      filteredEntries[i]['debit']?.toStringAsFixed(2) ?? '',
+                      filteredEntries[i]['credit']?.toStringAsFixed(2) ?? '',
+                    ]
+                ],
+                headerStyle: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 8,
+                ),
+                cellStyle: pw.TextStyle(
+                  fontSize: 8,
+                ),
+                headerDecoration: pw.BoxDecoration(
+                  color: PdfColors.grey300,
+                ),
+                rowDecoration: pw.BoxDecoration(
+                  border: pw.Border(
+                    bottom: pw.BorderSide(color: PdfColors.grey400, width: 0.5),
+                  ),
+                ),
+                cellAlignments: {
+                  0: pw.Alignment.center,
+                  1: pw.Alignment.center,
+                  2: pw.Alignment.centerLeft,
+                  3: pw.Alignment.centerLeft,
+                  4: pw.Alignment.centerRight,
+                  5: pw.Alignment.centerRight,
+                },
+              ),
+              pw.SizedBox(height: 10),
+              
+              // Grand Total and Closing Balance
+              pw.Divider(thickness: 1),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.end,
+                children: [
+                  pw.Text(
+                    'Grand Total',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.SizedBox(width: 10),
+                  pw.Text(
+                    'Debit: Rs ${totalDebit.toStringAsFixed(2)}',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.SizedBox(width: 20),
+                  pw.Text(
+                    'Credit: Rs ${totalCredit.toStringAsFixed(2)}',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                ],
+              ),
+                            pw.SizedBox(height: 10),
+
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.end,
+                children: [
+                  pw.Text(
+                    'Closing Balance',
                     style: pw.TextStyle(
-                        fontSize: 24, fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(height: 20),
-                pw.Table.fromTextArray(
-                  headers: [
-                    "#",
-                    "Date",
-                    "Invoice",
-                    "Particular",
-                    "Debit (₹)",
-                    "Credit (₹)"
-                  ],
-                  data: [
-                    for (var i = 0; i < filteredEntries.length; i++)
-                      [
-                        "${i + 1}",
-                        filteredEntries[i]['date'] ?? '',
-                        filteredEntries[i]['invoice'] ?? '',
-                        filteredEntries[i]['particular'] ?? '',
-                        filteredEntries[i]['debit'] != null
-                            ? filteredEntries[i]['debit'].toString()
-                            : '',
-                        filteredEntries[i]['credit'] != null
-                            ? filteredEntries[i]['credit'].toString()
-                            : '',
-                      ]
-                  ],
-                ),
-                pw.SizedBox(height: 20),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.end,
-                  children: [
-                    pw.Text(
-                        "Grand Total Debit: ₹${totalDebit.toStringAsFixed(2)}",
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.SizedBox(width: 10),
-                    pw.Text(
-                        "Grand Total Credit: ₹${totalCredit.toStringAsFixed(2)}",
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  ],
-                ),
-                pw.SizedBox(height: 10),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.end,
-                  children: [
-                    pw.Text(
-                        "Closing Balance: ₹${(totalDebit - totalCredit).toStringAsFixed(2)}",
-                        style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.red)),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      );
+                        fontWeight: pw.FontWeight.bold, color: PdfColors.green),
+                  ),
+                  pw.SizedBox(width: 20),
+                  pw.Text(
+                    'Rs ${(totalDebit - totalCredit).toStringAsFixed(2)}',
+                    style: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold, color: PdfColors.green),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
 
-      final directory = await getExternalStorageDirectory();
-      final path = "${directory!.path}/Download/ledger.pdf";
-      final file = File(path);
-      await file.writeAsBytes(await pdf.save());
+  return pdf;
+}
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("PDF downloaded to Downloads folder: ledger.pdf"),
-      ));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Storage permission denied."),
-      ));
-    }
+  Future<void> downloadInvoice() async {
+    final pdf = await createInvoice();
+    final output = await getTemporaryDirectory();
+    final file = File("${output.path}/${widget.customerName}_Ledger.pdf");
+    await file.writeAsBytes(await pdf.save());
+    await Printing.sharePdf(bytes: await pdf.save(), filename: '${widget.customerName}_Ledger.pdf');
   }
 
   @override
@@ -414,16 +447,6 @@ class _CustomerLedgerState extends State<CustomerLedger> {
                   icon: Icon(Icons.calendar_today),
                   onPressed: pickDateRange,
                   tooltip: "Select Date Range",
-                ),
-                IconButton(
-                  icon: Icon(Icons.picture_as_pdf),
-                  onPressed: downloadPDF,
-                  tooltip: "Download PDF",
-                ),
-                IconButton(
-                  icon: Icon(Icons.picture_as_pdf),
-                  onPressed: exportToExcel,
-                  tooltip: "Export to Excel",
                 ),
               ],
             ),
@@ -593,10 +616,23 @@ class _CustomerLedgerState extends State<CustomerLedger> {
               label: Text("Export to Excel"),
               onPressed: exportToExcel,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
+            ),
+          ),
+          ElevatedButton.icon(
+            icon: Icon(Icons.picture_as_pdf),
+            label: Text("Generate PDF"),
+            onPressed: () async {
+              // Print to check filtered entries before generating PDF
+              print("Filtered Entries before PDF generation: $filteredEntries");
+              downloadInvoice();
+            },
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ],

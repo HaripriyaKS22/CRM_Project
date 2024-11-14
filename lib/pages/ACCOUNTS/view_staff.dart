@@ -122,9 +122,9 @@ class _staff_listState extends State<staff_list> {
   void _filterProducts(String query) {
     setState(() {
       if (query.isEmpty) {
-        filteredProducts = List.from(customer); // Show all if search is empty
+        filteredProducts = List.from(sta); // Show all if search is empty
       } else {
-        filteredProducts = customer
+        filteredProducts = sta
             .where((product) =>
                 product['name'].toLowerCase().contains(query.toLowerCase()))
             .toList(); // Filter based on query
@@ -296,78 +296,108 @@ class _staff_listState extends State<staff_list> {
     onChanged: _filterProducts,
   ),
 ),
-
-    Expanded(
+Expanded(
   child: ListView.builder(
     itemCount: filteredProducts.length,
     itemBuilder: (context, index) {
       final staffData = filteredProducts[index];
-      final imageUrl = staffData['image'];
-      final isActive = staffData['approval_status'] == 'active';
-
       return Card(
         color: Colors.white,
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        elevation: 4,
+        elevation: 6,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Profile Image with Approval Status circle around it
               Stack(
-                alignment: Alignment.center,
+                clipBehavior: Clip.none, // Allow text to go outside the boundary
                 children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundImage: staffData['name'] != null 
-                        ? NetworkImage(imageUrl) 
-                        : AssetImage('lib/assets/user.png') as ImageProvider,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.asset(
+                      "lib/assets/user.png", // Profile image
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  if (isActive)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 18,
+                  // Circular Approval Status ring around the image
+                  Positioned(
+                    bottom: -4,
+                    right: -4,
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: staffData['approval_status'] == 'active'
+                            ? Colors.green
+                            : Colors.red,
+                        border: Border.all(
+                          color: Colors.white, // Border color for the ring
+                          width: 3,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          staffData['approval_status'] == 'active' ? 'A' : 'I',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ),
+                  ),
                 ],
               ),
-              SizedBox(width: 10),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
+                        // Staff Name - Bold and larger size
                         Text(
-                          staffData['name'] ?? 'N/A',
+                          staffData['name'] ?? 'No Name',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
                         ),
                         SizedBox(width: 10),
+                        Text("-",style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.blueGrey,
+                          ),),
+                        // Staff Designation - Smaller and lighter weight
+                         SizedBox(width: 10),
                         Text(
-                          staffData['designation'] ?? '',
+                          staffData['designation'] ?? 'No Designation',
                           style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.blueGrey,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 2),
+                    SizedBox(height: 8),
+                    // Staff Email - Grey color for subtlety
                     Text(
-                      '${staffData['email']}',
+                      staffData['email'] ?? 'No Email',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey,
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
@@ -380,6 +410,8 @@ class _staff_listState extends State<staff_list> {
     },
   ),
 ),
+
+
 
   ],
 )

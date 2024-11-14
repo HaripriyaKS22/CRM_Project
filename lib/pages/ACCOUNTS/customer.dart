@@ -349,7 +349,7 @@ class _customer_listState extends State<customer_list> {
                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CustomerLedger(customerid:customerData['id']),
+                            builder: (context) => CustomerLedger(customerid:customerData['id'],customerName:customerData['name']),
                           ),
                         );
                       }
