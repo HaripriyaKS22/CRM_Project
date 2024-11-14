@@ -1,1 +1,1 @@
-var api="https://wireless-catalyst-recommended-rational.trycloudflare.com";
+var api="https://ethics-norway-ld-mag.trycloudflare.com";

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:beposoft/pages/ACCOUNTS/add_address.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer_ledger.dart';
@@ -9,15 +10,14 @@ import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:excel/excel.dart';
+import 'package:open_file/open_file.dart';
 import 'package:beposoft/main.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
-import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
@@ -131,6 +131,32 @@ class _staff_listState extends State<staff_list> {
       }
     });
   }
+
+
+  Future<void> exportToExcel() async {
+    var excel = Excel.createExcel();
+    Sheet sheetObject = excel['Staff List'];
+
+    sheetObject.appendRow(['ID', 'Name', 'Email', 'Designation', 'Approval Status']);
+
+    for (var staff in filteredProducts) {
+      sheetObject.appendRow([
+        staff['id'] ?? '',
+        staff['name'] ?? '',
+        staff['email'] ?? '',
+        staff['designation'] ?? '',
+        staff['approval_status'] ?? '',
+      ]);
+    }
+
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = "${tempDir.path}/staff_list.xlsx";
+    final tempFile = File(tempPath);
+    await tempFile.writeAsBytes(await excel.encode()!);
+
+    await OpenFile.open(tempPath);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -338,10 +364,10 @@ Expanded(
                         color: staffData['approval_status'] == 'active'
                             ? Colors.green
                             : Colors.red,
-                        border: Border.all(
-                          color: Colors.white, // Border color for the ring
-                          width: 3,
-                        ),
+                        // border: Border.all(
+                        //   color: Colors.white, // Border color for the ring
+                        //   width: 3,
+                        // ),
                       ),
                       child: Center(
                         child: Text(
@@ -412,7 +438,10 @@ Expanded(
 ),
 
 
-
+ ElevatedButton(
+            onPressed: exportToExcel,
+            child: Text('Export to Excel'),
+          ),
   ],
 )
 
