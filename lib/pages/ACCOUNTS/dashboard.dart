@@ -2,6 +2,7 @@
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
@@ -18,7 +19,6 @@ import 'package:beposoft/pages/ACCOUNTS/new_proforma_invoice.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/profile.dart';
 import 'package:beposoft/pages/ACCOUNTS/profilepage.dart';
-import 'package:beposoft/pages/ACCOUNTS/proforma_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 
@@ -146,6 +146,14 @@ class _dashboardState extends State<dashboard> {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>dashboard()));
               },
             ),
+             ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Company'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_company()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
                   ListTile(
               leading: Icon(Icons.person),
               title: Text('Customer'),
@@ -211,6 +219,7 @@ class _dashboardState extends State<dashboard> {
               },
             ),
              Divider(),
+            _buildDropdownTile(context, 'Staff', ['Add Staff', 'View Staff',]),
             _buildDropdownTile(context, 'Credit Note', ['Add Credit Note', 'Credit Note List',]),
             _buildDropdownTile(context, 'Recipts', ['Add recipts', 'Recipts List']),
             _buildDropdownTile(context, 'Proforma Invoice', ['New Proforma Invoice', 'Proforma Invoice List',]),

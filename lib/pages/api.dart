@@ -1,1 +1,1 @@
-var api="https://randy-casey-odd-enlargement.trycloudflare.com";
+var api="https://wireless-catalyst-recommended-rational.trycloudflare.com";

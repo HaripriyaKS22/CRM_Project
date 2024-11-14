@@ -2,6 +2,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/bank_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/daily_goods_movement.dart';
@@ -10,20 +11,23 @@ import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
+import 'package:beposoft/pages/ACCOUNTS/new_performa_products.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_proforma_invoice.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_products.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
+import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/proforma_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
+import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
 import 'package:beposoft/pages/BDM/bdm_order_list.dart';
 import 'package:beposoft/pages/BDM/bdm_order_request.dart';
 import 'package:beposoft/pages/BDM/bdm_proforma_invoice.dart';
+import 'package:beposoft/pages/BDO/performa_invoice.dart';
 import 'package:flutter/material.dart';
 
 class drower{
@@ -32,6 +36,18 @@ class drower{
     void navigateToSelectedPage(BuildContext context, String option) {
     // Navigate to the selected page based on the option
     switch (option) {
+      case 'Add Staff':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>add_staff()),
+        );
+        break;
+      case 'View Staff':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => staff_list()),
+        );
+        break;
       case 'Add Credit Note':
         Navigator.push(
           context,
@@ -44,6 +60,8 @@ class drower{
           MaterialPageRoute(builder: (context) => credit_note_list()),
         );
         break;
+
+      
       case 'Add recipts':
         Navigator.push(
           context,
@@ -59,13 +77,13 @@ class drower{
       case 'New Proforma Invoice':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => proforma_invoice()),
+          MaterialPageRoute(builder: (context) => CreatePerformaProduct_List()),
         );
         break;
       case 'Proforma Invoice List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => proforma_invoice_list()),
+          MaterialPageRoute(builder: (context) => ProformaInvoiceList()),
         );
         break;
 
@@ -237,13 +255,13 @@ class drower{
       case 'New Proforma Invoice':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdm_performa_invoice()),
+          MaterialPageRoute(builder: (context) => CreatePerformaProduct_List()),
         );
         break;
       case 'Proforma Invoice List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => proforma_invoice_list()),
+          MaterialPageRoute(builder: (context) => ProformaInvoiceList()),
         );
         break;
 

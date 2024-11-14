@@ -311,7 +311,7 @@ class _add_staffState extends State<add_staff> {
         },
       );
       print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+          "getstaffffffffffffffffffffff${response.body}");
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
@@ -324,7 +324,7 @@ class _add_staffState extends State<add_staff> {
           stafflist.add({
             'id': productData['id'],
             'name': productData['name'],
-            'allocated_states': productData['allocated_states']
+            'email': productData['email']
           });
         }
         setState(() {
@@ -892,7 +892,7 @@ void RegisterUserData(
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 15),
+                                SizedBox(height: 10),
                                 Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10.0),
@@ -1047,6 +1047,9 @@ void RegisterUserData(
                                     ],
                                   ),
                                 ),
+                                SizedBox(
+                                  height: 10,
+                                ),
                             //    Text("Checkbox Family",
                             //     style: TextStyle(
                             //         fontSize: 15, fontWeight: FontWeight.bold)),
@@ -1181,7 +1184,6 @@ Padding(
 
 
                                   
-                                SizedBox(height: 5),
                                 // Text(
                                 //   "State$stat",
                                 //   style: TextStyle(
@@ -1273,7 +1275,6 @@ Padding(
                                 //     ),
                                 //   ),
                                 // ),
-                                SizedBox(height: 5),
                                 Text(
                                   "Gender",
                                   style: TextStyle(

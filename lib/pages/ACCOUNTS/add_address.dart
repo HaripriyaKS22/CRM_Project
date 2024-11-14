@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:beposoft/main.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
@@ -8,7 +7,6 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/view_address.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
