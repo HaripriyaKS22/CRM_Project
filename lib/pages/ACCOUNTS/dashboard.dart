@@ -36,6 +36,7 @@ import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
+import 'package:beposoft/pages/ACCOUNTS/warehouse_order_view.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 
@@ -207,6 +208,14 @@ class _dashboardState extends State<dashboard> {
               title: Text('States'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>add_state()));
+                // Navigate to the Settings page or perform any other action
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('warehouse orders'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>WarehouseOrderView()));
                 // Navigate to the Settings page or perform any other action
               },
             ),

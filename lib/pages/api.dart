@@ -1,1 +1,1 @@
-var api="https://walks-metallic-sic-acting.trycloudflare.com";
+var api="https://routers-loc-mongolia-jumping.trycloudflare.com";
