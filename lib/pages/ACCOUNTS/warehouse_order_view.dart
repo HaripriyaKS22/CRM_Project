@@ -59,9 +59,14 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
   }
 
 
-final TextEditingController textField1Controller = TextEditingController();
-  final TextEditingController textField2Controller = TextEditingController();
-  final TextEditingController textField3Controller = TextEditingController();
+final TextEditingController box = TextEditingController();
+  final TextEditingController length = TextEditingController();
+  final TextEditingController breadth= TextEditingController();
+    final TextEditingController weight= TextEditingController();
+
+  final TextEditingController service = TextEditingController();
+  final TextEditingController transactionid = TextEditingController();
+  final TextEditingController shippingcharge= TextEditingController();
   XFile? selectedImage;
 
   Future<void> pickImage() async {
@@ -94,27 +99,60 @@ Future<void> showCustomDialogBox(BuildContext context) async {
                 children: [
                   // Text Field 1
                   TextField(
-                    controller: textField1Controller,
+                    controller: box,
                     decoration: InputDecoration(
-                      labelText: 'Field 1',
+                      labelText: 'Boxs',
                       border: OutlineInputBorder(),
                     ),
                   ),
                   SizedBox(height: 10),
                   // Text Field 2
                   TextField(
-                    controller: textField2Controller,
+                    controller: length,
                     decoration: InputDecoration(
-                      labelText: 'Field 2',
+                      labelText: 'Length',
                       border: OutlineInputBorder(),
                     ),
                   ),
                   SizedBox(height: 10),
                   // Text Field 3
                   TextField(
-                    controller: textField3Controller,
+                    controller: breadth,
                     decoration: InputDecoration(
-                      labelText: 'Field 3',
+                      labelText: 'Breadth',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  TextField(
+                    controller: weight,
+                    decoration: InputDecoration(
+                      labelText: 'Weight',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  // Text Field 2
+                  TextField(
+                    controller: service,
+                    decoration: InputDecoration(
+                      labelText: 'Service',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  // Text Field 3
+                  TextField(
+                    controller: transactionid,
+                    decoration: InputDecoration(
+                      labelText: 'Transaction Id',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  TextField(
+                    controller: shippingcharge,
+                    decoration: InputDecoration(
+                      labelText: 'Shipping Charge',
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -154,9 +192,9 @@ Future<void> showCustomDialogBox(BuildContext context) async {
               ElevatedButton(
                 onPressed: () {
                   // Handle Save
-                  print('Field 1: ${textField1Controller.text}');
-                  print('Field 2: ${textField2Controller.text}');
-                  print('Field 3: ${textField3Controller.text}');
+                  // print('Field 1: ${textField1Controller.text}');
+                  // print('Field 2: ${textField2Controller.text}');
+                  // print('Field 3: ${textField3Controller.text}');
                   print('Image Path: ${selectedImage?.path}');
                   Navigator.of(context).pop();
                 },
