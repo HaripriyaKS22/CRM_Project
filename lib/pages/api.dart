@@ -1,1 +1,1 @@
-var api="https://ethics-norway-ld-mag.trycloudflare.com";
+var api="https://walks-metallic-sic-acting.trycloudflare.com";

@@ -25,6 +25,7 @@ class _OrderReviewState extends State<OrderReview> {
   List<Map<String, dynamic>> bank = [];
   String? selectedBank;
   String? createdBy;
+  String? companyname;
   DateTime selectedDate = DateTime.now();
   TextEditingController amountController = TextEditingController();
   TextEditingController transactionIdController = TextEditingController();
@@ -37,11 +38,12 @@ class _OrderReviewState extends State<OrderReview> {
     super.initState();
     initData();
     getbank();
-
+print("idddddddddddddddddddddddddddddddd${widget.id}");
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
 
   Future<void> initData() async {
+
     await fetchOrderItems();
   }
 
@@ -70,6 +72,50 @@ final List<String> statuses = ['Pending', 'In Progress', 'Completed', 'Canceled'
         receivedDateController.text =
             DateFormat('dd-MM-yyyy').format(selectedDate);
       });
+    }
+  }
+List<Map<String, dynamic>> company = [];
+
+  Future<void> getcompany(id) async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/company/getadd/'),
+        headers: {
+          'Authorization': ' Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "compppppppppppppppppppppp${response.body}");
+          print(response.statusCode);
+      List<Map<String, dynamic>> companylist = [];
+
+      if (response.statusCode == 200) {
+        final productsData = jsonDecode(response.body);
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          companylist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+
+           if(id==productData['id']){
+            companyname=productData['name'];
+
+           }
+        }
+       
+        setState(() {
+          company = companylist;
+
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
     }
   }
 
@@ -462,8 +508,10 @@ Future<void> fetchOrderItems() async {
                 flag=false;
 
       }
+      getcompany(ord['company']);
 
       setState(() {
+
         items = orderList;
         netAmountBeforeTax = calculatedNetAmount;
         totalTaxAmount = calculatedTotalTax;
@@ -676,7 +724,7 @@ Future<void> fetchOrderItems() async {
                             ),
                           ),
                           Text(
-                            ord != null ? ord["company"] ?? 'Company' : '',
+                            companyname != null ? companyname ?? 'Company' : 'Loading...',
                             style: TextStyle(color: Colors.black),
                           ),
                         ],
@@ -1633,6 +1681,8 @@ Future<void> fetchOrderItems() async {
                 padding: const EdgeInsets.only(right: 10),
                 child: Container(
                   height: 50,
+                                width: 340,
+
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                  
@@ -1641,7 +1691,7 @@ Future<void> fetchOrderItems() async {
                     children: [
                       SizedBox(width: 20),
                       Container(
-              width: 290,
+              width: 260,
               child: InputDecorator(
                 decoration: InputDecoration(
                   border: InputBorder.none,

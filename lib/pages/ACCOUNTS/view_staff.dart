@@ -10,6 +10,8 @@ import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 import 'package:beposoft/main.dart';
@@ -25,7 +27,7 @@ import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:pdf/pdf.dart';
 class staff_list extends StatefulWidget {
   const staff_list({super.key});
 
@@ -157,23 +159,121 @@ class _staff_listState extends State<staff_list> {
     await OpenFile.open(tempPath);
   }
 
+  Future<pw.Document> createPdf() async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Padding(
+            padding: const pw.EdgeInsets.all(24),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Title Section
+                pw.Center(
+                  child: pw.Text(
+                    'Staff List',
+                    style: pw.TextStyle(
+                      fontSize: 20,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+                
+                // Table Headers
+                pw.Table.fromTextArray(
+                  headers: ['ID', 'Name', 'Email', 'Designation', 'Approval Status'],
+                  data: [
+                    for (var staff in filteredProducts)
+                      [
+                        staff['id'] ?? '',
+                        staff['name'] ?? '',
+                        staff['email'] ?? '',
+                        staff['designation'] ?? '',
+                        staff['approval_status'] ?? '',
+                      ]
+                  ],
+                  headerStyle: pw.TextStyle(
+                    fontWeight: pw.FontWeight.bold,
+                    fontSize: 10,
+                  ),
+                  cellStyle: pw.TextStyle(
+                    fontSize: 8,
+                  ),
+                  headerDecoration: pw.BoxDecoration(
+                    color: PdfColors.grey300,
+                  ),
+                  rowDecoration: pw.BoxDecoration(
+                    border: pw.Border(
+                      bottom: pw.BorderSide(color: PdfColors.grey400, width: 0.5),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+
+    return pdf;
+  }
+
+  Future<void> downloadPdf() async {
+    final pdf = await createPdf();
+    final output = await getTemporaryDirectory();
+    final file = File("${output.path}/staff_list.pdf");
+    await file.writeAsBytes(await pdf.save());
+    await Printing.sharePdf(bytes: await pdf.save(), filename: 'staff_list.pdf');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          "Customer List",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
+  title: Text(
+    "Staff List",
+    style: TextStyle(fontSize: 14, color: Colors.grey),
+  ),
+  actions: [
+    PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert), // 3-dot icon
+      onSelected: (value) {
+        // Handle menu item selection
+        switch (value) {
+          case 'Option 1':
+           exportToExcel();
+            break;
+          case 'Option 2':
+           downloadPdf();
+            break;
+         
+          default:
+            // Handle default case
+            break;
+        }
+      },
+      itemBuilder: (BuildContext context) {
+        return [
+          PopupMenuItem<String>(
+            value: 'Option 1',
+            child: Text('Export Excel'),
           ),
-        ],
-      ),
+          PopupMenuItem<String>(
+            value: 'Option 2',
+            child: Text('Download Pdf'),
+          ),
+          
+        ];
+      },
+    ),
+  ],
+),
+
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -295,7 +395,7 @@ class _staff_listState extends State<staff_list> {
   child: TextField(
     controller: searchController,
     decoration: InputDecoration(
-      hintText: "Search customers...",
+      hintText: "Search Staff...",
       prefixIcon: Icon(Icons.search),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(30.0),
@@ -394,23 +494,23 @@ Expanded(
                         Text(
                           staffData['name'] ?? 'No Name',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
-                        SizedBox(width: 10),
+                        SizedBox(width: 8),
                         Text("-",style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: Colors.blueGrey,
                           ),),
                         // Staff Designation - Smaller and lighter weight
-                         SizedBox(width: 10),
+                         SizedBox(width: 8),
                         Text(
                           staffData['designation'] ?? 'No Designation',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: Colors.blueGrey,
                           ),
@@ -437,11 +537,6 @@ Expanded(
   ),
 ),
 
-
- ElevatedButton(
-            onPressed: exportToExcel,
-            child: Text('Export to Excel'),
-          ),
   ],
 )
 

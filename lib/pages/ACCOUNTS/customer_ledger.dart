@@ -402,9 +402,48 @@ Future<pw.Document> createInvoice() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Customer Ledger")),
+     appBar: AppBar(
+  title: Text(
+    "Staff List",
+    style: TextStyle(fontSize: 14, color: Colors.grey),
+  ),
+  actions: [
+    PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert), // 3-dot icon
+      onSelected: (value) {
+        // Handle menu item selection
+        switch (value) {
+          case 'Option 1':
+           exportToExcel();
+            break;
+          case 'Option 2':
+           downloadInvoice();
+            break;
+         
+          default:
+            // Handle default case
+            break;
+        }
+      },
+      itemBuilder: (BuildContext context) {
+        return [
+          PopupMenuItem<String>(
+            value: 'Option 1',
+            child: Text('Export Excel'),
+          ),
+          PopupMenuItem<String>(
+            value: 'Option 2',
+            child: Text('Download Pdf'),
+          ),
+          
+        ];
+      },
+    ),
+  ],
+),
       body: Column(
         children: [
+          SizedBox(height: 15,),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -466,6 +505,8 @@ Future<pw.Document> createInvoice() async {
                 ],
               ),
             ),
+                      SizedBox(height: 10,),
+
           Expanded(
             child: filteredEntries.isEmpty
                 ? Center(
@@ -609,32 +650,32 @@ Future<pw.Document> createInvoice() async {
                     ),
                   ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton.icon(
-              icon: Icon(Icons.download),
-              label: Text("Export to Excel"),
-              onPressed: exportToExcel,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          ElevatedButton.icon(
-            icon: Icon(Icons.picture_as_pdf),
-            label: Text("Generate PDF"),
-            onPressed: () async {
-              // Print to check filtered entries before generating PDF
-              print("Filtered Entries before PDF generation: $filteredEntries");
-              downloadInvoice();
-            },
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: ElevatedButton.icon(
+          //     icon: Icon(Icons.download),
+          //     label: Text("Export to Excel"),
+          //     onPressed: exportToExcel,
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: Colors.white,
+          //       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          //       textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          //     ),
+          //   ),
+          // ),
+          // ElevatedButton.icon(
+          //   icon: Icon(Icons.picture_as_pdf),
+          //   label: Text("Generate PDF"),
+          //   onPressed: () async {
+          //     // Print to check filtered entries before generating PDF
+          //     print("Filtered Entries before PDF generation: $filteredEntries");
+          //     downloadInvoice();
+          //   },
+          //   style: ElevatedButton.styleFrom(
+          //     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          //     textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          //   ),
+          // ),
         ],
       ),
     );
