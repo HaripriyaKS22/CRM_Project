@@ -5,6 +5,7 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
+import 'package:beposoft/pages/ACCOUNTS/warehouse_order_review.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -843,14 +844,14 @@ Future<void> exportToExcel() async {
               padding: const EdgeInsets.symmetric(vertical: 3.0),
               child: GestureDetector(
                 onTap: () {
-                  showCustomDialogBox(context);
+                  // showCustomDialogBox(context);
                   
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => OrderReview(id: order['id']),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WarehouseOrderReview(id: order['id']),
+                    ),
+                  );
                 },
                 child: Card(
                   shape: RoundedRectangleBorder(

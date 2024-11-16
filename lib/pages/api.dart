@@ -1,1 +1,1 @@
-var api="https://housing-zu-achieve-wars.trycloudflare.com";
+var api="https://sea-grounds-followed-pension.trycloudflare.com";
