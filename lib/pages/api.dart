@@ -1,1 +1,1 @@
-var api="https://routers-loc-mongolia-jumping.trycloudflare.com";
+var api="https://housing-zu-achieve-wars.trycloudflare.com";

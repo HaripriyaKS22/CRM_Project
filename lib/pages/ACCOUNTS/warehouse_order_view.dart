@@ -123,7 +123,7 @@ Future<void> showCustomDialogBox(BuildContext context) async {
                       border: OutlineInputBorder(),
                     ),
                   ),
-
+ SizedBox(height: 10),
                   TextField(
                     controller: weight,
                     decoration: InputDecoration(
@@ -149,6 +149,7 @@ Future<void> showCustomDialogBox(BuildContext context) async {
                       border: OutlineInputBorder(),
                     ),
                   ),
+                   SizedBox(height: 10),
                   TextField(
                     controller: shippingcharge,
                     decoration: InputDecoration(
