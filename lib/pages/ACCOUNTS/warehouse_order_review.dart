@@ -1417,259 +1417,354 @@ Future<void> fetchOrderItems() async {
             ),
             
             SizedBox(height: 10),
-
-   Center(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
+Center(
+  child: Padding(
+    padding: const EdgeInsets.all(8.0), // Reduced padding
+    child: Container(
+      padding: const EdgeInsets.all(12.0), // Reduced padding
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0), // Reduced border radius
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 3,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: double.infinity,
+            height: 40, // Reduced height
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 4,
-                  blurRadius: 6,
-                  offset: Offset(0, 3),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(8.0),
+              color: Colors.blue,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 4,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                    color: Colors.blue,
-                  ),
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Box Details",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                Container(
-                  height: 49,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 20),
-                      Flexible(
-                        child: DropdownButton<Map<String, dynamic>>(
-                          value: manager.isNotEmpty
-                              ? manager.firstWhere(
-                                  (element) =>
-                                      element['id'] ==
-                                      (selectedManagerId ?? manager[0]['id']),
-                                  orElse: () => manager[0],
-                                )
-                              : null,
-                          underline: Container(),
-                          onChanged: manager.isNotEmpty
-                              ? (Map<String, dynamic>? newValue) {
-                                  setState(() {
-                                    selectedManagerName = newValue!['name'];
-                                    selectedManagerId = newValue['id'];
-                                  });
-                                }
-                              : null,
-                          items: manager.map<DropdownMenuItem<Map<String, dynamic>>>((Map<String, dynamic> manager) {
-                            return DropdownMenuItem<Map<String, dynamic>>(
-                              value: manager,
-                              child: Text(manager['name']),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: length,
-                        decoration: InputDecoration(
-                          labelText: 'Length',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: height,
-                        decoration: InputDecoration(
-                          labelText: 'Height',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: breadth,
-                        decoration: InputDecoration(
-                          labelText: 'Breadth',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: weight,
-                        decoration: InputDecoration(
-                          labelText: 'Weight',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: service,
-                  decoration: InputDecoration(
-                    labelText: 'Service',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: transactionid,
-                  decoration: InputDecoration(
-                    labelText: 'Transaction Id',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  
-                  controller: shippingcharge,
-                  decoration: InputDecoration(
-                    
-                    labelText: 'Shipping Charge',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: selectedStatus,
-                  hint: Text('Select Status'),
-                  items: statuses.map((status) {
-                    return DropdownMenuItem<String>(
-                      value: status,
-                      child: Text(status),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedStatus = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Status',
-                  ),
-                ),
-                SizedBox(height: 10),
-                Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 58,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey, width: 1.0),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Row(
-                          children: [
-                            SizedBox(width: 30),
-                            Text(
-                              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Color.fromARGB(255, 116, 116, 116),
-                              ),
-                            ),
-                            Spacer(),
-                            GestureDetector(
-                              onTap: () => _selectDate(context),
-                              child: Icon(Icons.date_range),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
-                InkWell(
-                  onTap: () => imageSelect(),
-                  child: Container(
-                    height: 150,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.grey[200],
-                    ),
-                    child: selectedImage == null
-                        ? Center(child: Text('Tap to select an image'))
-                        : Image.file(
-                            File(selectedImage!.path),
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () => addboxdetails(selectedImage, selectedDate, context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
+            alignment: Alignment.center, // Simplified layout
+            child: Text(
+              "Box Details",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 15, // Reduced font size
+              ),
+            ),
+          ),
+          SizedBox(height: 8), // Reduced spacing
+          Container(
+            height: 45, // Reduced height
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0), // Added padding
+            child: DropdownButton<Map<String, dynamic>>(
+              value: manager.isNotEmpty
+                  ? manager.firstWhere(
+                      (element) =>
+                          element['id'] ==
+                          (selectedManagerId ?? manager[0]['id']),
+                      orElse: () => manager[0],
+                    )
+                  : null,
+              underline: SizedBox(),
+              onChanged: manager.isNotEmpty
+                  ? (Map<String, dynamic>? newValue) {
+                      setState(() {
+                        selectedManagerName = newValue!['name'];
+                        selectedManagerId = newValue['id'];
+                      });
+                    }
+                  : null,
+              items: manager
+                  .map<DropdownMenuItem<Map<String, dynamic>>>((Map<String, dynamic> manager) {
+                return DropdownMenuItem<Map<String, dynamic>>(
+                  value: manager,
                   child: Text(
-                    'Submit',
-                    style: TextStyle(color: Colors.white),
+                    manager['name'],
+                    style: TextStyle(fontSize: 13), // Reduced font size
                   ),
+                );
+              }).toList(),
+              isExpanded: true, // Added to expand dropdown
+            ),
+          ),
+
+           SizedBox(height: 8),
+          TextField(
+            controller: box,
+            decoration: InputDecoration(
+              labelText: 'Boxes',
+              labelStyle: TextStyle(fontSize: 13),
+              border: OutlineInputBorder(),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            ),
+          ),
+          SizedBox(height: 8), // Reduced spacing
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: length,
+                  decoration: InputDecoration(
+                    labelText: 'Length',
+                    labelStyle: TextStyle(fontSize: 13), // Reduced font size
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 8.0), // Reduced padding
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: height,
+                  decoration: InputDecoration(
+                    labelText: 'Height',
+                    labelStyle: TextStyle(fontSize: 13),
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 8.0),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: breadth,
+                  decoration: InputDecoration(
+                    labelText: 'Breadth',
+                    labelStyle: TextStyle(fontSize: 13),
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 8.0),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: weight,
+                  decoration: InputDecoration(
+                    labelText: 'Weight',
+                    labelStyle: TextStyle(fontSize: 13),
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 8.0),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          TextField(
+            controller: service,
+            decoration: InputDecoration(
+              labelText: 'Service',
+              labelStyle: TextStyle(fontSize: 13),
+              border: OutlineInputBorder(),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            ),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            controller: transactionid,
+            decoration: InputDecoration(
+              labelText: 'Transaction Id',
+              labelStyle: TextStyle(fontSize: 13),
+              border: OutlineInputBorder(),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            ),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            controller: shippingcharge,
+            decoration: InputDecoration(
+              labelText: 'Shipping Charge',
+              labelStyle: TextStyle(fontSize: 13),
+              border: OutlineInputBorder(),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            ),
+          ),
+          SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: selectedStatus,
+            hint: Text(
+              'Select Status',
+              style: TextStyle(fontSize: 13), // Reduced font size
+            ),
+            items: statuses.map((status) {
+              return DropdownMenuItem<String>(
+                value: status,
+                child: Text(
+                  status,
+                  style: TextStyle(fontSize: 13), // Reduced font size
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedStatus = value;
+              });
+            },
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Status',
+              labelStyle: TextStyle(fontSize: 13),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            ),
+          ),
+          SizedBox(height: 8),
+          Container(
+            height: 50, // Reduced height
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                  style: TextStyle(fontSize: 13),
+                ),
+                Spacer(),
+                GestureDetector(
+                  onTap: () => _selectDate(context),
+                  child: Icon(Icons.date_range, size: 20), // Reduced icon size
                 ),
               ],
             ),
           ),
-        ),
+          SizedBox(height: 8),
+          InkWell(
+            onTap: () => imageSelect(),
+            child: Container(
+              height: 120, // Reduced height
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[200],
+              ),
+              child: selectedImage == null
+                  ? Center(
+                      child: Text(
+                        'Tap to select an image',
+                        style: TextStyle(fontSize: 13), // Reduced font size
+                      ),
+                    )
+                  : Image.file(
+                      File(selectedImage!.path),
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+          SizedBox(height: 12), // Reduced spacing
+          ElevatedButton(
+            onPressed: () => addboxdetails(selectedImage, selectedDate, context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15), // Adjusted radius
+              ),
+            ),
+            child: Text(
+              'Submit',
+              style: TextStyle(color: Colors.white, fontSize: 14), // Reduced font size
+            ),
+          ),
+        ],
       ),
+    ),
+  ),
+),
+  Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Warehouse Orders',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Box')),
+                        DataColumn(label: Text('Weight')),
+                        DataColumn(label: Text('Length')),
+                        DataColumn(label: Text('Breadth')),
+                        DataColumn(label: Text('Height')),
+                        DataColumn(label: Text('Parcel Service')),
+                        DataColumn(label: Text('Tracking ID')),
+                        DataColumn(label: Text('Shipping Charge')),
+                        DataColumn(label: Text('Status')),
+                        DataColumn(label: Text('Shipped Date')),
+                        DataColumn(label: Text('Customer')),
+                        DataColumn(label: Text('Invoice')),
+                        DataColumn(label: Text('Family')),
+                      ],
+                      rows: ord['warehouse_orders']
+                          .map<DataRow>(
+                            (order) => DataRow(
+                              cells: [
+                                DataCell(Text(order['box'] ?? '')),
+                                DataCell(Text(order['weight'] ?? '')),
+                                DataCell(Text(order['length'] ?? '')),
+                                DataCell(Text(order['breadth'] ?? '')),
+                                DataCell(Text(order['height'] ?? '')),
+                                DataCell(Text(order['parcel_service'] ?? '')),
+                                DataCell(Text(order['tracking_id'].toString())),
+                                DataCell(Text(order['shipping_charge'] ?? '')),
+                                DataCell(Text(order['status'] ?? '')),
+                                DataCell(Text(order['shipped_date'] ?? '')),
+                                DataCell(Text(order['customer'] ?? '')),
+                                DataCell(Text(order['invoice'] ?? '')),
+                                DataCell(Text(order['family'] ?? '')),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
             SizedBox(height: 30),
           ],
         ),

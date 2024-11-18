@@ -1,1 +1,1 @@
-var api="https://referring-were-instance-emerging.trycloudflare.com";
+var api="https://ratings-washer-theatre-define.trycloudflare.com";
