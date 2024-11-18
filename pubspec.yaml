@@ -101,6 +101,8 @@ flutter:
     - lib/assets/delete.png
     - lib/assets/view.jpeg
     - lib/assets/user.png
+    - lib/assets/close.png
+
 
 
    

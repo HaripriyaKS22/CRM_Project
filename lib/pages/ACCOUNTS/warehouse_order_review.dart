@@ -1293,129 +1293,7 @@ Future<void> fetchOrderItems() async {
             SizedBox(
               height: 10,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 3,
-                      blurRadius: 10,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Billing Summary',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Net Amount Before Tax',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          '\$${netAmountBeforeTax.toStringAsFixed(2)}', // Format to 2 decimal places
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Total Discount',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          '\$${totalDiscount.toStringAsFixed(2)}', // Format to 2 decimal places
-                          style: TextStyle(
-                            color: const Color.fromARGB(255, 3, 3, 3),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Total Tax Amount',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          '\$${totalTaxAmount.toStringAsFixed(2)}', // Format to 2 decimal places
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Total Payable Amount ',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          '\$${payableAmount.toStringAsFixed(2)}', // Format to 2 decimal places
-                          style: TextStyle(
-                            color: const Color.fromARGB(255, 1, 155, 24),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            
+
             SizedBox(height: 10),
 Center(
   child: Padding(
@@ -1691,79 +1569,205 @@ Center(
     ),
   ),
 ),
-  Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 3,
-                    blurRadius: 5,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+Padding(
+  padding: const EdgeInsets.all(8.0),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'Warehouse Orders',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
+      SizedBox(height: 10),
+      ord == null || ord['warehouse_orders'] == null
+          ? Center(
+              child: Text(
+                'No Warehouse Orders Available',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
               ),
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Warehouse Orders',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Box')),
-                        DataColumn(label: Text('Weight')),
-                        DataColumn(label: Text('Length')),
-                        DataColumn(label: Text('Breadth')),
-                        DataColumn(label: Text('Height')),
-                        DataColumn(label: Text('Parcel Service')),
-                        DataColumn(label: Text('Tracking ID')),
-                        DataColumn(label: Text('Shipping Charge')),
-                        DataColumn(label: Text('Status')),
-                        DataColumn(label: Text('Shipped Date')),
-                        DataColumn(label: Text('Customer')),
-                        DataColumn(label: Text('Invoice')),
-                        DataColumn(label: Text('Family')),
+            )
+          : Column(
+              children: ord['warehouse_orders'].map<Widget>((order) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Container(
+                    padding: EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 4,
+                          offset: Offset(0, 2), // Shadow position
+                        ),
                       ],
-                      rows: ord['warehouse_orders']
-                          .map<DataRow>(
-                            (order) => DataRow(
-                              cells: [
-                                DataCell(Text(order['box'] ?? '')),
-                                DataCell(Text(order['weight'] ?? '')),
-                                DataCell(Text(order['length'] ?? '')),
-                                DataCell(Text(order['breadth'] ?? '')),
-                                DataCell(Text(order['height'] ?? '')),
-                                DataCell(Text(order['parcel_service'] ?? '')),
-                                DataCell(Text(order['tracking_id'].toString())),
-                                DataCell(Text(order['shipping_charge'] ?? '')),
-                                DataCell(Text(order['status'] ?? '')),
-                                DataCell(Text(order['shipped_date'] ?? '')),
-                                DataCell(Text(order['customer'] ?? '')),
-                                DataCell(Text(order['invoice'] ?? '')),
-                                DataCell(Text(order['family'] ?? '')),
-                              ],
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Image and Box Details
+                        Row(
+                          children: [
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: Colors.grey[200],
+                              ),
+                              child: order['image'] != null
+                                  ? Image.network(
+                                      '$api${order['image']}',
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Icon(Icons.image_not_supported,
+                                            size: 40, color: Colors.grey);
+                                      },
+                                    )
+                                  : Icon(Icons.image_not_supported,
+                                      size: 40, color: Colors.grey),
                             ),
-                          )
-                          .toList(),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                ' ${order['box'] ?? 'N/A'}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            // Delete Button
+                            GestureDetector(
+                              onTap: () {
+                                // Call your delete function here
+                                //deleteWarehouseOrder(order['id']);
+                              },
+                              child: Image.asset(
+                                "lib/assets/close.png",
+                                height: 15,
+                                width: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Divider(),
+                        SizedBox(height: 12),
+
+                        // Shipping Charge
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Shipping Charge:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              order['shipping_charge'] ?? 'N/A',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6),
+
+                        // Parcel Service
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Parcel Service:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              order['parcel_service'] ?? 'N/A',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6),
+
+                        // Tracking ID
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Tracking ID:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              order['tracking_id']?.toString() ?? 'N/A',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6),
+
+                        // Status
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Status:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              order['status'] ?? 'N/A',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6),
+
+                        // Shipped Date
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Shipped Date:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              order['shipped_date'] ?? 'N/A',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                );
+              }).toList(),
             ),
-          ),
+    ],
+  ),
+),
+
+
 
             SizedBox(height: 30),
           ],
