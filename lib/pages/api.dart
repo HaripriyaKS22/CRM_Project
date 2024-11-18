@@ -1,1 +1,1 @@
-var api="https://sea-grounds-followed-pension.trycloudflare.com";
+var api="https://referring-were-instance-emerging.trycloudflare.com";

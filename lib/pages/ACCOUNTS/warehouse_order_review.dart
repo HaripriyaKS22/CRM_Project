@@ -60,6 +60,8 @@ print("idddddddddddddddddddddddddddddddd${widget.id}");
 final TextEditingController box = TextEditingController();
 
   final TextEditingController length = TextEditingController();
+    final TextEditingController height = TextEditingController();
+
   final TextEditingController breadth= TextEditingController();
     final TextEditingController weight= TextEditingController();
 
@@ -218,27 +220,41 @@ void addboxdetails(
     request.fields['shipped_date'] = selectedDate.toIso8601String().substring(0, 10);
 
     // Convert selectedManagerId (int) to String
-    if (selectedManagerId == null) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Please select a manager before submitting.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+    // if (selectedManagerId == null) {
+    //   ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Please select a manager before submitting.'),
+    //       backgroundColor: Colors.red,
+    //     ),
+    //   );
+    //   return;
+    // }
 
     // Add other form fields with proper conversion to String
     request.fields['order'] = widget.id.toString(); // Ensure widget.id is a string
     request.fields['box'] = box.text; // Assuming box.text is already a string
     request.fields['length'] = length.text.toString(); // Ensure length is a string
+    request.fields['height'] = height.text.toString(); // Ensure length is a string
     request.fields['weight'] = weight.text.toString(); // Ensure weight is a string
     request.fields['breadth'] = breadth.text.toString(); // Ensure breadth is a string
     request.fields['parcel_service'] = service.text; // Assuming service.text is already a string
     request.fields['tracking_id'] = transactionid.text; // Assuming transactionid.text is already a string
-    request.fields['shippingcharge'] = shippingcharge.text.toString(); // Ensure shipping charge is a string
+    request.fields['shipping_charge'] = shippingcharge.text.toString(); // Ensure shipping charge is a string
     request.fields['status'] = selectedStatus ?? ''; // Ensure selectedStatus is not null
-    request.fields['packed_by'] = selectedManagerId.toString(); // Convert selectedManagerId to String
+
+    if(selectedManagerId==null){
+
+
+          request.fields['packed_by'] = loginid.toString(); // Convert selectedManagerId to String
+
+
+    }
+    else
+    {
+          request.fields['packed_by'] = selectedManagerId.toString(); // Convert selectedManagerId to String
+
+    }
+
 
     // Add images to the request if they are not null
     if (image1 != null) {
@@ -1402,351 +1418,258 @@ Future<void> fetchOrderItems() async {
             
             SizedBox(height: 10),
 
-            Center(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 4,
-                blurRadius: 6,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                height: 50,
-                  decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 4,
-                blurRadius: 6,
-                offset: Offset(0, 3),
-              ),
-              
-            ],
-            color: Colors.blue,
-          ),
-                
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Box Details",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 17),),
-                  ],
+   Center(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 4,
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
                 ),
-              ),
-             
-
-              //  SizedBox(height: 8),
-              // Text("Shipping Address", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-              // SizedBox(height: 5),
-              // Padding(
-              //   padding: const EdgeInsets.only(right: 10),
-              //   child: Container(
-              //     height: 50,
-              //                   width: 340,
-
-              //     decoration: BoxDecoration(
-              //       border: Border.all(color: Colors.grey),
-                 
-              //     ),
-              //     child: Row(
-              //       children: [
-              //         SizedBox(width: 20),
-              //         Container(
-              // width: 260,
-              // child: InputDecorator(
-              //   decoration: InputDecoration(
-              //     border: InputBorder.none,
-              //     hintText: '',
-              //     contentPadding: EdgeInsets.symmetric(horizontal: 1),
-              //   ),
-              //   child: DropdownButton<int>(
-              //     hint: Text(
-              //       'Address',
-              //       style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
-              //     ),
-              //     value: selectedAddressId,
-              //     isExpanded: true,
-              //     underline: Container(), // This removes the underline
-              //     onChanged: (int? newValue) {
-              //       setState(() {
-              //         selectedAddressId = newValue!;
-              //         print(selectedAddressId);
-              //       });
-              //     },
-              //     items: addres.map<DropdownMenuItem<int>>((address) {
-              //       return DropdownMenuItem<int>(
-              //         value: address['id'],
-              //         child: Text("${address['address']}", style: TextStyle(fontSize: 12)),
-              //       );
-              //     }).toList(),
-              //     selectedItemBuilder: (BuildContext context) {
-              //       return addres.map<Widget>((address) {
-              //         return Text(
-              //           selectedAddressId != null && selectedAddressId == address['id']
-              //               ? "${address['address']}"
-              //               : "Address",
-              //           style: TextStyle(fontSize: 12, color: Colors.black),
-              //         );
-              //       }).toList();
-              //     },
-              //     icon: Container(
-              //       alignment: Alignment.centerRight,
-              //       child: Icon(Icons.arrow_drop_down,color: const Color.fromARGB(255, 151, 150, 150),), // Dropdown arrow icon
-              //     ),
-              //   ),
-              // ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-
-              SizedBox(height: 10),
-                           
-                            Container(
-  height: 49,
-  decoration: BoxDecoration(
-    border: Border.all(color: Colors.grey),
-  ),
-  child: Row(
-    children: [
-      SizedBox(width: 20),
-      Flexible(
-        child: InputDecorator(
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: '',
-            contentPadding: EdgeInsets.symmetric(horizontal: 1),
-          ),
-          child: DropdownButton<Map<String, dynamic>>(
-            value: manager.isNotEmpty
-                ? manager.firstWhere(
-                    (element) => element['id'] == (selectedManagerId ?? loginid),
-                    orElse: () => manager[0],
-                  )
-                : null,
-            underline: Container(),
-            onChanged: manager.isNotEmpty
-                ? (Map<String, dynamic>? newValue) {
-                    setState(() {
-                      selectedManagerName = newValue!['name'];
-                      selectedManagerId = newValue['id'];
-                      print('Selected Manager Name: $selectedManagerName');
-                      print('Selected Manager ID: $selectedManagerId');
-                    });
-                  }
-                : null,
-            items: manager.isNotEmpty
-                ? manager.map<DropdownMenuItem<Map<String, dynamic>>>(
-                    (Map<String, dynamic> manager) {
-                      return DropdownMenuItem<Map<String, dynamic>>(
-                        value: manager,
-                        child: Text(manager['name']),
-                      );
-                    },
-                  ).toList()
-                : [
-                    DropdownMenuItem(
-                      child: Text('No managers available'),
-                      value: null,
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 4,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                    color: Colors.blue,
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Box Details",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  height: 49,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 20),
+                      Flexible(
+                        child: DropdownButton<Map<String, dynamic>>(
+                          value: manager.isNotEmpty
+                              ? manager.firstWhere(
+                                  (element) =>
+                                      element['id'] ==
+                                      (selectedManagerId ?? manager[0]['id']),
+                                  orElse: () => manager[0],
+                                )
+                              : null,
+                          underline: Container(),
+                          onChanged: manager.isNotEmpty
+                              ? (Map<String, dynamic>? newValue) {
+                                  setState(() {
+                                    selectedManagerName = newValue!['name'];
+                                    selectedManagerId = newValue['id'];
+                                  });
+                                }
+                              : null,
+                          items: manager.map<DropdownMenuItem<Map<String, dynamic>>>((Map<String, dynamic> manager) {
+                            return DropdownMenuItem<Map<String, dynamic>>(
+                              value: manager,
+                              child: Text(manager['name']),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: length,
+                        decoration: InputDecoration(
+                          labelText: 'Length',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: height,
+                        decoration: InputDecoration(
+                          labelText: 'Height',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
                     ),
                   ],
-            icon: Container(
-              alignment: Alignment.centerRight,
-              child: Icon(Icons.arrow_drop_down),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: breadth,
+                        decoration: InputDecoration(
+                          labelText: 'Breadth',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: weight,
+                        decoration: InputDecoration(
+                          labelText: 'Weight',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  controller: service,
+                  decoration: InputDecoration(
+                    labelText: 'Service',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  controller: transactionid,
+                  decoration: InputDecoration(
+                    labelText: 'Transaction Id',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  
+                  controller: shippingcharge,
+                  decoration: InputDecoration(
+                    
+                    labelText: 'Shipping Charge',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: selectedStatus,
+                  hint: Text('Select Status'),
+                  items: statuses.map((status) {
+                    return DropdownMenuItem<String>(
+                      value: status,
+                      child: Text(status),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedStatus = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Status',
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 58,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey, width: 1.0),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 30),
+                            Text(
+                              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color.fromARGB(255, 116, 116, 116),
+                              ),
+                            ),
+                            Spacer(),
+                            GestureDetector(
+                              onTap: () => _selectDate(context),
+                              child: Icon(Icons.date_range),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                InkWell(
+                  onTap: () => imageSelect(),
+                  child: Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey[200],
+                    ),
+                    child: selectedImage == null
+                        ? Center(child: Text('Tap to select an image'))
+                        : Image.file(
+                            File(selectedImage!.path),
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () => addboxdetails(selectedImage, selectedDate, context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ),
-    ],
-  ),
-),
-
-                             SizedBox(height: 10),
-
-             
-              TextField(
-                controller: box,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Boxes',
-                ),
-              ),
-                                 SizedBox(height: 10),
-
-               TextField(
-                    controller: length,
-                    decoration: InputDecoration(
-                      labelText: 'Length',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Text Field 3
-                  TextField(
-                    controller: breadth,
-                    decoration: InputDecoration(
-                      labelText: 'Breadth',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
- SizedBox(height: 10),
-                  TextField(
-                    controller: weight,
-                    decoration: InputDecoration(
-                      labelText: 'Weight',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Text Field 2
-                  TextField(
-                    controller: service,
-                    decoration: InputDecoration(
-                      labelText: 'Service',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Text Field 3
-                  TextField(
-                    controller: transactionid,
-                    decoration: InputDecoration(
-                      labelText: 'Transaction Id',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                   SizedBox(height: 10),
-                  TextField(
-                    controller: shippingcharge,
-                    decoration: InputDecoration(
-                      labelText: 'Shipping Charge',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-
-                   SizedBox(height: 10),
-
-                   DropdownButtonFormField<String>(
-                value: selectedStatus,
-                hint: Text('Select Status'),
-                items: statuses.map((status) {
-                  return DropdownMenuItem<String>(
-                    value: status,
-                    child: Text(status),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedStatus = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Status',
-                ),
-              ),
-             
-             SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        height: 58,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.grey, width: 1.0),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(width: 30),
-                                            Text(
-                                              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Color.fromARGB(
-                                                      255, 116, 116, 116)),
-                                            ),
-                                            SizedBox(width: 162),
-                                            GestureDetector(
-                                              onTap: () {
-                                                _selectDate(context);
-                                                print('Icon pressed');
-                                              },
-                                              child: Icon(Icons.date_range),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                  SizedBox(height: 20),
-                  // Image Picker
-                  InkWell(
-                    onTap: () async {
-                       imageSelect();
-                      setState(() {}); // Update the dialog UI
-                    },
-                    child: Container(
-                      height: 150,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey[200],
-                      ),
-                      child: selectedImage == null
-                          ? Center(child: Text('Tap to select an image'))
-                          : Image.file(
-                              File(selectedImage!.path),
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                  ),
-              
-
-             
-              SizedBox(height: 16.0),
-        
-              ElevatedButton(
-  onPressed: () {
-    addboxdetails(selectedImage, selectedDate, context);
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.blue, // Change background color
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20), // Add border radius
-    ),
-  ),
-  child: Text('Submit',style: TextStyle(color: Colors.white),),
-)
-
-            ],
-          ),
-        ),
-      ),
-    ),
             SizedBox(height: 30),
           ],
         ),
