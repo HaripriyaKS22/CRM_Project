@@ -155,14 +155,7 @@ class _dashboardState extends State<dashboard> {
                 // Navigate to the Settings page or perform any other action
               },
             ),
-                  ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Customer'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>customer_list()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
+                 
               ListTile(
               leading: Icon(Icons.person),
               title: Text('Departments'),
@@ -187,14 +180,7 @@ class _dashboardState extends State<dashboard> {
                 // Navigate to the Settings page or perform any other action
               },
             ),
-             ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Staff'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_staff()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
+            
             ListTile(
               leading: Icon(Icons.person),
               title: Text('Bank'),
@@ -211,14 +197,7 @@ class _dashboardState extends State<dashboard> {
                 // Navigate to the Settings page or perform any other action
               },
             ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('warehouse orders'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>WarehouseOrderView()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
+           
              ListTile(
               leading: Icon(Icons.person),
               title: Text('Attributes'),
@@ -232,7 +211,6 @@ class _dashboardState extends State<dashboard> {
 
             _buildDropdownTile(context, 'Customers', ['Add Customer', 'Customers',]),
             _buildDropdownTile(context, 'Credit Note', ['Add Credit Note', 'Credit Note List',]),
-            _buildDropdownTile(context, 'Recipts', ['Add recipts', 'Recipts List']),
             _buildDropdownTile(context, 'Proforma Invoice', ['New Proforma Invoice', 'Proforma Invoice List',]),
             _buildDropdownTile(context, 'Delivery Note', ['Delivery Note List', 'Daily Goods Movement']),
             _buildDropdownTile(context, 'Orders', ['New Orders', 'Orders List']),
@@ -242,7 +220,6 @@ class _dashboardState extends State<dashboard> {
              Divider(),
 
             _buildDropdownTile(context, 'Product', ['Product List','Product Add', 'Stock',]),
-            _buildDropdownTile(context, 'Purchase', [' New Purchase', 'Purchase List']),
             _buildDropdownTile(context, 'Expence', ['Add Expence', 'Expence List',]),
             _buildDropdownTile(context, 'Reports', ['Sales Report', 'Credit Sales Report','COD Sales Report','Statewise Sales Report','Expence Report','Delivery Report','Product Sale Report','Stock Report','Damaged Stock']),
             _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
