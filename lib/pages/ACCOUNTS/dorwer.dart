@@ -1,10 +1,12 @@
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/bank_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/daily_goods_movement.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence.dart';
@@ -37,6 +39,18 @@ class drower{
     void navigateToSelectedPage(BuildContext context, String option) {
     // Navigate to the selected page based on the option
     switch (option) {
+      case 'Add Customer':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>add_new_customer()),
+        );
+        break;
+      case 'Customers':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => customer_list()),
+        );
+        break;
       case 'Add Staff':
         Navigator.push(
           context,

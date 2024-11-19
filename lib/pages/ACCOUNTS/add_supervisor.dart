@@ -120,7 +120,7 @@ var departments;
           managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
-            'department_name':productData['department_name'],
+            'department_name':productData['department'],
             
           });
         

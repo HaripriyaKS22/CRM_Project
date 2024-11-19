@@ -6,9 +6,8 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_family.dart';
 import 'package:flutter/material.dart';
-
+import 'package:intl/intl.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-
 import 'package:beposoft/main.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
@@ -131,6 +130,16 @@ var departments;
       );
     }
   }
+
+  void getCurrentTime() {
+  // Get current date and time
+  DateTime now = DateTime.now();
+
+  // Format the time (e.g., HH:mm:ss)
+  String formattedTime = DateFormat('HH:mm:ss').format(now);
+
+  print('Current Time: $formattedTime');
+}
  Future<void> deletefamily(int Id) async {
     final token = await gettokenFromPrefs();
 

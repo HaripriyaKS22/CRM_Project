@@ -134,7 +134,7 @@ print('$api/api/order/create/');
         },
         body: jsonEncode({
           'manage_staff':selectedstaffId,
-          "company":selectcomp,
+          "company":1,
           "customer": selectedCustomerId,
           'billing_address':selectedAddressId,
           'order_date': "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
@@ -221,6 +221,47 @@ void filterProducts() {
   }
 
 Future<void> getbank() async{
+  final token=await gettokenFromPrefs();
+  try{
+    final response= await http.get(Uri.parse('$api/api/banks/'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    }
+    );
+    List<Map<String, dynamic>> banklist = [];
+        print("bankkkkkkkkkkkkkkkkkkkkkresssssss${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("bankkkkkkkkkkkkkkkkkkkkkresssssss$parsed");
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          banklist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'branch':productData['branch']
+            
+          });
+        
+        }
+        setState(() {
+          bank = banklist;
+                  print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+
+          
+        });
+      }
+
+  }
+  catch(e){
+    print("error:$e");
+  }
+}
+
+Future<void> getcompany() async{
   final token=await gettokenFromPrefs();
   try{
     final response= await http.get(Uri.parse('$api/api/banks/'),

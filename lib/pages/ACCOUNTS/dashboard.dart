@@ -229,7 +229,8 @@ class _dashboardState extends State<dashboard> {
             ),
              Divider(),
 
-            _buildDropdownTile(context, 'Staff', ['Add Staff', 'View Staff',]),
+
+            _buildDropdownTile(context, 'Customers', ['Add Customer', 'Customers',]),
             _buildDropdownTile(context, 'Credit Note', ['Add Credit Note', 'Credit Note List',]),
             _buildDropdownTile(context, 'Recipts', ['Add recipts', 'Recipts List']),
             _buildDropdownTile(context, 'Proforma Invoice', ['New Proforma Invoice', 'Proforma Invoice List',]),
