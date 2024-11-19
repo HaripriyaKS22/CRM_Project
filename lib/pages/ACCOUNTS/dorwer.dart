@@ -24,6 +24,7 @@ import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
+import 'package:beposoft/pages/ACCOUNTS/warehouse_order_view.dart';
 import 'package:beposoft/pages/BDM/bdm_order_list.dart';
 import 'package:beposoft/pages/BDM/bdm_order_request.dart';
 import 'package:beposoft/pages/BDM/bdm_proforma_invoice.dart';
@@ -90,7 +91,7 @@ class drower{
          case 'Delivery Note List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>delivery_list()),
+          MaterialPageRoute(builder: (context) =>WarehouseOrderView()),
         );
         break;
       case 'Daily Goods Movement':

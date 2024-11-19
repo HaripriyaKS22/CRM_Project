@@ -228,6 +228,7 @@ class _dashboardState extends State<dashboard> {
               },
             ),
              Divider(),
+
             _buildDropdownTile(context, 'Staff', ['Add Staff', 'View Staff',]),
             _buildDropdownTile(context, 'Credit Note', ['Add Credit Note', 'Credit Note List',]),
             _buildDropdownTile(context, 'Recipts', ['Add recipts', 'Recipts List']),
