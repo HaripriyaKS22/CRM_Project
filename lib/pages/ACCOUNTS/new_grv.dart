@@ -1,509 +1,528 @@
-
-import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
-import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-
-
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-
-
-
-import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
-import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
-import 'package:beposoft/pages/ACCOUNTS/profile.dart';
-import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
-
-
-
-
-import 'package:beposoft/main.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
-import 'package:beposoft/pages/ACCOUNTS/customer.dart';
-import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
-import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
-import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
-import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
-import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
+import 'package:beposoft/pages/api.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 
-
-
-
-
-class new_grv extends StatefulWidget {
-  const new_grv({super.key});
+class NewGrv extends StatefulWidget {
+  const NewGrv({super.key});
 
   @override
-  State<new_grv> createState() => _new_grvState();
+  State<NewGrv> createState() => _NewGrvState();
 }
 
-class _new_grvState extends State<new_grv> {
+class _NewGrvState extends State<NewGrv> {
+  final TextEditingController returnreason = TextEditingController();
+  final TextEditingController returnQuantityController = TextEditingController();
+  final TextEditingController textEditingController = TextEditingController();
 
-   List<String>  bank = ["ICIC",'SBI','HDFC'];
-  String selectbank="ICIC";
+  List<Map<String, dynamic>> orders = [];
+  List<Map<String, dynamic>> orderItems = [];
+  String orderId = '';
+  String? selectedValue;
+  String manageStaffName = '';
+  String selectedInvoiceAddress = '';
+  String createdAtDate = '';
+  bool hasItems = true; // Flag to track if items exist
 
-//dateselection
-   DateTime selectedDate = DateTime.now();
+  @override
+  void initState() {
+    super.initState();
+    fetchOrders();
+  }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
+  Future<String?> getTokenFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<void> fetchOrders() async {
+    final token = await getTokenFromPrefs();
+    try {
+      final response = await http.get(
+        Uri.parse("$api/api/orders/"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        List<Map<String, dynamic>> orderList = [];
+        for (var order in parsed) {
+          orderList.add({
+            'id': order['id'],
+            'manage_staff': order['manage_staff'] ?? 'Unknown',
+            'name': order['customer']['name'] ?? 'Unknown',
+            'invoice': order['invoice'] ?? 'Unknown',
+            'address': order['billing_address']['address'] ?? 'Unknown Address',
+            'created_at': order['customer']['created_at'] ?? 'Unknown Date',
+          });
+        }
+        setState(() {
+          orders = orderList;
+        });
+      } else {
+        print("Failed to fetch orders: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error fetching orders: $error");
+    }
+  }
+
+  Future<void> fetchOrderItems(String orderId) async {
+    final token = await getTokenFromPrefs();
+    try {
+      final response = await http.get(
+        Uri.parse("$api/api/order/$orderId/items/"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        if (parsed['items'] != null && (parsed['items'] as List).isNotEmpty) {
+          List<Map<String, dynamic>> productItems = (parsed['items'] as List).map((item) {
+            return {
+              'id': item['id'],
+              'name': item['name'],
+              'rate': item['rate'],
+              'quantity': item['quantity'],
+              'discount': item['discount'],
+              'images': item['images'],
+              'return_quantity': 0 // Initialize return_quantity as 0
+            };
+          }).toList();
+
+          setState(() {
+            orderItems = productItems;
+            hasItems = true; // If items are found
+          });
+        } else {
+          setState(() {
+            orderItems = [];
+            hasItems = false; // No items found
+          });
+          print("No items found for the order.");
+        }
+      } else {
+        print("Failed to fetch order items: ${response.statusCode}");
+        setState(() {
+          orderItems = [];
+          hasItems = false;
+        });
+      }
+    } catch (error) {
+      print("Error fetching order items: $error");
       setState(() {
-        selectedDate = picked;
+        hasItems = false;
       });
     }
   }
 
- drower d=drower();
-   Widget _buildDropdownTile(BuildContext context, String title, List<String> options) {
-    return ExpansionTile(
-      title: Text(title),
-      children: options.map((option) {
-        return ListTile(
-          title: Text(option),
-          onTap: () {
-            Navigator.pop(context);
-            d.navigateToSelectedPage(context, option); // Navigate to selected page
-          },
+  Future<void> showReturnQuantityDialog(Map<String, dynamic> item) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Enter Return Quantity for ${item['name']}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: returnQuantityController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Return Quantity'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                int returnQuantity = int.tryParse(returnQuantityController.text) ?? 0;
+                if (returnQuantity > 0) {
+                  setState(() {
+                    item['return_quantity'] = returnQuantity;
+                  });
+                  Navigator.of(context).pop();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Please enter a valid quantity'),
+                  ));
+                }
+              },
+              child: Text('Submit'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+          ],
         );
-      }).toList(),
+      },
     );
   }
-  //searchable dropdown
 
- final List<String> items = [
-    'A_Item1',
-    'A_Item2',
-    'A_Item3',
-    'A_Item4',
-    'B_Item1',
-    'B_Item2',
-    'B_Item3',
-    'B_Item4',
-    "anii"
-  ];
+  void PostGRV() async {
+    final token = await getTokenFromPrefs();
+    try {
+      for (var item in orderItems) {
+        var response = await http.post(
+          Uri.parse("$api/api/grvdata/"),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'order': orderId,
+            'product': item['name'],
+            'price': item['rate'],
+            'quantity': item['return_quantity'], // Use return quantity
+            'returnreason': returnreason.text,
+          }),
+        );
 
-  String? selectedValue;
-  final TextEditingController textEditingController = TextEditingController();
+        print("GRV Response: ${response.statusCode}");
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Color.fromARGB(255, 49, 212, 4),
+            content: Text('GRV posted successfully'),
+          ));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => NewGrv()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('An error occurred while posting GRV.'),
+          ));
+        }
+      }
+    } catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('An error occurred. Please try again.'),
+      ));
+    }
+  }
 
   @override
   void dispose() {
-    textEditingController.dispose();
+    returnQuantityController.dispose();
+    returnreason.dispose();
     super.dispose();
   }
-  List<String>  customer = ["hari",'jerry','jerin',"joseph",'unni'];
-  String selectcustomer="hari";
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
-
-        actions: [
-            IconButton(
-              icon: Image.asset('lib/assets/profile.png'),
-               
-              onPressed: () {
-                
-              },
-            ),
-          ],
-          
-          ),
-    drawer: Drawer(
+        title: Text('New GRV'),
+      ),
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
+          children: [
             DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 110, 110, 110),
+              decoration: BoxDecoration(color: Colors.grey),
+              child: Row(
+                children: [
+                  Image.asset(
+                    "lib/assets/logo-white.png",
+                    width: 100,
+                    height: 100,
                   ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        "lib/assets/logo-white.png",
-                        width: 100, // Change width to desired size
-                        height: 100, // Change height to desired size
-                        fit: BoxFit
-                            .contain, // Use BoxFit.contain to maintain aspect ratio
-                      ),
-                      SizedBox(width: 70,),
-                      Text(
-                        'BepoSoft',
-                        style: TextStyle(
-                          color: Color.fromARGB(236, 255, 255, 255),
-                          fontSize: 20,
-                         
-                        ),
-                      ),
-                      
-                    ],
-                  )),
-                  ListTile(
+                  SizedBox(width: 20),
+                  Text(
+                    'BepoSoft',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
               leading: Icon(Icons.dashboard),
               title: Text('Dashboard'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>dashboard()));
-              },
-            ),
-                  ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Customer'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>customer_list()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-             Divider(),
-            _buildDropdownTile(context, 'Credit Note', ['Add Credit Note', 'Credit Note List',]),
-            _buildDropdownTile(context, 'Recipts', ['Add recipts', 'Recipts List']),
-            _buildDropdownTile(context, 'Proforma Invoice', ['New Proforma Invoice', 'Proforma Invoice List',]),
-            _buildDropdownTile(context, 'Delivery Note', ['Delivery Note List', 'Daily Goods Movement']),
-            _buildDropdownTile(context, 'Orders', ['New Orders', 'Orders List']),
-             Divider(),
-
-             Text("Others"),
-             Divider(),
-
-            _buildDropdownTile(context, 'Product', ['Product List', 'Stock',]),
-            _buildDropdownTile(context, 'Purchase', [' New Purchase', 'Purchase List']),
-            _buildDropdownTile(context, 'Expence', ['Add Expence', 'Expence List',]),
-            _buildDropdownTile(context, 'Reports', ['Sales Report', 'Credit Sales Report','COD Sales Report','Statewise Sales Report','Expence Report','Delivery Report','Product Sale Report','Stock Report','Damaged Stock']),
-            _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
-             _buildDropdownTile(context, 'Banking Module', ['Add Bank ', 'List','Other Transfer']),
-               Divider(),
-
-
-
-
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Methods'),
-              onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (context)=>Methods()));
-
-              },
-            ),
-
-            ListTile(
-              leading: Icon(Icons.chat),
-              title: Text('Chat'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
+                // Navigate to dashboard page
               },
             ),
             Divider(),
             ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                // Navigate to settings page
+              },
+            ),
+            ListTile(
               leading: Icon(Icons.exit_to_app),
               title: Text('Logout'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
                 // Perform logout action
               },
             ),
-            
-          
           ],
         ),
       ),
-
-
-        body:SingleChildScrollView(
-        child: Container(
+      body: SingleChildScrollView(
+        child: Padding(
           padding: EdgeInsets.all(10),
           child: Column(
-            
             children: [
               SizedBox(height: 15),
               Text(
                 "NEW GRV",
-                style: TextStyle(fontSize: 20, letterSpacing: 9.0, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2.0,
+                ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 25, left: 10, right: 10),
+                padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
                 child: Container(
+                  padding: EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
+                    border: Border.all(color: Colors.grey),
                   ),
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 10),
-                        Text("Search for Invoice  *", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 10),
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Select Bank',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                            ),
-                            child: DropdownButtonHideUnderline(
-  child: Container(
-    width: 304,
-    height: 46, // Set the desired width here
-    
-    child: DropdownButton2<String>(
-      isExpanded: true,
-      hint: Text(
-        'Select Item',
-        
-        style: TextStyle(
-          fontSize: 14,
-          color: Theme.of(context).hintColor,
-        ),
-      ),
-      items: items
-          .map((item) => DropdownMenuItem(
-                value: item,
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              ))
-          .toList(),
-      value: selectedValue,
-      onChanged: (value) {
-        setState(() {
-          // Retain the case of the selected item while performing case-insensitive comparison
-          selectedValue = items.firstWhere((item) => item.toLowerCase() == value!.toLowerCase(), orElse: () => "null");
-          print(selectedValue);
-        });
-      },
-      buttonStyleData: const ButtonStyleData(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        height: 40,
-        // Remove the width property from buttonStyleData
-      ),
-      dropdownStyleData: const DropdownStyleData(
-        maxHeight: 200,
-      ),
-      menuItemStyleData: const MenuItemStyleData(
-        height: 40,
-      ),
-      dropdownSearchData: DropdownSearchData(
-        searchController: textEditingController,
-        searchInnerWidgetHeight: 50,
-        searchInnerWidget: Container(
-          height: 50,
-          padding: const EdgeInsets.only(
-            top: 8,
-            bottom: 4,
-            right: 8,
-            left: 8,
-          ),
-          child: TextFormField(
-            expands: true,
-            maxLines: null,
-            controller: textEditingController,
-            decoration: InputDecoration(
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 8,
-              ),
-              hintText: 'Search for an item...',
-              hintStyle: const TextStyle(fontSize: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                     Padding(
+  padding: const EdgeInsets.only(right: 10),
+  child: LayoutBuilder(
+    builder: (context, constraints) {
+      return Container(
+        child: DropdownButtonHideUnderline(
+          child: Container(
+            height: 46,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey, width: 1.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
-          ),
-        ),
-        searchMatchFn: (item, searchValue) {
-          return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
-        },
-      ),
-      // This clears the search value when you close the menu
-      onMenuStateChange: (isOpen) {
-        if (!isOpen) {
-          textEditingController.clear();
-        }
-      },
-    ),
-  ),
-),
-                          ),
-                        ),
-
-
-                          SizedBox(height: 10),
-                        Text("Select Invoice Number *", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 10),
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              hint: Text('Select Item'),
-                              value: selectedValue,
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedValue = newValue;
-                                });
-                              },
-                              items: items.map((String item) {
-                                return DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text("Payment Date", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 10),
-                        InkWell(
-                          onTap: () {
-                            _selectDate(context);
-                          },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                Icon(Icons.calendar_today),
-                              ],
-                            ),
-                          ),
-                        ),
-                      
-                        SizedBox(height: 10),
-                        Text("Comment", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 10),
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          child: TextField(
-                            controller: textEditingController,
-                            decoration: InputDecoration(
-                              hintText: 'Enter your comment',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                            ),
-                            maxLines: null,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            
-                          },
-                          child: Text("Submit"),
-                        ),
-                      ],
+            child: DropdownButton2<String>(
+              isExpanded: true,
+              hint: Text(
+                'Select Invoice',
+                style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+              ),
+              items: orders.map((order) {
+                return DropdownMenuItem<String>(
+                  value: '${order['invoice']} / ${order['name']}',
+                  child: Text(
+                    '${order['invoice']} / ${order['name']}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                );
+              }).toList(),
+              value: selectedValue,
+              onChanged: (value) {
+                setState(() {
+                  selectedValue = value;
+                  final selectedOrder = orders.firstWhere(
+                    (order) => '${order['invoice']} / ${order['name']}' == value,
+                    orElse: () => {},
+                  );
+                  if (selectedOrder != null) {
+                    orderId = selectedOrder['id'].toString();
+                    manageStaffName = selectedOrder['manage_staff'];
+                    selectedInvoiceAddress = selectedOrder['address'];
+                    createdAtDate = selectedOrder['created_at'];
+                    fetchOrderItems(orderId);
+                  }
+                });
+              },
+              buttonStyleData: const ButtonStyleData(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                height: 40,
+              ),
+              dropdownStyleData: const DropdownStyleData(
+                maxHeight: 200,
+              ),
+              menuItemStyleData: const MenuItemStyleData(
+                height: 40,
+              ),
+              dropdownSearchData: DropdownSearchData(
+                searchController: textEditingController,
+                searchInnerWidgetHeight: 50,
+                searchInnerWidget: Container(
+                  height: 50,
+                  padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
+                  child: TextFormField(
+                    expands: true,
+                    maxLines: null,
+                    controller: textEditingController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      hintText: 'Search for an invoice...',
+                      hintStyle: const TextStyle(fontSize: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ),
+                searchMatchFn: (item, searchValue) {
+                  return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
+                },
               ),
+              onMenuStateChange: (isOpen) {
+                if (!isOpen) {
+                  textEditingController.clear();
+                }
+              },
+            ),
+          ),
+        ),
+      );
+    },
+  ),
+),
+
+                      SizedBox(height: 20),
+                      TextFormField(
+                        controller: TextEditingController(text: manageStaffName),
+                        decoration: InputDecoration(
+                          labelText: 'Managed by',
+                          suffixIcon: Icon(Icons.lock),
+                          border: OutlineInputBorder(),
+                        ),
+                        enabled: false,
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: TextEditingController(text: selectedInvoiceAddress),
+                        decoration: InputDecoration(
+                          labelText: 'Address',
+                          suffixIcon: Icon(Icons.lock),
+                          border: OutlineInputBorder(),
+                        ),
+                        enabled: false,
+                        maxLines: null, // Makes it flexible for multiple lines
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: TextEditingController(text: createdAtDate),
+                        decoration: InputDecoration(
+                          labelText: 'Invoice Date',
+                          suffixIcon: Icon(Icons.lock),
+                          border: OutlineInputBorder(),
+                        ),
+                        enabled: false,
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        controller: returnreason,
+                        decoration: InputDecoration(
+                          labelText: 'Reason',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                        ),
+                      ),
+                      if (hasItems) // Show order items if they exist
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: orderItems.length,
+                          itemBuilder: (context, index) {
+                            final item = orderItems[index];
+                            return Card(
+                              color: Colors.white,
+                              elevation: 5,
+                              margin: EdgeInsets.all(8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (item['images'] != null && item['images'].isNotEmpty)
+                                      Image.network(
+                                        "$api${item['images'][0]}",
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item['name'],
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text('Rate: ₹${item['rate']}'),
+                                          Text('Quantity: ${item['quantity']}'),
+                                          Text('Discount: ${item['discount']}%'),
+                                          Text('Return Quantity: ${item['return_quantity']}'),
+                                          TextButton(
+                                            onPressed: () => showReturnQuantityDialog(item),
+                                            child: Text('Enter Return Quantity'),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      else
+                        Text('No items available for the selected order.'),
+                    ],
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (selectedValue != null && orderItems.isNotEmpty) {
+                    PostGRV();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      backgroundColor: Colors.orange,
+                      content: Text('Please select an order and ensure there are items to submit.'),
+                    ));
+                  }
+                },
+                child: Text("Submit"),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              )
             ],
           ),
         ),
       ),
-
-
     );
   }
-
-
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => credit_note_list()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
-        case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-        case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  order_request ()),
-        );
-        break;
-         case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-     
-      
-      default:
-        
-        break;
-    }
-  }
-
 }
