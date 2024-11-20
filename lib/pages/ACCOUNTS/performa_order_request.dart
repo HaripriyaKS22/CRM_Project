@@ -55,6 +55,7 @@ class _Performa_order_requestState extends State<Performa_order_request> {
       }).toList(),
     );
   }
+      int? selectedCompanyId;
 
   List<Map<String, dynamic>> products = [];
   final TextEditingController searchController = TextEditingController();
@@ -106,9 +107,50 @@ class _Performa_order_requestState extends State<Performa_order_request> {
     });
 
     getbank();
+    getcompany();
     await fetchCartData();
   }
 
+
+
+  List<Map<String, dynamic>> company = [];
+
+  Future<void> getcompany() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/company/getadd/'),
+        headers: {
+          'Authorization': ' Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "compppppppppppppppppppppp${response.body}");
+          print(response.statusCode);
+      List<Map<String, dynamic>> companylist = [];
+
+      if (response.statusCode == 200) {
+        final productsData = jsonDecode(response.body);
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          companylist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          company = companylist;
+          print("company::::::::::$company");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
   void performaordercreate(
     BuildContext scaffoldContext,
   ) async {
@@ -791,10 +833,7 @@ class _Performa_order_requestState extends State<Performa_order_request> {
     super.dispose();
   }
 
-  List<String> company = [
-    "BEPOSITIVERACING PVT LTD",
-    'MICHEAL IMPORT EXPORT PVT LTD'
-  ];
+  
   String selectcomp = "MICHEAL IMPORT EXPORT PVT LTD";
   List<String> paystatus = ["Payed", 'COD', 'credit'];
   String selectpaystatus = "COD";
@@ -1053,50 +1092,42 @@ class _Performa_order_requestState extends State<Performa_order_request> {
                               height: 5,
                             ),
 
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    contentPadding:
-                                        EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child: DropdownButton<String>(
-                                    value: selectcomp,
-                                    underline:
-                                        Container(), // Removes the underline
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectcomp = newValue!;
-                                        print(selectcomp);
-                                      });
-                                    },
-                                    items: company
-                                        .map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    icon: Container(
-                                      padding: EdgeInsets.only(left: 120),
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(Icons.arrow_drop_down),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+
+                              Padding(
+  padding: const EdgeInsets.only(right: 10),
+  child: Column(
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1.0),
+          borderRadius: BorderRadius.circular(8.0), // Rounded corners
+        ),
+        child: DropdownButton<int>(
+          isExpanded: true,
+          underline: SizedBox(), // Removes default underline
+          hint: Text('Select a company'),
+          value: selectedCompanyId,
+          items: company.map((item) {
+            return DropdownMenuItem<int>(
+              value: item['id'],
+              child: Text(item['name']),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedCompanyId = value;
+            });
+            print("Selected Company ID: $selectedCompanyId");
+          },
+        ),
+      ),
+     
+    ],
+  ),
+),
+
+                         
                             SizedBox(
                               height: 8,
                             ),

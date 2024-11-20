@@ -77,6 +77,8 @@ List<Map<String, dynamic>> filteredProducts = [];
     List<Map<String, dynamic>> customer = [];
     List<Map<String, dynamic>> variant= [];
     int? selectedFamilyId;
+      int? selectedCompanyId;
+
   List<Map<String, dynamic>> cartdata = [];
   var Discount;
 
@@ -115,6 +117,7 @@ double total=0.0;
     });
      
       getbank();
+      getcompany();
      await fetchCartData();
   }
 
@@ -134,7 +137,7 @@ print('$api/api/order/create/');
         },
         body: jsonEncode({
           'manage_staff':selectedstaffId,
-          "company":1,
+          "company":selectedCompanyId,
           "customer": selectedCustomerId,
           'billing_address':selectedAddressId,
           'order_date': "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
@@ -261,46 +264,44 @@ Future<void> getbank() async{
   }
 }
 
-Future<void> getcompany() async{
-  final token=await gettokenFromPrefs();
-  try{
-    final response= await http.get(Uri.parse('$api/api/banks/'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    }
-    );
-    List<Map<String, dynamic>> banklist = [];
-        print("bankkkkkkkkkkkkkkkkkkkkkresssssss${response.body}");
+  List<Map<String, dynamic>> company = [];
+
+  Future<void> getcompany() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/company/getadd/'),
+        headers: {
+          'Authorization': ' Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "compppppppppppppppppppppp${response.body}");
+          print(response.statusCode);
+      List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+        final productsData = jsonDecode(response.body);
 
-        print("bankkkkkkkkkkkkkkkkkkkkkresssssss$parsed");
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
-          banklist.add({
+          companylist.add({
             'id': productData['id'],
             'name': productData['name'],
-            'branch':productData['branch']
-            
           });
-        
         }
         setState(() {
-          bank = banklist;
-                  print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
-
-          
+          company = companylist;
+          print("company::::::::::$company");
         });
       }
-
+    } catch (error) {
+      print("Error: $error");
+    }
   }
-  catch(e){
-    print("error:$e");
-  }
-}
 //  void calculateTotalPrice() {
 // double total = 0.0;
 //   print("feffffwwwwwwwwwwwwwwwwwwww");
@@ -864,8 +865,6 @@ List<Map<String, dynamic>> sta = [];
     textEditingController.dispose();
     super.dispose();
   }
-  List<String>  company = ["BEPOSITIVERACING PVT LTD",'MICHEAL IMPORT EXPORT PVT LTD'];
-  String selectcomp="MICHEAL IMPORT EXPORT PVT LTD";
    List<String>  paystatus = ["Payed",'COD','credit'];
   String selectpaystatus="COD";
    List<String>  paymethod = ['Razorpay',"Credit Card",'Debit Card','Net Bankng','PayPal','Cash on Delivery','Bank Transfer'];
@@ -1096,51 +1095,44 @@ void showInvoiceDialog(BuildContext context,  double total) {
               
                      Text("Company ",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height:5,),
-              
-              
-                           Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: InputDecorator(
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: '',
-                                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                      ),
-                                      child: DropdownButton<String>(
-                                        value: selectcomp,
-                                        underline: Container(), // Removes the underline
-                                        onChanged: (String? newValue) {
-                                          setState(() {
-                                            selectcomp = newValue!;
-                                            print(selectcomp);
-                                          });
-                                        },
-                                        items: company.map<DropdownMenuItem<String>>((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(
-                                              value,
-                                              style: TextStyle(
-                                                fontSize: 12
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                        icon: Container(
-                                          padding: EdgeInsets.only(left: 120),
-                                          alignment: Alignment.centerRight,
-                                          child: Icon(Icons.arrow_drop_down),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                            ),
-                              SizedBox(height: 8,),
+
+
+                   Padding(
+  padding: const EdgeInsets.only(right: 10),
+  child: Column(
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1.0),
+          borderRadius: BorderRadius.circular(8.0), // Rounded corners
+        ),
+        child: DropdownButton<int>(
+          isExpanded: true,
+          underline: SizedBox(), // Removes default underline
+          hint: Text('Select a company'),
+          value: selectedCompanyId,
+          items: company.map((item) {
+            return DropdownMenuItem<int>(
+              value: item['id'],
+              child: Text(item['name']),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedCompanyId = value;
+            });
+            print("Selected Company ID: $selectedCompanyId");
+          },
+        ),
+      ),
+     
+    ],
+  ),
+),
+
+                                                SizedBox(height: 5,),
+
                      Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height: 5,),
               

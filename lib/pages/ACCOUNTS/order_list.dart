@@ -727,7 +727,7 @@ Future<void> exportToExcel() async {
                                       ),
                                       SizedBox(height: 4.0),
                                       Text(
-                                        'Customer: ${order['customer_name']}',
+                                        'Customer: ${order['customer']['name']}',
                                         style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600),

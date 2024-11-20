@@ -192,14 +192,14 @@ class _ProformaInvoiceListState extends State<ProformaInvoiceList> {
                                       Text(
                                         'Staff: ${order['manage_staff']}',
                                         style: const TextStyle(
-                                            fontSize: 16,
+                                            fontSize: 13,
                                             fontWeight: FontWeight.w600),
                                       ),
                                       const SizedBox(height: 4.0),
                                       Text(
                                         'Customer: ${order['customer_name']}',
                                         style: const TextStyle(
-                                            fontSize: 16,
+                                            fontSize: 13,
                                             fontWeight: FontWeight.w600),
                                       ),
                                       const SizedBox(height: 8.0),
@@ -210,7 +210,7 @@ class _ProformaInvoiceListState extends State<ProformaInvoiceList> {
                                           const Text(
                                             'Billing Amount:',
                                             style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: 13,
                                                 fontWeight: FontWeight.bold),
                                           ),
                                           Text(

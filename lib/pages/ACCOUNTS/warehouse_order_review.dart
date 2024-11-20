@@ -24,10 +24,12 @@ class WarehouseOrderReview extends StatefulWidget {
 class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
   Drawer d = Drawer();
   var ord;
+    List<Map<String, dynamic>> courierdata = [];
 
   List<Map<String, dynamic>> items = [];
   List<Map<String, dynamic>> bank = [];
   String? selectedBank;
+      int? selectedserviceId;
 
   String? createdBy;
   var loginid;
@@ -52,6 +54,7 @@ print("idddddddddddddddddddddddddddddddd${widget.id}");
 
     await fetchOrderItems();
     await getmanagers();
+    await getcourierservices();
   }
   List<Map<String, dynamic>> manager = [];
     String? selectedManagerName;
@@ -161,6 +164,40 @@ List<Map<String, dynamic>> company = [];
         setState(() {
           company = companylist;
 
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+ Future<void> getcourierservices() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/courier/service/data/'),
+        headers: {
+          'Authorization': ' Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+      List<Map<String, dynamic>> Courierlist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in parsed) {
+          Courierlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          courierdata = Courierlist;
+          print("courierdata:::::::::$courierdata");
         });
       }
     } catch (error) {
@@ -1444,16 +1481,49 @@ Center(
             ],
           ),
           SizedBox(height: 8),
-          TextField(
-            controller: service,
-            decoration: InputDecoration(
-              labelText: 'Service',
-              labelStyle: TextStyle(fontSize: 13),
-              border: OutlineInputBorder(),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            ),
-          ),
+          // TextField(
+          //   controller: service,
+          //   decoration: InputDecoration(
+          //     labelText: 'Service',
+          //     labelStyle: TextStyle(fontSize: 13),
+          //     border: OutlineInputBorder(),
+          //     contentPadding:
+          //         EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          //   ),
+          // ),
+
+           Padding(
+  padding: const EdgeInsets.only(right: 0),
+  child: Column(
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1.0),
+        ),
+        child: DropdownButton<int>(
+          isExpanded: true,
+          underline: SizedBox(), // Removes default underline
+          hint: Text('Select a Parcel Service'),
+          value: selectedserviceId,
+          items: company.map((item) {
+            return DropdownMenuItem<int>(
+              value: item['id'],
+              child: Text(item['name']),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedserviceId = value;
+            });
+            print("Selected Company ID: $selectedserviceId");
+          },
+        ),
+      ),
+     
+    ],
+  ),
+),
           SizedBox(height: 8),
           TextField(
             controller: transactionid,

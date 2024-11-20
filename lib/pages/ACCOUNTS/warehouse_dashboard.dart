@@ -5,7 +5,6 @@ import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
@@ -44,15 +43,15 @@ import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class dashboard  extends StatefulWidget {
-  const dashboard({super.key});
+class WarehouseDashboard  extends StatefulWidget {
+  const WarehouseDashboard({super.key});
 
   
   @override
-  State<dashboard> createState() => _dashboardState();
+  State<WarehouseDashboard> createState() => _WarehouseDashboardState();
 }
 
-class _dashboardState extends State<dashboard> {
+class _WarehouseDashboardState extends State<WarehouseDashboard> {
   drower d=drower();
 
     Widget _buildDropdownTile(BuildContext context, String title, List<String> options) {
@@ -104,15 +103,12 @@ class _dashboardState extends State<dashboard> {
               icon: Image.asset('lib/assets/profile.png'),
                
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));
-                
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));   
               },
             ),
-          ],
-          
+          ],  
           ),
-
-           drawer: Drawer(
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -145,109 +141,14 @@ class _dashboardState extends State<dashboard> {
               leading: Icon(Icons.dashboard),
               title: Text('Dashboard'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>dashboard()));
-              },
-            ),
-             ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Company'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_company()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-                 
-              ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Departments'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_department()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-             ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Supervisors'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_supervisor()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-              ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Family'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_family()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-            
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Bank'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-             ListTile(
-              leading: Icon(Icons.person),
-              title: Text('States'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_state()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-           
-             ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Attributes'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>add_attribute()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Services'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>CourierServices()));
-                // Navigate to the Settings page or perform any other action
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>WarehouseDashboard()));
               },
             ),
              Divider(),
-
-
-            _buildDropdownTile(context, 'Customers', ['Add Customer', 'Customers',]),
-            _buildDropdownTile(context, 'Credit Note', ['Add Credit Note', 'Credit Note List',]),
-            _buildDropdownTile(context, 'Proforma Invoice', ['New Proforma Invoice', 'Proforma Invoice List',]),
             _buildDropdownTile(context, 'Delivery Note', ['Delivery Note List', 'Daily Goods Movement']),
-            _buildDropdownTile(context, 'Orders', ['New Orders', 'Orders List']),
-             Divider(),
-
-             Text("Others"),
-             Divider(),
-
-            _buildDropdownTile(context, 'Product', ['Product List','Product Add', 'Stock',]),
-            _buildDropdownTile(context, 'Expence', ['Add Expence', 'Expence List',]),
-            _buildDropdownTile(context, 'Reports', ['Sales Report', 'Credit Sales Report','COD Sales Report','Statewise Sales Report','Expence Report','Delivery Report','Product Sale Report','Stock Report','Damaged Stock']),
             _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
-             _buildDropdownTile(context, 'Banking Module', ['Add Bank ', 'List','Other Transfer']),
-               Divider(),
-
-
-
-
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Methods'),
-              onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (context)=>Methods()));
-
-              },
-            ),
-
-            ListTile(
+             Divider(),
+             ListTile(
               leading: Icon(Icons.chat),
               title: Text('Chat'),
               onTap: () {
