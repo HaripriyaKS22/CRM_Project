@@ -1,34 +1,21 @@
 import 'dart:convert';
-
 import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:flutter/material.dart';
-
-import 'package:dropdown_button2/dropdown_button2.dart';
-
-import 'package:beposoft/main.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
-import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
-import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class update_company extends StatefulWidget {
   final id;
-  const update_company({super.key,required this.id});
+  const update_company({super.key, required this.id});
 
   @override
   State<update_company> createState() => _update_companyState();
@@ -40,11 +27,12 @@ class _update_companyState extends State<update_company> {
     super.initState();
     getcompany();
   }
+
   TextEditingController name = TextEditingController();
-    TextEditingController gst = TextEditingController();
+  TextEditingController gst = TextEditingController();
 
   TextEditingController address = TextEditingController();
-    TextEditingController zip = TextEditingController();
+  TextEditingController zip = TextEditingController();
   TextEditingController city = TextEditingController();
   TextEditingController country = TextEditingController();
   TextEditingController phone = TextEditingController();
@@ -52,16 +40,15 @@ class _update_companyState extends State<update_company> {
   TextEditingController website = TextEditingController();
   TextEditingController prefix = TextEditingController();
 
-
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
 
   var departments;
-  List<Map<String, dynamic>> dep = [];
+  List<Map<String, dynamic>> company = [];
 
-Future<void> getcompany() async {
+ Future<void> getcompany() async {
   try {
     final token = await gettokenFromPrefs();
 
@@ -73,52 +60,62 @@ Future<void> getcompany() async {
       },
     );
 
-    List<Map<String, dynamic>> departmentlist = [];
-
     if (response.statusCode == 200) {
       final productsData = jsonDecode(response.body);
 
+      print("========================${response.body}");
+      List<Map<String, dynamic>> companylist = [];
+
       for (var productData in productsData) {
-        departmentlist.add({
+        companylist.add({
           'id': productData['id'],
           'name': productData['name'],
-          'gst': productData['gst']?.toString(),
+          'gst': productData['gst'],
           'address': productData['address'],
-          'zip': productData['zip']?.toString(),
+          'zip': productData['zip'].toString(),
           'city': productData['city'],
           'country': productData['country'],
-          'phone': productData['phone']?.toString(),
+          'phone': productData['phone'],
           'email': productData['email'],
           'web_site': productData['web_site'],
           'prefix': productData['prefix'],
         });
 
         if (widget.id == productData['id']) {
-          name.text = productData['name'] ?? '';
-          gst.text = productData['gst']?.toString() ?? '';
-          address.text = productData['address'] ?? '';
-          zip.text = productData['zip']?.toString() ?? '';
-          city.text = productData['city'] ?? '';
-          country.text = productData['country'] ?? '';
-          phone.text = productData['phone']?.toString() ?? '';
-          email.text = productData['email'] ?? '';
-          website.text = productData['web_site'] ?? '';
-          prefix.text = productData['prefix'] ?? '';
+          setState(() {
+            name.text = productData['name'] ?? '';
+            gst.text = productData['gst'] ?? '';
+            address.text = productData['address'] ?? '';
+            zip.text = productData['zip'].toString();
+            city.text = productData['city'] ?? '';
+            country.text = productData['country'] ?? '';
+            phone.text = productData['phone'] ?? '';
+            email.text = productData['email'] ?? '';
+            website.text = productData['web_site'] ?? '';
+            prefix.text = productData['prefix'] ?? '';
+          });
         }
       }
 
       setState(() {
-        dep = departmentlist;
+        company = companylist;
       });
+    } else {
+      throw Exception('Failed to fetch company data');
     }
   } catch (error) {
     print("Error: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('An error occurred while fetching company data.'),
+      ),
+    );
   }
 }
 
 
   void updatecompany(BuildContext context) async {
-
     final token = await gettokenFromPrefs();
 
     try {
@@ -127,35 +124,44 @@ Future<void> getcompany() async {
         headers: {
           'Authorization': 'Bearer $token',
         },
-        body: {"name": name.text,
-        "gst": gst.text,
-        "zip": zip.text,
-        "city": city.text,
-        "country": country.text,
-        "email": email.text,
-        "phone": phone.text,
-        "address": address.text,
-        "web_site": website.text,
-        "prefix":prefix.text
-        
-
-
-
+        body: {
+          "name": name.text,
+          "gst": gst.text,
+          "zip": zip.text,
+          "city": city.text,
+          "country": country.text,
+          "email": email.text,
+          "phone": phone.text,
+          "address": address.text,
+          "web_site": website.text,
+          "prefix": prefix.text
         },
       );
 
       print("compppadddddddddddddddddd${response.statusCode}");
       print("compppadddddddddddddddddd${response.body}");
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
+         ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Company updated successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+         Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => add_company()),
+        );
         var responseData = jsonDecode(response.body);
 
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => add_company()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => update_company(id: widget.id)));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Color.fromARGB(255, 49, 212, 4),
-            content: Text('Updated sucesfully'),
+            content: Text('sucess'),
           ),
         );
       }
@@ -200,7 +206,7 @@ Future<void> getcompany() async {
 
   void removeProduct(int index) {
     setState(() {
-      dep.removeAt(index);
+      company.removeAt(index);
     });
   }
 
@@ -370,7 +376,6 @@ Future<void> getcompany() async {
                 child: Column(
                   children: [
                     SizedBox(height: 15),
-                    
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 1),
                       child: Container(
@@ -398,7 +403,7 @@ Future<void> getcompany() async {
                                   children: [
                                     SizedBox(height: 10),
                                     Text(
-                                      "Edit Company",
+                                      " Company",
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
@@ -409,7 +414,7 @@ Future<void> getcompany() async {
                                   ],
                                 ),
                               ),
-                             
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -427,7 +432,7 @@ Future<void> getcompany() async {
                                   ),
                                 ),
                               ),
-                             
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -445,7 +450,7 @@ Future<void> getcompany() async {
                                   ),
                                 ),
                               ),
-                              
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -463,7 +468,7 @@ Future<void> getcompany() async {
                                   ),
                                 ),
                               ),
-                              
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -481,7 +486,7 @@ Future<void> getcompany() async {
                                   ),
                                 ),
                               ),
-                              
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -499,7 +504,7 @@ Future<void> getcompany() async {
                                   ),
                                 ),
                               ),
-                             
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -517,7 +522,7 @@ Future<void> getcompany() async {
                                   ),
                                 ),
                               ),
-                              
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -535,7 +540,7 @@ Future<void> getcompany() async {
                                   ),
                                 ),
                               ),
-                              
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -553,7 +558,7 @@ Future<void> getcompany() async {
                                   ),
                                 ),
                               ),
-                             
+
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -572,7 +577,6 @@ Future<void> getcompany() async {
                                 ),
                               ),
 
-                             
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -665,29 +669,32 @@ Future<void> getcompany() async {
                                   padding: EdgeInsets.all(8.0),
                                   child: Text(
                                     "No.",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
                                   ),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Text(
                                     "Company Name",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
                                   ),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Text(
                                     "Edit",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
                                   ),
                                 ),
                               ],
                             ),
-                            for (int i = 0; i < dep.length; i++)
+                            for (int i = 0; i < company.length; i++)
                               TableRow(
                                 children: [
                                   Padding(
@@ -696,7 +703,7 @@ Future<void> getcompany() async {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: Text(dep[i]['name']),
+                                    child: Text(company[i]['name']),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
@@ -707,7 +714,7 @@ Future<void> getcompany() async {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     update_department(
-                                                        id: dep[i]['id'])));
+                                                        id: company[i]['id'])));
                                       },
                                       child: Image.asset(
                                         "lib/assets/edit.jpg",
@@ -722,6 +729,7 @@ Future<void> getcompany() async {
                         ),
                       ),
                     ),
+                    SizedBox(height: 20,),
                   ],
                 ),
               ),

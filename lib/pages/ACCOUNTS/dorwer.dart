@@ -12,6 +12,7 @@ import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_performa_products.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
@@ -24,6 +25,7 @@ import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/sales_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/warehouse_order_view.dart';
@@ -172,7 +174,7 @@ class drower{
       case 'Sales Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => new_product()),
+          MaterialPageRoute(builder: (context) => Sales_Report()),
         );
         break;
       case 'Credit Sales Report':
@@ -236,7 +238,7 @@ class drower{
       case 'GRVs List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => grv_list()),
+          MaterialPageRoute(builder: (context) => GrvList()),
         );
         break;
       case 'Add Bank':
@@ -397,7 +399,7 @@ class drower{
       case 'GRVs List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => grv_list()),
+          MaterialPageRoute(builder: (context) => GrvList()),
         );
         break;
       case 'Add Bank':

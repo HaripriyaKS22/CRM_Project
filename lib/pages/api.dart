@@ -1,1 +1,1 @@
-var api="https://counseling-dream-areas-philippines.trycloudflare.com";
+var api="https://strengths-peas-heaven-lab.trycloudflare.com";

@@ -62,8 +62,7 @@ class _OrderListState extends State<OrderList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
-  Future<void> fetchOrderData() async {
+Future<void> fetchOrderData() async {
   try {
     final token = await getTokenFromPrefs();
     var response = await http.get(
@@ -82,6 +81,17 @@ class _OrderListState extends State<OrderList> {
       List<Map<String, dynamic>> orderList = [];
 
       for (var productData in productsData) {
+        // Parse the date
+        String rawOrderDate = productData['order_date'];
+        String formattedOrderDate = rawOrderDate; // Fallback in case of parsing failure
+
+        try {
+          DateTime parsedOrderDate = DateFormat('dd/MM/yy').parse(rawOrderDate);
+          formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate); // Convert to desired format
+        } catch (e) {
+          print("Error parsing date: $rawOrderDate - $e");
+        }
+
         orderList.add({
           'id': productData['id'],
           'invoice': productData['invoice'],
@@ -107,20 +117,22 @@ class _OrderListState extends State<OrderList> {
             'ifsc_code': productData['bank']['ifsc_code'],
             'branch': productData['bank']['branch'],
           },
-          'items': productData['items'].map((item) {
-            return {
-              'id': item['id'],
-              'name': item['name'],
-              'quantity': item['quantity'],
-              'price': item['price'],
-              'tax': item['tax'],
-              'discount': item['discount'],
-              'images': item['images'],
-            };
-          }).toList(),
+          'items': productData['items'] != null
+              ? productData['items'].map((item) {
+                  return {
+                    'id': item['id'],
+                    'name': item['name'],
+                    'quantity': item['quantity'],
+                    'price': item['price'],
+                    'tax': item['tax'],
+                    'discount': item['discount'],
+                    'images': item['images'],
+                  };
+                }).toList()
+              : [], // Fallback to empty list
           'status': productData['status'],
           'total_amount': productData['total_amount'],
-          'order_date': productData['order_date'],
+          'order_date': formattedOrderDate, // Use the formatted string
         });
       }
 
@@ -134,7 +146,6 @@ class _OrderListState extends State<OrderList> {
     print("Error: $error");
   }
 }
-
 
   void _filterOrders(String query) {
     setState(() {
