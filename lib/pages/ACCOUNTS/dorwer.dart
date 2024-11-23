@@ -26,6 +26,7 @@ import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/sales_report.dart';
+import 'package:beposoft/pages/ACCOUNTS/stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/warehouse_order_view.dart';
@@ -59,7 +60,7 @@ class drower{
           MaterialPageRoute(builder: (context) =>add_staff()),
         );
         break;
-      case 'View Staff':
+      case 'Staff':
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => staff_list()),
@@ -219,7 +220,7 @@ class drower{
       case 'Stock Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => add_new_stock()),
+          MaterialPageRoute(builder: (context) => Stock_Report()),
         );
         break;
          

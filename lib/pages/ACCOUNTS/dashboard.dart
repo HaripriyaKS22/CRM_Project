@@ -6,41 +6,12 @@ import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
-import 'package:beposoft/pages/ACCOUNTS/bank_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/daily_goods_movement.dart';
-import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
-import 'package:beposoft/pages/ACCOUNTS/new_proforma_invoice.dart';
-import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/profile.dart';
-import 'package:beposoft/pages/ACCOUNTS/profilepage.dart';
-import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
-
-
-
-import 'package:beposoft/main.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
-import 'package:beposoft/pages/ACCOUNTS/customer.dart';
-import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
-import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
-import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
-import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
-import 'package:beposoft/pages/ACCOUNTS/warehouse_order_view.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
-
+import 'package:beposoft/pages/ACCOUNTS/profilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -219,6 +190,7 @@ class _dashboardState extends State<dashboard> {
 
 
             _buildDropdownTile(context, 'Customers', ['Add Customer', 'Customers',]),
+            _buildDropdownTile(context, 'Staff', ['Add Staff', 'Staff',]),
             _buildDropdownTile(context, 'Credit Note', ['Add Credit Note', 'Credit Note List',]),
             _buildDropdownTile(context, 'Proforma Invoice', ['New Proforma Invoice', 'Proforma Invoice List',]),
             _buildDropdownTile(context, 'Delivery Note', ['Delivery Note List', 'Daily Goods Movement']),

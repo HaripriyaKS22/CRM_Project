@@ -1,1 +1,1 @@
-var api="https://strengths-peas-heaven-lab.trycloudflare.com";
+var api="https://tan-stanford-gardens-significant.trycloudflare.com";

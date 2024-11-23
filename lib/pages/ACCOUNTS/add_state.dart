@@ -102,13 +102,15 @@ var departments;
       var response = await http.post(
         Uri.parse('$api/api/add/state/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           
         },
         body: {"name": state},
       );
 
       print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
+            print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.body}");
+
 
       if (response.statusCode == 201) {
         var responseData = jsonDecode(response.body);

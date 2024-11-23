@@ -1,33 +1,18 @@
 
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_supervisor.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:beposoft/pages/api.dart';
-
-import 'package:dropdown_button2/dropdown_button2.dart';
-
-import 'package:beposoft/main.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
-import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
-import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
-import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -289,7 +274,6 @@ var departments;
 
         print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
  for (var productData in productsData) {
-          String imageUrl = "${productData['image']}";
           departmentlist.add({
             'id': productData['id'],
             'name': productData['name'],
@@ -331,7 +315,6 @@ var departments;
 
         print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
  for (var productData in productsData) {
-          String imageUrl = "${productData['image']}";
           stafflist.add({
             'id': productData['id'],
             'name': productData['name'],
@@ -363,7 +346,6 @@ var departments;
           'Content-Type': 'application/json',
         },
       );
-        List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -430,7 +412,6 @@ selecteconf=DateTime.parse(productsData['confirmation_date']);
 
         print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
  for (var productData in productsData) {
-          String imageUrl = "${productData['image']}";
           managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
@@ -474,7 +455,6 @@ selecteconf=DateTime.parse(productsData['confirmation_date']);
       print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
 
       if (response.statusCode == 201) {
-        var responseData = jsonDecode(response.body);
 
      Navigator.push(context, MaterialPageRoute(builder: (context)=>add_staff()));
         ScaffoldMessenger.of(context).showSnackBar(
@@ -550,24 +530,7 @@ selecteconf=DateTime.parse(productsData['confirmation_date']);
       }).toList(),
     );
   }
-//   void stattt(
-//      String state,
-//   ){
-// print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$state");
-// print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$dynamicStatid");
 
-
-//    String allocatedStates='';
-
-
-//   for(int i=0;i<dynamicStatid.length;i++){
-//     allocatedStates += '${dynamicStatid[i]},';
-//         print("AAAAAAAAAAAALLLLLLLLLLLOOOOOOOOOOOOOOOOO$allocatedStates");
-
-//    }
-// print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$allocatedStates");
-
-//   }
 
  void update(
     int selectedDepartmentId,
@@ -584,10 +547,8 @@ selecteconf=DateTime.parse(productsData['confirmation_date']);
   ) async {
     final token = await gettokenFromPrefs();
     try {
-      print("yesssssssssssssssssssssssssssssssssssssssssssssss");
       var request =
           http.MultipartRequest('POST', Uri.parse('$api/api/add/staff/'));
-      print('$api/api/add/staff/');
       // Add headers to the request
       request.headers['Authorization'] = 'Bearer $token';
 
@@ -599,7 +560,6 @@ selecteconf=DateTime.parse(productsData['confirmation_date']);
         'confirmation_date': selecteconf.toIso8601String(),
         'allocated_states': dynamicStatid,
       };
-      print("HAAAAAAAAAIIIIII$data");
       // Add JSON data as a field
       request.fields['data'] = jsonEncode(data);
       request.fields['name'] = name.text;
@@ -648,7 +608,6 @@ selecteconf=DateTime.parse(productsData['confirmation_date']);
           MaterialPageRoute(builder: (context) => add_staff()),
         );
       } else if (response.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(response.body);
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
               content: Text('Something went wrong. Please try again later.')),
