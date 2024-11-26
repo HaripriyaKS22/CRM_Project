@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:beposoft/pages/ACCOUNTS/codsale_date_report.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -298,7 +299,7 @@ void _filterOrdersByDateRange() {
                               SizedBox(height: 20),
                               ElevatedButton(
                                 onPressed: () {
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context)=>codsalereport_datewise_view(date:salesData['date'])));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>codsalereport_datewise_view(date:salesData['date'])));
                                   // Add your view action here
                                   print("View button pressed for ${salesData['date']}");
                                 },
