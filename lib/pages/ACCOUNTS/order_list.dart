@@ -18,6 +18,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
+
 class OrderList extends StatefulWidget {
   const OrderList({super.key});
 
@@ -34,7 +35,7 @@ class _OrderListState extends State<OrderList> {
   DateTime? startDate; // For date range filter
   DateTime? endDate; // For date range filter
 
-    drower d = drower();
+  drower d = drower();
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
     return ExpansionTile(
@@ -62,90 +63,95 @@ class _OrderListState extends State<OrderList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-Future<void> fetchOrderData() async {
-  try {
-    final token = await getTokenFromPrefs();
-    var response = await http.get(
-      Uri.parse('$api/api/orders/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
 
-    print("ordersssssssssssss${response.body}");
+  Future<void> fetchOrderData() async {
+    try {
+      final token = await getTokenFromPrefs();
+      var response = await http.get(
+        Uri.parse('$api/api/orders/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      var productsData = parsed;
-      List<Map<String, dynamic>> orderList = [];
+      print("ordersssssssssssss${response.body}");
 
-      for (var productData in productsData) {
-        // Parse the date
-        String rawOrderDate = productData['order_date'];
-        String formattedOrderDate = rawOrderDate; // Fallback in case of parsing failure
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed;
+        List<Map<String, dynamic>> orderList = [];
 
-        try {
-          DateTime parsedOrderDate = DateFormat('dd/MM/yy').parse(rawOrderDate);
-          formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate); // Convert to desired format
-        } catch (e) {
-          print("Error parsing date: $rawOrderDate - $e");
+        for (var productData in productsData) {
+          // Parse the date
+          String rawOrderDate = productData['order_date'];
+          String formattedOrderDate =
+              rawOrderDate; // Fallback in case of parsing failure
+
+          try {
+            // Try to parse the date in 'yyyy-MM-dd' format
+            DateTime parsedOrderDate =
+                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+            formattedOrderDate = DateFormat('yyyy-MM-dd')
+                .format(parsedOrderDate); // Convert to desired format
+          } catch (e) {
+            print("Error parsing date: $rawOrderDate - $e");
+          }
+
+          orderList.add({
+            'id': productData['id'],
+            'invoice': productData['invoice'],
+            'manage_staff': productData['manage_staff'],
+            'customer': {
+              'name': productData['customer']['name'],
+              'phone': productData['customer']['phone'],
+              'email': productData['customer']['email'],
+              'address': productData['customer']['address'],
+            },
+            'billing_address': {
+              'name': productData['billing_address']['name'],
+              'email': productData['billing_address']['email'],
+              'zipcode': productData['billing_address']['zipcode'],
+              'address': productData['billing_address']['address'],
+              'phone': productData['billing_address']['phone'],
+              'city': productData['billing_address']['city'],
+              'state': productData['billing_address']['state'],
+            },
+            'bank': {
+              'name': productData['bank']['name'],
+              'account_number': productData['bank']['account_number'],
+              'ifsc_code': productData['bank']['ifsc_code'],
+              'branch': productData['bank']['branch'],
+            },
+            'items': productData['items'] != null
+                ? productData['items'].map((item) {
+                    return {
+                      'id': item['id'],
+                      'name': item['name'],
+                      'quantity': item['quantity'],
+                      'price': item['price'],
+                      'tax': item['tax'],
+                      'discount': item['discount'],
+                      'images': item['images'],
+                    };
+                  }).toList()
+                : [], // Fallback to empty list
+            'status': productData['status'],
+            'total_amount': productData['total_amount'],
+            'order_date': formattedOrderDate, // Use the formatted string
+          });
         }
 
-        orderList.add({
-          'id': productData['id'],
-          'invoice': productData['invoice'],
-          'manage_staff': productData['manage_staff'],
-          'customer': {
-            'name': productData['customer']['name'],
-            'phone': productData['customer']['phone'],
-            'email': productData['customer']['email'],
-            'address': productData['customer']['address'],
-          },
-          'billing_address': {
-            'name': productData['billing_address']['name'],
-            'email': productData['billing_address']['email'],
-            'zipcode': productData['billing_address']['zipcode'],
-            'address': productData['billing_address']['address'],
-            'phone': productData['billing_address']['phone'],
-            'city': productData['billing_address']['city'],
-            'state': productData['billing_address']['state'],
-          },
-          'bank': {
-            'name': productData['bank']['name'],
-            'account_number': productData['bank']['account_number'],
-            'ifsc_code': productData['bank']['ifsc_code'],
-            'branch': productData['bank']['branch'],
-          },
-          'items': productData['items'] != null
-              ? productData['items'].map((item) {
-                  return {
-                    'id': item['id'],
-                    'name': item['name'],
-                    'quantity': item['quantity'],
-                    'price': item['price'],
-                    'tax': item['tax'],
-                    'discount': item['discount'],
-                    'images': item['images'],
-                  };
-                }).toList()
-              : [], // Fallback to empty list
-          'status': productData['status'],
-          'total_amount': productData['total_amount'],
-          'order_date': formattedOrderDate, // Use the formatted string
+        setState(() {
+          orders = orderList;
+          filteredOrders = orderList;
+          print("filterrrrrrrrrrrrrrrrrrrrrrrrrr$filteredOrders");
         });
       }
-
-      setState(() {
-        orders = orderList;
-        filteredOrders = orderList;
-        print("filterrrrrrrrrrrrrrrrrrrrrrrrrr$filteredOrders");
-      });
+    } catch (error) {
+      print("Error: $error");
     }
-  } catch (error) {
-    print("Error: $error");
   }
-}
 
   void _filterOrders(String query) {
     setState(() {
@@ -186,20 +192,19 @@ Future<void> fetchOrderData() async {
   }
 
   // Method to filter orders between two dates
- // Method to filter orders between two dates, inclusive of start and end dates
-void _filterOrdersByDateRange() {
-  if (startDate != null && endDate != null) {
-    setState(() {
-      filteredOrders = orders.where((order) {
-        final orderDate = DateTime.parse(order['order_date']);
-        return (orderDate.isAtSameMomentAs(startDate!) ||
-                orderDate.isAtSameMomentAs(endDate!) ||
-                (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!)));
-      }).toList();
-    });
+  // Method to filter orders between two dates, inclusive of start and end dates
+  void _filterOrdersByDateRange() {
+    if (startDate != null && endDate != null) {
+      setState(() {
+        filteredOrders = orders.where((order) {
+          final orderDate = DateTime.parse(order['order_date']);
+          return (orderDate.isAtSameMomentAs(startDate!) ||
+              orderDate.isAtSameMomentAs(endDate!) ||
+              (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!)));
+        }).toList();
+      });
+    }
   }
-}
-
 
   Future<void> _selectSingleDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -233,214 +238,219 @@ void _filterOrdersByDateRange() {
       _filterOrdersByDateRange();
     }
   }
-Future<void> exportToExcel() async {
-  var excel = Excel.createExcel();
-  Sheet sheetObject = excel['Order List'];
 
-  // Add header row
-  sheetObject.appendRow([
-    'Invoice',
-    'Manager',
-    'Customer Name',
-    'Customer Phone',
-    'Customer Email',
-    'Customer Address',
-    'Billing Name',
-    'Billing Email',
-    'Billing Phone',
-    'Billing Address',
-    'Billing City',
-    'Billing State',
-    'Billing Zipcode',
-    'Bank Name',
-    'Bank Account Number',
-    'Bank IFSC Code',
-    'Bank Branch',
-    'Item Name',
-    'Item Quantity',
-    'Item Price',
-    'Item Tax',
-    'Item Discount',
-    'Order Status',
-    'Total Amount',
-    'Order Date',
-  ]);
+  Future<void> exportToExcel() async {
+    var excel = Excel.createExcel();
+    Sheet sheetObject = excel['Order List'];
 
-  // Populate rows with data
-  for (var order in filteredOrders) {
-    // Iterate through items to create separate rows for each item
-    for (var item in order['items']) {
-      sheetObject.appendRow([
-        order['invoice'] ?? '',
-        order['manage_staff'] ?? '',
-        order['customer']['name'] ?? '',
-        order['customer']['phone'] ?? '',
-        order['customer']['email'] ?? '',
-        order['customer']['address'] ?? '',
-        order['billing_address']['name'] ?? '',
-        order['billing_address']['email'] ?? '',
-        order['billing_address']['phone'] ?? '',
-        order['billing_address']['address'] ?? '',
-        order['billing_address']['city'] ?? '',
-        order['billing_address']['state'] ?? '',
-        order['billing_address']['zipcode'] ?? '',
-        order['bank']['name'] ?? '',
-        order['bank']['account_number'] ?? '',
-        order['bank']['ifsc_code'] ?? '',
-        order['bank']['branch'] ?? '',
-        item['name'] ?? '',
-        item['quantity'] ?? '',
-        item['price'] ?? '',
-        item['tax'] ?? '',
-        item['discount'] ?? '',
-        order['status'] ?? '',
-        order['total_amount'] ?? '',
-        order['order_date'] ?? '',
-      ]);
+    // Add header row
+    sheetObject.appendRow([
+      'Invoice',
+      'Manager',
+      'Customer Name',
+      'Customer Phone',
+      'Customer Email',
+      'Customer Address',
+      'Billing Name',
+      'Billing Email',
+      'Billing Phone',
+      'Billing Address',
+      'Billing City',
+      'Billing State',
+      'Billing Zipcode',
+      'Bank Name',
+      'Bank Account Number',
+      'Bank IFSC Code',
+      'Bank Branch',
+      'Item Name',
+      'Item Quantity',
+      'Item Price',
+      'Item Tax',
+      'Item Discount',
+      'Order Status',
+      'Total Amount',
+      'Order Date',
+    ]);
+
+    // Populate rows with data
+    for (var order in filteredOrders) {
+      // Iterate through items to create separate rows for each item
+      for (var item in order['items']) {
+        sheetObject.appendRow([
+          order['invoice'] ?? '',
+          order['manage_staff'] ?? '',
+          order['customer']['name'] ?? '',
+          order['customer']['phone'] ?? '',
+          order['customer']['email'] ?? '',
+          order['customer']['address'] ?? '',
+          order['billing_address']['name'] ?? '',
+          order['billing_address']['email'] ?? '',
+          order['billing_address']['phone'] ?? '',
+          order['billing_address']['address'] ?? '',
+          order['billing_address']['city'] ?? '',
+          order['billing_address']['state'] ?? '',
+          order['billing_address']['zipcode'] ?? '',
+          order['bank']['name'] ?? '',
+          order['bank']['account_number'] ?? '',
+          order['bank']['ifsc_code'] ?? '',
+          order['bank']['branch'] ?? '',
+          item['name'] ?? '',
+          item['quantity'] ?? '',
+          item['price'] ?? '',
+          item['tax'] ?? '',
+          item['discount'] ?? '',
+          order['status'] ?? '',
+          order['total_amount'] ?? '',
+          order['order_date'] ?? '',
+        ]);
+      }
     }
+
+    // Save the Excel file
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = "${tempDir.path}/order_list.xlsx";
+    final tempFile = File(tempPath);
+    await tempFile.writeAsBytes(await excel.encode()!);
+
+    // Open the file
+    await OpenFile.open(tempPath);
   }
 
-  // Save the Excel file
-  final tempDir = await getTemporaryDirectory();
-  final tempPath = "${tempDir.path}/order_list.xlsx";
-  final tempFile = File(tempPath);
-  await tempFile.writeAsBytes(await excel.encode()!);
+  Future<pw.Document> createPdf() async {
+    final pdf = pw.Document();
 
-  // Open the file
-  await OpenFile.open(tempPath);
-}
+    // Iterate through each order and add a new page for it
+    for (var order in filteredOrders) {
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Padding(
+              padding: const pw.EdgeInsets.all(24),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  // Title Section
+                  pw.Center(
+                    child: pw.Text(
+                      'Order Details',
+                      style: pw.TextStyle(
+                        fontSize: 20,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  pw.SizedBox(height: 20),
 
+                  // Invoice and Manager
+                  pw.Text(
+                    'Invoice: ${order['invoice']}',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Text('Manager: ${order['manage_staff'] ?? ''}'),
+                  pw.SizedBox(height: 10),
 
- Future<pw.Document> createPdf() async {
-  final pdf = pw.Document();
+                  // Customer Details
+                  pw.Text(
+                    'Customer Details',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Text('Name: ${order['customer']['name'] ?? ''}'),
+                  pw.Text('Phone: ${order['customer']['phone'] ?? ''}'),
+                  pw.Text('Email: ${order['customer']['email'] ?? ''}'),
+                  pw.Text('Address: ${order['customer']['address'] ?? ''}'),
+                  pw.SizedBox(height: 10),
 
-  // Iterate through each order and add a new page for it
-  for (var order in filteredOrders) {
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) {
-          return pw.Padding(
-            padding: const pw.EdgeInsets.all(24),
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                // Title Section
-                pw.Center(
-                  child: pw.Text(
-                    'Order Details',
-                    style: pw.TextStyle(
-                      fontSize: 20,
+                  // Billing Address
+                  pw.Text(
+                    'Billing Address',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Text('Name: ${order['billing_address']['name'] ?? ''}'),
+                  pw.Text('Email: ${order['billing_address']['email'] ?? ''}'),
+                  pw.Text('Phone: ${order['billing_address']['phone'] ?? ''}'),
+                  pw.Text(
+                      'Address: ${order['billing_address']['address'] ?? ''}'),
+                  pw.Text('City: ${order['billing_address']['city'] ?? ''}'),
+                  pw.Text('State: ${order['billing_address']['state'] ?? ''}'),
+                  pw.Text(
+                      'Zipcode: ${order['billing_address']['zipcode'] ?? ''}'),
+                  pw.SizedBox(height: 10),
+
+                  // Bank Details
+                  pw.Text(
+                    'Bank Details',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Text('Name: ${order['bank']['name'] ?? ''}'),
+                  pw.Text(
+                      'Account Number: ${order['bank']['account_number'] ?? ''}'),
+                  pw.Text('IFSC Code: ${order['bank']['ifsc_code'] ?? ''}'),
+                  pw.Text('Branch: ${order['bank']['branch'] ?? ''}'),
+                  pw.SizedBox(height: 10),
+
+                  // Items Table
+                  pw.Text(
+                    'Items',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Table.fromTextArray(
+                    headers: ['Name', 'Quantity', 'Price', 'Tax', 'Discount'],
+                    data: [
+                      for (var item in order['items'])
+                        [
+                          item['name'] ?? '',
+                          item['quantity'].toString(),
+                          item['price'].toString(),
+                          item['tax'].toString(),
+                          item['discount'].toString(),
+                        ],
+                    ],
+                    headerStyle: pw.TextStyle(
                       fontWeight: pw.FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                    cellStyle: pw.TextStyle(
+                      fontSize: 8,
+                    ),
+                    headerDecoration: pw.BoxDecoration(
+                      color: PdfColors.grey300,
+                    ),
+                    rowDecoration: pw.BoxDecoration(
+                      border: pw.Border(
+                        bottom:
+                            pw.BorderSide(color: PdfColors.grey400, width: 0.5),
+                      ),
                     ),
                   ),
-                ),
-                pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 10),
 
-                // Invoice and Manager
-                pw.Text(
-                  'Invoice: ${order['invoice']}',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Manager: ${order['manage_staff'] ?? ''}'),
-                pw.SizedBox(height: 10),
-
-                // Customer Details
-                pw.Text(
-                  'Customer Details',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Name: ${order['customer']['name'] ?? ''}'),
-                pw.Text('Phone: ${order['customer']['phone'] ?? ''}'),
-                pw.Text('Email: ${order['customer']['email'] ?? ''}'),
-                pw.Text('Address: ${order['customer']['address'] ?? ''}'),
-                pw.SizedBox(height: 10),
-
-                // Billing Address
-                pw.Text(
-                  'Billing Address',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Name: ${order['billing_address']['name'] ?? ''}'),
-                pw.Text('Email: ${order['billing_address']['email'] ?? ''}'),
-                pw.Text('Phone: ${order['billing_address']['phone'] ?? ''}'),
-                pw.Text('Address: ${order['billing_address']['address'] ?? ''}'),
-                pw.Text('City: ${order['billing_address']['city'] ?? ''}'),
-                pw.Text('State: ${order['billing_address']['state'] ?? ''}'),
-                pw.Text('Zipcode: ${order['billing_address']['zipcode'] ?? ''}'),
-                pw.SizedBox(height: 10),
-
-                // Bank Details
-                pw.Text(
-                  'Bank Details',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Name: ${order['bank']['name'] ?? ''}'),
-                pw.Text('Account Number: ${order['bank']['account_number'] ?? ''}'),
-                pw.Text('IFSC Code: ${order['bank']['ifsc_code'] ?? ''}'),
-                pw.Text('Branch: ${order['bank']['branch'] ?? ''}'),
-                pw.SizedBox(height: 10),
-
-                // Items Table
-                pw.Text(
-                  'Items',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Table.fromTextArray(
-                  headers: ['Name', 'Quantity', 'Price', 'Tax', 'Discount'],
-                  data: [
-                    for (var item in order['items'])
-                      [
-                        item['name'] ?? '',
-                        item['quantity'].toString(),
-                        item['price'].toString(),
-                        item['tax'].toString(),
-                        item['discount'].toString(),
-                      ],
-                  ],
-                  headerStyle: pw.TextStyle(
-                    fontWeight: pw.FontWeight.bold,
-                    fontSize: 10,
+                  // Order Summary
+                  pw.Text(
+                    'Order Summary',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                   ),
-                  cellStyle: pw.TextStyle(
-                    fontSize: 8,
-                  ),
-                  headerDecoration: pw.BoxDecoration(
-                    color: PdfColors.grey300,
-                  ),
-                  rowDecoration: pw.BoxDecoration(
-                    border: pw.Border(
-                      bottom: pw.BorderSide(color: PdfColors.grey400, width: 0.5),
-                    ),
-                  ),
-                ),
-                pw.SizedBox(height: 10),
+                  pw.Text('Status: ${order['status'] ?? ''}'),
+                  pw.Text('Total Amount: ${order['total_amount'].toString()}'),
+                  pw.Text('Order Date: ${order['order_date'] ?? ''}'),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    }
 
-                // Order Summary
-                pw.Text(
-                  'Order Summary',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Status: ${order['status'] ?? ''}'),
-                pw.Text('Total Amount: ${order['total_amount'].toString()}'),
-                pw.Text('Order Date: ${order['order_date'] ?? ''}'),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+    return pdf;
   }
-
-  return pdf;
-}
 
   Future<void> downloadPdf() async {
     final pdf = await createPdf();
     final output = await getTemporaryDirectory();
     final file = File("${output.path}/order_list.pdf");
     await file.writeAsBytes(await pdf.save());
-    await Printing.sharePdf(bytes: await pdf.save(), filename: 'order_list.pdf');
+    await Printing.sharePdf(
+        bytes: await pdf.save(), filename: 'order_list.pdf');
   }
 
   @override
@@ -451,42 +461,50 @@ Future<void> exportToExcel() async {
             style: TextStyle(fontSize: 14, color: Colors.grey)),
         centerTitle: true,
         actions: [
-    PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert), // 3-dot icon
-      onSelected: (value) {
-        // Handle menu item selection
-        switch (value) {
-          case 'Option 1':
-           exportToExcel();
-            break;
-          case 'Option 2':
-           downloadPdf();
-            break;
-         
-          default:
-            // Handle default case
-            break;
-        }
-      },
-      itemBuilder: (BuildContext context) {
-        return [
-          PopupMenuItem<String>(
-            value: 'Option 1',
-            child: Text('Export Excel'),
+          IconButton(
+            icon: Icon(Icons.calendar_today), // Calendar icon
+            onPressed: () => _selectSingleDate(
+                context), // Call the method to select start date
           ),
-          PopupMenuItem<String>(
-            value: 'Option 2',
-            child: Text('Download Pdf'),
+          // Icon button to open date range picker
+          IconButton(
+            icon: Icon(Icons.date_range), // Date range icon
+            onPressed: () => _selectDateRange(
+                context), // Call the method to select date range
           ),
-          
-        ];
-      },
-    ),
-  ],
-      ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert), // 3-dot icon
+            onSelected: (value) {
+              // Handle menu item selection
+              switch (value) {
+                case 'Option 1':
+                  exportToExcel();
+                  break;
+                case 'Option 2':
+                  downloadPdf();
+                  break;
 
-      
-     drawer: Drawer( 
+                default:
+                  // Handle default case
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'Option 1',
+                  child: Text('Export Excel'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Option 2',
+                  child: Text('Download Pdf'),
+                ),
+              ];
+            },
+          ),
+        ],
+      ),
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -623,46 +641,49 @@ Future<void> exportToExcel() async {
             ),
           ),
           // Date Filters
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-  width: 160,
-  child: ElevatedButton(
-    onPressed: () => _selectSingleDate(context),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color.fromARGB(255, 2, 65, 96), // Set button color to grey
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8), // Set the border radius
-      ),
-    ),
-    child: Text(
-      'Select Date',
-      style: TextStyle(color: Colors.white),
-    ),
-  ),
-),
-
-                SizedBox(width: 10),
-              ElevatedButton(
-  onPressed: () => _selectDateRange(context),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color.fromARGB(255, 2, 65, 96), // Set button color to grey
-    shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8), // Set the border radius
-      ),
-  ),
-  child: Text(
-    'Select Date Range',
-    style: TextStyle(color: Colors.white), // Set text color to white
-  ),
-),
-
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       SizedBox(
+          //         width: 160,
+          //         child: ElevatedButton(
+          //           onPressed: () => _selectSingleDate(context),
+          //           style: ElevatedButton.styleFrom(
+          //             backgroundColor: const Color.fromARGB(
+          //                 255, 2, 65, 96), // Set button color to grey
+          //             shape: RoundedRectangleBorder(
+          //               borderRadius:
+          //                   BorderRadius.circular(8), // Set the border radius
+          //             ),
+          //           ),
+          //           child: Text(
+          //             'Select Date',
+          //             style: TextStyle(color: Colors.white),
+          //           ),
+          //         ),
+          //       ),
+          //       SizedBox(width: 10),
+          //       ElevatedButton(
+          //         onPressed: () => _selectDateRange(context),
+          //         style: ElevatedButton.styleFrom(
+          //           backgroundColor: const Color.fromARGB(
+          //               255, 2, 65, 96), // Set button color to grey
+          //           shape: RoundedRectangleBorder(
+          //             borderRadius:
+          //                 BorderRadius.circular(8), // Set the border radius
+          //           ),
+          //         ),
+          //         child: Text(
+          //           'Select Date Range',
+          //           style: TextStyle(
+          //               color: Colors.white), // Set text color to white
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           // Display Orders
           Expanded(
             child: filteredOrders.isEmpty
@@ -672,19 +693,25 @@ Future<void> exportToExcel() async {
                               (startDate != null && endDate != null)
                           ? 'No orders available in this date range'
                           : 'No orders available',
-                      style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 2, 65, 96)),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: const Color.fromARGB(255, 2, 65, 96)),
                     ),
                   )
                 : ListView.builder(
                     itemCount: filteredOrders.length,
-                    padding: const EdgeInsets.only(right: 10,left:10),
+                    padding: const EdgeInsets.only(right: 10, left: 10),
                     itemBuilder: (context, index) {
                       final order = filteredOrders[index];
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 3.0),
                         child: GestureDetector(
                           onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderReview(id:order['id'])));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        OrderReview(id: order['id'])));
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(
@@ -714,10 +741,11 @@ Future<void> exportToExcel() async {
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
-                                      ), 
+                                      ),
                                       Text(
                                         DateFormat('dd MMM yy').format(
-                                            DateTime.parse(order['order_date'])),
+                                            DateTime.parse(
+                                                order['order_date'])),
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 14),
                                       ),
@@ -728,7 +756,8 @@ Future<void> exportToExcel() async {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Staff: ${order['manage_staff']}',

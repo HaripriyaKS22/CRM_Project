@@ -1,1 +1,1 @@
-var api="https://psychological-amp-grove-explorer.trycloudflare.com";
+var api="https://pub-macro-attempt-plaza.trycloudflare.com";

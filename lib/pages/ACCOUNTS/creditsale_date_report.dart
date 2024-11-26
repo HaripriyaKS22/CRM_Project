@@ -3,6 +3,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,15 +22,22 @@ class _CreditsaleDateReportState extends State<CreditsaleDateReport> {
   List<Map<String, dynamic>> filteredProducts = [];
   TextEditingController searchController = TextEditingController();
 List<Map<String, dynamic>> staff = [];
+List<Map<String, dynamic>> customer = [];
 
   @override
   void initState() {
     super.initState();
-    FetchCreditSaleDateReport();
-    getstaff();
+    initdata();
     print("===========================>>>>>>>>${widget.date}");
   }
 
+void initdata() async{
+  await  getstaff();
+  await getcustomer();
+  await FetchCreditSaleDateReport();
+   
+
+}
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -66,8 +74,47 @@ var sta;
         }
        
         setState(() {
-          staff = sta;
-          print("sataffffffffffff$sta");
+          staff = stafflist;
+          print("sataffffffffffff$staff");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+ Future<void> getcustomer() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/customers/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "=============================================hoiii${response.body}");
+      List<Map<String, dynamic>> managerlist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print(
+            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
+        for (var productData in productsData) {
+          managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'created_at': productData['created_at'],
+            'manager':productData['manager']
+          });
+        }
+        setState(() {
+          customer = managerlist;
+
+          print("cutomerrrrrrrrrrrrrrrrr$customer");
         });
       }
     } catch (error) {
@@ -75,59 +122,76 @@ var sta;
     }
   }
 
-
   Future<void> FetchCreditSaleDateReport() async {
-    try {
-      final token = await getTokenFromPrefs();
+  try {
+    final token = await getTokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/credit/bills/${widget.date}/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    var response = await http.get(
+      Uri.parse('$api/api/credit/bills/${widget.date}/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      print("09=------------------------${response.body}");
+    print("09=------------------------${response.body}");
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
 
-        List<Map<String, dynamic>> creditList = [];
-        for (var productData in productsData) {
-          creditList.add({
-            'invoice': productData['invoice'],
-            'order_date': productData['order_date'],
-            'payment_status': productData['payment_status'],
-            'status': productData['status'],
-            'manage_staff': productData['manage_staff'],
-            'customer': productData['customer'],
-            'total_paid': productData['total_paid'],
-            
-          });
+      List<Map<String, dynamic>> creditList = [];
+      for (var productData in productsData) {
+        // Find the corresponding staff name for manage_staff ID
+        String? staffName;
+        for (var staffMember in staff) {
+          if (staffMember['id'] == productData['manage_staff']) {
+            staffName = staffMember['name'];
+            break;
+          }
         }
-        setState(() {
-          creditdata = creditList;
-          filteredProducts = creditList; // Initially show all data
+
+        // Find the corresponding customer name for customer ID
+        String? customerName;
+        for (var customerData in customer) {
+          if (customerData['id'] == productData['customer']) {
+            customerName = customerData['name'];
+            break;
+          }
+        }
+;
+        creditList.add({
+          'id':productData['id'],
+          'invoice': productData['invoice'],
+          'order_date': productData['order_date'],
+          'payment_status': productData['payment_status'],
+          'status': productData['status'],
+          'manage_staff': staffName ?? 'Unknown', // Default to 'Unknown' if no match found
+          'customer': customerName ?? 'Unknown',  // Default to 'Unknown' if no match found
+          'total_paid': productData['total_paid'],
         });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to fetch invoice report'),
-            duration: Duration(seconds: 2),
-          ),
-        );
       }
-    } catch (error) {
+      setState(() {
+        creditdata = creditList;
+        filteredProducts = creditList; // Initially show all data
+      });
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Error fetching invoice report'),
+          content: Text('Failed to fetch invoice report'),
           duration: Duration(seconds: 2),
         ),
       );
     }
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Error fetching invoice report'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
+}
 
   // Method to filter products based on search input
   void _filterProducts(String query) {
@@ -215,7 +279,7 @@ var sta;
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              ' $staff / ${invoice['order_date']}',
+              ' ${invoice['manage_staff']} / ${invoice['order_date']}',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -223,13 +287,13 @@ var sta;
               ),
             ),
             Divider(color: Colors.grey),
-            SizedBox(height: 8),
+            SizedBox(height: 4),
             _buildRow('Invoice:', invoice['invoice']),
             _buildRow('Payment Status:', invoice['payment_status']),
             _buildRow('status:', invoice['status']),
             _buildRow('customer:', invoice['customer']),
             _buildRow('Total Paid :', invoice['total_paid']),
-            SizedBox(height: 12),
+            SizedBox(height: 2),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
@@ -239,7 +303,13 @@ var sta;
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               onPressed: () {
-                // Handle "View" button action
+                  Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    OrderReview(id:invoice['id']),
+                              ),
+                            );
               },
               child: Text(
                 "View",
