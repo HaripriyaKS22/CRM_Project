@@ -5,6 +5,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/bank_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/codsales_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/creditsale_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
@@ -191,7 +192,7 @@ class drower{
         case 'COD Sales Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>Purchases_request()),
+          MaterialPageRoute(builder: (context) =>COD_Sales_Report()),
         );
         break;
       case 'Statewise Sales Report':
