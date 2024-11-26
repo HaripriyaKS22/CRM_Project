@@ -124,7 +124,7 @@ List<Map<String, dynamic>> company = [];
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Receipt Against Invoice Generate'),
+          title: Text('Add Receipt'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -165,12 +165,12 @@ List<Map<String, dynamic>> company = [];
                   controller: transactionIdController,
                   decoration: InputDecoration(
                       labelText: 'Transaction ID',
-                      prefixIcon: Icon(Icons.receipt)),
+                     ),
                 ),
                 TextField(
                   readOnly: true, // Make this field non-editable
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person),
+                   
                     hintText:
                         createdBy ?? 'Loading...', // Display the creator's name
                   ),
@@ -178,26 +178,40 @@ List<Map<String, dynamic>> company = [];
 
                 TextField(
                   controller: remarkController,
-                  decoration: InputDecoration(labelText: 'Remark (optional)'),
+                  decoration: InputDecoration(labelText: 'Remark'),
                 ),
               ],
             ),
           ),
           actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle save action here
+           TextButton(
+  style: TextButton.styleFrom(
+    backgroundColor: Colors.white, // Set background color
+    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Optional padding
+  ),
+  child: Text(
+    'Cancel',
+    style: TextStyle(color: Colors.grey),
+  ),
+  onPressed: () {
+    Navigator.of(context).pop();
+  },
+),
+ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.blue, // Set background color
+    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Optional padding
+  ),
+  onPressed: () {
+    // Handle save action here
+    AddReceipt(context);
+  },
+  child: Text(
+    'Save',
+    style: TextStyle(color: Colors.white), // Set text color
+  ),
+),
 
-                AddReceipt(context);
-              },
-              child: Text('Save'),
-            ),
           ],
         );
       },

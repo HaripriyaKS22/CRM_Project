@@ -1,1 +1,1 @@
-var api="https://integrity-cannon-soccer-gis.trycloudflare.com";
+var api="https://psychological-amp-grove-explorer.trycloudflare.com";
