@@ -615,6 +615,57 @@ void _resetFilters() {
     return prefs.getString('token');
   }
 
+
+  void processSalesData(List<dynamic> data) {
+  // Clear previous totals
+  double newTotalAmount = 0.0;
+  int newTotalOrders = 0;
+  double newTotalPaid = 0.0;
+  double newTotalPending = 0.0;
+
+  List<Map<String, dynamic>> codsaleslist = [];
+
+  for (var productData in data) {
+    double amount = productData['total_amount'] != null
+        ? double.tryParse(productData['total_amount'].toString()) ?? 0.0
+        : 0.0;
+    double paid = productData['total_paid'] != null
+        ? double.tryParse(productData['total_paid'].toString()) ?? 0.0
+        : 0.0;
+    double pending = productData['total_pending'] != null
+        ? double.tryParse(productData['total_pending'].toString()) ?? 0.0
+        : 0.0;
+
+    newTotalAmount += amount;
+    newTotalPaid += paid;
+    newTotalPending += pending;
+    newTotalOrders += productData['total_orders'] != null
+        ? int.tryParse(productData['total_orders'].toString()) ?? 0
+        : 0;
+
+    codsaleslist.add({
+      'date': productData['date'],
+      'total_amount': amount,
+      'total_orders': productData['total_orders'],
+      'total_paid': paid,
+      'total_pending': pending,
+    });
+  }
+
+  setState(() {
+    // Update totals
+    totalAmount = newTotalAmount;
+    totalOrders = newTotalOrders;
+    totalPaid = newTotalPaid;
+    totalPending = newTotalPending;
+
+    // Update sales list
+    cod = codsaleslist;
+    filteredData = codsaleslist;
+    print("coooooooooooooooo$cod");
+  });
+}
+
 Future<void> getcodsales() async {
   try {
     final token = await getTokenFromPrefs();
