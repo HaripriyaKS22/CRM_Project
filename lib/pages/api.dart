@@ -1,1 +1,1 @@
-var api="https://enhancing-bryant-los-cn.trycloudflare.com";
+var api="https://ca-large-improvements-happened.trycloudflare.com";

@@ -14,11 +14,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:pdf/pdf.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
+
 class WarehouseOrderView extends StatefulWidget {
   const WarehouseOrderView({super.key});
 
@@ -35,7 +36,7 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
   DateTime? startDate; // For date range filter
   DateTime? endDate; // For date range filter
 
-    drower d = drower();
+  drower d = drower();
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
     return ExpansionTile(
@@ -59,191 +60,12 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
     fetchOrderData();
   }
 
-
-final TextEditingController box = TextEditingController();
-  final TextEditingController length = TextEditingController();
-  final TextEditingController breadth= TextEditingController();
-    final TextEditingController weight= TextEditingController();
-
-  final TextEditingController service = TextEditingController();
-  final TextEditingController transactionid = TextEditingController();
-  final TextEditingController shippingcharge= TextEditingController();
-  XFile? selectedImage;
-
-  Future<void> pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        selectedImage = image;
-      });
-    }
-  }
-Future<void> showCustomDialogBox(BuildContext context) async {
-  return showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, void Function(void Function()) setState) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Text(
-              'Enter Details',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Text Field 1
-                  TextField(
-                    controller: box,
-                    decoration: InputDecoration(
-                      labelText: 'Boxs',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Text Field 2
-                  TextField(
-                    controller: length,
-                    decoration: InputDecoration(
-                      labelText: 'Length',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Text Field 3
-                  TextField(
-                    controller: breadth,
-                    decoration: InputDecoration(
-                      labelText: 'Breadth',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
- SizedBox(height: 10),
-                  TextField(
-                    controller: weight,
-                    decoration: InputDecoration(
-                      labelText: 'Weight',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Text Field 2
-                  TextField(
-                    controller: service,
-                    decoration: InputDecoration(
-                      labelText: 'Service',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Text Field 3
-                  TextField(
-                    controller: transactionid,
-                    decoration: InputDecoration(
-                      labelText: 'Transaction Id',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                   SizedBox(height: 10),
-                  TextField(
-                    controller: shippingcharge,
-                    decoration: InputDecoration(
-                      labelText: 'Shipping Charge',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  // Image Picker
-                  InkWell(
-                    onTap: () async {
-                      await pickImage();
-                      setState(() {}); // Update the dialog UI
-                    },
-                    child: Container(
-                      height: 150,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey[200],
-                      ),
-                      child: selectedImage == null
-                          ? Center(child: Text('Tap to select an image'))
-                          : Image.file(
-                              File(selectedImage!.path),
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  // Handle Cancel
-                  Navigator.of(context).pop();
-                },
-                child: Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle Save
-                  // print('Field 1: ${textField1Controller.text}');
-                  // print('Field 2: ${textField2Controller.text}');
-                  // print('Field 3: ${textField3Controller.text}');
-                  print('Image Path: ${selectedImage?.path}');
-                  Navigator.of(context).pop();
-                },
-                child: Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-// String formatDateString(String dateString) {
-//   try {
-//     // Check if the date is already in YYYY-MM-DD format
-//     DateTime.parse(dateString);
-//     return dateString; // Return as-is if valid
-//   } catch (_) {
-//     // Reformat DD/MM/YY to YYYY-MM-DD
-//     final parts = dateString.split('/');
-//     if (parts.length == 3) {
-//       final year = '20${parts[2]}'; // Assuming years are in the 2000s
-//       final month = parts[1].padLeft(2, '0');
-//       final day = parts[0].padLeft(2, '0');
-//       return '$year-$month-$day';
-//     }
-//     throw FormatException("Invalid date format: $dateString");
-//   }
-// }
 
-String formatDateString(String dateString) {
-  try {
-    // Parse the date with DateTime
-    DateTime parsedDate = DateTime.parse(dateString);
-    // Format the date to a consistent format
-    return DateFormat('yyyy-MM-dd').format(parsedDate);
-  } catch (e) {
-    print("Date formatting error: $e");
-    return dateString; // Return the original date string if formatting fails
-  }
-}
-
-Future<void> fetchOrderData() async {
+ Future<void> fetchOrderData() async {
   try {
     final token = await getTokenFromPrefs();
     var response = await http.get(
@@ -255,7 +77,6 @@ Future<void> fetchOrderData() async {
     );
 
     print("ordersssssssssssss${response.body}");
-    print('object${response.statusCode}');
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -263,11 +84,51 @@ Future<void> fetchOrderData() async {
       List<Map<String, dynamic>> orderList = [];
 
       for (var productData in productsData) {
+        // Parse the date
+        String rawOrderDate = productData['order_date'];
+        String formattedOrderDate =
+            rawOrderDate; // Fallback in case of parsing failure
+
+        try {
+          // Try to parse the date in 'yyyy-MM-dd' format
+          DateTime parsedOrderDate =
+              DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+          formattedOrderDate = DateFormat('yyyy-MM-dd')
+              .format(parsedOrderDate); // Convert to desired format
+        } catch (e) {
+          print("Error parsing date: $rawOrderDate - $e");
+        }
+
+        // Parse warehouse_orders
+        List<Map<String, dynamic>> warehouseOrders = [];
+        if (productData['warehouse_orders'] != null) {
+          for (var warehouseOrder in productData['warehouse_orders']) {
+            warehouseOrders.add({
+              'id': warehouseOrder['id'],
+              'box': warehouseOrder['box'],
+              'weight': warehouseOrder['weight'],
+              'length': warehouseOrder['length'],
+              'breadth': warehouseOrder['breadth'],
+              'height': warehouseOrder['height'],
+              'image': warehouseOrder['image'],
+              'parcel_service': warehouseOrder['parcel_service'],
+              'tracking_id': warehouseOrder['tracking_id'],
+              'shipping_charge': warehouseOrder['shipping_charge'],
+              'status': warehouseOrder['status'],
+              'shipped_date': warehouseOrder['shipped_date'],
+              'order': warehouseOrder['order'],
+              'packed_by': warehouseOrder['packed_by'],
+              'customer': warehouseOrder['customer'],
+              'invoice': warehouseOrder['invoice'],
+              'family': warehouseOrder['family'],
+            });
+          }
+        }
+
         orderList.add({
           'id': productData['id'],
           'invoice': productData['invoice'],
           'manage_staff': productData['manage_staff'],
-
           'customer': {
             'name': productData['customer']['name'],
             'phone': productData['customer']['phone'],
@@ -301,24 +162,26 @@ Future<void> fetchOrderData() async {
                     'images': item['images'],
                   };
                 }).toList()
-              : [], // Handle null items with an empty list
+              : [], // Fallback to empty list
           'status': productData['status'],
           'total_amount': productData['total_amount'],
-          'order_date': formatDateString(productData['order_date']), // Safely format date
+          'order_date': formattedOrderDate, // Use the formatted string
+          'warehouse_orders': warehouseOrders, // Include parsed warehouse orders
         });
       }
 
       setState(() {
         orders = orderList;
         filteredOrders = orderList;
-        print("itemssssssssssssssssssssssss${orders[0]['items']}");
-        print("filterrrrrrrrrrrrrrrrrrrrrrrrrr$filteredOrders");
+        print("Warehouse Orders Example: ${orders[0]['warehouse_orders']}");
       });
     }
   } catch (error) {
     print("Error: $error");
   }
 }
+
+
   void _filterOrders(String query) {
     setState(() {
       searchQuery = query;
@@ -358,20 +221,19 @@ Future<void> fetchOrderData() async {
   }
 
   // Method to filter orders between two dates
- // Method to filter orders between two dates, inclusive of start and end dates
-void _filterOrdersByDateRange() {
-  if (startDate != null && endDate != null) {
-    setState(() {
-      filteredOrders = orders.where((order) {
-        final orderDate = DateTime.parse(order['order_date']);
-        return (orderDate.isAtSameMomentAs(startDate!) ||
-                orderDate.isAtSameMomentAs(endDate!) ||
-                (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!)));
-      }).toList();
-    });
+  // Method to filter orders between two dates, inclusive of start and end dates
+  void _filterOrdersByDateRange() {
+    if (startDate != null && endDate != null) {
+      setState(() {
+        filteredOrders = orders.where((order) {
+          final orderDate = DateTime.parse(order['order_date']);
+          return (orderDate.isAtSameMomentAs(startDate!) ||
+              orderDate.isAtSameMomentAs(endDate!) ||
+              (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!)));
+        }).toList();
+      });
+    }
   }
-}
-
 
   Future<void> _selectSingleDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -405,214 +267,219 @@ void _filterOrdersByDateRange() {
       _filterOrdersByDateRange();
     }
   }
-Future<void> exportToExcel() async {
-  var excel = Excel.createExcel();
-  Sheet sheetObject = excel['Order List'];
 
-  // Add header row
-  sheetObject.appendRow([
-    'Invoice',
-    'Manager',
-    'Customer Name',
-    'Customer Phone',
-    'Customer Email',
-    'Customer Address',
-    'Billing Name',
-    'Billing Email',
-    'Billing Phone',
-    'Billing Address',
-    'Billing City',
-    'Billing State',
-    'Billing Zipcode',
-    'Bank Name',
-    'Bank Account Number',
-    'Bank IFSC Code',
-    'Bank Branch',
-    'Item Name',
-    'Item Quantity',
-    'Item Price',
-    'Item Tax',
-    'Item Discount',
-    'Order Status',
-    'Total Amount',
-    'Order Date',
-  ]);
+  Future<void> exportToExcel() async {
+    var excel = Excel.createExcel();
+    Sheet sheetObject = excel['Order List'];
 
-  // Populate rows with data
-  for (var order in filteredOrders) {
-    // Iterate through items to create separate rows for each item
-    for (var item in order['items']) {
-      sheetObject.appendRow([
-        order['invoice'] ?? '',
-        order['manage_staff'] ?? '',
-        order['customer']['name'] ?? '',
-        order['customer']['phone'] ?? '',
-        order['customer']['email'] ?? '',
-        order['customer']['address'] ?? '',
-        order['billing_address']['name'] ?? '',
-        order['billing_address']['email'] ?? '',
-        order['billing_address']['phone'] ?? '',
-        order['billing_address']['address'] ?? '',
-        order['billing_address']['city'] ?? '',
-        order['billing_address']['state'] ?? '',
-        order['billing_address']['zipcode'] ?? '',
-        order['bank']['name'] ?? '',
-        order['bank']['account_number'] ?? '',
-        order['bank']['ifsc_code'] ?? '',
-        order['bank']['branch'] ?? '',
-        item['name'] ?? '',
-        item['quantity'] ?? '',
-        item['price'] ?? '',
-        item['tax'] ?? '',
-        item['discount'] ?? '',
-        order['status'] ?? '',
-        order['total_amount'] ?? '',
-        order['order_date'] ?? '',
-      ]);
+    // Add header row
+    sheetObject.appendRow([
+      'Invoice',
+      'Manager',
+      'Customer Name',
+      'Customer Phone',
+      'Customer Email',
+      'Customer Address',
+      'Billing Name',
+      'Billing Email',
+      'Billing Phone',
+      'Billing Address',
+      'Billing City',
+      'Billing State',
+      'Billing Zipcode',
+      'Bank Name',
+      'Bank Account Number',
+      'Bank IFSC Code',
+      'Bank Branch',
+      'Item Name',
+      'Item Quantity',
+      'Item Price',
+      'Item Tax',
+      'Item Discount',
+      'Order Status',
+      'Total Amount',
+      'Order Date',
+    ]);
+
+    // Populate rows with data
+    for (var order in filteredOrders) {
+      // Iterate through items to create separate rows for each item
+      for (var item in order['items']) {
+        sheetObject.appendRow([
+          order['invoice'] ?? '',
+          order['manage_staff'] ?? '',
+          order['customer']['name'] ?? '',
+          order['customer']['phone'] ?? '',
+          order['customer']['email'] ?? '',
+          order['customer']['address'] ?? '',
+          order['billing_address']['name'] ?? '',
+          order['billing_address']['email'] ?? '',
+          order['billing_address']['phone'] ?? '',
+          order['billing_address']['address'] ?? '',
+          order['billing_address']['city'] ?? '',
+          order['billing_address']['state'] ?? '',
+          order['billing_address']['zipcode'] ?? '',
+          order['bank']['name'] ?? '',
+          order['bank']['account_number'] ?? '',
+          order['bank']['ifsc_code'] ?? '',
+          order['bank']['branch'] ?? '',
+          item['name'] ?? '',
+          item['quantity'] ?? '',
+          item['price'] ?? '',
+          item['tax'] ?? '',
+          item['discount'] ?? '',
+          order['status'] ?? '',
+          order['total_amount'] ?? '',
+          order['order_date'] ?? '',
+        ]);
+      }
     }
+
+    // Save the Excel file
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = "${tempDir.path}/order_list.xlsx";
+    final tempFile = File(tempPath);
+    await tempFile.writeAsBytes(await excel.encode()!);
+
+    // Open the file
+    await OpenFile.open(tempPath);
   }
 
-  // Save the Excel file
-  final tempDir = await getTemporaryDirectory();
-  final tempPath = "${tempDir.path}/order_list.xlsx";
-  final tempFile = File(tempPath);
-  await tempFile.writeAsBytes(await excel.encode()!);
+  Future<pw.Document> createPdf() async {
+    final pdf = pw.Document();
 
-  // Open the file
-  await OpenFile.open(tempPath);
-}
+    // Iterate through each order and add a new page for it
+    for (var order in filteredOrders) {
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Padding(
+              padding: const pw.EdgeInsets.all(24),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  // Title Section
+                  pw.Center(
+                    child: pw.Text(
+                      'Order Details',
+                      style: pw.TextStyle(
+                        fontSize: 20,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  pw.SizedBox(height: 20),
 
+                  // Invoice and Manager
+                  pw.Text(
+                    'Invoice: ${order['invoice']}',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Text('Manager: ${order['manage_staff'] ?? ''}'),
+                  pw.SizedBox(height: 10),
 
- Future<pw.Document> createPdf() async {
-  final pdf = pw.Document();
+                  // Customer Details
+                  pw.Text(
+                    'Customer Details',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Text('Name: ${order['customer']['name'] ?? ''}'),
+                  pw.Text('Phone: ${order['customer']['phone'] ?? ''}'),
+                  pw.Text('Email: ${order['customer']['email'] ?? ''}'),
+                  pw.Text('Address: ${order['customer']['address'] ?? ''}'),
+                  pw.SizedBox(height: 10),
 
-  // Iterate through each order and add a new page for it
-  for (var order in filteredOrders) {
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) {
-          return pw.Padding(
-            padding: const pw.EdgeInsets.all(24),
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                // Title Section
-                pw.Center(
-                  child: pw.Text(
-                    'Order Details',
-                    style: pw.TextStyle(
-                      fontSize: 20,
+                  // Billing Address
+                  pw.Text(
+                    'Billing Address',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Text('Name: ${order['billing_address']['name'] ?? ''}'),
+                  pw.Text('Email: ${order['billing_address']['email'] ?? ''}'),
+                  pw.Text('Phone: ${order['billing_address']['phone'] ?? ''}'),
+                  pw.Text(
+                      'Address: ${order['billing_address']['address'] ?? ''}'),
+                  pw.Text('City: ${order['billing_address']['city'] ?? ''}'),
+                  pw.Text('State: ${order['billing_address']['state'] ?? ''}'),
+                  pw.Text(
+                      'Zipcode: ${order['billing_address']['zipcode'] ?? ''}'),
+                  pw.SizedBox(height: 10),
+
+                  // Bank Details
+                  pw.Text(
+                    'Bank Details',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Text('Name: ${order['bank']['name'] ?? ''}'),
+                  pw.Text(
+                      'Account Number: ${order['bank']['account_number'] ?? ''}'),
+                  pw.Text('IFSC Code: ${order['bank']['ifsc_code'] ?? ''}'),
+                  pw.Text('Branch: ${order['bank']['branch'] ?? ''}'),
+                  pw.SizedBox(height: 10),
+
+                  // Items Table
+                  pw.Text(
+                    'Items',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.Table.fromTextArray(
+                    headers: ['Name', 'Quantity', 'Price', 'Tax', 'Discount'],
+                    data: [
+                      for (var item in order['items'])
+                        [
+                          item['name'] ?? '',
+                          item['quantity'].toString(),
+                          item['price'].toString(),
+                          item['tax'].toString(),
+                          item['discount'].toString(),
+                        ],
+                    ],
+                    headerStyle: pw.TextStyle(
                       fontWeight: pw.FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                    cellStyle: pw.TextStyle(
+                      fontSize: 8,
+                    ),
+                    headerDecoration: pw.BoxDecoration(
+                      color: PdfColors.grey300,
+                    ),
+                    rowDecoration: pw.BoxDecoration(
+                      border: pw.Border(
+                        bottom:
+                            pw.BorderSide(color: PdfColors.grey400, width: 0.5),
+                      ),
                     ),
                   ),
-                ),
-                pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 10),
 
-                // Invoice and Manager
-                pw.Text(
-                  'Invoice: ${order['invoice']}',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Manager: ${order['manage_staff'] ?? ''}'),
-                pw.SizedBox(height: 10),
-
-                // Customer Details
-                pw.Text(
-                  'Customer Details',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Name: ${order['customer']['name'] ?? ''}'),
-                pw.Text('Phone: ${order['customer']['phone'] ?? ''}'),
-                pw.Text('Email: ${order['customer']['email'] ?? ''}'),
-                pw.Text('Address: ${order['customer']['address'] ?? ''}'),
-                pw.SizedBox(height: 10),
-
-                // Billing Address
-                pw.Text(
-                  'Billing Address',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Name: ${order['billing_address']['name'] ?? ''}'),
-                pw.Text('Email: ${order['billing_address']['email'] ?? ''}'),
-                pw.Text('Phone: ${order['billing_address']['phone'] ?? ''}'),
-                pw.Text('Address: ${order['billing_address']['address'] ?? ''}'),
-                pw.Text('City: ${order['billing_address']['city'] ?? ''}'),
-                pw.Text('State: ${order['billing_address']['state'] ?? ''}'),
-                pw.Text('Zipcode: ${order['billing_address']['zipcode'] ?? ''}'),
-                pw.SizedBox(height: 10),
-
-                // Bank Details
-                pw.Text(
-                  'Bank Details',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Name: ${order['bank']['name'] ?? ''}'),
-                pw.Text('Account Number: ${order['bank']['account_number'] ?? ''}'),
-                pw.Text('IFSC Code: ${order['bank']['ifsc_code'] ?? ''}'),
-                pw.Text('Branch: ${order['bank']['branch'] ?? ''}'),
-                pw.SizedBox(height: 10),
-
-                // Items Table
-                pw.Text(
-                  'Items',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Table.fromTextArray(
-                  headers: ['Name', 'Quantity', 'Price', 'Tax', 'Discount'],
-                  data: [
-                    for (var item in order['items'])
-                      [
-                        item['name'] ?? '',
-                        item['quantity'].toString(),
-                        item['price'].toString(),
-                        item['tax'].toString(),
-                        item['discount'].toString(),
-                      ],
-                  ],
-                  headerStyle: pw.TextStyle(
-                    fontWeight: pw.FontWeight.bold,
-                    fontSize: 10,
+                  // Order Summary
+                  pw.Text(
+                    'Order Summary',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                   ),
-                  cellStyle: pw.TextStyle(
-                    fontSize: 8,
-                  ),
-                  headerDecoration: pw.BoxDecoration(
-                    color: PdfColors.grey300,
-                  ),
-                  rowDecoration: pw.BoxDecoration(
-                    border: pw.Border(
-                      bottom: pw.BorderSide(color: PdfColors.grey400, width: 0.5),
-                    ),
-                  ),
-                ),
-                pw.SizedBox(height: 10),
+                  pw.Text('Status: ${order['status'] ?? ''}'),
+                  pw.Text('Total Amount: ${order['total_amount'].toString()}'),
+                  pw.Text('Order Date: ${order['order_date'] ?? ''}'),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    }
 
-                // Order Summary
-                pw.Text(
-                  'Order Summary',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                ),
-                pw.Text('Status: ${order['status'] ?? ''}'),
-                pw.Text('Total Amount: ${order['total_amount'].toString()}'),
-                pw.Text('Order Date: ${order['order_date'] ?? ''}'),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+    return pdf;
   }
-
-  return pdf;
-}
 
   Future<void> downloadPdf() async {
     final pdf = await createPdf();
     final output = await getTemporaryDirectory();
     final file = File("${output.path}/order_list.pdf");
     await file.writeAsBytes(await pdf.save());
-    await Printing.sharePdf(bytes: await pdf.save(), filename: 'order_list.pdf');
+    await Printing.sharePdf(
+        bytes: await pdf.save(), filename: 'order_list.pdf');
   }
 
   @override
@@ -623,42 +490,50 @@ Future<void> exportToExcel() async {
             style: TextStyle(fontSize: 14, color: Colors.grey)),
         centerTitle: true,
         actions: [
-    PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert), // 3-dot icon
-      onSelected: (value) {
-        // Handle menu item selection
-        switch (value) {
-          case 'Option 1':
-           exportToExcel();
-            break;
-          case 'Option 2':
-           downloadPdf();
-            break;
-         
-          default:
-            // Handle default case
-            break;
-        }
-      },
-      itemBuilder: (BuildContext context) {
-        return [
-          PopupMenuItem<String>(
-            value: 'Option 1',
-            child: Text('Export Excel'),
+          IconButton(
+            icon: Icon(Icons.calendar_today), // Calendar icon
+            onPressed: () => _selectSingleDate(
+                context), // Call the method to select start date
           ),
-          PopupMenuItem<String>(
-            value: 'Option 2',
-            child: Text('Download Pdf'),
+          // Icon button to open date range picker
+          IconButton(
+            icon: Icon(Icons.date_range), // Date range icon
+            onPressed: () => _selectDateRange(
+                context), // Call the method to select date range
           ),
-          
-        ];
-      },
-    ),
-  ],
-      ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert), // 3-dot icon
+            onSelected: (value) {
+              // Handle menu item selection
+              switch (value) {
+                case 'Option 1':
+                  exportToExcel();
+                  break;
+                case 'Option 2':
+                  downloadPdf();
+                  break;
 
-      
-     drawer: Drawer( 
+                default:
+                  // Handle default case
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'Option 1',
+                  child: Text('Export Excel'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Option 2',
+                  child: Text('Download Pdf'),
+                ),
+              ];
+            },
+          ),
+        ],
+      ),
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -795,74 +670,76 @@ Future<void> exportToExcel() async {
             ),
           ),
           // Date Filters
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-  width: 160,
-  child: ElevatedButton(
-    onPressed: () => _selectSingleDate(context),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color.fromARGB(255, 2, 65, 96), // Set button color to grey
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8), // Set the border radius
-      ),
-    ),
-    child: Text(
-      'Select Date',
-      style: TextStyle(color: Colors.white),
-    ),
-  ),
-),
-
-                SizedBox(width: 10),
-              ElevatedButton(
-  onPressed: () => _selectDateRange(context),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color.fromARGB(255, 2, 65, 96), // Set button color to grey
-    shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8), // Set the border radius
-      ),
-  ),
-  child: Text(
-    'Select Date Range',
-    style: TextStyle(color: Colors.white), // Set text color to white
-  ),
-),
-
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       SizedBox(
+          //         width: 160,
+          //         child: ElevatedButton(
+          //           onPressed: () => _selectSingleDate(context),
+          //           style: ElevatedButton.styleFrom(
+          //             backgroundColor: const Color.fromARGB(
+          //                 255, 2, 65, 96), // Set button color to grey
+          //             shape: RoundedRectangleBorder(
+          //               borderRadius:
+          //                   BorderRadius.circular(8), // Set the border radius
+          //             ),
+          //           ),
+          //           child: Text(
+          //             'Select Date',
+          //             style: TextStyle(color: Colors.white),
+          //           ),
+          //         ),
+          //       ),
+          //       SizedBox(width: 10),
+          //       ElevatedButton(
+          //         onPressed: () => _selectDateRange(context),
+          //         style: ElevatedButton.styleFrom(
+          //           backgroundColor: const Color.fromARGB(
+          //               255, 2, 65, 96), // Set button color to grey
+          //           shape: RoundedRectangleBorder(
+          //             borderRadius:
+          //                 BorderRadius.circular(8), // Set the border radius
+          //           ),
+          //         ),
+          //         child: Text(
+          //           'Select Date Range',
+          //           style: TextStyle(
+          //               color: Colors.white), // Set text color to white
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           // Display Orders
-         Expanded(
+          Expanded(
   child: filteredOrders.isEmpty
       ? Center(
           child: Text(
-            selectedDate != null || (startDate != null && endDate != null)
+            selectedDate != null ||
+                    (startDate != null && endDate != null)
                 ? 'No orders available in this date range'
                 : 'No orders available',
-            style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 2, 65, 96)),
+            style: TextStyle(
+                fontSize: 16, color: const Color.fromARGB(255, 2, 65, 96)),
           ),
         )
       : ListView.builder(
           itemCount: filteredOrders.length,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.only(right: 10, left: 10),
           itemBuilder: (context, index) {
             final order = filteredOrders[index];
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 3.0),
               child: GestureDetector(
                 onTap: () {
-                  // showCustomDialogBox(context);
-                  
                   Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => WarehouseOrderReview(id: order['id']),
-                    ),
-                  );
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              WarehouseOrderReview(id: order['id'])));
                 },
                 child: Card(
                   shape: RoundedRectangleBorder(
@@ -884,22 +761,20 @@ Future<void> exportToExcel() async {
                         ),
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '#${order['invoice']}',
+                              '#${order['invoice']} /${order['customer']['name']}',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                             Text(
                               DateFormat('dd MMM yy').format(
-                                DateTime.parse(
-                                  formatDateString(order['order_date']),
-                                ),
-                              ),
-                              style: TextStyle(color: Colors.white, fontSize: 14),
+                                  DateTime.parse(order['order_date'])),
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 14),
                             ),
                           ],
                         ),
@@ -910,107 +785,114 @@ Future<void> exportToExcel() async {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Staff: ${order['manage_staff']}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  'Status:',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      ),
+                                ),
+                                Spacer(),
+                                 Text(
+                                  ' ${order['status']}',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 4.0),
-                            Text(
-                              'Customer: ${order['customer']['name']}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                    
                             SizedBox(height: 8.0),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Billing Amount:',
                                   style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                      fontSize: 13,
+                                      ),
                                 ),
                                 Text(
                                   '\$${order['total_amount']}',
                                   style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 8.0),
-                            // Products section
-                            if (order['items'] != null &&
-                                order['items'].isNotEmpty)
-                                
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Products:',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  ListView.builder(
-                                    itemCount: order['items'].length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context, itemIndex) {
-                                      final product = order['items'][itemIndex];
-
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 4.0,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                product['name'] ?? 'N/A',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Qty: ${product['quantity']}',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            ),
-                                            Text(
-                                              '\$${product['price']}',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
                           ],
                         ),
                       ),
+                      // Warehouse Details Section
+                      if (order['warehouse_orders'] != null &&
+                          order['warehouse_orders'].isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 4.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Warehouse Details:',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue),
+                              ),
+                              SizedBox(height: 4.0),
+                              ...order['warehouse_orders']
+                                  .map<Widget>((warehouse) {
+                                return Card(
+                                  color: const Color.fromARGB(240, 255, 255, 255),
+                                  margin:
+                                      EdgeInsets.symmetric(vertical: 4.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Box: ${warehouse['box']}',
+                                          style: TextStyle(fontSize: 13),
+                                        ),
+                                        Text(
+                                          'Weight: ${warehouse['weight']} kg',
+                                          style: TextStyle(fontSize: 13),
+                                        ),
+                                        Text(
+                                          'Dimensions: ${warehouse['length']} x ${warehouse['breadth']} x ${warehouse['height']}',
+                                          style: TextStyle(fontSize: 13),
+                                        ),
+                                        Text(
+                                          'Parcel Service: ${warehouse['parcel_service']}',
+                                          style: TextStyle(fontSize: 13),
+                                        ),
+                                       
+                                        Text(
+                                          'Shipping Charge: \$${warehouse['shipping_charge']}',
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.green),
+                                        ),
+                                        // Text(
+                                        //   'Status: ${warehouse['status']}',
+                                        //   style: TextStyle(
+                                        //       fontSize: 13,
+                                        //       fontWeight:
+                                        //           FontWeight.w600),
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),

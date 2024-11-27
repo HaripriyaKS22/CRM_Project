@@ -10,6 +10,7 @@ import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/creditsale_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/daily_goods_movement.dart';
+import 'package:beposoft/pages/ACCOUNTS/damaged_stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_list.dart';
@@ -230,7 +231,7 @@ class drower{
         case 'Damaged Stock':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>Purchases_request()),
+          MaterialPageRoute(builder: (context) =>DamagedStockReport()),
         );
         break;
       case 'Create New GRV':
@@ -391,7 +392,7 @@ class drower{
         case 'Damaged Stock':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>Purchases_request()),
+          MaterialPageRoute(builder: (context) =>DamagedStockReport()),
         );
         break;
       case 'Create New GRV':

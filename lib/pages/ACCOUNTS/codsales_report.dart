@@ -375,6 +375,7 @@
 
 
 import 'dart:convert';
+import 'package:beposoft/pages/ACCOUNTS/codsale_date_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/creditsale_date_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
@@ -812,7 +813,9 @@ Widget build(BuildContext context) {
                             SizedBox(height: 20),
                             ElevatedButton(
                               onPressed: () {
+                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>codsalereport_datewise_view(date:salesData['date'])));
                                 print("View button pressed for ${salesData['date']}");
+                                
                               },
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
