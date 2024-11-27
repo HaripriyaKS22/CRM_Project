@@ -213,21 +213,33 @@ Future<void> showCustomDialogBox(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+// String formatDateString(String dateString) {
+//   try {
+//     // Check if the date is already in YYYY-MM-DD format
+//     DateTime.parse(dateString);
+//     return dateString; // Return as-is if valid
+//   } catch (_) {
+//     // Reformat DD/MM/YY to YYYY-MM-DD
+//     final parts = dateString.split('/');
+//     if (parts.length == 3) {
+//       final year = '20${parts[2]}'; // Assuming years are in the 2000s
+//       final month = parts[1].padLeft(2, '0');
+//       final day = parts[0].padLeft(2, '0');
+//       return '$year-$month-$day';
+//     }
+//     throw FormatException("Invalid date format: $dateString");
+//   }
+// }
+
 String formatDateString(String dateString) {
   try {
-    // Check if the date is already in YYYY-MM-DD format
-    DateTime.parse(dateString);
-    return dateString; // Return as-is if valid
-  } catch (_) {
-    // Reformat DD/MM/YY to YYYY-MM-DD
-    final parts = dateString.split('/');
-    if (parts.length == 3) {
-      final year = '20${parts[2]}'; // Assuming years are in the 2000s
-      final month = parts[1].padLeft(2, '0');
-      final day = parts[0].padLeft(2, '0');
-      return '$year-$month-$day';
-    }
-    throw FormatException("Invalid date format: $dateString");
+    // Parse the date with DateTime
+    DateTime parsedDate = DateTime.parse(dateString);
+    // Format the date to a consistent format
+    return DateFormat('yyyy-MM-dd').format(parsedDate);
+  } catch (e) {
+    print("Date formatting error: $e");
+    return dateString; // Return the original date string if formatting fails
   }
 }
 
@@ -243,6 +255,7 @@ Future<void> fetchOrderData() async {
     );
 
     print("ordersssssssssssss${response.body}");
+    print('object${response.statusCode}');
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -298,8 +311,7 @@ Future<void> fetchOrderData() async {
       setState(() {
         orders = orderList;
         filteredOrders = orderList;
-         print("itemssssssssssssssssssssssss${orders[0]['items']}");
-
+        print("itemssssssssssssssssssssssss${orders[0]['items']}");
         print("filterrrrrrrrrrrrrrrrrrrrrrrrrr$filteredOrders");
       });
     }
@@ -307,7 +319,6 @@ Future<void> fetchOrderData() async {
     print("Error: $error");
   }
 }
-
   void _filterOrders(String query) {
     setState(() {
       searchQuery = query;

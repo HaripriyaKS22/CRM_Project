@@ -119,6 +119,8 @@ class _dashboardState extends State<dashboard> {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>dashboard()));
               },
             ),
+                        _buildDropdownTile(context, 'Reports', ['Sales Report', 'Credit Sales Report','COD Sales Report','Statewise Sales Report','Expence Report','Delivery Report','Product Sale Report','Stock Report','Damaged Stock']),
+
              ListTile(
               leading: Icon(Icons.person),
               title: Text('Company'),
@@ -202,7 +204,6 @@ class _dashboardState extends State<dashboard> {
 
             _buildDropdownTile(context, 'Product', ['Product List','Product Add', 'Stock',]),
             _buildDropdownTile(context, 'Expence', ['Add Expence', 'Expence List',]),
-            _buildDropdownTile(context, 'Reports', ['Sales Report', 'Credit Sales Report','COD Sales Report','Statewise Sales Report','Expence Report','Delivery Report','Product Sale Report','Stock Report','Damaged Stock']),
             _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
              _buildDropdownTile(context, 'Banking Module', ['Add Bank ', 'List','Other Transfer']),
                Divider(),

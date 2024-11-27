@@ -28,6 +28,7 @@ import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/sales_report.dart';
+import 'package:beposoft/pages/ACCOUNTS/staewise_sale_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
@@ -198,7 +199,7 @@ class drower{
       case 'Statewise Sales Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => purchase_list()),
+          MaterialPageRoute(builder: (context) => StateWiseReport()),
         );
         break;
       case 'Expence Report':

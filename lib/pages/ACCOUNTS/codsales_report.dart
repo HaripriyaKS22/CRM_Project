@@ -397,10 +397,7 @@ class COD_Sales_Report extends StatefulWidget {
 class _COD_Sales_ReportState extends State<COD_Sales_Report> {
   List<Map<String, dynamic>> salesReportList = [];
     List<Map<String, dynamic>> allSalesReportList = []; // Original data
-  double totalorder = 0.0;
   double totalAmount = 0.0;
-  double totalpaid = 0.0;
-  double pending = 0.0;
   double rejectedBills = 0.0;
   double rejectedAmount = 0.0;
  TextEditingController searchController = TextEditingController();
@@ -461,8 +458,11 @@ class _COD_Sales_ReportState extends State<COD_Sales_Report> {
           return orderDate.isAfter(startDate!.subtract(Duration(days: 1))) &&
               orderDate.isBefore(endDate!.add(Duration(days: 1)));
         }).toList();
+                    _updateTotals();
+
       });
     }
+
   }
 
   // Method to filter expenses by single date
@@ -478,9 +478,12 @@ print(orderDate);
               orderDate.month == selectedDate!.month &&
               orderDate.day == selectedDate!.day;
         }).toList();
+                _updateTotals();
+
       });
       print("filteredData$filteredData");
     }
+
   }
 
   // Method to select a single date
@@ -498,6 +501,8 @@ print(orderDate);
       });
       _filterOrdersBySingleDate(); // Re-filter after selecting a new date
     }
+        _updateTotals();
+
   }
 
   // Method to select a date range (start date and end date)
@@ -548,65 +553,29 @@ void _resetFilters() {
     double tempTotalsold = 0.0;
     double tempremaining = 0.0;
     double tempApprovedAmount = 0.0;
-    double tempRejectedBills = 0.0;
-    double tempRejectedAmount = 0.0;
+   
 
-    for (var reportData in salesReportList) {
+    for (var reportData in filteredData) {
       tempTotalstock += reportData['total_orders'];
             print("temptotalstock:$tempTotalstock");
 
       tempTotalsold += reportData['total_paid'];
       tempremaining += reportData['total_pending'];
       tempApprovedAmount += reportData['total_amount'];
-      // tempRejectedBills += reportData['rejected']['bills'];
-      // tempRejectedAmount += reportData['rejected']['amount'];
+     
     }
 
     setState(() {
-      totalorder = tempTotalstock;
-      print("totalstock:$totalorder");
+      totalOrders = tempTotalstock;
+      print("totalstock:$totalOrders");
       totalAmount = tempApprovedAmount;
-      totalpaid = tempTotalsold;
-      pending = tempremaining;
-      // rejectedBills = tempRejectedBills;
-      // rejectedAmount = tempRejectedAmount;
+      totalPaid = tempTotalsold;
+      totalPending = tempremaining;
+      
     });
   }
 
-  // Future<void> _selectSingleDate(BuildContext context) async {
-  //   final DateTime? picked = await showDatePicker(
-  //     context: context,
-  //     initialDate: DateTime.now(),
-  //     firstDate: DateTime(2000),
-  //     lastDate: DateTime(2101),
-  //   );
-  //   if (picked != null && picked != selectedDate) {
-  //     setState(() {
-  //       selectedDate = picked;
-  //       print("selectedDate:$selectedDate");
-  //     });
-  //     _filterOrdersBySingleDate();
-  //   }
-  // }
-
-  // Future<void> _selectDateRange(BuildContext context) async {
-  //   final DateTimeRange? picked = await showDateRangePicker(
-  //     context: context,
-  //     firstDate: DateTime(2000),
-  //     lastDate: DateTime(2101),
-  //     initialDateRange: startDate != null && endDate != null
-  //         ? DateTimeRange(start: startDate!, end: endDate!)
-  //         : null,
-  //   );
-  //   if (picked != null) {
-  //     setState(() {
-  //       startDate = picked.start;
-  //       endDate = picked.end;
-  //     });
-  //     _filterOrdersByDateRange();
-  //   }
-  // }
-
+  
   drower d = drower();
 
   // Get token from SharedPreferences
@@ -615,56 +584,6 @@ void _resetFilters() {
     return prefs.getString('token');
   }
 
-
-  void processSalesData(List<dynamic> data) {
-  // Clear previous totals
-  double newTotalAmount = 0.0;
-  int newTotalOrders = 0;
-  double newTotalPaid = 0.0;
-  double newTotalPending = 0.0;
-
-  List<Map<String, dynamic>> codsaleslist = [];
-
-  for (var productData in data) {
-    double amount = productData['total_amount'] != null
-        ? double.tryParse(productData['total_amount'].toString()) ?? 0.0
-        : 0.0;
-    double paid = productData['total_paid'] != null
-        ? double.tryParse(productData['total_paid'].toString()) ?? 0.0
-        : 0.0;
-    double pending = productData['total_pending'] != null
-        ? double.tryParse(productData['total_pending'].toString()) ?? 0.0
-        : 0.0;
-
-    newTotalAmount += amount;
-    newTotalPaid += paid;
-    newTotalPending += pending;
-    newTotalOrders += productData['total_orders'] != null
-        ? int.tryParse(productData['total_orders'].toString()) ?? 0
-        : 0;
-
-    codsaleslist.add({
-      'date': productData['date'],
-      'total_amount': amount,
-      'total_orders': productData['total_orders'],
-      'total_paid': paid,
-      'total_pending': pending,
-    });
-  }
-
-  setState(() {
-    // Update totals
-    totalAmount = newTotalAmount;
-    totalOrders = newTotalOrders;
-    totalPaid = newTotalPaid;
-    totalPending = newTotalPending;
-
-    // Update sales list
-    cod = codsaleslist;
-    filteredData = codsaleslist;
-    print("coooooooooooooooo$cod");
-  });
-}
 
 Future<void> getcodsales() async {
   try {
@@ -684,46 +603,26 @@ Future<void> getcodsales() async {
       // Ensure `data` is a list
       final data = productsData is List ? productsData : productsData['data'];
 
-      // Clear previous totals
-      totalAmount = 0.0;
-      totalOrders = 0;
-      totalPaid = 0.0;
-      totalPending = 0.0;
+     
 
       List<Map<String, dynamic>> codsaleslist = [];
 
       for (var productData in data) {
-        double amount = productData['total_amount'] != null
-            ? double.tryParse(productData['total_amount'].toString()) ?? 0.0
-            : 0.0;
-        double paid = productData['total_paid'] != null
-            ? double.tryParse(productData['total_paid'].toString()) ?? 0.0
-            : 0.0;
-        double pending = productData['total_pending'] != null
-            ? double.tryParse(productData['total_pending'].toString()) ?? 0.0
-            : 0.0;
-
-        setState(() {
-          totalAmount += amount;
-          totalPaid += paid;
-          totalPending += pending;
-          totalOrders += productData['total_orders'] != null
-              ? int.tryParse(productData['total_orders'].toString()) ?? 0
-              : 0;
-        });
-
+     
         codsaleslist.add({
           'date': productData['date'],
-          'total_amount': amount,
+          'total_amount': productData['total_amount'],
           'total_orders': productData['total_orders'],
-          'total_paid': paid,
-          'total_pending': pending,
+          'total_paid': productData['total_paid'],
+          'total_pending': productData['total_pending'],
         });
       }
 
       setState(() {
         cod = codsaleslist;
         filteredData = codsaleslist;
+            _updateTotals();
+
         print("coooooooooooooooo$cod");
       });
     } else {
@@ -841,147 +740,164 @@ Widget build(BuildContext context) {
         style: TextStyle(fontSize: 14, color: Colors.grey),
       ),
       actions: [
-        // Icon button to open start date picker
         IconButton(
-          icon: Icon(Icons.calendar_today), // Calendar icon
-          onPressed: () => _selectSingleDate(context), // Call the method to select start date
+          icon: Icon(Icons.calendar_today),
+          onPressed: () => _selectSingleDate(context),
         ),
-        // Icon button to open date range picker
         IconButton(
-          icon: Icon(Icons.date_range), // Date range icon
-          onPressed: () => _selectDateRange(context), // Call the method to select date range
+          icon: Icon(Icons.date_range),
+          onPressed: () => _selectDateRange(context),
         ),
       ],
     ),
-    body: Stack(
+    body: Column(
       children: [
-        Column(
-          children: [
-            Expanded(
-              child: filteredData.isEmpty
-                  ? Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      itemCount: filteredData.length,
-                      itemBuilder: (context, index) {
-                        final salesData = filteredData[index];
-                        return Card(
-                          color: Colors.white,
-                          elevation: 4,
-                          margin: EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+        Expanded(
+          child: filteredData.isEmpty
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  itemCount: filteredData.length,
+                  itemBuilder: (context, index) {
+                    final salesData = filteredData[index];
+                    return Card(
+                      color: Colors.white,
+                      elevation: 4,
+                      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Date: ${salesData['date']}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Divider(color: Colors.blue),
+                            SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Date: ${salesData['date']}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.blue,
-                                  ),
+                                  'Total Amount: ₹${salesData['total_amount']}',
+                                  style: TextStyle(fontSize: 14),
                                 ),
-                                SizedBox(height: 8),
-                                Divider(color: Colors.blue),
-                                SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Total Amount: ₹${salesData['total_amount']}',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    Text(
-                                      'Total Orders: ${salesData['total_orders']}',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Total Paid: ₹${salesData['total_paid']}',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    Text(
-                                      'Total Pending: ₹${salesData['total_pending']}',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Add your view action here
-                                    print("View button pressed for ${salesData['date']}");
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.blue,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                  ),
-                                  child: Text(
-                                    'View',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                Text(
+                                  'Total Orders: ${salesData['total_orders']}',
+                                  style: TextStyle(fontSize: 14),
                                 ),
                               ],
                             ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
+                            SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Total Paid: ₹${salesData['total_paid']}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  'Total Pending: ₹${salesData['total_pending']}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: () {
+                                print("View button pressed for ${salesData['date']}");
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                              ),
+                              child: Text(
+                                'View',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
         ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Material(
-            elevation: 12,
-            color: const Color.fromARGB(255, 12, 80, 163),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                color: const Color.fromARGB(255, 12, 80, 163),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Total Report Summary',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+        Material(
+          elevation: 12,
+          color: const Color.fromARGB(255, 12, 80, 163),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              color: const Color.fromARGB(255, 12, 80, 163),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Total Report Summary',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  Divider(
-                    color: Colors.white.withOpacity(0.5),
-                    thickness: 1,
-                  ),
-                  SizedBox(height: 8),
-                  _buildRowWithTwoColumns('Total Amount:', totalAmount),
-                  _buildRowWithTwoColumns('Total Orders:', totalOrders.toDouble()),
-                  _buildRowWithTwoColumns('Total Paid:', totalPaid),
-                  _buildRowWithTwoColumns('Total Pending:', totalPending),
-                ],
-              ),
+                ),
+                Divider(
+                  color: Colors.white.withOpacity(0.5),
+                  thickness: 1,
+                ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text('Total Amount:', style: TextStyle(color: Colors.white)),
+                    Spacer(),
+                    Text('$totalAmount', style: TextStyle(color: Colors.white))
+                  ],
+                ),
+                SizedBox(height: 3),
+                Row(
+                  children: [
+                    Text('Total Orders:', style: TextStyle(color: Colors.white)),
+                    Spacer(),
+                    Text('${totalOrders.toDouble()}',
+                        style: TextStyle(color: Colors.white))
+                  ],
+                ),
+                SizedBox(height: 3),
+                Row(
+                  children: [
+                    Text('Total Paid:', style: TextStyle(color: Colors.white)),
+                    Spacer(),
+                    Text('$totalPaid', style: TextStyle(color: Colors.white))
+                  ],
+                ),
+                SizedBox(height: 3),
+                Row(
+                  children: [
+                    Text('Total Pending:', style: TextStyle(color: Colors.white)),
+                    Spacer(),
+                    Text('$totalPending', style: TextStyle(color: Colors.white))
+                  ],
+                ),
+              ],
             ),
           ),
         ),
@@ -989,6 +905,7 @@ Widget build(BuildContext context) {
     ),
   );
 }
+
 
 }
 
