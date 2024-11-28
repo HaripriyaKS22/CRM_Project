@@ -33,7 +33,7 @@ class _SoldProductReportState extends State<SoldProductReport> {
   @override
   void initState() {
     super.initState();
-    getSalesReport();
+    getSoldReport();
   }
 
   // Method to filter orders by single date
@@ -148,13 +148,13 @@ class _SoldProductReportState extends State<SoldProductReport> {
     return prefs.getString('token');
   }
 
-  Future<void> getSalesReport() async {
+  Future<void> getSoldReport() async {
     setState(() {});
     try {
       final token = await getTokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/salesreport'),
+        Uri.parse('$api/api/productstock/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -163,29 +163,9 @@ class _SoldProductReportState extends State<SoldProductReport> {
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        var salesData = parsed['Sales report'];
+        print("response:${response.body}");
 
-        List<Map<String, dynamic>> salesReportDataList = [];
-        for (var reportData in salesData) {
-          salesReportDataList.add({
-            'date': reportData['date'],
-            'total_bills_in_date': reportData['total_bills_in_date'],
-            'amount': reportData['amount'],
-            'approved': {
-              'bills': reportData['approved']['bills'],
-              'amount': reportData['approved']['amount']
-            },
-            'rejected': {
-              'bills': reportData['rejected']['bills'],
-              'amount': reportData['rejected']['amount']
-            }
-          });
-        }
-
-        setState(() {
-          salesReportList = salesReportDataList;
-          _updateTotals();
-        });
+        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
