@@ -1,1 +1,1 @@
-var api="https://cliff-resorts-earth-dolls.trycloudflare.com";
+var api="https://cents-rca-wilderness-schedule.trycloudflare.com";
