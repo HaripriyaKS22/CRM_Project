@@ -19,6 +19,7 @@ class _StateWiseReportState extends State<StateWiseReport> {
   DateTime? endDate;
 double totalAmount = 0.0;
         int totalOrdersCount = 0;
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -153,11 +154,15 @@ void _filterOrdersByDateRange() {
           stateData['rejected_orders'] = filteredRejectedOrdersCount;
           stateData['rejected_amount'] = filteredRejectedTotalAmount;
 
+
           // Aggregate totals
           totalOrdersCount = filteredCompletedOrdersCount + filteredCancelledOrdersCount +
               filteredReturnedOrdersCount + filteredRejectedOrdersCount;
           totalAmount = filteredCompletedTotalAmount + filteredCancelledTotalAmount +
               filteredReturnedTotalAmount + filteredRejectedTotalAmount;
+          stateData['totalcount'] = totalOrdersCount;
+          stateData['totalamount'] = totalAmount;
+
 
           // Print the aggregated totals
           print("Total Orders Count: $totalOrdersCount");
@@ -170,7 +175,8 @@ void _filterOrdersByDateRange() {
     });
   }
 }
-
+var count;
+var amount;
 Future<void> getstatewisereport() async {
   try {
     final token = await gettokenFromPrefs();
@@ -203,7 +209,6 @@ Future<void> getstatewisereport() async {
           double completedOrdersTotalAmount = 0.0;
           int completedOrdersCount = 0;
 
-          // Safely access "Completed" orders
           var completed = statusBasedOrders["Completed"] ?? {};
           for (var order in completed["orders"] ?? []) {
             completedOrders.add({
@@ -212,8 +217,8 @@ Future<void> getstatewisereport() async {
               "total_amount": order["total_amount"],
             });
 
-            completedOrdersTotalAmount += order["total_amount"]; // Sum the total_amount
-            completedOrdersCount++; // Count the number of completed orders
+            completedOrdersTotalAmount += order["total_amount"];
+            completedOrdersCount++;
           }
 
           // Initialize cancelled orders variables
@@ -221,7 +226,6 @@ Future<void> getstatewisereport() async {
           double cancelledOrdersTotalAmount = 0.0;
           int cancelledOrdersCount = 0;
 
-          // Safely access "Cancelled" orders
           var cancelled = statusBasedOrders["Cancelled"] ?? {};
           for (var order in cancelled["orders"] ?? []) {
             cancelledOrders.add({
@@ -238,7 +242,6 @@ Future<void> getstatewisereport() async {
           double returnedOrdersTotalAmount = 0.0;
           int returnedOrdersCount = 0;
 
-          // Safely access "Return" orders
           var returned = statusBasedOrders["Return"] ?? {};
           for (var order in returned["orders"] ?? []) {
             returnedOrders.add({
@@ -255,7 +258,6 @@ Future<void> getstatewisereport() async {
           double rejectedOrdersTotalAmount = 0.0;
           int rejectedOrdersCount = 0;
 
-          // Safely access "Invoice Rejected" orders
           var rejected = statusBasedOrders["Invoice Rejectd"] ?? {};
           for (var order in rejected["orders"] ?? []) {
             rejectedOrders.add({
@@ -266,30 +268,42 @@ Future<void> getstatewisereport() async {
             rejectedOrdersTotalAmount += order["total_amount"];
             rejectedOrdersCount++;
           }
-totalOrdersCount=rejectedOrdersCount+returnedOrdersCount+cancelledOrdersCount+completedOrdersCount;
-totalAmount=rejectedOrdersTotalAmount+returnedOrdersTotalAmount+cancelledOrdersTotalAmount+completedOrdersTotalAmount;
+
+          // Calculate the total orders and amount for this state
+          int count = rejectedOrdersCount + returnedOrdersCount + cancelledOrdersCount + completedOrdersCount;
+          double amount = rejectedOrdersTotalAmount + returnedOrdersTotalAmount + cancelledOrdersTotalAmount + completedOrdersTotalAmount;
+
+          print("$count, $amount");
+
           // Add the processed data to the list
           statewiselist.add({
             "state": stateData["name"],
             "completed_orders": completedOrdersCount,
             "completed_amount": completedOrdersTotalAmount,
             "completed_orders_details": completedOrders,
-            "cancelled_orders_details":cancelledOrders,
-            "returned_orders_details":rejectedOrders,
-            "rejected_orders_details":rejectedOrders,
+            "cancelled_orders_details": cancelledOrders,
+            "returned_orders_details": returnedOrders,
+            "rejected_orders_details": rejectedOrders,
             "cancelled_orders": cancelledOrdersCount,
             "cancelled_amount": cancelledOrdersTotalAmount,
             "returned_orders": returnedOrdersCount,
             "returned_amount": returnedOrdersTotalAmount,
             "rejected_orders": rejectedOrdersCount,
             "rejected_amount": rejectedOrdersTotalAmount,
+            "totalcount":count,
+            "totalamount":amount
           });
+
+          
         }
 
         setState(() {
+          // Set the final totals after processing all states
+
           expensedata = statewiselist;
           filteredData = statewiselist; // Initialize filteredData
-          print(expensedata);
+                    print("Total Orders Count: $filteredData");
+
         });
       } else {
         print("Unexpected data structure: ${parsed.runtimeType}");
@@ -301,189 +315,179 @@ totalAmount=rejectedOrdersTotalAmount+returnedOrdersTotalAmount+cancelledOrdersT
     print("Error: $error");
   }
 }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            "State Wise Report",
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.date_range),
-              onPressed: () => _selectDateRange(context),
-            ),
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView.builder(
-            itemCount: filteredData.length, // Use filteredData here
-            itemBuilder: (context, index) {
-              final stateData = filteredData[index];
-              return Card(
-                color: Colors.white,
-                elevation: 4, // Adds shadow
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15), // Rounded edges
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.all(16.0), // Padding inside the card
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // State name with a bold header
-                      Text(
-                        stateData["state"],
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue, // Highlight color
-                        ),
-                      ),
-                      const Divider(), // Separator line
-                      const SizedBox(height: 4), // Space between items
-
-                      // Data rows with icons
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            color: 
-                            Colors.green,
-                            
-                          ),
-                                                    SizedBox(width: 5,),
-
-                        Text(
-                            "Completed Orders: ${stateData["completed_orders"]} "),
-                            Spacer(),
-                            Text("₹ ${stateData["completed_amount"]}")
-                        ],
-                      ),
-                      SizedBox(height: 5,),
-                       Row(
-                        children: [
-                          Icon(
-                            Icons.cancel,
-                            color: 
-                            Colors.red,
-                            
-                          ),
-                                                    SizedBox(width: 5,),
-
-                        Text(
-                            "Cancelled Orders: ${stateData["cancelled_orders"]} "),
-                            Spacer(),
-                            Text("₹ ${stateData["cancelled_amount"]}")
-                        ],
-                      ),
-                                            SizedBox(height: 5,),
-
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.undo,
-                            color: 
-                            Colors.yellow,
-                            
-                          ),
-                                                    SizedBox(width: 5,),
-
-                          
-                        Text(
-                            "Returned Orders: ${stateData["returned_orders"]} "),
-                            Spacer(),
-                            Text("₹ ${stateData["returned_amount"]}")
-                        ],
-                      ),
-                                            SizedBox(height: 5,),
-
-Row(
-                        children: [
-                          Icon(
-                            Icons.block,
-                            color: 
-                            Colors.grey,
-                            
-                          ),
-                          SizedBox(width: 5,),
-                          
-                        Text(
-                            "Rejected Orders: ${stateData["rejected_orders"]} "),
-                            Spacer(),
-                            Text("₹ ${stateData["rejected_amount"]}")
-                        ],
-                      ),
-                                              SizedBox(height: 2,),
-
-                      Divider(),
-
-                        SizedBox(height: 5,),
-
-Row(
-                        children: [
-                          Icon(
-                            Icons.summarize,
-                            color: 
-                            Colors.grey,
-                            
-                          ),
-                          SizedBox(width: 5,),
-                          
-                        Text(
-                            "Total Orders: $totalOrdersCount "),
-                            Spacer(),
-                            Text("₹ $totalAmount")
-                        ],
-                      ),
-
-                      
-
-
-                     
-                    
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ));
+ void _filterProducts(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredData = List.from(expensedata); // Show all if search is empty
+      } else {
+        filteredData = expensedata
+            .where((product) =>
+                product['state'].toLowerCase().contains(query.toLowerCase()))
+            .toList(); // Filter based on query
+      }
+    });
   }
-
-  /// Helper widget for each row with an icon and text
-  Widget buildDataRow(
-      String title, String value, IconData icon, Color iconColor) {
-    return Padding(
-      padding:
-          const EdgeInsets.symmetric(vertical: 4.0), // Spacing between rows
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: iconColor,
-            size: 20,
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text(
+        "State Wise Report",
+        style: TextStyle(fontSize: 14, color: Colors.grey),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.date_range),
+          onPressed: () => _selectDateRange(context),
+        ),
+      ],
+    ),
+    body: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: "Search customers...",
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                borderSide: BorderSide(
+                  color: Colors.blue, // Set your desired border color here
+                  width: 2.0, // Set the border width
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                borderSide: BorderSide(
+                  color: Colors.blue, // Border color when TextField is not focused
+                  width: 2.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                borderSide: BorderSide(
+                  color: Colors.blueAccent, // Border color when TextField is focused
+                  width: 2.0,
+                ),
+              ),
+            ),
+            onChanged: _filterProducts,
           ),
-          const SizedBox(width: 8), // Space between icon and text
-          Expanded(
-            child: Text(
-              "$title: $value",
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: Colors.black87,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: RefreshIndicator(
+              onRefresh: getstatewisereport, // Trigger data reload when the user swipes down
+              child: ListView.builder(
+                itemCount: filteredData.length, // Use filteredData here
+                itemBuilder: (context, index) {
+                  final stateData = filteredData[index];
+                  return Card(
+                    color: Colors.white,
+                    elevation: 4, // Adds shadow
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15), // Rounded edges
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0), // Padding inside the card
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // State name with a bold header
+                          Text(
+                            stateData["state"],
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black, // Highlight color
+                            ),
+                          ),
+                          const Divider(), // Separator line
+                          const SizedBox(height: 4), // Space between items
+                          
+                          // Data rows with icons
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(width: 5),
+                              Text("Completed Orders: ${stateData["completed_orders"]} "),
+                              Spacer(),
+                              Text("₹ ${stateData["completed_amount"]}")
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.cancel,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(width: 5),
+                              Text("Cancelled Orders: ${stateData["cancelled_orders"]} "),
+                              Spacer(),
+                              Text("₹ ${stateData["cancelled_amount"]}")
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.undo,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(width: 5),
+                              Text("Returned Orders: ${stateData["returned_orders"]} "),
+                              Spacer(),
+                              Text("₹ ${stateData["returned_amount"]}")
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.block,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(width: 5),
+                              Text("Rejected Orders: ${stateData["rejected_orders"]} "),
+                              Spacer(),
+                              Text("₹ ${stateData["rejected_amount"]}")
+                            ],
+                          ),
+                          SizedBox(height: 2),
+                          Divider(),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.summarize,
+                                color: Colors.grey,
+                              ),
+                              SizedBox(width: 5),
+                              Text("Total Orders: ${stateData["totalcount"]} "),
+                              Spacer(),
+                              Text("₹ ${stateData["totalamount"]}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 }
