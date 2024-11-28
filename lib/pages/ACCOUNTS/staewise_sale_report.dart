@@ -349,7 +349,7 @@ Widget build(BuildContext context) {
           child: TextField(
             controller: searchController,
             decoration: InputDecoration(
-              hintText: "Search customers...",
+              hintText: "Search...",
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30.0),
@@ -393,7 +393,7 @@ Widget build(BuildContext context) {
                       borderRadius: BorderRadius.circular(15), // Rounded edges
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0), // Padding inside the card
+                      padding: const EdgeInsets.all(12.0), // Padding inside the card
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -401,13 +401,13 @@ Widget build(BuildContext context) {
                           Text(
                             stateData["state"],
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Colors.black, // Highlight color
                             ),
                           ),
                           const Divider(), // Separator line
-                          const SizedBox(height: 4), // Space between items
+                          const SizedBox(height: 0), // Space between items
                           
                           // Data rows with icons
                           Row(
