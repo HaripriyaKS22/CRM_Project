@@ -19,12 +19,16 @@ class Sales_Report extends StatefulWidget {
 
 class _Sales_ReportState extends State<Sales_Report> {
   List<Map<String, dynamic>> salesReportList = [];
+    List<Map<String, dynamic>> filterdata = [];
+List<Map<String, dynamic>> sta = [];
+
   double totalBills = 0.0;
   double totalAmount = 0.0;
   double approvedBills = 0.0;
   double approvedAmount = 0.0;
   double rejectedBills = 0.0;
   double rejectedAmount = 0.0;
+    int? selectedstaffId;
 
   DateTime? selectedDate; // For single date filter
   DateTime? startDate; // For date range filter
@@ -34,38 +38,77 @@ class _Sales_ReportState extends State<Sales_Report> {
   void initState() {
     super.initState();
     getSalesReport();
+    getstaff();
   }
 
-  // Method to filter orders by single date
-  void _filterOrdersBySingleDate() {
+Future<void> getstaff() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/staffs/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+      List<Map<String, dynamic>> stafflist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          stafflist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          sta = stafflist;
+          print("sataffffffffffff$sta");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+void _filterOrdersBySingleDate() {
+  print(selectedDate);
     if (selectedDate != null) {
       setState(() {
-        salesReportList = salesReportList.where((order) {
-          final orderDate = _parseDate(order['date']);
+        filterdata = salesReportList.where((order) {
+          // Parse the 'expense_date' from string to DateTime if needed
+          final orderDate = DateFormat('yyyy-MM-dd').parse(order['date']); // Adjust format if needed
+
+          // Compare only the date part (ignoring time)
           return orderDate.year == selectedDate!.year &&
               orderDate.month == selectedDate!.month &&
               orderDate.day == selectedDate!.day;
         }).toList();
-        _updateTotals();
       });
     }
   }
-
   // Method to filter orders between two dates, inclusive of start and end dates
-  void _filterOrdersByDateRange() {
+   void _filterOrdersByDateRange() {
     if (startDate != null && endDate != null) {
       setState(() {
-        salesReportList = salesReportList.where((order) {
-          final orderDate = _parseDate(order['date']);
-          return (orderDate.isAtSameMomentAs(startDate!) ||
-              orderDate.isAtSameMomentAs(endDate!) ||
-              (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!)));
+        filterdata = salesReportList.where((order) {
+          // Parse the 'expense_date' from string to DateTime if needed
+          final orderDate = DateFormat('yyyy-MM-dd').parse(order['date']); // Adjust format if needed
+
+          // Check if the order date is within the selected range
+          return orderDate.isAfter(startDate!.subtract(Duration(days: 1))) &&
+              orderDate.isBefore(endDate!.add(Duration(days: 1)));
         }).toList();
-        _updateTotals();
       });
     }
   }
-
   // Function to parse both MM/dd/yy and yyyy-MM-dd formats
   DateTime _parseDate(String dateString) {
     try {
@@ -148,63 +191,169 @@ class _Sales_ReportState extends State<Sales_Report> {
     return prefs.getString('token');
   }
 
-  Future<void> getSalesReport() async {
-    setState(() {});
-    try {
-      final token = await getTokenFromPrefs();
+  void _filterDataByStaff(int staffId) {
+  setState(() {
+    // Ensure salesReportList is not null
+    if (salesReportList == null || salesReportList.isEmpty) {
+      filterdata = [];
+      return;
+    }
 
-      var response = await http.get(
-        Uri.parse('$api/api/salesreport'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    filterdata = salesReportList
+        .map((report) {
+          // Guard against null in report['staff_orders']
+          List<dynamic> staffOrders = report['staff_orders'] ?? [];
+          List<dynamic> filteredOrders = staffOrders
+              .where((order) => order['manage_staff_id'] == staffId)
+              .toList();
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var salesData = parsed['Sales report'];
+          // If no orders match, exclude this report
+          if (filteredOrders.isEmpty) return null;
 
-        List<Map<String, dynamic>> salesReportDataList = [];
-        for (var reportData in salesData) {
-          salesReportDataList.add({
-            'date': reportData['date'],
-            'total_bills_in_date': reportData['total_bills_in_date'],
-            'amount': reportData['amount'],
+          // Initialize metrics
+          int approvedBills = 0;
+          double approvedAmount = 0.0;
+          int rejectedBills = 0;
+          double rejectedAmount = 0.0;
+
+          // Define statuses
+          List<String> approvedStatuses = [
+            "Completed",
+            "Shipped",
+            "Waiting For Confirmation",
+            "Invoice Created",
+            "Invoice Approved",
+            "To Print",
+            "Processing"
+          ];
+          List<String> rejectedStatuses = [
+            "Cancelled",
+            "Refunded",
+            "Return",
+            "Invoice Rejectd"
+          ];
+
+          // Calculate totals for the filtered orders
+          for (var order in filteredOrders) {
+            if (approvedStatuses.contains(order['status'])) {
+              approvedBills++;
+              approvedAmount += order['total_amount'] ?? 0.0;
+            } else if (rejectedStatuses.contains(order['status'])) {
+              rejectedBills++;
+              rejectedAmount += order['total_amount'] ?? 0.0;
+            }
+          }
+
+          // Return the filtered report with calculated metrics
+          return {
+            'date': report['date'],
+            'total_bills_in_date': report['total_bills_in_date'],
+            'amount': report['amount'],
             'approved': {
-              'bills': reportData['approved']['bills'],
-              'amount': reportData['approved']['amount']
+              'bills': approvedBills,
+              'amount': approvedAmount,
             },
             'rejected': {
-              'bills': reportData['rejected']['bills'],
-              'amount': reportData['rejected']['amount']
-            }
-          });
+              'bills': rejectedBills,
+              'amount': rejectedAmount,
+            },
+            'filteredOrders': filteredOrders,
+          };
+        })
+        .where((report) => report != null) // Filter out null values
+        .cast<Map<String, dynamic>>() // Ensure type safety
+        .toList();
+  });
+}
+
+var staff;
+  Future<void> getSalesReport() async {
+  setState(() {});
+  try {
+    final token = await getTokenFromPrefs();
+
+    var response = await http.get(
+      Uri.parse('$api/api/salesreport'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var salesData = parsed['Sales report'];
+print("salesData:$salesData");
+      List<Map<String, dynamic>> salesReportDataList = [];
+      List<String> approvedStatuses = [
+        "Completed",
+        "Shipped",
+        "Waiting For Confirmation",
+        "Invoice Created",
+        "Invoice Approved",
+        "To Print",
+        "Processing"
+      ];
+      List<String> rejectedStatuses = ["Cancelled", "Refunded", "Return","Invoice Rejectd"];
+
+      for (var reportData in salesData) {
+        List<dynamic> staffOrders = reportData['staff_orders'] ?? [];
+        int totalApprovedBills = 0;
+        double totalApprovedAmount = 0.0;
+        int totalRejectedBills = 0;
+        double totalRejectedAmount = 0.0;
+
+        for (var order in staffOrders) {
+          if (approvedStatuses.contains(order['status'])) {
+            totalApprovedBills++;
+            totalApprovedAmount += order['total_amount'] ?? 0.0;
+          } else if (rejectedStatuses.contains(order['status'])) {
+            totalRejectedBills++;
+            totalRejectedAmount += order['total_amount'] ?? 0.0;
+          }
         }
 
-        setState(() {
-          salesReportList = salesReportDataList;
-          _updateTotals();
+        salesReportDataList.add({
+          'date': reportData['date'],
+          'total_bills_in_date': reportData['total_bills_in_date'],
+          'amount': reportData['amount'],
+          'approved': {
+            'bills': totalApprovedBills,
+            'amount': totalApprovedAmount,
+            
+          },
+          'rejected': {
+            'bills': totalRejectedBills,
+            'amount': totalRejectedAmount,
+          },
         });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to fetch sales report data'),
-            duration: Duration(seconds: 2),
-          ),
-        );
       }
-    } catch (error) {
+
+      setState(() {
+        salesReportList = salesReportDataList;
+        filterdata = salesReportDataList;
+        print("salesReportList$salesReportList");
+        _updateTotals();
+      });
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Error fetching sales report data'),
+          content: Text('Failed to fetch sales report data'),
           duration: Duration(seconds: 2),
         ),
       );
-    } finally {
-      setState(() {});
     }
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Error fetching sales report data'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  } finally {
+    setState(() {});
   }
+}
 
   Widget _buildRow(String label, dynamic value) {
     return Padding(
@@ -450,118 +599,154 @@ class _Sales_ReportState extends State<Sales_Report> {
           ],
         ),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          // Main content: Sales report list
-          SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: 260),
-            child: Column(
-              children: salesReportList.map((reportData) {
-                return Card(
-                  color: Colors.white,
-                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Date: ${reportData['date']}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Divider(color: Colors.grey),
-                        SizedBox(height: 8),
-                        _buildRow(
-                            'Total Bills:', reportData['total_bills_in_date']),
-                        _buildRow('Invoiced Amount:', reportData['amount']),
-                        _buildRow(
-                            'Approved Bills:', reportData['approved']['bills']),
-                        _buildRow('Approved Amount:',
-                            reportData['approved']['amount']),
-                        _buildRow(
-                            'Rejected Bills:', reportData['rejected']['bills']),
-                        _buildRow('Rejected Amount:',
-                            reportData['rejected']['amount']),
-                        SizedBox(height: 12),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    Invoice_Report(date: reportData['date']),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            "Report",
-                            style: TextStyle(fontSize: 14, color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+            Padding(
+  padding: const EdgeInsets.all(10),
+  child: Container(
+    height: 49,
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.blue),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Row(
+      children: [
+        SizedBox(width: 20),
+        Container(
+          width: 276,
+          child: InputDecorator(
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 1),
+            ),
+            child: DropdownButton<int>(
+              value: selectedstaffId,
+              isExpanded: true,
+              hint: Text( // Add hint text here
+                "Select Staff",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              underline: Container(), // This removes the underline
+              onChanged: (int? newValue) {
+                setState(() {
+                  selectedstaffId = newValue!;
+                  print(selectedstaffId);
+                });
+                _filterDataByStaff(selectedstaffId!);
+              },
+              items: sta.map<DropdownMenuItem<int>>((staff) {
+                return DropdownMenuItem<int>(
+                  value: staff['id'],
+                  child: Text(staff['name'], style: TextStyle(fontSize: 12)),
                 );
               }).toList(),
+              icon: Container(
+                alignment: Alignment.centerRight,
+                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+              ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Material(
-              elevation: 12,
-              color: const Color.fromARGB(255, 12, 80, 163),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  color: const Color.fromARGB(255, 12, 80, 163),
+        ),
+      ],
+    ),
+  ),
+),
+          Expanded(
+            child: Stack(
+              children: [
+                // Main content: Sales report list
+                SingleChildScrollView(
+    padding: EdgeInsets.only(bottom: 260),
+    child: Column(
+      children: filterdata.map((reportData) {
+        return Card(
+          color: Colors.white,
+          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Date: ${reportData['date']}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Total Report Summary',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                Divider(color: Colors.grey),
+                SizedBox(height: 8),
+                _buildRow('Approved Bills:', reportData['totalApprovedBills']),
+                _buildRow('Approved Amount:', reportData['totalApprovedAmount']),
+                _buildRow('Rejected Bills:', reportData['totalRejectedBills']),
+                _buildRow('Rejected Amount:', reportData['totalRejectedAmount']),
+                SizedBox(height: 12),
+                Text(
+                  'Orders:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                ...reportData['filteredOrders'].map((order) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: _buildRow('Invoice: ${order['invoice']}', 'Amount: ${order['total_amount']}'),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    ),
+  ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Material(
+                    elevation: 12,
+                    color: const Color.fromARGB(255, 12, 80, 163),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        color: const Color.fromARGB(255, 12, 80, 163),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Total Report Summary',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Divider(
+                            color: Colors.white.withOpacity(0.5),
+                            thickness: 1,
+                            indent: 0,
+                            endIndent: 0,
+                          ),
+                          SizedBox(height: 8),
+                          _buildRowWithTwoColumns('Total Bills:', totalBills,
+                              'Total Amount:', totalAmount),
+                          _buildRowWithTwoColumns('Approved Bills:', approvedBills,
+                              'Approved Amount:', approvedAmount),
+                          _buildRowWithTwoColumns('Rejected Bills:', rejectedBills,
+                              'Rejected Amount:', rejectedAmount),
+                        ],
                       ),
                     ),
-                    Divider(
-                      color: Colors.white.withOpacity(0.5),
-                      thickness: 1,
-                      indent: 0,
-                      endIndent: 0,
-                    ),
-                    SizedBox(height: 8),
-                    _buildRowWithTwoColumns('Total Bills:', totalBills,
-                        'Total Amount:', totalAmount),
-                    _buildRowWithTwoColumns('Approved Bills:', approvedBills,
-                        'Approved Amount:', approvedAmount),
-                    _buildRowWithTwoColumns('Rejected Bills:', rejectedBills,
-                        'Rejected Amount:', rejectedAmount),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],

@@ -330,18 +330,18 @@ Future<void> getstatewisereport() async {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    appBar: AppBar(
-      title: const Text(
-        "State Wise Report",
-        style: TextStyle(fontSize: 14, color: Colors.grey),
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.date_range),
-          onPressed: () => _selectDateRange(context),
+      appBar: AppBar(
+        title: const Text(
+          "State Wise Report",
+          style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
-      ],
-    ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.date_range),
+            onPressed: () => _selectDateRange(context),
+          ),
+        ],
+      ),
     body: Column(
       children: [
         Padding(

@@ -137,9 +137,9 @@ print('$api/api/order/create/');
         },
         body: jsonEncode({
           'manage_staff':selectedstaffId,
-          "company":selectedCompanyId,
+          "company":1,
           "customer": selectedCustomerId,
-          'billing_address':selectedAddressId,
+          'billing_address':selectedAddressId,  
           'order_date': "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
           "family": selectedFamilyId,
           "state": selectedstateId,

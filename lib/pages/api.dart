@@ -1,1 +1,1 @@
-var api="https://cents-rca-wilderness-schedule.trycloudflare.com";
+var api="https://weighted-hired-employ-features.trycloudflare.com";

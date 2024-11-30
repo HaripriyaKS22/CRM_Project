@@ -29,6 +29,7 @@ import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/sales_report.dart';
+import 'package:beposoft/pages/ACCOUNTS/sold_product_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/staewise_sale_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
@@ -218,7 +219,7 @@ class drower{
       case 'Product Sale Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => new_product()),
+          MaterialPageRoute(builder: (context) => SoldProductReport()),
         );
         break;
       case 'Stock Report':
