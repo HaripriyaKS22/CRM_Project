@@ -195,6 +195,7 @@ void _filterOrdersBySingleDate() {
   setState(() {
     // Ensure salesReportList is not null
     if (salesReportList == null || salesReportList.isEmpty) {
+      print("salesReportList == null || salesReportList.isEmpty");
       filterdata = [];
       return;
     }
@@ -215,6 +216,8 @@ void _filterOrdersBySingleDate() {
           double approvedAmount = 0.0;
           int rejectedBills = 0;
           double rejectedAmount = 0.0;
+          int totalBillsInDate = 0;  // Total number of bills for the staff in this report
+          double totalAmount = 0.0;  // Total amount for the staff in this report
 
           // Define statuses
           List<String> approvedStatuses = [
@@ -235,6 +238,11 @@ void _filterOrdersBySingleDate() {
 
           // Calculate totals for the filtered orders
           for (var order in filteredOrders) {
+            // Accumulate total bills and amounts for the staff
+            totalBillsInDate++;  // Each filtered order corresponds to a bill
+            totalAmount += order['total_amount'] ?? 0.0;
+
+            // Calculate approved and rejected bills
             if (approvedStatuses.contains(order['status'])) {
               approvedBills++;
               approvedAmount += order['total_amount'] ?? 0.0;
@@ -247,8 +255,8 @@ void _filterOrdersBySingleDate() {
           // Return the filtered report with calculated metrics
           return {
             'date': report['date'],
-            'total_bills_in_date': report['total_bills_in_date'],
-            'amount': report['amount'],
+            'total_bills_in_date': totalBillsInDate,
+            'amount': totalAmount,
             'approved': {
               'bills': approvedBills,
               'amount': approvedAmount,
@@ -264,6 +272,7 @@ void _filterOrdersBySingleDate() {
         .cast<Map<String, dynamic>>() // Ensure type safety
         .toList();
   });
+  print("filterdatafilterdata:$filterdata");
 }
 
 var staff;
@@ -311,10 +320,12 @@ print("salesData:$salesData");
             totalRejectedBills++;
             totalRejectedAmount += order['total_amount'] ?? 0.0;
           }
+
         }
 
         salesReportDataList.add({
           'date': reportData['date'],
+          "staff_orders":reportData['staff_orders'],
           'total_bills_in_date': reportData['total_bills_in_date'],
           'amount': reportData['amount'],
           'approved': {
@@ -655,54 +666,63 @@ print("salesData:$salesData");
             child: Stack(
               children: [
                 // Main content: Sales report list
-                SingleChildScrollView(
-    padding: EdgeInsets.only(bottom: 260),
-    child: Column(
-      children: filterdata.map((reportData) {
-        return Card(
-          color: Colors.white,
-          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Date: ${reportData['date']}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
+              SingleChildScrollView(
+  padding: EdgeInsets.only(bottom: 260),
+  child: Column(
+    children: filterdata.map((reportData) {
+      // Handle case where 'filteredOrders' might be null
+      List<dynamic> orders = reportData['filteredOrders'] ?? [];
+
+      return Card(
+        color: Colors.white,
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Date: ${reportData['date']}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black87,
                 ),
-                Divider(color: Colors.grey),
-                SizedBox(height: 8),
-                _buildRow('Approved Bills:', reportData['totalApprovedBills']),
-                _buildRow('Approved Amount:', reportData['totalApprovedAmount']),
-                _buildRow('Rejected Bills:', reportData['totalRejectedBills']),
-                _buildRow('Rejected Amount:', reportData['totalRejectedAmount']),
-                SizedBox(height: 12),
-                Text(
-                  'Orders:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                ...reportData['filteredOrders'].map((order) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: _buildRow('Invoice: ${order['invoice']}', 'Amount: ${order['total_amount']}'),
-                  );
-                }).toList(),
-              ],
-            ),
+              ),
+              Divider(color: Colors.grey),
+              SizedBox(height: 8),
+              
+               _buildRow('Total Bills:', reportData['total_bills_in_date']?? 0),
+               _buildRow('Total Amount:', reportData['amount']?? 0),
+
+              _buildRow('Approved Bills:', reportData['approved']['bills'] ?? 0),
+              _buildRow('Approved Amount:', reportData['approved']['amount'] ?? 0.0),
+              _buildRow('Rejected Bills:', reportData['rejected']['bills'] ?? 0),
+              _buildRow('Rejected Amount:', reportData['rejected']['amount'] ?? 0.0),
+              SizedBox(height: 12),
+              Text(
+                'Orders:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              // Safely map over orders
+              ...orders.map((order) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: _buildRow('Invoice: ${order['invoice']}', 'Amount: ${order['total_amount']}'),
+                );
+              }).toList(),
+            ],
           ),
-        );
-      }).toList(),
-    ),
+        ),
+      );
+    }).toList(),
   ),
+),
+
                 Positioned(
                   bottom: 0,
                   left: 0,

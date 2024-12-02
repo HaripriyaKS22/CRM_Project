@@ -14,6 +14,7 @@ import 'package:beposoft/pages/ACCOUNTS/damaged_stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/expence_reeport.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
@@ -207,7 +208,7 @@ class drower{
       case 'Expence Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => expence()),
+          MaterialPageRoute(builder: (context) => Expence_Report()),
         );
         break;
       case 'Delivery Report':

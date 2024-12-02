@@ -216,7 +216,7 @@ class _Expence_ReportState extends State<Expence_Report> {
       );
       List<Map<String, dynamic>> expenselist = [];
       double total = 0;
-
+print(response.body);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 

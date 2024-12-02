@@ -1,1 +1,1 @@
-var api="https://weighted-hired-employ-features.trycloudflare.com";
+var api="https://ghana-aid-wolf-deviation.trycloudflare.com";

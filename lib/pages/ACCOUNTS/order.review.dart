@@ -38,12 +38,11 @@ class _OrderReviewState extends State<OrderReview> {
     super.initState();
     initData();
     getbank();
-print("idddddddddddddddddddddddddddddddd${widget.id}");
+    print("iddddddddddddddddddddddddddddddddssssssssssssssssssssssssss${widget.id}");
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
 
   Future<void> initData() async {
-
     await fetchOrderItems();
   }
 
@@ -52,7 +51,22 @@ print("idddddddddddddddddddddddddddddddd${widget.id}");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-final List<String> statuses = ['Pending', 'In Progress', 'Completed', 'Canceled'];
+
+  final List<String> statuses = [
+    'Pending',
+    'Approved',
+    'Invoice Created',
+    'Invoice Approved',
+    'Waiting For Confirmation',
+    'To Print',
+    'Invoice Rejectd',
+    'Processing',
+    'Refunded',
+    'Return',
+    'Completed',
+    'Cancelled',
+    'Shipped'
+  ];
   double netAmountBeforeTax = 0.0; // Define at the class level
   double totalTaxAmount = 0.0; // Define at the class level
   double payableAmount = 0.0; // Define at the class level
@@ -74,7 +88,59 @@ final List<String> statuses = ['Pending', 'In Progress', 'Completed', 'Canceled'
       });
     }
   }
-List<Map<String, dynamic>> company = [];
+
+  Future<void> updatestatus() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+    
+      String formattedTime = DateFormat("HH:mm").format(DateTime.now());
+
+      print(formattedTime);
+      print('$api/api/order/status/update/${widget.id}/');
+
+      var response = await http.put(
+        Uri.parse('$api/api/order/status/update/${widget.id}/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+            'status': selectedStatus,
+            'time': formattedTime,
+            'updated_at': DateTime.now().toIso8601String().split('T')[0],
+          },
+        ),
+      );
+
+      print("rrrrrrrrrrrrrrrrrrrrrrr${response.body}");
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('status updated successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update status'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating profile'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  List<Map<String, dynamic>> company = [];
 
   Future<void> getcompany(id) async {
     try {
@@ -87,15 +153,15 @@ List<Map<String, dynamic>> company = [];
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "compppppppppppppppppppppp${response.body}");
-          print(response.statusCode);
+      print("compppppppppppppppppppppp${response.body}");
+      print(response.statusCode);
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
         final productsData = jsonDecode(response.body);
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+        print(
+            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           companylist.add({
@@ -103,15 +169,13 @@ List<Map<String, dynamic>> company = [];
             'name': productData['name'],
           });
 
-           if(id==productData['id']){
-            companyname=productData['name'];
-
-           }
+          if (id == productData['id']) {
+            companyname = productData['name'];
+          }
         }
-       
+
         setState(() {
           company = companylist;
-
         });
       }
     } catch (error) {
@@ -124,7 +188,7 @@ List<Map<String, dynamic>> company = [];
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Receipt'),
+          title: Text('Receipt Against Invoice Generate'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -165,12 +229,12 @@ List<Map<String, dynamic>> company = [];
                   controller: transactionIdController,
                   decoration: InputDecoration(
                       labelText: 'Transaction ID',
-                     ),
+                      prefixIcon: Icon(Icons.receipt)),
                 ),
                 TextField(
                   readOnly: true, // Make this field non-editable
                   decoration: InputDecoration(
-                   
+                    prefixIcon: Icon(Icons.person),
                     hintText:
                         createdBy ?? 'Loading...', // Display the creator's name
                   ),
@@ -178,40 +242,26 @@ List<Map<String, dynamic>> company = [];
 
                 TextField(
                   controller: remarkController,
-                  decoration: InputDecoration(labelText: 'Remark'),
+                  decoration: InputDecoration(labelText: 'Remark (optional)'),
                 ),
               ],
             ),
           ),
           actions: [
-           TextButton(
-  style: TextButton.styleFrom(
-    backgroundColor: Colors.white, // Set background color
-    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Optional padding
-  ),
-  child: Text(
-    'Cancel',
-    style: TextStyle(color: Colors.grey),
-  ),
-  onPressed: () {
-    Navigator.of(context).pop();
-  },
-),
-ElevatedButton(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.blue, // Set background color
-    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Optional padding
-  ),
-  onPressed: () {
-    // Handle save action here
-    AddReceipt(context);
-  },
-  child: Text(
-    'Save',
-    style: TextStyle(color: Colors.white), // Set text color
-  ),
-),
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle save action here
 
+                AddReceipt(context);
+              },
+              child: Text('Save'),
+            ),
           ],
         );
       },
@@ -247,7 +297,7 @@ ElevatedButton(
     return pref.getString('token');
   }
 
- Future<void> updateaddress() async {
+  Future<void> updateaddress() async {
     try {
       final token = await gettoken();
 
@@ -259,32 +309,30 @@ ElevatedButton(
         },
         body: jsonEncode(
           {
-            'status':selectedStatus,
-            'billing_address':selectedAddressId,
-            'note':noteController.text,
-            
+            'billing_address': selectedAddressId,
+            'note': noteController.text,
           },
         ),
       );
 
-    print(response.body);
+      print(response.body);
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-             backgroundColor: Colors.green,
+            backgroundColor: Colors.green,
             content: Text('Address updated successfully'),
             duration: Duration(seconds: 2),
           ),
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) =>OrderReview(id:widget.id)),
+          MaterialPageRoute(builder: (context) => OrderReview(id: widget.id)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-             backgroundColor: Colors.red,
+            backgroundColor: Colors.red,
             content: Text('Failed to update Address'),
             duration: Duration(seconds: 2),
           ),
@@ -301,12 +349,12 @@ ElevatedButton(
     }
   }
 
-   List<Map<String, dynamic>> addres = [];
+  List<Map<String, dynamic>> addres = [];
 
-    Future<void> getaddress(var id) async {
+  Future<void> getaddress(var id) async {
     try {
       final token = await gettoken();
-print('urlllllllllllllllll$api/api/add/customer/address/$id/');
+      print('urlllllllllllllllll$api/api/add/customer/address/$id/');
       var response = await http.get(
         Uri.parse('$api/api/add/customer/address/$id/'),
         headers: {
@@ -314,15 +362,15 @@ print('urlllllllllllllllll$api/api/add/customer/address/$id/');
           'Content-Type': 'application/json',
         },
       );
-        print("addresres${response.body}");
-        List<Map<String, dynamic>> addresslist = [];
+      print("addresres${response.body}");
+      List<Map<String, dynamic>> addresslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
         print("addreseeeeeeeeeeeee$parsed");
- for (var productData in productsData) {
+        for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           addresslist.add({
             'id': productData['id'],
@@ -334,25 +382,17 @@ print('urlllllllllllllllll$api/api/add/customer/address/$id/');
             'country': productData['country'],
             'city': productData['city'],
             'state': productData['state'],
-
-
-            
           });
-        
         }
         setState(() {
           addres = addresslist;
-                  print("addres$addres");
-
-          
+          print("addres$addres");
         });
       }
     } catch (error) {
       print("Error: $error");
     }
   }
-
-
 
   Future<void> getbank() async {
     final token = await gettoken();
@@ -435,117 +475,116 @@ print('urlllllllllllllllll$api/api/add/customer/address/$id/');
       print("error:$e");
     }
   }
-  bool flag =false;
+
+  bool flag = false;
 
   double totalDiscount = 0.0; // Define at the class level
-Future<void> fetchOrderItems() async {
-  try {
-    print('$api/api/order/${widget.id}/items/');
-    final token = await getTokenFromPrefs();
-    final jwt = JWT.decode(token!);
-    var name = jwt.payload['name'];
-    setState(() {
-      createdBy = name;
-    });
-    print("Decoded Token Payload: ${jwt.payload}");
-    print("User ID: $createdBy");
-    var response = await http.get(
-      Uri.parse('$api/api/order/${widget.id}/items/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-
-      final parsed = jsonDecode(response.body);
-      ord = parsed['order'];
-      List<dynamic> itemsData = parsed['items'];
-      getaddress(ord['customer']['id']);
-
-      List<Map<String, dynamic>> orderList = [];
-      double calculatedNetAmount = 0.0;
-      double calculatedTotalTax = 0.0;
-      double calculatedPayableAmount = 0.0;
-      double calculatedTotalDiscount = 0.0;
-
-      // Process each item and calculate totals
-      for (var item in itemsData) {
-        orderList.add({
-          'id': item['id'],
-          'name': item['name'],
-          'quantity': item['quantity'],
-          'rate': item['rate'],
-          'tax': item['tax'],
-          'discount': item['discount'],
-          'actual_price': item['actual_price'],
-          'exclude_price': item['exclude_price'],
-          'images': item['images'],
-        });
-
-        // Convert values to double for safe calculation
-        double excludePrice = (item['exclude_price'] ?? 0).toDouble();
-        double actualPrice = (item['actual_price'] ?? 0).toDouble();
-        double discount = (item['discount'] ?? 0).toDouble();
-        int quantity = item['quantity'] ?? 1;
-
-        // Add the exclude_price to net amount
-        calculatedNetAmount += excludePrice;
-
-        // Calculate and add the tax amount for each product
-        double taxAmountForItem = actualPrice - excludePrice;
-        calculatedTotalTax += taxAmountForItem;
-
-        // Add discount amount for each product
-        calculatedTotalDiscount += discount * quantity;
-
-        // Calculate payable amount after subtracting discount
-        double payableForItem = (actualPrice - discount) * quantity;
-        calculatedPayableAmount += payableForItem;
-      }
-
-      // Calculate the sum of payment receipts
-      double paymentReceiptsSum = 0.0;
-      for (var receipt in parsed['order']['payment_receipts']) {
-        paymentReceiptsSum += double.tryParse(receipt['amount'].toString()) ?? 0.0;
-        print("paymentReceiptsSum:$paymentReceiptsSum");
-      }
-
-      // Calculate remaining amount after comparing with calculatedPayableAmount
-      double remainingAmount=0.0;
-      if (paymentReceiptsSum > calculatedPayableAmount) {
-        remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
-        flag=true;
-      } else {
-        remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
-                flag=false;
-
-      }
-      getcompany(ord['company']);
-
+  Future<void> fetchOrderItems() async {
+    try {
+      print('$api/api/order/${widget.id}/items/');
+      final token = await getTokenFromPrefs();
+      final jwt = JWT.decode(token!);
+      var name = jwt.payload['name'];
       setState(() {
-
-        items = orderList;
-        netAmountBeforeTax = calculatedNetAmount;
-        totalTaxAmount = calculatedTotalTax;
-        payableAmount = calculatedPayableAmount;
-        totalDiscount = calculatedTotalDiscount;
-        Balance=remainingAmount;
-        print("Net Amount Before Tax: $netAmountBeforeTax");
-        print("Total Tax Amount: $totalTaxAmount");
-        print("Payable Amount: $payableAmount");
-        print("Total Discount: $totalDiscount");
-        print("Payment Receipts Sum: $paymentReceiptsSum");
-        print("Remaining Amount: $remainingAmount");
+        createdBy = name;
       });
-    } else {
-      print("Failed to fetch data. Status Code: ${response.statusCode}");
+      print("Decoded Token Payload: ${jwt.payload}");
+      print("User ID: $createdBy");
+      var response = await http.get(
+        Uri.parse('$api/api/order/${widget.id}/items/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        ord = parsed['order'];
+        List<dynamic> itemsData = parsed['items'];
+        getaddress(ord['customer']['id']);
+
+        List<Map<String, dynamic>> orderList = [];
+        double calculatedNetAmount = 0.0;
+        double calculatedTotalTax = 0.0;
+        double calculatedPayableAmount = 0.0;
+        double calculatedTotalDiscount = 0.0;
+
+        // Process each item and calculate totals
+        for (var item in itemsData) {
+          orderList.add({
+            'id': item['id'],
+            'name': item['name'],
+            'quantity': item['quantity'],
+            'rate': item['rate'],
+            'tax': item['tax'],
+            'discount': item['discount'],
+            'actual_price': item['actual_price'],
+            'exclude_price': item['exclude_price'],
+            'images': item['images'],
+          });
+
+          // Convert values to double for safe calculation
+          double excludePrice = (item['exclude_price'] ?? 0).toDouble();
+          double actualPrice = (item['actual_price'] ?? 0).toDouble();
+          double discount = (item['discount'] ?? 0).toDouble();
+          int quantity = item['quantity'] ?? 1;
+
+          // Add the exclude_price to net amount
+          calculatedNetAmount += excludePrice;
+
+          // Calculate and add the tax amount for each product
+          double taxAmountForItem = actualPrice - excludePrice;
+          calculatedTotalTax += taxAmountForItem;
+
+          // Add discount amount for each product
+          calculatedTotalDiscount += discount * quantity;
+
+          // Calculate payable amount after subtracting discount
+          double payableForItem = (actualPrice - discount) * quantity;
+          calculatedPayableAmount += payableForItem;
+        }
+
+        // Calculate the sum of payment receipts
+        double paymentReceiptsSum = 0.0;
+        for (var receipt in parsed['order']['payment_receipts']) {
+          paymentReceiptsSum +=
+              double.tryParse(receipt['amount'].toString()) ?? 0.0;
+          print("paymentReceiptsSum:$paymentReceiptsSum");
+        }
+
+        // Calculate remaining amount after comparing with calculatedPayableAmount
+        double remainingAmount = 0.0;
+        if (paymentReceiptsSum > calculatedPayableAmount) {
+          remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
+          flag = true;
+        } else {
+          remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
+          flag = false;
+        }
+        getcompany(ord['company']);
+
+        setState(() {
+          items = orderList;
+          netAmountBeforeTax = calculatedNetAmount;
+          totalTaxAmount = calculatedTotalTax;
+          payableAmount = calculatedPayableAmount;
+          totalDiscount = calculatedTotalDiscount;
+          Balance = remainingAmount;
+          print("Net Amount Before Tax: $netAmountBeforeTax");
+          print("Total Tax Amount: $totalTaxAmount");
+          print("Payable Amount: $payableAmount");
+          print("Total Discount: $totalDiscount");
+          print("Payment Receipts Sum: $paymentReceiptsSum");
+          print("Remaining Amount: $remainingAmount");
+        });
+      } else {
+        print("Failed to fetch data. Status Code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error: $error");
     }
-  } catch (error) {
-    print("Error: $error");
   }
-}
 
   Future<void> removeproduct(int Id) async {
     final token = await getTokenFromPrefs();
@@ -738,7 +777,9 @@ Future<void> fetchOrderItems() async {
                             ),
                           ),
                           Text(
-                            companyname != null ? companyname ?? 'Company' : 'Loading...',
+                            companyname != null
+                                ? companyname ?? 'Company'
+                                : 'Loading...',
                             style: TextStyle(color: Colors.black),
                           ),
                         ],
@@ -1196,7 +1237,6 @@ Future<void> fetchOrderItems() async {
                           ],
                         ),
                         Column(
-                          
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
@@ -1465,51 +1505,50 @@ Future<void> fetchOrderItems() async {
                                 style: TextStyle(
                                     fontSize: 12, fontWeight: FontWeight.w600),
                               ),
-                               Text(
-
-  Balance == payableAmount || flag==true
-      ? 'Payment Completed'
-      : '\$${Balance.toStringAsFixed(2)}',
-      style: TextStyle(color: Colors.green),
-)
+                              Text(
+                                Balance == payableAmount || flag == true
+                                    ? 'Payment Completed'
+                                    : '\$${Balance.toStringAsFixed(2)}',
+                                style: TextStyle(color: Colors.green),
+                              )
                             ],
                           ),
                           SizedBox(height: 4.0),
-                          if(flag)
-                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Customer Ledger Credit:',
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                               Text(
-  Balance == 0
-      ? '\$${payableAmount.toStringAsFixed(2)}'
-      : '\$${Balance.toStringAsFixed(2)}',
-      style: TextStyle(color: Colors.green),
-)
-                            ],
-                          ),
-                        if(flag==false)
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Customer Ledger Debit:',
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-  Balance == 0
-      ? '\$${payableAmount.toStringAsFixed(2)}'
-      : '\$${Balance.toStringAsFixed(2)}',
-)
-
-                            ],
-                          ),
+                          if (flag)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Customer Ledger Credit:',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  Balance == 0
+                                      ? '\$${payableAmount.toStringAsFixed(2)}'
+                                      : '\$${Balance.toStringAsFixed(2)}',
+                                  style: TextStyle(color: Colors.green),
+                                )
+                              ],
+                            ),
+                          if (flag == false)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Customer Ledger Debit:',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  Balance == 0
+                                      ? '\$${payableAmount.toStringAsFixed(2)}'
+                                      : '\$${Balance.toStringAsFixed(2)}',
+                                )
+                              ],
+                            ),
                           SizedBox(height: 8.0),
                           SizedBox(
                             width: double.infinity,
@@ -1540,26 +1579,22 @@ Future<void> fetchOrderItems() async {
                 ),
               ),
             ),
-           
-            
-             Padding(
+            Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (ord != null && ord["payment_receipts"].isNotEmpty)
-
-                   Text(
-                    'Receipt Details',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
+                    Text(
+                      'Receipt Details',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
                   if (ord != null && ord["payment_receipts"].isNotEmpty)
-
-                   SizedBox(height: 10),
+                    SizedBox(height: 10),
                   // Check if ord and ord["payment_receipts"] are not null
                   if (ord != null && ord["payment_receipts"].isNotEmpty)
                     Table(
@@ -1646,143 +1681,159 @@ Future<void> fetchOrderItems() async {
               ),
             ),
             SizedBox(height: 10),
-
             Center(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 4,
-                blurRadius: 6,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DropdownButtonFormField<String>(
-                value: selectedStatus,
-                hint: Text('Select Status'),
-                items: statuses.map((status) {
-                  return DropdownMenuItem<String>(
-                    value: status,
-                    child: Text(status),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedStatus = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Status',
-                ),
-              ),
-             
-
-               SizedBox(height: 8),
-              Text("Shipping Address", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-              SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
                 child: Container(
-                  height: 50,
-                                width: 340,
-
+                  padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                 
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 20),
-                      Container(
-              width: 260,
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: '',
-                  contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                ),
-                child: DropdownButton<int>(
-                  hint: Text(
-                    'Address',
-                    style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
-                  ),
-                  value: selectedAddressId,
-                  isExpanded: true,
-                  underline: Container(), // This removes the underline
-                  onChanged: (int? newValue) {
-                    setState(() {
-                      selectedAddressId = newValue!;
-                      print(selectedAddressId);
-                    });
-                  },
-                  items: addres.map<DropdownMenuItem<int>>((address) {
-                    return DropdownMenuItem<int>(
-                      value: address['id'],
-                      child: Text("${address['address']}", style: TextStyle(fontSize: 12)),
-                    );
-                  }).toList(),
-                  selectedItemBuilder: (BuildContext context) {
-                    return addres.map<Widget>((address) {
-                      return Text(
-                        selectedAddressId != null && selectedAddressId == address['id']
-                            ? "${address['address']}"
-                            : "Address",
-                        style: TextStyle(fontSize: 12, color: Colors.black),
-                      );
-                    }).toList();
-                  },
-                  icon: Container(
-                    alignment: Alignment.centerRight,
-                    child: Icon(Icons.arrow_drop_down,color: const Color.fromARGB(255, 151, 150, 150),), // Dropdown arrow icon
-                  ),
-                ),
-              ),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 4,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
                       ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DropdownButtonFormField<String>(
+                        value: selectedStatus,
+                        hint: Text('Select Status'),
+                        items: statuses.map((status) {
+                          return DropdownMenuItem<String>(
+                            value: status,
+                            child: Text(status),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedStatus =
+                                value; // This will store the selected status
+                          });
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Status',
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text("Shipping Address",
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 5),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Container(
+                          height: 50,
+                          width: 340,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Container(
+                                width: 260,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '',
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 1),
+                                  ),
+                                  child: DropdownButton<int>(
+                                    hint: Text(
+                                      'Address',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Theme.of(context).hintColor),
+                                    ),
+                                    value: selectedAddressId,
+                                    isExpanded: true,
+                                    underline:
+                                        Container(), // This removes the underline
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedAddressId = newValue!;
+                                        print(selectedAddressId);
+                                      });
+                                    },
+                                    items: addres
+                                        .map<DropdownMenuItem<int>>((address) {
+                                      return DropdownMenuItem<int>(
+                                        value: address['id'],
+                                        child: Text("${address['address']}",
+                                            style: TextStyle(fontSize: 12)),
+                                      );
+                                    }).toList(),
+                                    selectedItemBuilder:
+                                        (BuildContext context) {
+                                      return addres.map<Widget>((address) {
+                                        return Text(
+                                          selectedAddressId != null &&
+                                                  selectedAddressId ==
+                                                      address['id']
+                                              ? "${address['address']}"
+                                              : "Address",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black),
+                                        );
+                                      }).toList();
+                                    },
+                                    icon: Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Icon(
+                                        Icons.arrow_drop_down,
+                                        color: const Color.fromARGB(
+                                            255, 151, 150, 150),
+                                      ), // Dropdown arrow icon
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16.0),
+                      TextField(
+                        controller: noteController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Add a Note',
+                        ),
+                      ),
+                      SizedBox(height: 16.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          updateaddress();
+                          updatestatus();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.blue, // Change background color
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(20), // Add border radius
+                          ),
+                        ),
+                        child: Text(
+                          'Submit',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )
                     ],
                   ),
                 ),
               ),
-              
-               SizedBox(height: 16.0),
-              TextField(
-                controller: noteController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Add a Note',
-                ),
-              ),
-              SizedBox(height: 16.0),
-        
-              ElevatedButton(
-  onPressed: () {
-    updateaddress();
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.blue, // Change background color
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20), // Add border radius
-    ),
-  ),
-  child: Text('Submit',style: TextStyle(color: Colors.white),),
-)
-
-            ],
-          ),
-        ),
-      ),
-    ),
+            ),
             SizedBox(height: 30),
           ],
         ),
