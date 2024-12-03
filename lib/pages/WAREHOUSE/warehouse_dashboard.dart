@@ -322,12 +322,15 @@ int packed=0;
       );
     }
   }
-
+ Future<String?> getusernameFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username');
+  }
   // Retrieve the username from SharedPreferences
   Future<void> _getUsername() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+          final name = await getusernameFromPrefs();
     setState(() {
-      username = prefs.getString('username') ??
+      username =name??
           'Guest'; // Default to 'Guest' if no username
     });
   }

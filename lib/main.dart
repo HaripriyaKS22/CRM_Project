@@ -1,3 +1,5 @@
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beposoft/loginpage.dart';
@@ -28,27 +30,31 @@ class _beposoftmainState extends State<beposoftmain> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+  Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
  Future<void> storeUserData(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
   }
+  var department;
   void check() async {
     final token = await gettokenFromPrefs();
+    final dep= await getdepFromPrefs();
+    print("depppppppppp$dep");
     try {
           final jwt = JWT.decode(token!);
-          var id = jwt.payload['id'];
+          var dep = jwt.payload['dep'];
           print("Decoded Token Payload: ${jwt.payload}");
-          print("User ID: $id");
+          print("User ID: $dep");
 
-          // Save ID in SharedPreferences
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('user_id', id); // Store user ID
-          await storeUserData(token); // Store token as needed
         } catch (e) {
           print("Token decode error: $e");
         }
     print("$token");
     setState(() {
+      department=dep;
       tok = token != null;
       print(tok);
     });
@@ -58,7 +64,13 @@ class _beposoftmainState extends State<beposoftmain> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: tok ? dashboard() : login(),
+      home:tok
+          ? department == "Business Development Manager (BDM)"
+              ? bdm_dashbord()  // Navigate to IT Dashboard if department is "it"
+              : department == "warehouse"
+                  ? WarehouseDashboard()  // Navigate to Warehouse Dashboard if department is "warehouse"
+                  : dashboard()   // Else, navigate to the normal Dashboard
+          : login(), 
     );
   }
 }

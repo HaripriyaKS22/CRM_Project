@@ -670,7 +670,7 @@ int grv=0;
           MaterialPageRoute(builder: (context) => OrderList(status: "Invoice Created",)),
         );
                         },
-                        child: _buildInfoCard(approval.toString(), 'Waiting For Approval', 0)),
+                        child: _buildInfoCard(approval.toString(), 'Approve Bills', 0)),
                       GestureDetector(
                         onTap: () {
 
@@ -681,7 +681,7 @@ int grv=0;
                           
 
                         },
-                        child: _buildInfoCard(confirm.toString(), 'Waiting For Confirmation',0)),
+                        child: _buildInfoCard(confirm.toString(), 'Confirm Bills',0)),
                     ],
                   ),
                 ),

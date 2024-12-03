@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
@@ -50,13 +51,15 @@ class _bdm_dashbordState extends State<bdm_dashbord> {
 
 int approval=0;
 int confirm=0;
-
+int customers=0;
   List<Map<String, dynamic>> customer = [];
   List<Map<String, dynamic>> filteredProducts = [];
 
 Future<void> getcustomer() async {
     try {
       final token = await getTokenFromPrefs();
+            final username = await getusernameFromPrefs();
+
       var response = await http.get(
         Uri.parse('$api/api/customers/'),
         headers: {
@@ -74,11 +77,17 @@ Future<void> getcustomer() async {
         List<Map<String, dynamic>> managerlist = [];
 
         for (var productData in productsData) {
+          if(username==productData['manager']){
           managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
             'created_at': productData['created_at']
           });
+          customers++;
+          
+          }
+
+
         }
 
         setState(() {
@@ -320,6 +329,10 @@ Future<void> getcustomer() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+   Future<String?> getusernameFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username');
+  }
 int grv=0;
 // Function to fetch GRV data
   Future<void> getGrvList() async {
@@ -383,16 +396,21 @@ int grv=0;
   // Retrieve the username from SharedPreferences
   Future<void> _getUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+          final name = await getusernameFromPrefs();
+          print("nammeeeeeeeeeeeee$name");
+
     setState(() {
-      username = prefs.getString('username') ??
+      username = name ??
           'Guest'; // Default to 'Guest' if no username
     });
   }
 
  void logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
+  await prefs.remove('department');
   await prefs.remove('token');
+    await prefs.remove('username');
+
 
   // Use a post-frame callback to show the SnackBar after the current frame
   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -765,11 +783,11 @@ int grv=0;
                          onTap: () {
                          Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => GrvList(status:"pending",)),
+          MaterialPageRoute(builder: (context) => customer_list()),
         );
                       },
                         child: _buildGridItem(
-                            Icons.pending_actions, 'Customers',grv),
+                            Icons.pending_actions, 'Customers',customers),
                       ),
                     ],
                   ),

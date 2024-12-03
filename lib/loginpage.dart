@@ -32,9 +32,12 @@ class _loginState extends State<login> {
   
   
 
-  Future<void> storeUserData(String token) async {
+  Future<void> storeUserData(String token,String department,String username) async {
+    print("username$username");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+        await prefs.setString('department', department);
+                await prefs.setString('username', username);
   }
 void login(String email, String password, BuildContext context) async {
   print("eeeeeeeeeeeeeeeeeeeeeeeeee$email");
@@ -58,6 +61,8 @@ void login(String email, String password, BuildContext context) async {
       if (status == 'success') {
         var token = responseData['token'];
         var active = responseData['active'];
+                var name = responseData['name'];
+
 
         print(token);
         print("DDDDDDDEEEEEEPPPPPPPPPPPPPAAAAARRRRRRRTTTTTTMEEEEENNTTTT===========$active");
@@ -72,7 +77,8 @@ void login(String email, String password, BuildContext context) async {
           // Save ID in SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setInt('user_id', id); // Store user ID
-          await storeUserData(token); // Store token as needed
+          await storeUserData(token,active,name); // Store token as needed
+
         } catch (e) {
           print("Token decode error: $e");
         }
