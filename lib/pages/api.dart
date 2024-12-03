@@ -1,1 +1,1 @@
-var api="https://ghana-aid-wolf-deviation.trycloudflare.com";
+var api="https://updated-adjacent-kentucky-pays.trycloudflare.com";

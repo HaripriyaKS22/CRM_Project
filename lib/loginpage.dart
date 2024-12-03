@@ -1,5 +1,6 @@
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
-import 'package:beposoft/pages/ACCOUNTS/warehouse_dashboard.dart';
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/registerationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -100,7 +101,7 @@ void login(String email, String password, BuildContext context) async {
             MaterialPageRoute(builder: (context) => WarehouseDashboard()),
           );
         }
-        if (active == 'Customer Service Department') {
+        if (active == 'Business Development Manager (BDM)') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,
@@ -109,7 +110,7 @@ void login(String email, String password, BuildContext context) async {
           );
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => dashboard()),
+            MaterialPageRoute(builder: (context) => bdm_dashbord()),
           );
         } 
       } else {

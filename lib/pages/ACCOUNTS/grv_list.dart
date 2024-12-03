@@ -1,4 +1,8 @@
 import 'dart:convert';
+import 'package:beposoft/pages/ACCOUNTS/customer.dart';
+import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -6,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
 class GrvList extends StatefulWidget {
-  const GrvList({super.key});
+  var status;
+  GrvList({super.key,required this.status});
 
   @override
   State<GrvList> createState() => _GrvListState();
@@ -56,6 +61,9 @@ class _GrvListState extends State<GrvList> {
 
         List<Map<String, dynamic>> grvDataList = [];
         for (var productData in productsData) {
+          if(widget.status==null){
+
+          
           grvDataList.add({
             'id': productData['id'],
             'product': productData['product'],
@@ -66,7 +74,22 @@ class _GrvListState extends State<GrvList> {
             'remark': productData['remark'],
             'status': productData['status'] ?? statusOptions[0],
             'order_date': productData['order_date'],
+          });}
+          else if(widget.status==productData['status']){
+
+             grvDataList.add({
+            'id': productData['id'],
+            'product': productData['product'],
+            'returnreason': productData['returnreason'],
+            'invoice': productData['invoice'],
+            'customer': productData['customer'],
+            'staff': productData['staff'],
+            'remark': productData['remark'],
+            'status': productData['status'] ?? statusOptions[0],
+            'order_date': productData['order_date'],
           });
+
+          }
         }
         setState(() {
           grvlist = grvDataList;
@@ -102,6 +125,8 @@ class _GrvListState extends State<GrvList> {
       // Get current time and format it correctly
       String formattedTime = DateFormat("HH:mm").format(DateTime.now());
 
+      
+
       var response = await http.put(
         Uri.parse('$api/api/grvupdate/$id/'),
         headers: {
@@ -111,7 +136,7 @@ class _GrvListState extends State<GrvList> {
         body: jsonEncode({
           'status': status,
           'remark': remark,
-          'date': DateTime.now().toIso8601String().split('T')[0],
+          'updated_at': DateTime.now().toIso8601String().split('T')[0],
           'time': formattedTime,
         }),
       );
@@ -168,19 +193,153 @@ class _GrvListState extends State<GrvList> {
     });
   }
 
+
+  drower d = drower();
+  Widget _buildDropdownTile(
+      BuildContext context, String title, List<String> options) {
+    return ExpansionTile(
+      title: Text(title),
+      children: options.map((option) {
+        return ListTile(
+          title: Text(option),
+          onTap: () {
+            Navigator.pop(context);
+            d.navigateToSelectedPage(
+                context, option); // Navigate to selected page
+          },
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(242, 255, 255, 255),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("GRV List"),
-        centerTitle: true,
+        title: Text(
+          "GRV List",
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
         actions: [
           IconButton(
             icon: Image.asset('lib/assets/profile.png'),
             onPressed: () {},
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 110, 110, 110),
+                ),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      "lib/assets/logo-white.png",
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.contain,
+                    ),
+                    SizedBox(
+                      width: 70,
+                    ),
+                    Text(
+                      'BepoSoft',
+                      style: TextStyle(
+                        color: Color.fromARGB(236, 255, 255, 255),
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                )),
+            ListTile(
+              leading: Icon(Icons.dashboard),
+              title: Text('Dashboard'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => dashboard()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Customer'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => customer_list()));
+              },
+            ),
+            Divider(),
+            _buildDropdownTile(context, 'Credit Note', [
+              'Add Credit Note',
+              'Credit Note List',
+            ]),
+            _buildDropdownTile(
+                context, 'Recipts', ['Add recipts', 'Recipts List']),
+            _buildDropdownTile(context, 'Proforma Invoice', [
+              'New Proforma Invoice',
+              'Proforma Invoice List',
+            ]),
+            _buildDropdownTile(context, 'Delivery Note',
+                ['Delivery Note List', 'Daily Goods Movement']),
+            _buildDropdownTile(
+                context, 'Orders', ['New Orders', 'Orders List']),
+            Divider(),
+            Text("Others"),
+            Divider(),
+            _buildDropdownTile(context, 'Product', [
+              'Product List',
+              'Stock',
+            ]),
+            _buildDropdownTile(
+                context, 'Purchase', [' New Purchase', 'Purchase List']),
+            _buildDropdownTile(context, 'Expence', [
+              'Add Expence',
+              'Expence List',
+            ]),
+            _buildDropdownTile(context, 'Reports', [
+              'Sales Report',
+              'Credit Sales Report',
+              'COD Sales Report',
+              'Statewise Sales Report',
+              'Expence Report',
+              'Delivery Report',
+              'Product Sale Report',
+              'Stock Report',
+              'Damaged Stock'
+            ]),
+            _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
+            _buildDropdownTile(context, 'Banking Module',
+                ['Add Bank ', 'List', 'Other Transfer']),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Methods'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Methods()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.chat),
+              title: Text('Chat'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

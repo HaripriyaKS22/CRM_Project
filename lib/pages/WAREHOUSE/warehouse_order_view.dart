@@ -5,7 +5,7 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
-import 'package:beposoft/pages/ACCOUNTS/warehouse_order_review.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_review.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

@@ -24,12 +24,12 @@ class WarehouseOrderReview extends StatefulWidget {
 class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
   Drawer d = Drawer();
   var ord;
-    List<Map<String, dynamic>> courierdata = [];
+  List<Map<String, dynamic>> courierdata = [];
 
   List<Map<String, dynamic>> items = [];
   List<Map<String, dynamic>> bank = [];
   String? selectedBank;
-      int? selectedserviceId;
+  int? selectedserviceId;
 
   String? createdBy;
   var loginid;
@@ -46,31 +46,31 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
     super.initState();
     initData();
     getbank();
-print("idddddddddddddddddddddddddddddddd${widget.id}");
+    print("iddddddddddddddddddddddddddddddddyyyyyy${widget.id}");
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
 
   Future<void> initData() async {
-
     await fetchOrderItems();
     await getmanagers();
     await getcourierservices();
   }
+
   List<Map<String, dynamic>> manager = [];
-    String? selectedManagerName;
+  String? selectedManagerName;
   int? selectedManagerId;
 
-final TextEditingController box = TextEditingController();
+  final TextEditingController box = TextEditingController();
 
   final TextEditingController length = TextEditingController();
-    final TextEditingController height = TextEditingController();
+  final TextEditingController height = TextEditingController();
 
-  final TextEditingController breadth= TextEditingController();
-    final TextEditingController weight= TextEditingController();
+  final TextEditingController breadth = TextEditingController();
+  final TextEditingController weight = TextEditingController();
 
   final TextEditingController service = TextEditingController();
   final TextEditingController transactionid = TextEditingController();
-  final TextEditingController shippingcharge= TextEditingController();
+  final TextEditingController shippingcharge = TextEditingController();
 
   File? selectedImage;
 
@@ -104,7 +104,22 @@ final TextEditingController box = TextEditingController();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-final List<String> statuses = ['Pending', 'In Progress', 'Completed', 'Canceled'];
+
+  final List<String> statuses = [
+    'Pending',
+    'Approved',
+    'Invoice Created',
+    'Invoice Approved',
+    'Waiting For Confirmation',
+    'To Print',
+    'Invoice Rejectd',
+    'Processing',
+    'Refunded',
+    'Return',
+    'Completed',
+    'Cancelled',
+    'Shipped'
+  ];
   double netAmountBeforeTax = 0.0; // Define at the class level
   double totalTaxAmount = 0.0; // Define at the class level
   double payableAmount = 0.0; // Define at the class level
@@ -126,7 +141,58 @@ final List<String> statuses = ['Pending', 'In Progress', 'Completed', 'Canceled'
       });
     }
   }
-List<Map<String, dynamic>> company = [];
+
+  Future<void> updatestatus() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      String formattedTime = DateFormat("HH:mm").format(DateTime.now());
+
+      print(formattedTime);
+      print('$api/api/order/status/update/${widget.id}/');
+
+      var response = await http.put(
+        Uri.parse('$api/api/order/status/update/${widget.id}/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+            'status': selectedStatus,
+            'time': formattedTime,
+            'updated_at': DateTime.now().toIso8601String().split('T')[0],
+          },
+        ),
+      );
+
+      print("rrrrrrrrrrrrrrrrrrrrrrr${response.body}");
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('status updated successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update status'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating profile'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  List<Map<String, dynamic>> company = [];
 
   Future<void> getcompany(id) async {
     try {
@@ -139,15 +205,15 @@ List<Map<String, dynamic>> company = [];
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "compppppppppppppppppppppp${response.body}");
-          print(response.statusCode);
+      print("compppppppppppppppppppppp${response.body}");
+      print(response.statusCode);
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
         final productsData = jsonDecode(response.body);
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+        print(
+            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           companylist.add({
@@ -155,22 +221,21 @@ List<Map<String, dynamic>> company = [];
             'name': productData['name'],
           });
 
-           if(id==productData['id']){
-            companyname=productData['name'];
-
-           }
+          if (id == productData['id']) {
+            companyname = productData['name'];
+          }
         }
-       
+
         setState(() {
           company = companylist;
-
         });
       }
     } catch (error) {
       print("Error: $error");
     }
   }
- Future<void> getcourierservices() async {
+
+  Future<void> getcourierservices() async {
     try {
       final token = await getTokenFromPrefs();
 
@@ -205,9 +270,11 @@ List<Map<String, dynamic>> company = [];
     }
   }
 
-Future<void> getmanagers() async {
+  Future<void> getmanagers() async {
     try {
- final token = await getTokenFromPrefs();print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
+      final token = await getTokenFromPrefs();
+      print(
+          '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
         headers: {
@@ -215,8 +282,7 @@ Future<void> getmanagers() async {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "staffffffffffffffffffffffffffffff${response.body}");
+      print("staffffffffffffffffffffffffffffff${response.body}");
       List<Map<String, dynamic>> managerlist = [];
 
       if (response.statusCode == 200) {
@@ -241,103 +307,111 @@ Future<void> getmanagers() async {
       print("Error: $error");
     }
   }
-void addboxdetails(
-  File? image1,
-  DateTime selectedDate,
-  BuildContext scaffoldContext,
-) async {
-  final token = await getTokenFromPrefs();
-  try {
-    var request = http.MultipartRequest('POST', Uri.parse('$api/api/warehouse/datadd/'));
 
-    // Add headers to the request
-    request.headers['Authorization'] = 'Bearer $token';
+  void addboxdetails(
+    File? image1,
+    DateTime selectedDate,
+    BuildContext scaffoldContext,
+  ) async {
+    final token = await getTokenFromPrefs();
+    try {
+      var request = http.MultipartRequest(
+          'POST', Uri.parse('$api/api/warehouse/datadd/'));
 
-    // Add form fields directly
-    request.fields['shipped_date'] = selectedDate.toIso8601String().substring(0, 10);
+      // Add headers to the request
+      request.headers['Authorization'] = 'Bearer $token';
 
-    // Convert selectedManagerId (int) to String
-    // if (selectedManagerId == null) {
-    //   ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-    //     SnackBar(
-    //       content: Text('Please select a manager before submitting.'),
-    //       backgroundColor: Colors.red,
-    //     ),
-    //   );
-    //   return;
-    // }
+      // Add form fields directly
+      request.fields['shipped_date'] =
+          selectedDate.toIso8601String().substring(0, 10);
 
-    // Add other form fields with proper conversion to String
-    request.fields['order'] = widget.id.toString(); // Ensure widget.id is a string
-    request.fields['box'] = box.text; // Assuming box.text is already a string
-    request.fields['length'] = length.text.toString(); // Ensure length is a string
-    request.fields['height'] = height.text.toString(); // Ensure length is a string
-    request.fields['weight'] = weight.text.toString(); // Ensure weight is a string
-    request.fields['breadth'] = breadth.text.toString(); // Ensure breadth is a string
-    request.fields['parcel_service'] = service.text; // Assuming service.text is already a string
-    request.fields['tracking_id'] = transactionid.text; // Assuming transactionid.text is already a string
-    request.fields['shipping_charge'] = shippingcharge.text.toString(); // Ensure shipping charge is a string
-    request.fields['status'] = selectedStatus ?? ''; // Ensure selectedStatus is not null
+      // Convert selectedManagerId (int) to String
+      // if (selectedManagerId == null) {
+      //   ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      //     SnackBar(
+      //       content: Text('Please select a manager before submitting.'),
+      //       backgroundColor: Colors.red,
+      //     ),
+      //   );
+      //   return;
+      // }
 
-    if(selectedManagerId==null){
+      // Add other form fields with proper conversion to String
+      request.fields['order'] =
+          widget.id.toString(); // Ensure widget.id is a string
+      request.fields['box'] = box.text; // Assuming box.text is already a string
+      request.fields['length'] =
+          length.text.toString(); // Ensure length is a string
+      request.fields['height'] =
+          height.text.toString(); // Ensure length is a string
+      request.fields['weight'] =
+          weight.text.toString(); // Ensure weight is a string
+      request.fields['breadth'] =
+          breadth.text.toString(); // Ensure breadth is a string
+      request.fields['parcel_service'] =
+          service.text; // Assuming service.text is already a string
+      request.fields['tracking_id'] =
+          transactionid.text; // Assuming transactionid.text is already a string
+      request.fields['shipping_charge'] =
+          shippingcharge.text.toString(); // Ensure shipping charge is a string
+      request.fields['status'] =
+          selectedStatus ?? ''; // Ensure selectedStatus is not null
 
+      if (selectedManagerId == null) {
+        request.fields['packed_by'] =
+            loginid.toString(); // Convert selectedManagerId to String
+      } else {
+        request.fields['packed_by'] =
+            selectedManagerId.toString(); // Convert selectedManagerId to String
+      }
 
-          request.fields['packed_by'] = loginid.toString(); // Convert selectedManagerId to String
+      // Add images to the request if they are not null
+      if (image1 != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('image', image1.path));
+      }
 
+      print("Sending Data:");
+      print("Headers: ${request.headers}");
+      print("Fields: ${request.fields}");
+      print("Files: ${request.files.map((file) => file.filename).toList()}");
 
-    }
-    else
-    {
-          request.fields['packed_by'] = selectedManagerId.toString(); // Convert selectedManagerId to String
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+      print("Response: ${response.body}");
 
-    }
-
-
-    // Add images to the request if they are not null
-    if (image1 != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', image1.path));
-    }
-
-    print("Sending Data:");
-    print("Headers: ${request.headers}");
-    print("Fields: ${request.fields}");
-    print("Files: ${request.files.map((file) => file.filename).toList()}");
-
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-    print("Response: ${response.body}");
-
-    // Handle response based on status code
-    if (response.statusCode == 201) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.green,
-          content: Text('Data Added Successfully.'),
-        ),
-      );
-      Navigator.pushReplacement(
-        scaffoldContext,
-        MaterialPageRoute(
-          builder: (context) => WarehouseOrderReview(
-            id: widget.id,
+      // Handle response based on status code
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Data Added Successfully.'),
           ),
-        ),
-      );
-    } else {
-      Map<String, dynamic> responseData = jsonDecode(response.body);
+        );
+        Navigator.pushReplacement(
+          scaffoldContext,
+          MaterialPageRoute(
+            builder: (context) => WarehouseOrderReview(
+              id: widget.id,
+            ),
+          ),
+        );
+      } else {
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text(responseData['message'] ??
+                'Something went wrong. Please try again later.'),
+          ),
+        );
+      }
+    } catch (e) {
+      print("errorr$e");
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text(responseData['message'] ?? 'Something went wrong. Please try again later.'),
-        ),
+        SnackBar(content: Text('Network error. Please check your connection.')),
       );
     }
-  } catch (e) {
-    print("errorr$e");
-    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-      SnackBar(content: Text('Network error. Please check your connection.')),
-    );
   }
-}
 
   void showAddDialog(BuildContext context) {
     showDialog(
@@ -453,7 +527,7 @@ void addboxdetails(
     return pref.getString('token');
   }
 
- Future<void> updateaddress() async {
+  Future<void> updateaddress() async {
     try {
       final token = await gettoken();
 
@@ -465,32 +539,32 @@ void addboxdetails(
         },
         body: jsonEncode(
           {
-            'status':selectedStatus,
-            'billing_address':selectedAddressId,
-            'note':noteController.text,
-            
+            'status': selectedStatus,
+            'billing_address': selectedAddressId,
+            'note': noteController.text,
           },
         ),
       );
 
-    print(response.body);
+      print(response.body);
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-             backgroundColor: Colors.green,
+            backgroundColor: Colors.green,
             content: Text('Address updated successfully'),
             duration: Duration(seconds: 2),
           ),
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) =>WarehouseOrderReview(id:widget.id)),
+          MaterialPageRoute(
+              builder: (context) => WarehouseOrderReview(id: widget.id)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-             backgroundColor: Colors.red,
+            backgroundColor: Colors.red,
             content: Text('Failed to update Address'),
             duration: Duration(seconds: 2),
           ),
@@ -507,12 +581,12 @@ void addboxdetails(
     }
   }
 
-   List<Map<String, dynamic>> addres = [];
+  List<Map<String, dynamic>> addres = [];
 
-    Future<void> getaddress(var id) async {
+  Future<void> getaddress(var id) async {
     try {
       final token = await gettoken();
-print('urlllllllllllllllll$api/api/add/customer/address/$id/');
+      print('urlllllllllllllllll$api/api/add/customer/address/$id/');
       var response = await http.get(
         Uri.parse('$api/api/add/customer/address/$id/'),
         headers: {
@@ -520,15 +594,15 @@ print('urlllllllllllllllll$api/api/add/customer/address/$id/');
           'Content-Type': 'application/json',
         },
       );
-        print("addresres${response.body}");
-        List<Map<String, dynamic>> addresslist = [];
+      print("addresres${response.body}");
+      List<Map<String, dynamic>> addresslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
         print("addreseeeeeeeeeeeee$parsed");
- for (var productData in productsData) {
+        for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           addresslist.add({
             'id': productData['id'],
@@ -540,25 +614,17 @@ print('urlllllllllllllllll$api/api/add/customer/address/$id/');
             'country': productData['country'],
             'city': productData['city'],
             'state': productData['state'],
-
-
-            
           });
-        
         }
         setState(() {
           addres = addresslist;
-                  print("addres$addres");
-
-          
+          print("addres$addres");
         });
       }
     } catch (error) {
       print("Error: $error");
     }
   }
-
-
 
   Future<void> getbank() async {
     final token = await gettoken();
@@ -641,119 +707,118 @@ print('urlllllllllllllllll$api/api/add/customer/address/$id/');
       print("error:$e");
     }
   }
-  bool flag =false;
+
+  bool flag = false;
 
   double totalDiscount = 0.0; // Define at the class level
-Future<void> fetchOrderItems() async {
-  try {
-    print('$api/api/order/${widget.id}/items/');
-    final token = await getTokenFromPrefs();
-    final jwt = JWT.decode(token!);
-    var name = jwt.payload['name'];
-    var id = jwt.payload['id'];
-    setState(() {
-      createdBy = name;
-      loginid=id;
-    });
-    print("Decoded Token Payload: ${jwt.payload}");
-    print("User ID: $createdBy");
-    var response = await http.get(
-      Uri.parse('$api/api/order/${widget.id}/items/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-
-      final parsed = jsonDecode(response.body);
-      ord = parsed['order'];
-      List<dynamic> itemsData = parsed['items'];
-      getaddress(ord['customer']['id']);
-
-      List<Map<String, dynamic>> orderList = [];
-      double calculatedNetAmount = 0.0;
-      double calculatedTotalTax = 0.0;
-      double calculatedPayableAmount = 0.0;
-      double calculatedTotalDiscount = 0.0;
-
-      // Process each item and calculate totals
-      for (var item in itemsData) {
-        orderList.add({
-          'id': item['id'],
-          'name': item['name'],
-          'quantity': item['quantity'],
-          'rate': item['rate'],
-          'tax': item['tax'],
-          'discount': item['discount'],
-          'actual_price': item['actual_price'],
-          'exclude_price': item['exclude_price'],
-          'images': item['images'],
-        });
-
-        // Convert values to double for safe calculation
-        double excludePrice = (item['exclude_price'] ?? 0).toDouble();
-        double actualPrice = (item['actual_price'] ?? 0).toDouble();
-        double discount = (item['discount'] ?? 0).toDouble();
-        int quantity = item['quantity'] ?? 1;
-
-        // Add the exclude_price to net amount
-        calculatedNetAmount += excludePrice;
-
-        // Calculate and add the tax amount for each product
-        double taxAmountForItem = actualPrice - excludePrice;
-        calculatedTotalTax += taxAmountForItem;
-
-        // Add discount amount for each product
-        calculatedTotalDiscount += discount * quantity;
-
-        // Calculate payable amount after subtracting discount
-        double payableForItem = (actualPrice - discount) * quantity;
-        calculatedPayableAmount += payableForItem;
-      }
-
-      // Calculate the sum of payment receipts
-      double paymentReceiptsSum = 0.0;
-      for (var receipt in parsed['order']['payment_receipts']) {
-        paymentReceiptsSum += double.tryParse(receipt['amount'].toString()) ?? 0.0;
-        print("paymentReceiptsSum:$paymentReceiptsSum");
-      }
-
-      // Calculate remaining amount after comparing with calculatedPayableAmount
-      double remainingAmount=0.0;
-      if (paymentReceiptsSum > calculatedPayableAmount) {
-        remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
-        flag=true;
-      } else {
-        remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
-                flag=false;
-
-      }
-      getcompany(ord['company']);
-
+  Future<void> fetchOrderItems() async {
+    try {
+      print('$api/api/order/${widget.id}/items/');
+      final token = await getTokenFromPrefs();
+      final jwt = JWT.decode(token!);
+      var name = jwt.payload['name'];
+      var id = jwt.payload['id'];
       setState(() {
-
-        items = orderList;
-        netAmountBeforeTax = calculatedNetAmount;
-        totalTaxAmount = calculatedTotalTax;
-        payableAmount = calculatedPayableAmount;
-        totalDiscount = calculatedTotalDiscount;
-        Balance=remainingAmount;
-        print("Net Amount Before Tax: $netAmountBeforeTax");
-        print("Total Tax Amount: $totalTaxAmount");
-        print("Payable Amount: $payableAmount");
-        print("Total Discount: $totalDiscount");
-        print("Payment Receipts Sum: $paymentReceiptsSum");
-        print("Remaining Amount: $remainingAmount");
+        createdBy = name;
+        loginid = id;
       });
-    } else {
-      print("Failed to fetch data. Status Code: ${response.statusCode}");
+      print("Decoded Token Payload: ${jwt.payload}");
+      print("User ID: $createdBy");
+      var response = await http.get(
+        Uri.parse('$api/api/order/${widget.id}/items/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        ord = parsed['order'];
+        List<dynamic> itemsData = parsed['items'];
+        getaddress(ord['customer']['id']);
+
+        List<Map<String, dynamic>> orderList = [];
+        double calculatedNetAmount = 0.0;
+        double calculatedTotalTax = 0.0;
+        double calculatedPayableAmount = 0.0;
+        double calculatedTotalDiscount = 0.0;
+
+        // Process each item and calculate totals
+        for (var item in itemsData) {
+          orderList.add({
+            'id': item['id'],
+            'name': item['name'],
+            'quantity': item['quantity'],
+            'rate': item['rate'],
+            'tax': item['tax'],
+            'discount': item['discount'],
+            'actual_price': item['actual_price'],
+            'exclude_price': item['exclude_price'],
+            'images': item['images'],
+          });
+
+          // Convert values to double for safe calculation
+          double excludePrice = (item['exclude_price'] ?? 0).toDouble();
+          double actualPrice = (item['actual_price'] ?? 0).toDouble();
+          double discount = (item['discount'] ?? 0).toDouble();
+          int quantity = item['quantity'] ?? 1;
+
+          // Add the exclude_price to net amount
+          calculatedNetAmount += excludePrice;
+
+          // Calculate and add the tax amount for each product
+          double taxAmountForItem = actualPrice - excludePrice;
+          calculatedTotalTax += taxAmountForItem;
+
+          // Add discount amount for each product
+          calculatedTotalDiscount += discount * quantity;
+
+          // Calculate payable amount after subtracting discount
+          double payableForItem = (actualPrice - discount) * quantity;
+          calculatedPayableAmount += payableForItem;
+        }
+
+        // Calculate the sum of payment receipts
+        double paymentReceiptsSum = 0.0;
+        for (var receipt in parsed['order']['payment_receipts']) {
+          paymentReceiptsSum +=
+              double.tryParse(receipt['amount'].toString()) ?? 0.0;
+          print("paymentReceiptsSum:$paymentReceiptsSum");
+        }
+
+        // Calculate remaining amount after comparing with calculatedPayableAmount
+        double remainingAmount = 0.0;
+        if (paymentReceiptsSum > calculatedPayableAmount) {
+          remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
+          flag = true;
+        } else {
+          remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
+          flag = false;
+        }
+        getcompany(ord['company']);
+
+        setState(() {
+          items = orderList;
+          netAmountBeforeTax = calculatedNetAmount;
+          totalTaxAmount = calculatedTotalTax;
+          payableAmount = calculatedPayableAmount;
+          totalDiscount = calculatedTotalDiscount;
+          Balance = remainingAmount;
+          print("Net Amount Before Tax: $netAmountBeforeTax");
+          print("Total Tax Amount: $totalTaxAmount");
+          print("Payable Amount: $payableAmount");
+          print("Total Discount: $totalDiscount");
+          print("Payment Receipts Sum: $paymentReceiptsSum");
+          print("Remaining Amount: $remainingAmount");
+        });
+      } else {
+        print("Failed to fetch data. Status Code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error: $error");
     }
-  } catch (error) {
-    print("Error: $error");
   }
-}
 
   Future<void> removeproduct(int Id) async {
     final token = await getTokenFromPrefs();
@@ -946,7 +1011,9 @@ Future<void> fetchOrderItems() async {
                             ),
                           ),
                           Text(
-                            companyname != null ? companyname ?? 'Company' : 'Loading...',
+                            companyname != null
+                                ? companyname ?? 'Company'
+                                : 'Loading...',
                             style: TextStyle(color: Colors.black),
                           ),
                         ],
@@ -1326,519 +1393,525 @@ Future<void> fetchOrderItems() async {
                 ],
               ),
             ),
-          
             SizedBox(
               height: 10,
             ),
-
             SizedBox(height: 10),
-Center(
-  child: Padding(
-    padding: const EdgeInsets.all(8.0), // Reduced padding
-    child: Container(
-      padding: const EdgeInsets.all(12.0), // Reduced padding
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0), // Reduced border radius
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 3,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: double.infinity,
-            height: 40, // Reduced height
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              color: Colors.blue,
-            ),
-            alignment: Alignment.center, // Simplified layout
-            child: Text(
-              "Box Details",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 15, // Reduced font size
-              ),
-            ),
-          ),
-          SizedBox(height: 8), // Reduced spacing
-          Container(
-            height: 45, // Reduced height
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 8.0), // Added padding
-            child: DropdownButton<Map<String, dynamic>>(
-              value: manager.isNotEmpty
-                  ? manager.firstWhere(
-                      (element) =>
-                          element['id'] ==
-                          (selectedManagerId ?? manager[0]['id']),
-                      orElse: () => manager[0],
-                    )
-                  : null,
-              underline: SizedBox(),
-              onChanged: manager.isNotEmpty
-                  ? (Map<String, dynamic>? newValue) {
-                      setState(() {
-                        selectedManagerName = newValue!['name'];
-                        selectedManagerId = newValue['id'];
-                      });
-                    }
-                  : null,
-              items: manager
-                  .map<DropdownMenuItem<Map<String, dynamic>>>((Map<String, dynamic> manager) {
-                return DropdownMenuItem<Map<String, dynamic>>(
-                  value: manager,
-                  child: Text(
-                    manager['name'],
-                    style: TextStyle(fontSize: 13), // Reduced font size
-                  ),
-                );
-              }).toList(),
-              isExpanded: true, // Added to expand dropdown
-            ),
-          ),
-
-           SizedBox(height: 8),
-          TextField(
-            controller: box,
-            decoration: InputDecoration(
-              labelText: 'Boxes',
-              labelStyle: TextStyle(fontSize: 13),
-              border: OutlineInputBorder(),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            ),
-          ),
-          SizedBox(height: 8), // Reduced spacing
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: length,
-                  decoration: InputDecoration(
-                    labelText: 'Length',
-                    labelStyle: TextStyle(fontSize: 13), // Reduced font size
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 8.0), // Reduced padding
-                  ),
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: height,
-                  decoration: InputDecoration(
-                    labelText: 'Height',
-                    labelStyle: TextStyle(fontSize: 13),
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 8.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: breadth,
-                  decoration: InputDecoration(
-                    labelText: 'Breadth',
-                    labelStyle: TextStyle(fontSize: 13),
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 8.0),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: weight,
-                  decoration: InputDecoration(
-                    labelText: 'Weight',
-                    labelStyle: TextStyle(fontSize: 13),
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 8.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8),
-          // TextField(
-          //   controller: service,
-          //   decoration: InputDecoration(
-          //     labelText: 'Service',
-          //     labelStyle: TextStyle(fontSize: 13),
-          //     border: OutlineInputBorder(),
-          //     contentPadding:
-          //         EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-          //   ),
-          // ),
-
-           Padding(
-  padding: const EdgeInsets.only(right: 0),
-  child: Column(
-    children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey, width: 1.0),
-        ),
-        child: DropdownButton<int>(
-          isExpanded: true,
-          underline: SizedBox(), // Removes default underline
-          hint: Text('Select a Parcel Service'),
-          value: selectedserviceId,
-          items: company.map((item) {
-            return DropdownMenuItem<int>(
-              value: item['id'],
-              child: Text(item['name']),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() {
-              selectedserviceId = value;
-            });
-            print("Selected Company ID: $selectedserviceId");
-          },
-        ),
-      ),
-     
-    ],
-  ),
-),
-          SizedBox(height: 8),
-          TextField(
-            controller: transactionid,
-            decoration: InputDecoration(
-              labelText: 'Transaction Id',
-              labelStyle: TextStyle(fontSize: 13),
-              border: OutlineInputBorder(),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            ),
-          ),
-          SizedBox(height: 8),
-          TextField(
-            controller: shippingcharge,
-            decoration: InputDecoration(
-              labelText: 'Shipping Charge',
-              labelStyle: TextStyle(fontSize: 13),
-              border: OutlineInputBorder(),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            ),
-          ),
-          SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            value: selectedStatus,
-            hint: Text(
-              'Select Status',
-              style: TextStyle(fontSize: 13), // Reduced font size
-            ),
-            items: statuses.map((status) {
-              return DropdownMenuItem<String>(
-                value: status,
-                child: Text(
-                  status,
-                  style: TextStyle(fontSize: 13), // Reduced font size
-                ),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedStatus = value;
-              });
-            },
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Status',
-              labelStyle: TextStyle(fontSize: 13),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            ),
-          ),
-          SizedBox(height: 8),
-          Container(
-            height: 50, // Reduced height
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                  style: TextStyle(fontSize: 13),
-                ),
-                Spacer(),
-                GestureDetector(
-                  onTap: () => _selectDate(context),
-                  child: Icon(Icons.date_range, size: 20), // Reduced icon size
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 8),
-          InkWell(
-            onTap: () => imageSelect(),
-            child: Container(
-              height: 120, // Reduced height
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey[200],
-              ),
-              child: selectedImage == null
-                  ? Center(
-                      child: Text(
-                        'Tap to select an image',
-                        style: TextStyle(fontSize: 13), // Reduced font size
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0), // Reduced padding
+                child: Container(
+                  padding: const EdgeInsets.all(12.0), // Reduced padding
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.circular(8.0), // Reduced border radius
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 3,
+                        blurRadius: 5,
+                        offset: Offset(0, 2),
                       ),
-                    )
-                  : Image.file(
-                      File(selectedImage!.path),
-                      fit: BoxFit.cover,
-                    ),
-            ),
-          ),
-          SizedBox(height: 12), // Reduced spacing
-          ElevatedButton(
-            onPressed: () => addboxdetails(selectedImage, selectedDate, context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15), // Adjusted radius
-              ),
-            ),
-            child: Text(
-              'Submit',
-              style: TextStyle(color: Colors.white, fontSize: 14), // Reduced font size
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-),
-Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'Warehouse Orders',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-      ),
-      SizedBox(height: 10),
-      ord == null || ord['warehouse_orders'] == null
-          ? Center(
-              child: Text(
-                'No Warehouse Orders Available',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ),
-            )
-          : Column(
-              children: ord['warehouse_orders'].map<Widget>((order) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Container(
-                    padding: EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 2,
-                          blurRadius: 4,
-                          offset: Offset(0, 2), // Shadow position
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 40, // Reduced height
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          color: Colors.blue,
                         ),
-                      ],
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Image and Box Details
-                        Row(
+                        alignment: Alignment.center, // Simplified layout
+                        child: Text(
+                          "Box Details",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15, // Reduced font size
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8), // Reduced spacing
+                      Container(
+                        height: 45, // Reduced height
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0), // Added padding
+                        child: DropdownButton<Map<String, dynamic>>(
+                          value: manager.isNotEmpty
+                              ? manager.firstWhere(
+                                  (element) =>
+                                      element['id'] ==
+                                      (selectedManagerId ?? manager[0]['id']),
+                                  orElse: () => manager[0],
+                                )
+                              : null,
+                          underline: SizedBox(),
+                          onChanged: manager.isNotEmpty
+                              ? (Map<String, dynamic>? newValue) {
+                                  setState(() {
+                                    selectedManagerName = newValue!['name'];
+                                    selectedManagerId = newValue['id'];
+                                  });
+                                }
+                              : null,
+                          items: manager
+                              .map<DropdownMenuItem<Map<String, dynamic>>>(
+                                  (Map<String, dynamic> manager) {
+                            return DropdownMenuItem<Map<String, dynamic>>(
+                              value: manager,
+                              child: Text(
+                                manager['name'],
+                                style: TextStyle(
+                                    fontSize: 13), // Reduced font size
+                              ),
+                            );
+                          }).toList(),
+                          isExpanded: true, // Added to expand dropdown
+                        ),
+                      ),
+
+                      SizedBox(height: 8),
+                      TextField(
+                        controller: box,
+                        decoration: InputDecoration(
+                          labelText: 'Boxes',
+                          labelStyle: TextStyle(fontSize: 13),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 8.0),
+                        ),
+                      ),
+                      SizedBox(height: 8), // Reduced spacing
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: length,
+                              decoration: InputDecoration(
+                                labelText: 'Length',
+                                labelStyle: TextStyle(
+                                    fontSize: 13), // Reduced font size
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                    vertical: 8.0), // Reduced padding
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: height,
+                              decoration: InputDecoration(
+                                labelText: 'Height',
+                                labelStyle: TextStyle(fontSize: 13),
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 8.0),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: breadth,
+                              decoration: InputDecoration(
+                                labelText: 'Breadth',
+                                labelStyle: TextStyle(fontSize: 13),
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 8.0),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: weight,
+                              decoration: InputDecoration(
+                                labelText: 'Weight',
+                                labelStyle: TextStyle(fontSize: 13),
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 8.0),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      // TextField(
+                      //   controller: service,
+                      //   decoration: InputDecoration(
+                      //     labelText: 'Service',
+                      //     labelStyle: TextStyle(fontSize: 13),
+                      //     border: OutlineInputBorder(),
+                      //     contentPadding:
+                      //         EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      //   ),
+                      // ),
+
+                      Padding(
+                        padding: const EdgeInsets.only(right: 0),
+                        child: Column(
                           children: [
                             Container(
-                              width: 80,
-                              height: 80,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.grey[200],
+                                border:
+                                    Border.all(color: Colors.grey, width: 1.0),
                               ),
-                              child: order['image'] != null
-                                  ? Image.network(
-                                      '$api${order['image']}',
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Icon(Icons.image_not_supported,
-                                            size: 40, color: Colors.grey);
-                                      },
-                                    )
-                                  : Icon(Icons.image_not_supported,
-                                      size: 40, color: Colors.grey),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                ' ${order['box'] ?? 'N/A'}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              child: DropdownButton<int>(
+                                isExpanded: true,
+                                underline:
+                                    SizedBox(), // Removes default underline
+                                hint: Text('Select a Parcel Service'),
+                                value: selectedserviceId,
+                                items: company.map((item) {
+                                  return DropdownMenuItem<int>(
+                                    value: item['id'],
+                                    child: Text(item['name']),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedserviceId = value;
+                                  });
+                                  print(
+                                      "Selected Company ID: $selectedserviceId");
+                                },
                               ),
                             ),
-                            // Delete Button
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      TextField(
+                        controller: transactionid,
+                        decoration: InputDecoration(
+                          labelText: 'Transaction Id',
+                          labelStyle: TextStyle(fontSize: 13),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 8.0),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      TextField(
+                        controller: shippingcharge,
+                        decoration: InputDecoration(
+                          labelText: 'Shipping Charge',
+                          labelStyle: TextStyle(fontSize: 13),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 8.0),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: selectedStatus,
+                        hint: Text('Select Status'),
+                        items: statuses.map((status) {
+                          return DropdownMenuItem<String>(
+                            value: status,
+                            child: Text(status),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedStatus =
+                                value; // This will store the selected status
+                          });
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Status',
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Container(
+                        height: 50, // Reduced height
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            Spacer(),
                             GestureDetector(
-                              onTap: () {
-                                // Call your delete function here
-                                //deleteWarehouseOrder(order['id']);
-                              },
-                              child: Image.asset(
-                                "lib/assets/close.png",
-                                height: 15,
-                                width: 15,
-                              ),
+                              onTap: () => _selectDate(context),
+                              child: Icon(Icons.date_range,
+                                  size: 20), // Reduced icon size
                             ),
                           ],
                         ),
-                        Divider(),
-                        SizedBox(height: 12),
+                      ),
+                      SizedBox(height: 8),
+                      InkWell(
+                        onTap: () => imageSelect(),
+                        child: Container(
+                          height: 120, // Reduced height
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey[200],
+                          ),
+                          child: selectedImage == null
+                              ? Center(
+                                  child: Text(
+                                    'Tap to select an image',
+                                    style: TextStyle(
+                                        fontSize: 13), // Reduced font size
+                                  ),
+                                )
+                              : Image.file(
+                                  File(selectedImage!.path),
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      ),
+                      SizedBox(height: 12), // Reduced spacing
 
-                        // Shipping Charge
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Shipping Charge:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              order['shipping_charge'] ?? 'N/A',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 6),
-
-                        // Parcel Service
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Parcel Service:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              order['parcel_service'] ?? 'N/A',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 6),
-
-                        // Tracking ID
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Tracking ID:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              order['tracking_id']?.toString() ?? 'N/A',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 6),
-
-                        // Status
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Status:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              order['status'] ?? 'N/A',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 6),
-
-                        // Shipped Date
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Shipped Date:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              order['shipped_date'] ?? 'N/A',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ElevatedButton(
+                          onPressed: () {
+                            addboxdetails(selectedImage, selectedDate, context);
+                            updatestatus();
+                          },
+                          child: Text("Submit"))
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Warehouse Orders',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                );
-              }).toList(),
+                  SizedBox(height: 10),
+                  ord == null || ord['warehouse_orders'] == null
+                      ? Center(
+                          child: Text(
+                            'No Warehouse Orders Available',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        )
+                      : Column(
+                          children:
+                              ord['warehouse_orders'].map<Widget>((order) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Container(
+                                padding: EdgeInsets.all(12.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      spreadRadius: 2,
+                                      blurRadius: 4,
+                                      offset: Offset(0, 2), // Shadow position
+                                    ),
+                                  ],
+                                  border:
+                                      Border.all(color: Colors.grey.shade300),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Image and Box Details
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 80,
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            color: Colors.grey[200],
+                                          ),
+                                          child: order['image'] != null
+                                              ? Image.network(
+                                                  '$api${order['image']}',
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Icon(
+                                                        Icons
+                                                            .image_not_supported,
+                                                        size: 40,
+                                                        color: Colors.grey);
+                                                  },
+                                                )
+                                              : Icon(Icons.image_not_supported,
+                                                  size: 40, color: Colors.grey),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            ' ${order['box'] ?? 'N/A'}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        // Delete Button
+                                        GestureDetector(
+                                          onTap: () {
+                                            // Call your delete function here
+                                            //deleteWarehouseOrder(order['id']);
+                                          },
+                                          child: Image.asset(
+                                            "lib/assets/close.png",
+                                            height: 15,
+                                            width: 15,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Divider(),
+                                    SizedBox(height: 12),
+
+                                    // Shipping Charge
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Shipping Charge:',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          order['shipping_charge'] ?? 'N/A',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 6),
+
+                                    // Parcel Service
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Parcel Service:',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          order['parcel_service'] ?? 'N/A',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 6),
+
+                                    // Tracking ID
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Tracking ID:',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          order['tracking_id']?.toString() ??
+                                              'N/A',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 6),
+
+                                    // Status
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Status:',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          order['status'] ?? 'N/A',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 6),
+
+                                    // Shipped Date
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Shipped Date:',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          order['shipped_date'] ?? 'N/A',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                ],
+              ),
             ),
-    ],
-  ),
-),
-
-
-
             SizedBox(height: 30),
           ],
         ),

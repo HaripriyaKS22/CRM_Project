@@ -20,7 +20,8 @@ import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 
 class OrderList extends StatefulWidget {
-  const OrderList({super.key});
+  var status ;
+  OrderList({super.key,required this.status});
 
   @override
   State<OrderList> createState() => _OrderListState();
@@ -97,6 +98,8 @@ class _OrderListState extends State<OrderList> {
           } catch (e) {
             print("Error parsing date: $rawOrderDate - $e");
           }
+if(widget.status==null){
+
 
           orderList.add({
             'id': productData['id'],
@@ -141,6 +144,56 @@ class _OrderListState extends State<OrderList> {
             'order_date': formattedOrderDate, // Use the formatted string
           });
         }
+        else if(widget.status==productData['status']){
+
+             orderList.add({
+            'id': productData['id'],
+            'invoice': productData['invoice'],
+            'manage_staff': productData['manage_staff'],
+            'customer': {
+              'name': productData['customer']['name'],
+              'phone': productData['customer']['phone'],
+              'email': productData['customer']['email'],
+              'address': productData['customer']['address'],
+            },
+            'billing_address': {
+              'name': productData['billing_address']['name'],
+              'email': productData['billing_address']['email'],
+              'zipcode': productData['billing_address']['zipcode'],
+              'address': productData['billing_address']['address'],
+              'phone': productData['billing_address']['phone'],
+              'city': productData['billing_address']['city'],
+              'state': productData['billing_address']['state'],
+            },
+            'bank': {
+              'name': productData['bank']['name'],
+              'account_number': productData['bank']['account_number'],
+              'ifsc_code': productData['bank']['ifsc_code'],
+              'branch': productData['bank']['branch'],
+            },
+            'items': productData['items'] != null
+                ? productData['items'].map((item) {
+                    return {
+                      'id': item['id'],
+                      'name': item['name'],
+                      'quantity': item['quantity'],
+                      'price': item['price'],
+                      'tax': item['tax'],
+                      'discount': item['discount'],
+                      'images': item['images'],
+                    };
+                  }).toList()
+                : [], // Fallback to empty list
+            'status': productData['status'],
+            'total_amount': productData['total_amount'],
+            'order_date': formattedOrderDate, // Use the formatted string
+          });
+
+        }
+        
+        
+        }
+        
 
         setState(() {
           orders = orderList;
@@ -760,18 +813,38 @@ class _OrderListState extends State<OrderList> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Staff: ${order['manage_staff']}',
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      SizedBox(height: 4.0),
-                                      Text(
                                         'Customer: ${order['customer']['name']}',
                                         style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600),
                                       ),
+                                                                            SizedBox(height: 4.0),
+
+                                      Text(
+                                        'Staff: ${order['manage_staff']}',
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            ),
+                                      ),
+                                      
+                                       SizedBox(height: 4.0),
+                                       Row(
+                                         children: [
+                                           Text(
+                                            'Status: ',
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                ),
+                                                                                 ),
+                                            Text(
+                                            '${order['status']}',
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.blue
+                                                ),
+                                                                                 ),
+                                         ],
+                                       ),
                                       SizedBox(height: 8.0),
                                       Row(
                                         mainAxisAlignment:
@@ -781,7 +854,7 @@ class _OrderListState extends State<OrderList> {
                                             'Billing Amount:',
                                             style: TextStyle(
                                                 fontSize: 13,
-                                                fontWeight: FontWeight.bold),
+                                               ),
                                           ),
                                           Text(
                                             '\$${order['total_amount']}',

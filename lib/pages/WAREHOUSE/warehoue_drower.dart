@@ -26,7 +26,7 @@ import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
-import 'package:beposoft/pages/ACCOUNTS/warehouse_order_view.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/BDM/bdm_order_list.dart';
 import 'package:beposoft/pages/BDM/bdm_order_request.dart';
 import 'package:beposoft/pages/BDM/bdm_proforma_invoice.dart';
@@ -123,7 +123,7 @@ class drower{
       case 'Orders List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderList()),
+          MaterialPageRoute(builder: (context) => OrderList(status: null,)),
         );
         break;
       case 'Product List':
@@ -236,7 +236,7 @@ class drower{
       case 'GRVs List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => GrvList()),
+          MaterialPageRoute(builder: (context) => GrvList(status: null,)),
         );
         break;
       case 'Add Bank':
