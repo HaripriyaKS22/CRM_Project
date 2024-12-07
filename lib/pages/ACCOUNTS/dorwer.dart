@@ -12,6 +12,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/daily_goods_movement.dart';
 import 'package:beposoft/pages/ACCOUNTS/damaged_stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/delivery_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_reeport.dart';
@@ -114,7 +115,7 @@ class drower{
          case 'Delivery Note List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>WarehouseOrderView()),
+          MaterialPageRoute(builder: (context) =>WarehouseOrderView(status: null,)),
         );
         break;
       case 'Daily Goods Movement':
@@ -214,7 +215,7 @@ class drower{
       case 'Delivery Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => expence_list()),
+          MaterialPageRoute(builder: (context) => Delivery_Report()),
         );
         break;
       case 'Product Sale Report':
@@ -375,7 +376,7 @@ class drower{
       case 'Delivery Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => expence_list()),
+          MaterialPageRoute(builder: (context) => Delivery_Report()),
         );
         break;
       case 'Product Sale Report':

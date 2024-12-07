@@ -461,7 +461,7 @@ Expanded(
                       height: 20,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: staffData['approval_status'] == 'active'
+                        color: staffData['approval_status'] == 'approved'
                             ? Colors.green
                             : Colors.red,
                         // border: Border.all(
@@ -471,7 +471,7 @@ Expanded(
                       ),
                       child: Center(
                         child: Text(
-                          staffData['approval_status'] == 'active' ? 'A' : 'I',
+                          staffData['approval_status'] == 'approved' ? 'A' : 'I',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -489,34 +489,45 @@ Expanded(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: [
-                        // Staff Name - Bold and larger size
-                        Text(
-                          staffData['name'] ?? 'No Name',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Text("-",style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blueGrey,
-                          ),),
-                        // Staff Designation - Smaller and lighter weight
-                         SizedBox(width: 8),
-                        Text(
-                          staffData['designation'] ?? 'No Designation',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blueGrey,
-                          ),
-                        ),
-                      ],
-                    ),
+  children: [
+    // Staff Name - Bold and larger size
+    Flexible(
+      child: Text(
+        staffData['name'] ?? 'No Name',
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+        overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
+      ),
+    ),
+    SizedBox(width: 8),
+    Text(
+      "-",
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: Colors.blueGrey,
+      ),
+    ),
+    SizedBox(width: 8),
+    // Staff Designation - Smaller and lighter weight
+    Flexible(
+      child: Text(
+        staffData['designation'] ?? 'No Designation',
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: Colors.blueGrey,
+        ),
+        overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
+        maxLines: 1,
+      ),
+    ),
+  ],
+),
+
                     SizedBox(height: 8),
                     // Staff Email - Grey color for subtlety
                     Text(

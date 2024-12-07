@@ -357,7 +357,7 @@ Padding(
                  child: ListTile(
               leading: product['image'] != null && product['image'].isNotEmpty
                   ? Image.network(
-                      '$api${product['image']}', // Display product image
+                      '${product['image']}', // Display product image
                       width: 50, // Set width for the image
                       height: 50, // Set height for the image
                       fit: BoxFit.cover, // Adjust the image aspect ratio

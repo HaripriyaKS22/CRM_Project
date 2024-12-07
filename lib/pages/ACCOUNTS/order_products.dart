@@ -131,7 +131,7 @@ print("imggggggggg$imgurl");
               'created_user': variant['created_user'],
               'family': familyNames,
               'image': variant['variant_images'].isNotEmpty
-                  ? '$api/${variant['variant_images'][0]['image']}'
+                  ? '${variant['variant_images'][0]['image']}'
                   : imgurl, // Use variant image or fallback to main image
                'sizes': variant['sizes'],
             });
@@ -150,7 +150,7 @@ print("imggggggggg$imgurl");
               'created_user': variant['created_user'],
               'family': familyNames,
               'image': variant['variant_images'].isNotEmpty
-                  ? '$api/${variant['variant_images'][0]['image']}'
+                  ? '${variant['variant_images'][0]['image']}'
                   : imgurl, // Use variant image or fallback to main image
             });}
           }
@@ -218,7 +218,7 @@ Future<void> getvariant(int id, var type) async {
           String firstImageUrl = product['variant_images'].isNotEmpty
               ? product['variant_images'][0]['image']
               : '';
-          var imgurl = "$api/$firstImageUrl";
+          var imgurl = "$firstImageUrl";
           
           // Extract sizes as a list of maps with attribute and stock
           List<Map<String, dynamic>> sizesList = product['sizes'].map<Map<String, dynamic>>((size) {

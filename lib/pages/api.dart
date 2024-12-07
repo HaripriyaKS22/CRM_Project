@@ -1,1 +1,1 @@
-var api="https://updated-adjacent-kentucky-pays.trycloudflare.com";
+var api="http://65.1.147.199";

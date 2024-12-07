@@ -1,4 +1,17 @@
 import 'dart:convert';
+import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
+import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:flutter/material.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
@@ -36,6 +49,32 @@ class _NewGrvState extends State<NewGrv> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+ void logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
+  await prefs.remove('token');
+
+  // Use a post-frame callback to show the SnackBar after the current frame
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (ScaffoldMessenger.of(context).mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logged out successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  });
+
+  // Wait for the SnackBar to disappear before navigating
+  await Future.delayed(Duration(seconds: 2));
+
+  // Navigate to the HomePage after the snackbar is shown
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => login()),
+  );
+}
 
   Future<void> fetchOrders() async {
     final token = await getTokenFromPrefs();
@@ -221,7 +260,23 @@ class _NewGrvState extends State<NewGrv> {
     returnreason.dispose();
     super.dispose();
   }
-
+drower d = drower();
+  Widget _buildDropdownTile(
+      BuildContext context, String title, List<String> options) {
+    return ExpansionTile(
+      title: Text(title),
+      children: options.map((option) {
+        return ListTile(
+          title: Text(option),
+          onTap: () {
+            Navigator.pop(context);
+            d.navigateToSelectedPage(
+                context, option); // Navigate to selected page
+          },
+        );
+      }).toList(),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -229,54 +284,197 @@ class _NewGrvState extends State<NewGrv> {
         title: Text('New GRV'),
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.grey),
-              child: Row(
-                children: [
-                  Image.asset(
-                    "lib/assets/logo-white.png",
-                    width: 100,
-                    height: 100,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
                   ),
-                  SizedBox(width: 20),
-                  Text(
-                    'BepoSoft',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        "lib/assets/logo.png",
+                        width: 150, // Change width to desired size
+                        height: 150, // Change height to desired size
+                        fit: BoxFit
+                            .contain, // Use BoxFit.contain to maintain aspect ratio
+                      ),
+                    ],
+                  )),
+              ListTile(
+                leading: Icon(Icons.dashboard),
+                title: Text('Dashboard'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => dashboard()));
+                },
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.dashboard),
-              title: Text('Dashboard'),
-              onTap: () {
-                // Navigate to dashboard page
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                // Navigate to settings page
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
-              onTap: () {
-                // Perform logout action
-              },
-            ),
-          ],
+              _buildDropdownTile(context, 'Reports', [
+                'Sales Report',
+                'Credit Sales Report',
+                'COD Sales Report',
+                'Statewise Sales Report',
+                'Expence Report',
+                'Delivery Report',
+                'Product Sale Report',
+                'Stock Report',
+                'Damaged Stock'
+              ]),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Company'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_company()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Departments'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => add_department()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Supervisors'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => add_supervisor()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Family'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_family()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Bank'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_bank()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('States'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_state()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Attributes'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_attribute()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Services'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CourierServices()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Delivery Notes'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => WarehouseOrderView(status: null,)));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              Divider(),
+              _buildDropdownTile(context, 'Customers', [
+                'Add Customer',
+                'Customers',
+              ]),
+              _buildDropdownTile(context, 'Staff', [
+                'Add Staff',
+                'Staff',
+              ]),
+              _buildDropdownTile(context, 'Credit Note', [
+                'Add Credit Note',
+                'Credit Note List',
+              ]),
+              _buildDropdownTile(context, 'Proforma Invoice', [
+                'New Proforma Invoice',
+                'Proforma Invoice List',
+              ]),
+              _buildDropdownTile(context, 'Delivery Note',
+                  ['Delivery Note List', 'Daily Goods Movement']),
+              _buildDropdownTile(
+                  context, 'Orders', ['New Orders', 'Orders List']),
+              Divider(),
+              Text("Others"),
+              Divider(),
+              _buildDropdownTile(context, 'Product', [
+                'Product List',
+                'Product Add',
+                'Stock',
+              ]),
+              _buildDropdownTile(context, 'Expence', [
+                'Add Expence',
+                'Expence List',
+              ]),
+              _buildDropdownTile(
+                  context, 'GRV', ['Create New GRV', 'GRVs List']),
+              _buildDropdownTile(context, 'Banking Module',
+                  ['Add Bank ', 'List', 'Other Transfer']),
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Methods'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Methods()));
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.chat),
+                title: Text('Chat'),
+                onTap: () {
+                  Navigator.pop(context); // Close the drawer
+                },
+              ),
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Logout'),
+                onTap: () {
+                  logout();
+                },
+              ),
+            ],
+          ),
         ),
-      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(10),
@@ -457,11 +655,16 @@ class _NewGrvState extends State<NewGrv> {
                                   children: [
                                     if (item['images'] != null && item['images'].isNotEmpty)
                                       Image.network(
-                                        "$api${item['images'][0]}",
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.cover,
-                                      ),
+                                                    "${item['first_image']}",
+                                                    width: 80,
+                                                    height: 80,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Icon(Icons
+                                                          .image_not_supported); // Fallback image or icon
+                                                    },
+                                                  ),
                                     SizedBox(width: 16),
                                     Expanded(
                                       child: Column(

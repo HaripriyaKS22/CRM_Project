@@ -22,12 +22,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class dashboard extends StatefulWidget {
+class admin_dashboard extends StatefulWidget {
   @override
-  State<dashboard> createState() => _dashboardState();
+  State<admin_dashboard> createState() => _admin_dashboardState();
 }
 
-class _dashboardState extends State<dashboard> {
+class _admin_dashboardState extends State<admin_dashboard> {
   List<String> statusOptions = ["pending", "approved", "rejected"];
   List<Map<String, dynamic>> grvlist = [];
   List<Map<String, dynamic>> proforma = [];
@@ -442,7 +442,7 @@ int grv=0;
                 title: Text('Dashboard'),
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => dashboard()));
+                      MaterialPageRoute(builder: (context) => admin_dashboard()));
                 },
               ),
               _buildDropdownTile(context, 'Reports', [

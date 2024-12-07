@@ -1,5 +1,15 @@
 import 'dart:convert';
+import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
@@ -82,7 +92,7 @@ void _filterOrdersBySingleDate() {
   print(selectedDate);
     if (selectedDate != null) {
       setState(() {
-        filterdata = salesReportList.where((order) {
+        filterdata = filterdata.where((order) {
           // Parse the 'expense_date' from string to DateTime if needed
           final orderDate = DateFormat('yyyy-MM-dd').parse(order['date']); // Adjust format if needed
 
@@ -91,6 +101,7 @@ void _filterOrdersBySingleDate() {
               orderDate.month == selectedDate!.month &&
               orderDate.day == selectedDate!.day;
         }).toList();
+        _updateTotals();
       });
     }
   }
@@ -98,7 +109,7 @@ void _filterOrdersBySingleDate() {
    void _filterOrdersByDateRange() {
     if (startDate != null && endDate != null) {
       setState(() {
-        filterdata = salesReportList.where((order) {
+        filterdata = filterdata.where((order) {
           // Parse the 'expense_date' from string to DateTime if needed
           final orderDate = DateFormat('yyyy-MM-dd').parse(order['date']); // Adjust format if needed
 
@@ -106,6 +117,7 @@ void _filterOrdersBySingleDate() {
           return orderDate.isAfter(startDate!.subtract(Duration(days: 1))) &&
               orderDate.isBefore(endDate!.add(Duration(days: 1)));
         }).toList();
+        _updateTotals();
       });
     }
   }
@@ -131,7 +143,7 @@ void _filterOrdersBySingleDate() {
     double tempRejectedBills = 0.0;
     double tempRejectedAmount = 0.0;
 
-    for (var reportData in salesReportList) {
+    for (var reportData in filterdata) {
       tempTotalBills += reportData['total_bills_in_date'];
       tempTotalAmount += reportData['amount'];
       tempApprovedBills += reportData['approved']['bills'];
@@ -271,6 +283,8 @@ void _filterOrdersBySingleDate() {
         .where((report) => report != null) // Filter out null values
         .cast<Map<String, dynamic>>() // Ensure type safety
         .toList();
+                _updateTotals();
+
   });
   print("filterdatafilterdata:$filterdata");
 }
@@ -396,6 +410,33 @@ print("salesData:$salesData");
       ),
     );
   }
+ void logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
+  await prefs.remove('token');
+
+  // Use a post-frame callback to show the SnackBar after the current frame
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (ScaffoldMessenger.of(context).mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logged out successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  });
+
+  // Wait for the SnackBar to disappear before navigating
+  await Future.delayed(Duration(seconds: 2));
+
+  // Navigate to the HomePage after the snackbar is shown
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => login()),
+  );
+}
+
 
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
@@ -417,7 +458,7 @@ print("salesData:$salesData");
   Widget _buildRowWithTwoColumns(
       String label1, dynamic value1, String label2, dynamic value2) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -429,14 +470,14 @@ print("salesData:$salesData");
                   label1,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: 13,
                     color: Colors.white,
                   ),
                 ),
                 Text(
                   value1.toString(),
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                   ),
@@ -452,14 +493,14 @@ print("salesData:$salesData");
                   label2,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: 13,
                     color: Colors.white,
                   ),
                 ),
                 Text(
                   value2.toString(),
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                   ),
@@ -496,120 +537,198 @@ print("salesData:$salesData");
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 110, 110, 110),
+       drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        "lib/assets/logo.png",
+                        width: 150, // Change width to desired size
+                        height: 150, // Change height to desired size
+                        fit: BoxFit
+                            .contain, // Use BoxFit.contain to maintain aspect ratio
+                      ),
+                    ],
+                  )),
+              ListTile(
+                leading: Icon(Icons.dashboard),
+                title: Text('Dashboard'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => dashboard()));
+                },
               ),
-              child: Row(
-                children: [
-                  Image.asset(
-                    "lib/assets/logo-white.png",
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(
-                    width: 70,
-                  ),
-                  Text(
-                    'BepoSoft',
-                    style: TextStyle(
-                      color: Color.fromARGB(236, 255, 255, 255),
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
+              _buildDropdownTile(context, 'Reports', [
+                'Sales Report',
+                'Credit Sales Report',
+                'COD Sales Report',
+                'Statewise Sales Report',
+                'Expence Report',
+                'Delivery Report',
+                'Product Sale Report',
+                'Stock Report',
+                'Damaged Stock'
+              ]),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Company'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_company()));
+                  // Navigate to the Settings page or perform any other action
+                },
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.dashboard),
-              title: Text('Dashboard'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => dashboard()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Customer'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => customer_list()));
-              },
-            ),
-            Divider(),
-            _buildDropdownTile(context, 'Credit Note', [
-              'Add Credit Note',
-              'Credit Note List',
-            ]),
-            _buildDropdownTile(
-                context, 'Recipts', ['Add recipts', 'Recipts List']),
-            _buildDropdownTile(context, 'Proforma Invoice', [
-              'New Proforma Invoice',
-              'Proforma Invoice List',
-            ]),
-            _buildDropdownTile(context, 'Delivery Note',
-                ['Delivery Note List', 'Daily Goods Movement']),
-            _buildDropdownTile(
-                context, 'Orders', ['New Orders', 'Orders List']),
-            Divider(),
-            Text("Others"),
-            Divider(),
-            _buildDropdownTile(context, 'Product', [
-              'Product List',
-              'Stock',
-            ]),
-            _buildDropdownTile(
-                context, 'Purchase', [' New Purchase', 'Purchase List']),
-            _buildDropdownTile(context, 'Expence', [
-              'Add Expence',
-              'Expence List',
-            ]),
-            _buildDropdownTile(context, 'Reports', [
-              'Sales Report',
-              'Credit Sales Report',
-              'COD Sales Report',
-              'Statewise Sales Report',
-              'Expence Report',
-              'Delivery Report',
-              'Product Sale Report',
-              'Stock Report',
-              'Damaged Stock'
-            ]),
-            _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
-            _buildDropdownTile(context, 'Banking Module',
-                ['Add Bank ', 'List', 'Other Transfer']),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Methods'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Methods()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.chat),
-              title: Text('Chat'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Departments'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => add_department()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Supervisors'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => add_supervisor()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Family'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_family()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Bank'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_bank()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('States'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_state()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Attributes'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_attribute()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Services'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CourierServices()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Delivery Notes'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => WarehouseOrderView(status: null,)));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              Divider(),
+              _buildDropdownTile(context, 'Customers', [
+                'Add Customer',
+                'Customers',
+              ]),
+              _buildDropdownTile(context, 'Staff', [
+                'Add Staff',
+                'Staff',
+              ]),
+              _buildDropdownTile(context, 'Credit Note', [
+                'Add Credit Note',
+                'Credit Note List',
+              ]),
+              _buildDropdownTile(context, 'Proforma Invoice', [
+                'New Proforma Invoice',
+                'Proforma Invoice List',
+              ]),
+              _buildDropdownTile(context, 'Delivery Note',
+                  ['Delivery Note List', 'Daily Goods Movement']),
+              _buildDropdownTile(
+                  context, 'Orders', ['New Orders', 'Orders List']),
+              Divider(),
+              Text("Others"),
+              Divider(),
+              _buildDropdownTile(context, 'Product', [
+                'Product List',
+                'Product Add',
+                'Stock',
+              ]),
+              _buildDropdownTile(context, 'Expence', [
+                'Add Expence',
+                'Expence List',
+              ]),
+              _buildDropdownTile(
+                  context, 'GRV', ['Create New GRV', 'GRVs List']),
+              _buildDropdownTile(context, 'Banking Module',
+                  ['Add Bank ', 'List', 'Other Transfer']),
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Methods'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Methods()));
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.chat),
+                title: Text('Chat'),
+                onTap: () {
+                  Navigator.pop(context); // Close the drawer
+                },
+              ),
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Logout'),
+                onTap: () {
+                  logout();
+                },
+              ),
+            ],
+          ),
         ),
-      ),
       body: Column(
         children: [
             Padding(
@@ -663,110 +782,112 @@ print("salesData:$salesData");
   ),
 ),
           Expanded(
-            child: Stack(
+            child: RefreshIndicator(
+              onRefresh: getSalesReport,
+              child: Stack(
+                children: [
+                  // Main content: Sales report list
+                SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: 260),
+                child: Column(
+                  children: filterdata.map((reportData) {
+                    // Handle case where 'filteredOrders' might be null
+                    List<dynamic> orders = reportData['filteredOrders'] ?? [];
+              
+                    return Card(
+                      color: Colors.white,
+                      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Main content: Sales report list
-              SingleChildScrollView(
-  padding: EdgeInsets.only(bottom: 260),
-  child: Column(
-    children: filterdata.map((reportData) {
-      // Handle case where 'filteredOrders' might be null
-      List<dynamic> orders = reportData['filteredOrders'] ?? [];
-
-      return Card(
-        color: Colors.white,
-        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Date: ${reportData['date']}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.black87,
+                Text(
+                  'Date: ${reportData['date']}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                Divider(color: Colors.grey),
+                SizedBox(height: 8),
+                
+                 _buildRow('Total Bills:', reportData['total_bills_in_date']?? 0),
+                 _buildRow('Total Amount:', reportData['amount']?? 0),
+              
+                _buildRow('Approved Bills:', reportData['approved']['bills'] ?? 0),
+                _buildRow('Approved Amount:', reportData['approved']['amount'] ?? 0.0),
+                _buildRow('Rejected Bills:', reportData['rejected']['bills'] ?? 0),
+                _buildRow('Rejected Amount:', reportData['rejected']['amount'] ?? 0.0),
+                SizedBox(height: 12),
+                // Text(
+                //   'Orders:',
+                //   style: TextStyle(fontWeight: FontWeight.bold),
+                // ),
+                // // Safely map over orders
+                // ...orders.map((order) {
+                //   return Padding(
+                //     padding: const EdgeInsets.symmetric(vertical: 4.0),
+                //     child: _buildRow('Invoice: ${order['invoice']}', 'Amount: ${order['total_amount']}'),
+                //   );
+                // }).toList(),
+              ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
-              Divider(color: Colors.grey),
-              SizedBox(height: 8),
               
-               _buildRow('Total Bills:', reportData['total_bills_in_date']?? 0),
-               _buildRow('Total Amount:', reportData['amount']?? 0),
-
-              _buildRow('Approved Bills:', reportData['approved']['bills'] ?? 0),
-              _buildRow('Approved Amount:', reportData['approved']['amount'] ?? 0.0),
-              _buildRow('Rejected Bills:', reportData['rejected']['bills'] ?? 0),
-              _buildRow('Rejected Amount:', reportData['rejected']['amount'] ?? 0.0),
-              SizedBox(height: 12),
-              Text(
-                'Orders:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              // Safely map over orders
-              ...orders.map((order) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: _buildRow('Invoice: ${order['invoice']}', 'Amount: ${order['total_amount']}'),
-                );
-              }).toList(),
-            ],
-          ),
-        ),
-      );
-    }).toList(),
-  ),
-),
-
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Material(
-                    elevation: 12,
-                    color: const Color.fromARGB(255, 12, 80, 163),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                        color: const Color.fromARGB(255, 12, 80, 163),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Total Report Summary',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Material(
+                      elevation: 12,
+                      color: const Color.fromARGB(255, 12, 80, 163),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          color: const Color.fromARGB(255, 12, 80, 163),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Total Report Summary',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                          Divider(
-                            color: Colors.white.withOpacity(0.5),
-                            thickness: 1,
-                            indent: 0,
-                            endIndent: 0,
-                          ),
-                          SizedBox(height: 8),
-                          _buildRowWithTwoColumns('Total Bills:', totalBills,
-                              'Total Amount:', totalAmount),
-                          _buildRowWithTwoColumns('Approved Bills:', approvedBills,
-                              'Approved Amount:', approvedAmount),
-                          _buildRowWithTwoColumns('Rejected Bills:', rejectedBills,
-                              'Rejected Amount:', rejectedAmount),
-                        ],
+                            Divider(
+                              color: Colors.white.withOpacity(0.5),
+                              thickness: 1,
+                              indent: 0,
+                              endIndent: 0,
+                            ),
+                            _buildRowWithTwoColumns('Total Bills:', totalBills,
+                                'Total Amount:', totalAmount),
+                            _buildRowWithTwoColumns('Approved Bills:', approvedBills,
+                                'Approved Amount:', approvedAmount),
+                            _buildRowWithTwoColumns('Rejected Bills:', rejectedBills,
+                                'Rejected Amount:', rejectedAmount),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

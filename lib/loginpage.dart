@@ -1,5 +1,7 @@
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/registerationpage.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +85,7 @@ void login(String email, String password, BuildContext context) async {
           print("Token decode error: $e");
         }
 
-        if (active == 'IT (Information Technology)') {
+        if (active == 'IT') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,
@@ -107,7 +109,31 @@ void login(String email, String password, BuildContext context) async {
             MaterialPageRoute(builder: (context) => WarehouseDashboard()),
           );
         }
-        if (active == 'Business Development Manager (BDM)') {
+        if (active == 'Business Development Executive (BDE)') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Successfully logged in.'),
+            ),
+          );
+          Navigator.push(context,
+            MaterialPageRoute(builder: (context) => bdo_dashbord()),
+          );
+        }
+        if (active == 'Admin') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Successfully logged in.'),
+            ),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => admin_dashboard()),
+          );
+        } 
+        
+         if (active == 'Business Development Manager (BDM)') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,
@@ -119,7 +145,21 @@ void login(String email, String password, BuildContext context) async {
             MaterialPageRoute(builder: (context) => bdm_dashbord()),
           );
         } 
-      } else {
+        if (active == 'Accounts / Accounting') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Successfully logged in.'),
+            ),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => dashboard()),
+          );
+        } 
+      } 
+      
+      else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.red,

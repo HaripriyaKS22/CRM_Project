@@ -276,12 +276,17 @@ class _Performa_CartState extends State<Performa_Cart> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
                                         children: [
-                                          Image.network(
-                                            "$api${item['image']}",
-                                            width: 80,
-                                            height: 80,
-                                            fit: BoxFit.cover,
-                                          ),
+                                        Image.network(
+                                                    "${item['image']}",
+                                                    width: 80,
+                                                    height: 80,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Icon(Icons
+                                                          .image_not_supported); // Fallback image or icon
+                                                    },
+                                                  ),
                                           SizedBox(width: 10),
                                           Expanded(
                                             child: Column(

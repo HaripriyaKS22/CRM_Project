@@ -137,7 +137,7 @@ print('$api/api/order/create/');
         },
         body: jsonEncode({
           'manage_staff':selectedstaffId,
-          "company":1,
+          "company":selectedCompanyId,
           "customer": selectedCustomerId,
           'billing_address':selectedAddressId,  
           'order_date': "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
@@ -271,7 +271,7 @@ Future<void> getbank() async{
       final token = await gettokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/company/getadd/'),
+        Uri.parse('$api/api/company/data/'),
         headers: {
           'Authorization': ' Bearer $token',
           'Content-Type': 'application/json',
@@ -283,8 +283,8 @@ Future<void> getbank() async{
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
-        final productsData = jsonDecode(response.body);
-
+        final Data = jsonDecode(response.body);
+final productsData=Data['data'];
         print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";

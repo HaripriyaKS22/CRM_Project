@@ -480,12 +480,17 @@ Widget build(BuildContext context) {
                                           if (item['first_image'] != null)
                                             Flexible(
                                               flex: 1,
-                                              child: Image.network(
-                                                item['first_image'],
-                                                width: 50,
-                                                height: 50,
-                                                fit: BoxFit.cover,
-                                              ),
+                                              child:  Image.network(
+                                                    "${item['first_image']}",
+                                                    width: 80,
+                                                    height: 80,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Icon(Icons
+                                                          .image_not_supported); // Fallback image or icon
+                                                    },
+                                                  ),
                                             ),
                                           const SizedBox(width: 10),
                                           Expanded(

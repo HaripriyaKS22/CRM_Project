@@ -4,7 +4,6 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_review.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,8 @@ import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 
 class WarehouseOrderView extends StatefulWidget {
-  const WarehouseOrderView({super.key});
+  final status;
+  WarehouseOrderView({super.key,required this.status});
 
   @override
   State<WarehouseOrderView> createState() => _WarehouseOrderViewState();
@@ -65,122 +65,221 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
     return prefs.getString('token');
   }
 
- Future<void> fetchOrderData() async {
-  try {
-    final token = await getTokenFromPrefs();
-    var response = await http.get(
-      Uri.parse('$api/api/orders/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+  Future<void> fetchOrderData() async {
+    try {
+      final token = await getTokenFromPrefs();
+      var response = await http.get(
+        Uri.parse('$api/api/orders/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    print("ordersssssssssssss${response.body}");
+      print("ordersssssssssssss${response.body}");
 
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      var productsData = parsed;
-      List<Map<String, dynamic>> orderList = [];
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed;
+        List<Map<String, dynamic>> orderList = [];
 
-      for (var productData in productsData) {
-        // Parse the date
-        String rawOrderDate = productData['order_date'];
-        String formattedOrderDate =
-            rawOrderDate; // Fallback in case of parsing failure
+        for (var productData in productsData) {
 
-        try {
-          // Try to parse the date in 'yyyy-MM-dd' format
-          DateTime parsedOrderDate =
-              DateFormat('yyyy-MM-dd').parse(rawOrderDate);
-          formattedOrderDate = DateFormat('yyyy-MM-dd')
-              .format(parsedOrderDate); // Convert to desired format
-        } catch (e) {
-          print("Error parsing date: $rawOrderDate - $e");
-        }
 
-        // Parse warehouse_orders
-        List<Map<String, dynamic>> warehouseOrders = [];
-        if (productData['warehouse_orders'] != null) {
-          for (var warehouseOrder in productData['warehouse_orders']) {
-            warehouseOrders.add({
-              'id': warehouseOrder['id'],
-              'box': warehouseOrder['box'],
-              'weight': warehouseOrder['weight'],
-              'length': warehouseOrder['length'],
-              'breadth': warehouseOrder['breadth'],
-              'height': warehouseOrder['height'],
-              'image': warehouseOrder['image'],
-              'parcel_service': warehouseOrder['parcel_service'],
-              'tracking_id': warehouseOrder['tracking_id'],
-              'shipping_charge': warehouseOrder['shipping_charge'],
-              'status': warehouseOrder['status'],
-              'shipped_date': warehouseOrder['shipped_date'],
-              'order': warehouseOrder['order'],
-              'packed_by': warehouseOrder['packed_by'],
-              'customer': warehouseOrder['customer'],
-              'invoice': warehouseOrder['invoice'],
-              'family': warehouseOrder['family'],
-            });
+          if(widget.status==null){
+            // Parse the date
+          String rawOrderDate = productData['order_date'];
+          String formattedOrderDate =
+              rawOrderDate; // Fallback in case of parsing failure
+
+          try {
+            // Try to parse the date in 'yyyy-MM-dd' format
+            DateTime parsedOrderDate =
+                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+            formattedOrderDate = DateFormat('yyyy-MM-dd')
+                .format(parsedOrderDate); // Convert to desired format
+          } catch (e) {
+            print("Error parsing date: $rawOrderDate - $e");
           }
+
+          // Parse warehouse_orders
+          List<Map<String, dynamic>> warehouseOrders = [];
+          if (productData['warehouse_orders'] != null) {
+            for (var warehouseOrder in productData['warehouse_orders']) {
+              warehouseOrders.add({
+                'id': warehouseOrder['id'],
+                'box': warehouseOrder['box'],
+                'weight': warehouseOrder['weight'],
+                'length': warehouseOrder['length'],
+                'breadth': warehouseOrder['breadth'],
+                'height': warehouseOrder['height'],
+                'total_weight': warehouseOrder['total_weight'],
+                'total_volume_weight': warehouseOrder['total_volume_weight'],
+                'image': warehouseOrder['image'],
+                'parcel_service': warehouseOrder['parcel_service'],
+                'tracking_id': warehouseOrder['tracking_id'],
+                'shipping_charge': warehouseOrder['shipping_charge'],
+                'status': warehouseOrder['status'],
+                'shipped_date': warehouseOrder['shipped_date'],
+                'order': warehouseOrder['order'],
+                'packed_by': warehouseOrder['packed_by'],
+                'customer': warehouseOrder['customer'],
+                'invoice': warehouseOrder['invoice'],
+                'family': warehouseOrder['family'],
+              });
+            }
+          }
+
+          orderList.add({
+            'id': productData['id'],
+            'invoice': productData['invoice'],
+            'manage_staff': productData['manage_staff'],
+            'customer': {
+              'name': productData['customer']['name'],
+              'phone': productData['customer']['phone'],
+              'email': productData['customer']['email'],
+              'address': productData['customer']['address'],
+            },
+            'billing_address': {
+              'name': productData['billing_address']['name'],
+              'email': productData['billing_address']['email'],
+              'zipcode': productData['billing_address']['zipcode'],
+              'address': productData['billing_address']['address'],
+              'phone': productData['billing_address']['phone'],
+              'city': productData['billing_address']['city'],
+              'state': productData['billing_address']['state'],
+            },
+            'bank': {
+              'name': productData['bank']['name'],
+              'account_number': productData['bank']['account_number'],
+              'ifsc_code': productData['bank']['ifsc_code'],
+              'branch': productData['bank']['branch'],
+            },
+            'items': productData['items'] != null
+                ? productData['items'].map((item) {
+                    return {
+                      'id': item['id'],
+                      'name': item['name'],
+                      'quantity': item['quantity'],
+                      'price': item['price'],
+                      'tax': item['tax'],
+                      'discount': item['discount'],
+                      'images': item['images'],
+                    };
+                  }).toList()
+                : [], // Fallback to empty list
+            'status': productData['status'],
+            'total_amount': productData['total_amount'],
+            'order_date': formattedOrderDate, // Use the formatted string
+            'warehouse_orders':
+                warehouseOrders, // Include parsed warehouse orders
+          });
+
+          }
+          else if(widget.status==productData['status']){
+
+             String rawOrderDate = productData['order_date'];
+          String formattedOrderDate =
+              rawOrderDate; // Fallback in case of parsing failure
+
+          try {
+            // Try to parse the date in 'yyyy-MM-dd' format
+            DateTime parsedOrderDate =
+                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+            formattedOrderDate = DateFormat('yyyy-MM-dd')
+                .format(parsedOrderDate); // Convert to desired format
+          } catch (e) {
+            print("Error parsing date: $rawOrderDate - $e");
+          }
+
+          // Parse warehouse_orders
+          List<Map<String, dynamic>> warehouseOrders = [];
+          if (productData['warehouse_orders'] != null) {
+            for (var warehouseOrder in productData['warehouse_orders']) {
+              warehouseOrders.add({
+                'id': warehouseOrder['id'],
+                'box': warehouseOrder['box'],
+                'weight': warehouseOrder['weight'],
+                'length': warehouseOrder['length'],
+                'breadth': warehouseOrder['breadth'],
+                'height': warehouseOrder['height'],
+                'total_weight': warehouseOrder['total_weight'],
+                'total_volume_weight': warehouseOrder['total_volume_weight'],
+                'image': warehouseOrder['image'],
+                'parcel_service': warehouseOrder['parcel_service'],
+                'tracking_id': warehouseOrder['tracking_id'],
+                'shipping_charge': warehouseOrder['shipping_charge'],
+                'status': warehouseOrder['status'],
+                'shipped_date': warehouseOrder['shipped_date'],
+                'order': warehouseOrder['order'],
+                'packed_by': warehouseOrder['packed_by'],
+                'customer': warehouseOrder['customer'],
+                'invoice': warehouseOrder['invoice'],
+                'family': warehouseOrder['family'],
+              });
+            }
+          }
+
+          orderList.add({
+            'id': productData['id'],
+            'invoice': productData['invoice'],
+            'manage_staff': productData['manage_staff'],
+            'customer': {
+              'name': productData['customer']['name'],
+              'phone': productData['customer']['phone'],
+              'email': productData['customer']['email'],
+              'address': productData['customer']['address'],
+            },
+            'billing_address': {
+              'name': productData['billing_address']['name'],
+              'email': productData['billing_address']['email'],
+              'zipcode': productData['billing_address']['zipcode'],
+              'address': productData['billing_address']['address'],
+              'phone': productData['billing_address']['phone'],
+              'city': productData['billing_address']['city'],
+              'state': productData['billing_address']['state'],
+            },
+            'bank': {
+              'name': productData['bank']['name'],
+              'account_number': productData['bank']['account_number'],
+              'ifsc_code': productData['bank']['ifsc_code'],
+              'branch': productData['bank']['branch'],
+            },
+            'items': productData['items'] != null
+                ? productData['items'].map((item) {
+                    return {
+                      'id': item['id'],
+                      'name': item['name'],
+                      'quantity': item['quantity'],
+                      'price': item['price'],
+                      'tax': item['tax'],
+                      'discount': item['discount'],
+                      'images': item['images'],
+                    };
+                  }).toList()
+                : [], // Fallback to empty list
+            'status': productData['status'],
+            'total_amount': productData['total_amount'],
+            'order_date': formattedOrderDate, // Use the formatted string
+            'warehouse_orders':
+                warehouseOrders, // Include parsed warehouse orders
+          });
+
+
+          }
+          
         }
 
-        orderList.add({
-          'id': productData['id'],
-          'invoice': productData['invoice'],
-          'manage_staff': productData['manage_staff'],
-          'customer': {
-            'name': productData['customer']['name'],
-            'phone': productData['customer']['phone'],
-            'email': productData['customer']['email'],
-            'address': productData['customer']['address'],
-          },
-          'billing_address': {
-            'name': productData['billing_address']['name'],
-            'email': productData['billing_address']['email'],
-            'zipcode': productData['billing_address']['zipcode'],
-            'address': productData['billing_address']['address'],
-            'phone': productData['billing_address']['phone'],
-            'city': productData['billing_address']['city'],
-            'state': productData['billing_address']['state'],
-          },
-          'bank': {
-            'name': productData['bank']['name'],
-            'account_number': productData['bank']['account_number'],
-            'ifsc_code': productData['bank']['ifsc_code'],
-            'branch': productData['bank']['branch'],
-          },
-          'items': productData['items'] != null
-              ? productData['items'].map((item) {
-                  return {
-                    'id': item['id'],
-                    'name': item['name'],
-                    'quantity': item['quantity'],
-                    'price': item['price'],
-                    'tax': item['tax'],
-                    'discount': item['discount'],
-                    'images': item['images'],
-                  };
-                }).toList()
-              : [], // Fallback to empty list
-          'status': productData['status'],
-          'total_amount': productData['total_amount'],
-          'order_date': formattedOrderDate, // Use the formatted string
-          'warehouse_orders': warehouseOrders, // Include parsed warehouse orders
+        setState(() {
+          orders = orderList;
+          filteredOrders = orderList;
+          print("Warehouse Orders Example: ${orders[0]['warehouse_orders']}");
         });
       }
-
-      setState(() {
-        orders = orderList;
-        filteredOrders = orderList;
-        print("Warehouse Orders Example: ${orders[0]['warehouse_orders']}");
-      });
+    } catch (error) {
+      print("Error: $error");
     }
-  } catch (error) {
-    print("Error: $error");
   }
-}
-
 
   void _filterOrders(String query) {
     setState(() {
@@ -715,193 +814,219 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
           // ),
           // Display Orders
           Expanded(
-  child: filteredOrders.isEmpty
-      ? Center(
-          child: Text(
-            selectedDate != null ||
-                    (startDate != null && endDate != null)
-                ? 'No orders available in this date range'
-                : 'No orders available',
-            style: TextStyle(
-                fontSize: 16, color: const Color.fromARGB(255, 2, 65, 96)),
-          ),
-        )
-      : ListView.builder(
-          itemCount: filteredOrders.length,
-          padding: const EdgeInsets.only(right: 10, left: 10),
-          itemBuilder: (context, index) {
-            final order = filteredOrders[index];
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 3.0),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              WarehouseOrderReview(id: order['id'])));
-                },
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  color: Colors.white,
-                  elevation: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header section with Invoice and Order Date
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(15.0),
-                            topRight: Radius.circular(15.0),
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '#${order['invoice']} /${order['customer']['name']}',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+            child: filteredOrders.isEmpty
+                ? Center(
+                    child: Text(
+                      selectedDate != null ||
+                              (startDate != null && endDate != null)
+                          ? 'No orders available in this date range'
+                          : 'No orders available',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: const Color.fromARGB(255, 2, 65, 96)),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: filteredOrders.length,
+                    padding: const EdgeInsets.only(right: 10, left: 10),
+                    itemBuilder: (context, index) {
+                      final order = filteredOrders[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 3.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        WarehouseOrderReview(id: order['id'])));
+                          },
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
                             ),
-                            Text(
-                              DateFormat('dd MMM yy').format(
-                                  DateTime.parse(order['order_date'])),
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 14),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Order details section
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                            color: Colors.white,
+                            elevation: 4,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Status:',
-                                  style: TextStyle(
-                                      fontSize: 13,
+                                // Header section with Invoice and Order Date
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(15.0),
+                                      topRight: Radius.circular(15.0),
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        '#${order['invoice']} /${order['customer']['name']}',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                ),
-                                Spacer(),
-                                 Text(
-                                  ' ${order['status']}',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                    
-                            SizedBox(height: 8.0),
-                            Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Billing Amount:',
-                                  style: TextStyle(
-                                      fontSize: 13,
+                                      Text(
+                                        DateFormat('dd MMM yy').format(
+                                            DateTime.parse(
+                                                order['order_date'])),
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 14),
                                       ),
+                                    ],
+                                  ),
                                 ),
-                                Text(
-                                  '\$${order['total_amount']}',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green),
+                                // Order details section
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Status:',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            ' ${order['status']}',
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 8.0),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Billing Amount:',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          Text(
+                                            '\$${order['total_amount']}',
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.green),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Warehouse Details Section
-                      if (order['warehouse_orders'] != null &&
-                          order['warehouse_orders'].isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Warehouse Details:',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue),
-                              ),
-                              SizedBox(height: 4.0),
-                              ...order['warehouse_orders']
-                                  .map<Widget>((warehouse) {
-                                return Card(
-                                  color: const Color.fromARGB(240, 255, 255, 255),
-                                  margin:
-                                      EdgeInsets.symmetric(vertical: 4.0),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                // Warehouse Details Section
+                                if (order['warehouse_orders'] != null &&
+                                    order['warehouse_orders'].isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0, vertical: 4.0),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Box: ${warehouse['box']}',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                        Text(
-                                          'Weight: ${warehouse['weight']} kg',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                        Text(
-                                          'Dimensions: ${warehouse['length']} x ${warehouse['breadth']} x ${warehouse['height']}',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                        Text(
-                                          'Parcel Service: ${warehouse['parcel_service']}',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                       
-                                        Text(
-                                          'Shipping Charge: \$${warehouse['shipping_charge']}',
+                                          'Warehouse Details:',
                                           style: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.green),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue),
                                         ),
-                                        // Text(
-                                        //   'Status: ${warehouse['status']}',
-                                        //   style: TextStyle(
-                                        //       fontSize: 13,
-                                        //       fontWeight:
-                                        //           FontWeight.w600),
-                                        // ),
+                                        SizedBox(height: 4.0),
+                                        ...order['warehouse_orders']
+                                            .map<Widget>((warehouse) {
+                                          print(
+                                              "====================$api${warehouse['image']}");
+
+                                          return Card(
+                                            color: const Color.fromARGB(
+                                                240, 255, 255, 255),
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 4.0),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Row(
+                                                // Changed to Row to place image and details side by side
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Image.network(
+                                                    "${warehouse['image']}",
+                                                    width: 80,
+                                                    height: 80,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Icon(Icons
+                                                          .image_not_supported); // Fallback image or icon
+                                                    },
+                                                  ),
+
+                                                  SizedBox(
+                                                      width:
+                                                          10), // Spacer between image and text
+                                                  Expanded(
+                                                    child: Column(
+                                                      // Details in a vertical column
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          'Box: ${warehouse['box']}',
+                                                          style: TextStyle(
+                                                              fontSize: 13),
+                                                        ),
+                                                        Text(
+                                                          'Total Weight: ${warehouse['total_weight']}',
+                                                          style: TextStyle(
+                                                              fontSize: 13),
+                                                        ),
+                                                        Text(
+                                                          'Total Volume Weight: ${warehouse['total_volume_weight']}',
+                                                          style: TextStyle(
+                                                              fontSize: 13),
+                                                        ),
+                                                        
+                                                        Text(
+                                                          'Shipping Charge: \$${warehouse['shipping_charge']}',
+                                                          style: TextStyle(
+                                                              fontSize: 13,
+                                                              color:
+                                                                  Colors.green),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
                                       ],
                                     ),
                                   ),
-                                );
-                              }).toList(),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                    ],
+                      );
+                    },
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-),
-
+          ),
         ],
       ),
     );

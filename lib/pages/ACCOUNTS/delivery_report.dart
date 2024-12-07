@@ -8,42 +8,111 @@ import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
-import 'package:beposoft/pages/ACCOUNTS/update_expence.dart';
-import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
-import 'package:intl/intl.dart'; // Import the intl package for date formatting
-import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ACCOUNTS/customer.dart';
+import 'package:beposoft/pages/ACCOUNTS/delivery_report_datewise.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class expence_list extends StatefulWidget {
-  const expence_list({super.key});
-
+class Delivery_Report extends StatefulWidget {
   @override
-  State<expence_list> createState() => _expence_listState();
+  _Delivery_ReportState createState() => _Delivery_ReportState();
 }
 
-class _expence_listState extends State<expence_list> {
-  List<Map<String, dynamic>> expensedata = [];
-  List<Map<String, dynamic>> bank = [];
-  DateTime? selectedDate;
+class _Delivery_ReportState extends State<Delivery_Report> {
+  List<Map<String, dynamic>> goods = [];
+  List<Map<String, dynamic>> filteredOrders = [];
+  DateTime? startDate;
+  DateTime? endDate;
+
 
   @override
   void initState() {
     super.initState();
-    getexpenselist();
-    getbank();
-    getcompany();
-    getstaff();
+    getGoodsDetails();
   }
 
-  Future<String?> gettokenFromPrefs() async {
+  Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
+  }
+    drower d = drower();
+
+ Widget _buildDropdownTile(
+      BuildContext context, String title, List<String> options) {
+    return ExpansionTile(
+      title: Text(title),
+      children: options.map((option) {
+        return ListTile(
+          title: Text(option),
+          onTap: () {
+            Navigator.pop(context);
+            d.navigateToSelectedPage(
+                context, option); // Navigate to selected page
+          },
+        );
+      }).toList(),
+    );
+  }
+  Future<void> getGoodsDetails() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/warehouse/boxdetail/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> productsData = jsonDecode(response.body);
+        setState(() {
+          goods = productsData.map((data) {
+            return {
+              'shipped_date': data['shipped_date'],
+              'total_weight': data['total_weight'],
+              'total_boxes': data['total_boxes'],
+              'total_volume_weight': data['total_volume_weight'],
+              'total_shipping_charge': data['total_shipping_charge'],
+            };
+          }).toList();
+          filteredOrders = goods;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to fetch delivery details')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching delivery details')),
+      );
+    }
+  }
+
+  Future<void> _selectDateRange(BuildContext context) async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      initialDateRange: startDate != null && endDate != null
+          ? DateTimeRange(start: startDate!, end: endDate!)
+          : null,
+    );
+    if (picked != null) {
+      setState(() {
+        startDate = picked.start;
+        endDate = picked.end;
+      });
+      _filterOrdersByDateRange();
+    }
   }
  void logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -71,230 +140,124 @@ class _expence_listState extends State<expence_list> {
     MaterialPageRoute(builder: (context) => login()),
   );
 }
-
-  void _filterOrdersBySingleDate() {
-    if (selectedDate != null) {
+  void _filterOrdersByDateRange() {
+    if (startDate != null && endDate != null) {
       setState(() {
-        expensedata = expensedata.where((order) {
-          final orderDate = _parseDate(order['expense_date']);
-          final normalizedOrderDate = _normalizeDate(orderDate);
-          final normalizedSelectedDate = _normalizeDate(selectedDate!);
-
-          print("Comparing orderDate: $normalizedOrderDate with selectedDate: $normalizedSelectedDate");
-
-          return normalizedOrderDate == normalizedSelectedDate;
+        filteredOrders = goods.where((order) {
+          final orderDate = DateTime.parse(order['shipped_date']);
+          return (orderDate.isAtSameMomentAs(startDate!) ||
+              orderDate.isAtSameMomentAs(endDate!) ||
+              (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!)));
         }).toList();
       });
-
-      print(expensedata);
     }
   }
 
-  DateTime _parseDate(String dateString) {
-    try {
-      // Attempt to parse the date in 'yyyy-MM-dd' format
-      return DateFormat('yyyy-MM-dd').parseStrict(dateString);
-    } catch (e) {
-      try {
-        // If the first attempt fails, try parsing it as an ISO8601 string
-        return DateTime.parse(dateString).toLocal(); // Ensure it is in local time
-      } catch (e) {
-        throw FormatException('Invalid date format: $dateString');
-      }
+  Map<String, double> calculateTotals() {
+    double totalBoxes = 0;
+    double totalWeight = 0;
+    double totalVolumeWeight = 0;
+    double totalShippingCharge = 0;
+
+    for (var item in filteredOrders) {
+      totalBoxes += item['total_boxes'] ?? 0;
+      totalWeight += item['total_weight'] ?? 0;
+      totalVolumeWeight += item['total_volume_weight'] ?? 0;
+      totalShippingCharge += item['total_shipping_charge'] ?? 0;
     }
+
+    return {
+      'total_boxes': totalBoxes,
+      'total_weight': totalWeight,
+      'total_volume_weight': totalVolumeWeight,
+      'total_shipping_charge': totalShippingCharge,
+    };
   }
 
-  DateTime _normalizeDate(DateTime date) {
-    return DateTime(date.year, date.month, date.day); // Normalize to midnight
-  }
-
-  Future<void> _selectSingleDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+  Widget _buildRow(String label, dynamic value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value.toString(),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        print("selectedDate$selectedDate");
-      });
-      _filterOrdersBySingleDate();
-    }
   }
 
-  Future<void> getbank() async {
-    final token = await gettokenFromPrefs();
-    try {
-      final response = await http.get(Uri.parse('$api/api/banks/'), headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      });
-      List<Map<String, dynamic>> banklist = [];
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-
-        for (var productData in productsData) {
-          banklist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-            'branch': productData['branch']
-          });
-        }
-        setState(() {
-          bank = banklist;
-        });
-      }
-    } catch (e) {
-      print("error:$e");
-    }
-  }
-
-  List<Map<String, dynamic>> company = [];
-
-  Future<void> getcompany() async {
-    try {
-      final token = await gettokenFromPrefs();
-      var response = await http.get(
-        Uri.parse('$api/api/company/data/'),
-        headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      List<Map<String, dynamic>> companylist = [];
-
-      if (response.statusCode == 200) {
-        final productsData = jsonDecode(response.body);
-
-        for (var productData in productsData) {
-          companylist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-        setState(() {
-          company = companylist;
-        });
-      }
-    } catch (error) {
-      print("Error: $error");
-    }
-  }
-
-  List<Map<String, dynamic>> sta = [];
-  Future<void> getstaff() async {
-    try {
-      final token = await gettokenFromPrefs();
-      var response = await http.get(
-        Uri.parse('$api/api/staffs/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      List<Map<String, dynamic>> stafflist = [];
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-
-        for (var productData in productsData) {
-          stafflist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-            'allocated_states': productData['allocated_states']
-          });
-        }
-        setState(() {
-          sta = stafflist;
-        });
-      }
-    } catch (error) {
-      print("Error: $error");
-    }
-  }
-
-  Future<void> getexpenselist() async {
-    try {
-      final token = await gettokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/expense/get/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      List<Map<String, dynamic>> expenselist = [];
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-
-        for (var productData in parsed) {
-          expenselist.add({
-            'id': productData['id'],
-            'purpose_of_payment': productData['purpose_of_payment'],
-            'bank': productData['bank'],
-            'amount': productData['amount'],
-            'company':productData['company'],
-            'added_by': productData['added_by'],
-            'transaction_id':productData['transaction_id'],
-            'payed_by': productData['payed_by'],
-            'expense_date': productData['expense_date'],
-          });
-        }
-        setState(() {
-          expensedata = expenselist;
-        });
-      }
-    } catch (error) {
-      print("Error: $error");
-    }
-  }
-
-  drower d = drower();
-  Widget _buildDropdownTile(
-      BuildContext context, String title, List<String> options) {
-    return ExpansionTile(
-      title: Text(title),
-      children: options.map((option) {
-        return ListTile(
-          title: Text(option),
-          onTap: () {
-            Navigator.pop(context);
-            d.navigateToSelectedPage(
-                context, option); // Navigate to selected page
-          },
-        );
-      }).toList(),
+  Widget _buildRowWithTwoColumns(
+      String label1, dynamic value1, String label2, dynamic value2) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label1,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(value1.toString(), style: TextStyle(color: Colors.white)),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label2,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(value2.toString(), style: TextStyle(color: Colors.white)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final totals = calculateTotals();
+
     return Scaffold(
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          "Expense List",
+          "Delivery Report",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () => _selectSingleDate(context),
-          ),
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
+            icon: Icon(Icons.date_range),
+            onPressed: () => _selectDateRange(context),
           ),
         ],
       ),
-     drawer: Drawer(
+    drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
@@ -486,79 +449,74 @@ class _expence_listState extends State<expence_list> {
             ],
           ),
         ),
-      body: expensedata.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder( 
-              itemCount: expensedata.length,
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(8.0),
+              itemCount: filteredOrders.length,
               itemBuilder: (context, index) {
-                final expense = expensedata[index];
+                final order = filteredOrders[index];
                 return Card(
                   color: Colors.white,
-                  elevation: 4,
-                  margin: EdgeInsets.all(10),
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Purpose of Payment: ${expense['purpose_of_payment']}',
+                          'Shipped Date: ${order['shipped_date']}',
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.blue),
                         ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Amount: ₹${expense['amount']}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
-                         Text(
-                          'Company: ${getNameById(company, expense['company'])}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Bank: ${getNameById(bank, expense['bank'])}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Payed By: ${getNameById(sta, expense['payed_by'] ?? -1)}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Added By: ${expense['added_by'] ?? 'Unknown'}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                         Text(
-                          'Transaction Id: ${expense['transaction_id']}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Expense Date: ${expense['expense_date']}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>Expense_Update(id:expense['id'])));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue, 
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
+                        Divider(color: Colors.grey),
+                        _buildRow('Total Boxes:', order['total_boxes']),
+                        _buildRow(
+                            'Total Weight:', '${order['total_weight']} kg'),
+                        _buildRow('Volume Weight:',
+                            '${order['total_volume_weight']} kg'),
+                        _buildRow('Shipping Charge:',
+                            '₹${order['total_shipping_charge']}'),
+                        SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DeliveryReportDatewise(
+                                              date: order['shipped_date'])));
+                              // Handle button press
+                              print(
+                                  'View button pressed for ${order['shipped_date']}');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue, // Button color
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(20), // Curved edges
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20, // Horizontal padding
+                                vertical: 10, // Vertical padding
+                              ),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          ),
-                          child: const Text(
-                            "View",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            child: Text(
+                              'View',
+                              style: TextStyle(
+                                color: Colors.white, // Text color
+                                fontWeight: FontWeight.bold, // Text weight
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -567,15 +525,38 @@ class _expence_listState extends State<expence_list> {
                 );
               },
             ),
+          ),
+          Material(
+            elevation: 12,
+            color: const Color.fromARGB(255, 12, 80, 163),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Delivery Report Summary",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white),
+                  ),
+                  Divider(color: Colors.white70),
+                  _buildRowWithTwoColumns('Total Boxes', totals['total_boxes'],
+                      'Total Weight', '${totals['total_weight']} kg'),
+                  _buildRowWithTwoColumns(
+                      'Volume Weight',
+                      '${totals['total_volume_weight']} kg',
+                      'Shipping Charge',
+                      '₹${totals['total_shipping_charge']}'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
-  }
-
-  String getNameById(List<Map<String, dynamic>> dataList, dynamic id) {
-    if (id == null || dataList.isEmpty) return 'Unknown';
-    final item = dataList.firstWhere(
-      (element) => element['id'] == id,
-      orElse: () => {}, 
-    );
-    return item != null ? item['name'] : 'Unknown';
   }
 }
+

@@ -41,8 +41,8 @@ class _View_CartState extends State<View_Cart> {
           'Content-Type': 'application/json',
         },
       );
-
-      print("API Response: ${response.body}");
+print("${response.statusCode}");
+      print("API Responseeeeeeeeeeeeeeeeeeeeeeeeeee: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -65,6 +65,7 @@ class _View_CartState extends State<View_Cart> {
         }
         setState(() {
           cartdata = cartList;
+          print("cartdateeeeeeeeeeeeeeeeeeeeeee$cartdata");
         });
       } else {
         throw Exception('Failed to load cart data');
@@ -276,11 +277,17 @@ class _View_CartState extends State<View_Cart> {
                                       child: Row(
                                         children: [
                                           Image.network(
-                                            "$api${item['image']}",
-                                            width: 80,
-                                            height: 80,
-                                            fit: BoxFit.cover,
-                                          ),
+                                                    "${item['image']}",
+                                                    width: 80,
+                                                    height: 80,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Icon(Icons
+                                                          .image_not_supported); // Fallback image or icon
+                                                    },
+                                                  ),
+
                                           SizedBox(width: 10),
                                           Expanded(
                                             child: Column(

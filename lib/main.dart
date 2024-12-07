@@ -1,4 +1,6 @@
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,6 +71,14 @@ class _beposoftmainState extends State<beposoftmain> {
               ? bdm_dashbord()  // Navigate to IT Dashboard if department is "it"
               : department == "warehouse"
                   ? WarehouseDashboard()  // Navigate to Warehouse Dashboard if department is "warehouse"
+                  : department == "Business Development Executive (BDE)"
+                  ? bdo_dashbord() 
+                  : department == "Admin"
+                  ? admin_dashboard()
+                  : department == "Accounts / Accounting "
+                  ? admin_dashboard()
+                   : department == "IT"
+                  ? admin_dashboard()
                   : dashboard()   // Else, navigate to the normal Dashboard
           : login(), 
     );

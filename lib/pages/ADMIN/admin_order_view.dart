@@ -10,15 +10,15 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-class OrderReview extends StatefulWidget {
+class admin_OrderReview extends StatefulWidget {
   final id;
-  const OrderReview({super.key, required this.id});
+  const admin_OrderReview({super.key, required this.id});
 
   @override
-  State<OrderReview> createState() => _OrderReviewState();
+  State<admin_OrderReview> createState() => _admin_OrderReviewState();
 }
 
-class _OrderReviewState extends State<OrderReview> {
+class _admin_OrderReviewState extends State<admin_OrderReview> {
   Drawer d = Drawer();
   var ord;
   List<Map<String, dynamic>> items = [];
@@ -33,8 +33,6 @@ class _OrderReviewState extends State<OrderReview> {
   TextEditingController receivedDateController = TextEditingController();
   String? selectedStatus;
   final TextEditingController noteController = TextEditingController();
-
- List<String> statuses = [];
   @override
   void initState() {
     super.initState();
@@ -46,43 +44,6 @@ class _OrderReviewState extends State<OrderReview> {
 
   Future<void> initData() async {
     await fetchOrderItems();
-        final dep= await getdepFromPrefs();
-        if(dep=="BDM"){
-statuses = [
-    'Invoice Approved', 
-    'Invoice Rejectd',
-
-  ];
-
-        }
-        else if(dep=="Accounts / Accounting"){
-
-          statuses = [
-            'Shipped',
-    'Waiting For Confirmation', 
-    'Invoice Rejectd',
-  ];
-
-
-        }
-        else if(dep=="Admin"){
-
-           statuses = [
-    'To Print', 
-    'Invoice Rejectd',
-  ];
-        }
-        else if(dep=="warehouse"){
-          statuses = [
-    'Packing under progress', 
-    'Packing',
-    'Ready to ship'
-    'Invoice Rejectd',
-  ];
-
-        }
-
-  
   }
 
   bool showAllProducts = false;
@@ -90,25 +51,22 @@ statuses = [
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
- Future<String?> getdepFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('department');
-  }
-  // final List<String> statuses = [
-  //   'Pending',
-  //   'Approved',
-  //   'Invoice Created',
-  //   'Invoice Approved',
-  //   'Waiting For Confirmation',
-  //   'To Print',
-  //   'Invoice Rejectd',
-  //   'Processing',
-  //   'Refunded',
-  //   'Return',
-  //   'Completed',
-  //   'Cancelled',
-  //   'Shipped'
-  // ];
+
+  final List<String> statuses = [
+    'Pending',
+    'Approved',
+    'Invoice Created',
+    'Invoice Approved',
+    'Waiting For Confirmation',
+    'To Print',
+    'Invoice Rejectd',
+    'Processing',
+    'Refunded',
+    'Return',
+    'Completed',
+    'Cancelled',
+    'Shipped'
+  ];
   double netAmountBeforeTax = 0.0; // Define at the class level
   double totalTaxAmount = 0.0; // Define at the class level
   double payableAmount = 0.0; // Define at the class level
@@ -340,8 +298,7 @@ statuses = [
   }
 
   Future<void> updateaddress() async {
-    if(noteController!=null && selectedAddressId!=null){
-      try {
+    try {
       final token = await gettoken();
 
       var response = await http.put(
@@ -370,7 +327,7 @@ statuses = [
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => OrderReview(id: widget.id)),
+          MaterialPageRoute(builder: (context) => admin_OrderReview(id: widget.id)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -390,10 +347,6 @@ statuses = [
         ),
       );
     }
-
-    }
-
-    
   }
 
   List<Map<String, dynamic>> addres = [];
@@ -507,7 +460,7 @@ statuses = [
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => OrderReview(
+                builder: (context) => admin_OrderReview(
                       id: widget.id,
                     )));
       } else {
@@ -537,7 +490,6 @@ statuses = [
       });
       print("Decoded Token Payload: ${jwt.payload}");
       print("User ID: $createdBy");
-      print('$api/api/order/${widget.id}/items/');
       var response = await http.get(
         Uri.parse('$api/api/order/${widget.id}/items/'),
         headers: {
@@ -545,7 +497,7 @@ statuses = [
           'Content-Type': 'application/json',
         },
       );
-print("productttttttttttttttttssssssssssss${response.body}");
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         ord = parsed['order'];
@@ -1749,29 +1701,6 @@ print("productttttttttttttttttssssssssssss${response.body}");
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15.0),
-                          topRight: Radius.circular(15.0),
-                        ),
-                      ),
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Update Informations',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10,),
                       DropdownButtonFormField<String>(
                         value: selectedStatus,
                         hint: Text('Select Status'),
