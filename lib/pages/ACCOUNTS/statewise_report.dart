@@ -118,16 +118,20 @@ void _filterOrdersByDateRange() {
 
   if (startDate != null && endDate != null) {
     setState(() {
+      // Normalize startDate and endDate to remove time components
+      startDate = DateTime(startDate!.year, startDate!.month, startDate!.day);
+      endDate = DateTime(endDate!.year, endDate!.month, endDate!.day);
+
       // Filter orders by date range
       filteredData = expensedata.where((order) {
         return order['orders'].any((orderItem) {
           final orderDateString = orderItem['order_date'];
           try {
-            final orderDate = DateFormat('yyyy-MM-dd').parse(orderDateString);
+            final orderDate = DateFormat('yyyy-MM-dd').parse(orderDateString).toLocal();
+            print('dateeeeeeeeeeeeeeeeeeeeeeee$orderDate');
             // Include orders between startDate and endDate inclusively
-            return orderDate.isAtSameMomentAs(startDate!) ||
-                   orderDate.isAtSameMomentAs(endDate!) ||
-                   (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!));
+            return (orderDate.isAtSameMomentAs(startDate!) || orderDate.isAfter(startDate!)) &&
+                   (orderDate.isAtSameMomentAs(endDate!) || orderDate.isBefore(endDate!));
           } catch (e) {
             print('Error parsing date: $orderDateString');
             return false;
@@ -135,7 +139,7 @@ void _filterOrdersByDateRange() {
         });
       }).toList();
 
-      print("Filtered Data: $filteredData");
+      print("Filtered Dataaaaaaaaaaaaaaaaaaaaaaaaaaa: $filteredData");
 
       // Aggregate totals based on the filtered data
       List<Map<String, dynamic>> aggregatedData = [];
