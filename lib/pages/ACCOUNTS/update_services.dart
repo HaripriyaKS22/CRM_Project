@@ -1,9 +1,17 @@
 import 'dart:convert';
 
+import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -164,6 +172,32 @@ class _update_courierState extends State<update_courier> {
     textEditingController.dispose();
     super.dispose();
   }
+void logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
+  await prefs.remove('token');
+
+  // Use a post-frame callback to show the SnackBar after the current frame
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (ScaffoldMessenger.of(context).mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logged out successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  });
+
+  // Wait for the SnackBar to disappear before navigating
+  await Future.delayed(Duration(seconds: 2));
+
+  // Navigate to the HomePage after the snackbar is shown
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => login()),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -177,32 +211,23 @@ class _update_courierState extends State<update_courier> {
             ),
           ],
         ),
-        drawer: Drawer(
+     drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
               DrawerHeader(
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 110, 110, 110),
+                    color: Colors.grey[200],
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        "lib/assets/logo-white.png",
-                        width: 100, // Change width to desired size
-                        height: 100, // Change height to desired size
+                        "lib/assets/logo.png",
+                        width: 150, // Change width to desired size
+                        height: 150, // Change height to desired size
                         fit: BoxFit
                             .contain, // Use BoxFit.contain to maintain aspect ratio
-                      ),
-                      SizedBox(
-                        width: 70,
-                      ),
-                      Text(
-                        'BepoSoft',
-                        style: TextStyle(
-                          color: Color.fromARGB(236, 255, 255, 255),
-                          fontSize: 20,
-                        ),
                       ),
                     ],
                   )),
@@ -214,22 +239,120 @@ class _update_courierState extends State<update_courier> {
                       MaterialPageRoute(builder: (context) => dashboard()));
                 },
               ),
+              
               ListTile(
                 leading: Icon(Icons.person),
-                title: Text('Customer'),
+                title: Text('Company'),
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => customer_list()));
+                      MaterialPageRoute(builder: (context) => add_company()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Departments'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => add_department()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Supervisors'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => add_supervisor()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Family'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_family()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Bank'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_bank()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('States'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_state()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Attributes'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_attribute()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Services'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CourierServices()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Delivery Notes'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => WarehouseOrderView(status: null,)));
                   // Navigate to the Settings page or perform any other action
                 },
               ),
               Divider(),
+              _buildDropdownTile(context, 'Reports', [
+                'Sales Report',
+                'Credit Sales Report',
+                'COD Sales Report',
+                'Statewise Sales Report',
+                'Expence Report',
+                'Delivery Report',
+                'Product Sale Report',
+                'Stock Report',
+                'Damaged Stock'
+              ]),
+              _buildDropdownTile(context, 'Customers', [
+                'Add Customer',
+                'Customers',
+              ]),
+              _buildDropdownTile(context, 'Staff', [
+                'Add Staff',
+                'Staff',
+              ]),
               _buildDropdownTile(context, 'Credit Note', [
                 'Add Credit Note',
                 'Credit Note List',
               ]),
-              _buildDropdownTile(
-                  context, 'Recipts', ['Add recipts', 'Recipts List']),
               _buildDropdownTile(context, 'Proforma Invoice', [
                 'New Proforma Invoice',
                 'Proforma Invoice List',
@@ -243,24 +366,12 @@ class _update_courierState extends State<update_courier> {
               Divider(),
               _buildDropdownTile(context, 'Product', [
                 'Product List',
+                'Product Add',
                 'Stock',
               ]),
-              _buildDropdownTile(
-                  context, 'Purchase', [' New Purchase', 'Purchase List']),
               _buildDropdownTile(context, 'Expence', [
                 'Add Expence',
                 'Expence List',
-              ]),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
               ]),
               _buildDropdownTile(
                   context, 'GRV', ['Create New GRV', 'GRVs List']),
@@ -287,8 +398,7 @@ class _update_courierState extends State<update_courier> {
                 leading: Icon(Icons.exit_to_app),
                 title: Text('Logout'),
                 onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                  // Perform logout action
+                  logout();
                 },
               ),
             ],

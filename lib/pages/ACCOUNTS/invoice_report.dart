@@ -65,7 +65,7 @@ class _Invoice_ReportState extends State<Invoice_Report> {
       final token = await getTokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/invoicereport/${widget.date}/'),
+        Uri.parse('$api/api/invoice/report/${widget.date}/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -81,13 +81,13 @@ class _Invoice_ReportState extends State<Invoice_Report> {
         List<Map<String, dynamic>> invoiceList = [];
         for (var productData in productsData) {
           invoiceList.add({
-            'staff_name': productData['staff_name'],
-            'total_bills': productData['total_bills'],
-            'total_amount_': productData['total_amount_'],
-            'approved_bills': productData['approved_bills'],
-            'rejected_bills': productData['rejected_bills'],
-            'approved_amount': productData['approved_amount'],
-            'rejected_amount': productData['rejected_amount'],
+            'staff_name': productData['name'],
+            'total_bills': productData['orders'],
+            'total_amount_': productData['total_amount'],
+            'approved_bills': productData['approved_orders'],
+            'rejected_bills': productData['rejected_orders'],
+            'approved_amount': productData['approved_total_amount'],
+            'rejected_amount': productData['rejected_total_amount'],
             'state_name': productData['state_name'],
             'family': productData['family'],
           });

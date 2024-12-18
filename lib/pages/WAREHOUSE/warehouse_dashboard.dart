@@ -426,17 +426,7 @@ int packed=0;
                       MaterialPageRoute(builder: (context) => WarehouseDashboard()));
                 },
               ),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
-              ]),
+             
               Divider(),
               
               _buildDropdownTile(context, 'Delivery Note',

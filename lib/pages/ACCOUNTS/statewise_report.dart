@@ -17,14 +17,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
-class StateWiseReport extends StatefulWidget {
-  const StateWiseReport({super.key});
+class StateWiseReport2 extends StatefulWidget {
+  const StateWiseReport2({super.key});
 
   @override
-  State<StateWiseReport> createState() => _StateWiseReportState();
+  State<StateWiseReport2> createState() => _StateWiseReport2State();
 }
 
-class _StateWiseReportState extends State<StateWiseReport> {
+class _StateWiseReport2State extends State<StateWiseReport2> {
   List<Map<String, dynamic>> expensedata = [];
   List<Map<String, dynamic>> filteredData = [];
   List<Map<String, dynamic>> filteredOrders = [];
@@ -33,11 +33,14 @@ class _StateWiseReportState extends State<StateWiseReport> {
 double totalAmount = 0.0;
         int totalOrdersCount = 0;
   TextEditingController searchController = TextEditingController();
+List<Map<String, dynamic>> sta = [];
+    int? selectedstaffId;
 
   @override
   void initState() {
     super.initState();
     getstatewisereport();
+    getstaff();
   }
 
   drower d = drower();
@@ -107,131 +110,151 @@ double totalAmount = 0.0;
     }
   }
 
+  // Method to filter expenses by single date
 void _filterOrdersByDateRange() {
   print("Start Date: $startDate");
   print("End Date: $endDate");
-  print("exxxxxxxxxx$expensedata");
+  print("Expense Data: $expensedata");
 
   if (startDate != null && endDate != null) {
     setState(() {
-      // Initialize the filtered data list
-      filteredData = expensedata.where((stateData) {
-        // Loop through each order type
-        List completedOrders = stateData['completed_orders_details'] ?? [];
-        List cancelledOrders = stateData['cancelled_orders_details'] ?? [];
-        List returnedOrders = stateData['returned_orders_details'] ?? [];
-        List rejectedOrders = stateData['rejected_orders_details'] ?? [];
+      // Filter orders by date range
+      filteredData = expensedata.where((order) {
+        return order['orders'].any((orderItem) {
+          final orderDateString = orderItem['order_date'];
+          try {
+            final orderDate = DateFormat('yyyy-MM-dd').parse(orderDateString);
+            // Include orders between startDate and endDate inclusively
+            return orderDate.isAtSameMomentAs(startDate!) ||
+                   orderDate.isAtSameMomentAs(endDate!) ||
+                   (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!));
+          } catch (e) {
+            print('Error parsing date: $orderDateString');
+            return false;
+          }
+        });
+      }).toList();
 
-        // Initialize filtered totals and counts for each order type
-        double filteredCompletedTotalAmount = 0.0;
-        int filteredCompletedOrdersCount = 0;
+      print("Filtered Data: $filteredData");
 
-        double filteredCancelledTotalAmount = 0.0;
-        int filteredCancelledOrdersCount = 0;
+      // Aggregate totals based on the filtered data
+      List<Map<String, dynamic>> aggregatedData = [];
 
-        double filteredReturnedTotalAmount = 0.0;
-        int filteredReturnedOrdersCount = 0;
+      for (var stateData in filteredData) {
+        int totalOrdersCount = 0;
+        double totalAmount = 0.0;
 
-        double filteredRejectedTotalAmount = 0.0;
-        int filteredRejectedOrdersCount = 0;
+        int completedOrdersCount = 0;
+        double completedAmount = 0.0;
 
-        // Initialize aggregate totals for all types
-        
-        bool isOrderInRange = false;
+        int cancelledOrdersCount = 0;
+        double cancelledAmount = 0.0;
 
-        // Function to process orders based on their type
-        void processOrders(List orders, String orderType) {
-          print("orderrrrrrrrrrrrrrrrrr$orders");
-          print("Statusssssssssssssss$orderType");
-          for (var order in orders) {
-            String? orderDateStr = order['order_date'];
-            print("$orderType order date: $orderDateStr");
+        int refundedOrdersCount = 0;
+        double refundedAmount = 0.0;
 
-            // Check if order_date is valid
-            if (orderDateStr == null || orderDateStr.isEmpty) {
-              print("Skipping $orderType order with null or empty date");
-              continue;
-            }
+        int returnedOrdersCount = 0;
+        double returnedAmount = 0.0;
 
-            DateTime? orderDate;
-            try {
-              // Parse the order date string
-              orderDate = DateFormat('yyyy-MM-dd').parse(orderDateStr); 
-            } catch (e) {
-              print("Error parsing date for $orderType: $e");
-              continue;
-            }
+        // Iterate through the orders
+        List<dynamic> orders = stateData['orders'] ?? [];
+        for (var order in orders) {
+          List<dynamic> waitingOrders = order['waiting_orders'] ?? [];
 
-            // Debug print to check orderDate and the range
-            print("Parsed order date: $orderDate");
+          for (var waitingOrder in waitingOrders) {
+            // Increment total orders count and amount
+            totalOrdersCount += 1;
+            totalAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
 
-            // Check if the order date is within the selected range, including exact start and end dates
-            if ((orderDate.isAfter(startDate!.subtract(Duration(days: 1))) &&
-                 orderDate.isBefore(endDate!.add(Duration(days: 1)))) ||
-                 orderDate.isAtSameMomentAs(startDate!) ||
-                 orderDate.isAtSameMomentAs(endDate!)) {
-              print("$orderType order is in range: $orderDate");
+            String status = waitingOrder['status']?.toString() ?? '';
 
-              isOrderInRange = true;
-
-              // Update counts and amounts based on the order type
-              if (orderType == 'Completed') {
-                filteredCompletedOrdersCount++;
-                filteredCompletedTotalAmount += order['total_amount'];
-              } else if (orderType == 'Cancelled') {
-                filteredCancelledOrdersCount++;
-                filteredCancelledTotalAmount += order['total_amount'];
-              } else if (orderType == 'Return') {
-                filteredReturnedOrdersCount++;
-                filteredReturnedTotalAmount += order['total_amount'];
-              } else if (orderType == 'Invoice Rejectd') {
-                filteredRejectedOrdersCount++;
-                filteredRejectedTotalAmount += order['total_amount'];
-              }
-            } else {
-              print("$orderType order is not in range: $orderDate");
+            // Handle different statuses
+            switch (status) {
+              case 'Completed':
+                completedOrdersCount += 1;
+                completedAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
+                break;
+              case 'Cancelled':
+                cancelledOrdersCount += 1;
+                cancelledAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
+                break;
+              case 'Refunded':
+                refundedOrdersCount += 1;
+                refundedAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
+                break;
+              case 'Return':
+                returnedOrdersCount += 1;
+                returnedAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
+                break;
+              default:
+                print('Unhandled status: $status');
+                break;
             }
           }
         }
 
-        // Process each order type
-        processOrders(completedOrders, 'Completed');
-        processOrders(cancelledOrders, 'Cancelled');
-        processOrders(returnedOrders, 'Return');
-        processOrders(rejectedOrders, 'Invoice Rejectd');
+        // Add the aggregated data for this state
+        aggregatedData.add({
+          'id': stateData['id'] ?? 'Unknown ID',
+          'name': stateData['name'] ?? 'Unknown Name',
+          'total_orders_count': totalOrdersCount,
+          'total_amount': totalAmount,
+          'completed_orders_count': completedOrdersCount,
+          'completed_amount': completedAmount,
+          'cancelled_orders_count': cancelledOrdersCount,
+          'cancelled_amount': cancelledAmount,
+          'refunded_orders_count': refundedOrdersCount,
+          'refunded_amount': refundedAmount,
+          'returned_orders_count': returnedOrdersCount,
+          'returned_amount': returnedAmount,
+        });
+      }
 
-        // Update the stateData with the new filtered counts and amounts
-        if (isOrderInRange) {
-          stateData['completed_orders'] = filteredCompletedOrdersCount;
-          stateData['completed_amount'] = filteredCompletedTotalAmount;
-          stateData['cancelled_orders'] = filteredCancelledOrdersCount;
-          stateData['cancelled_amount'] = filteredCancelledTotalAmount;
-          stateData['returned_orders'] = filteredReturnedOrdersCount;
-          stateData['returned_amount'] = filteredReturnedTotalAmount;
-          stateData['rejected_orders'] = filteredRejectedOrdersCount;
-          stateData['rejected_amount'] = filteredRejectedTotalAmount;
-
-
-          // Aggregate totals
-          totalOrdersCount = filteredCompletedOrdersCount + filteredCancelledOrdersCount +
-              filteredReturnedOrdersCount + filteredRejectedOrdersCount;
-          totalAmount = filteredCompletedTotalAmount + filteredCancelledTotalAmount +
-              filteredReturnedTotalAmount + filteredRejectedTotalAmount;
-          stateData['totalcount'] = totalOrdersCount;
-          stateData['totalamount'] = totalAmount;
-
-
-          // Print the aggregated totals
-          print("Total Orders Count: $totalOrdersCount");
-          print("Total Amount: $totalAmount");
-        }
-
-        // Only include the stateData if any of its orders match the date range
-        return isOrderInRange;
-      }).toList();
+      // Update the state with the aggregated data
+      filteredData = aggregatedData;
+      print("Processed Data: $filteredData");
     });
   }
 }
+
+
+ Future<void> getstaff() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/staffs/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+      List<Map<String, dynamic>> stafflist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          stafflist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          sta = stafflist;
+          print("sataffffffffffff$sta");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
 var count;
 var amount;
 Future<void> getstatewisereport() async {
@@ -252,115 +275,88 @@ Future<void> getstatewisereport() async {
       // Debugging the API response
       print("API Response: $parsed");
 
-      // Assuming the data is under a specific key, adjust as per your API response
       if (parsed is Map && parsed.containsKey('data')) {
         final List<dynamic> statewiseData = parsed['data'];
         List<Map<String, dynamic>> statewiselist = [];
-
+print("statewiseData:::::::::::::$statewiseData");
         for (var stateData in statewiseData) {
-          // Get the status_based_orders, defaulting to an empty map if not found
-          Map<String, dynamic> statusBasedOrders = stateData["status_based_orders"] ?? {};
+          int totalOrdersCount = 0;
+          double totalAmount = 0.0;
 
-          // Extract completed orders and their order_date
-          List<Map<String, dynamic>> completedOrders = [];
-          double completedOrdersTotalAmount = 0.0;
           int completedOrdersCount = 0;
+          double completedAmount = 0.0;
 
-          var completed = statusBasedOrders["Completed"] ?? {};
-          for (var order in completed["orders"] ?? []) {
-            completedOrders.add({
-              "invoice": order["invoice"],
-              "order_date": order["order_date"], // Include the order_date
-              "total_amount": order["total_amount"],
-            });
-
-            completedOrdersTotalAmount += order["total_amount"];
-            completedOrdersCount++;
-          }
-
-          // Initialize cancelled orders variables
-          List<Map<String, dynamic>> cancelledOrders = [];
-          double cancelledOrdersTotalAmount = 0.0;
           int cancelledOrdersCount = 0;
+          double cancelledAmount = 0.0;
 
-          var cancelled = statusBasedOrders["Cancelled"] ?? {};
-          for (var order in cancelled["orders"] ?? []) {
-            cancelledOrders.add({
-              "invoice": order["invoice"],
-              "order_date": order["order_date"],
-              "total_amount": order["total_amount"],
-            });
-            cancelledOrdersTotalAmount += order["total_amount"];
-            cancelledOrdersCount++;
-          }
+          int refundedOrdersCount = 0;
+          double refundedAmount = 0.0;
 
-          // Initialize returned orders variables
-          List<Map<String, dynamic>> returnedOrders = [];
-          double returnedOrdersTotalAmount = 0.0;
           int returnedOrdersCount = 0;
+          double returnedAmount = 0.0;
 
-          var returned = statusBasedOrders["Return"] ?? {};
-          for (var order in returned["orders"] ?? []) {
-            returnedOrders.add({
-              "invoice": order["invoice"],
-              "order_date": order["order_date"],
-              "total_amount": order["total_amount"],
-            });
-            returnedOrdersTotalAmount += order["total_amount"];
-            returnedOrdersCount++;
+          // Loop through each state's orders list
+          List<dynamic> orders = stateData['orders'] ?? [];
+          print('orderssssssssssssssssssssss$orders');
+          for (var order in orders) {
+            List<dynamic> waitingOrders = order['waiting_orders'] ?? [];
+
+            for (var waitingOrder in waitingOrders) {
+              // Aggregate totals
+              totalOrdersCount += 1;
+              // totalAmount += (waitingOrder['total_amount'] as num).toDouble();
+ totalAmount = (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
+              String status = waitingOrder['status'];
+
+              switch (status) {
+                case 'Completed':
+                  completedOrdersCount += 1;
+                  completedAmount += (waitingOrder['total_amount'] as num).toDouble();
+                  break;
+
+                case 'Cancelled':
+                  cancelledOrdersCount += 1;
+                  cancelledAmount += (waitingOrder['total_amount'] as num).toDouble();
+                  break;
+
+                case 'Refunded':
+                  refundedOrdersCount += 1;
+                  refundedAmount += (waitingOrder['total_amount'] as num).toDouble();
+                  break;
+
+                case 'Return':
+                  returnedOrdersCount += 1;
+                  returnedAmount += (waitingOrder['total_amount'] as num).toDouble();
+                  break;
+              }
+            }
           }
+print("stateData: $stateData");  // Check for any null or unexpected values
+          // Add calculated data to the list
+         statewiselist.add({
+            'orders':orders,
 
-          // Initialize rejected orders variables
-          List<Map<String, dynamic>> rejectedOrders = [];
-          double rejectedOrdersTotalAmount = 0.0;
-          int rejectedOrdersCount = 0;
+  'id': stateData['id'] ?? 'Unknown ID',  // Default value if null
+  'name': stateData['name'] ?? 'Unknown Name',  // Default value if null
+  'total_orders_count': totalOrdersCount ?? 0,  // Ensure it defaults to 0
+  'total_amount': totalAmount ?? 0.0,  // Ensure it defaults to 0.0
+  'completed_orders_count': completedOrdersCount ?? 0,
+  'completed_amount': completedAmount ?? 0.0,
+  'cancelled_orders_count': cancelledOrdersCount ?? 0,
+  'cancelled_amount': cancelledAmount ?? 0.0,
+  'refunded_orders_count': refundedOrdersCount ?? 0,
+  'refunded_amount': refundedAmount ?? 0.0,
+  'returned_orders_count': returnedOrdersCount ?? 0,
+  'returned_amount': returnedAmount ?? 0.0,
+});
 
-          var rejected = statusBasedOrders["Invoice Rejectd"] ?? {};
-          for (var order in rejected["orders"] ?? []) {
-            rejectedOrders.add({
-              "invoice": order["invoice"],
-              "order_date": order["order_date"],
-              "total_amount": order["total_amount"],
-            });
-            rejectedOrdersTotalAmount += order["total_amount"];
-            rejectedOrdersCount++;
-          }
 
-          // Calculate the total orders and amount for this state
-          int count = rejectedOrdersCount + returnedOrdersCount + cancelledOrdersCount + completedOrdersCount;
-          double amount = rejectedOrdersTotalAmount + returnedOrdersTotalAmount + cancelledOrdersTotalAmount + completedOrdersTotalAmount;
-
-          print("$count, $amount");
-
-          // Add the processed data to the list
-          statewiselist.add({
-            "state": stateData["name"],
-            "completed_orders": completedOrdersCount,
-            "completed_amount": completedOrdersTotalAmount,
-            "completed_orders_details": completedOrders,
-            "cancelled_orders_details": cancelledOrders,
-            "returned_orders_details": returnedOrders,
-            "rejected_orders_details": rejectedOrders,
-            "cancelled_orders": cancelledOrdersCount,
-            "cancelled_amount": cancelledOrdersTotalAmount,
-            "returned_orders": returnedOrdersCount,
-            "returned_amount": returnedOrdersTotalAmount,
-            "rejected_orders": rejectedOrdersCount,
-            "rejected_amount": rejectedOrdersTotalAmount,
-            "totalcount":count,
-            "totalamount":amount
-          });
-
-          
         }
 
         setState(() {
-          // Set the final totals after processing all states
-
           expensedata = statewiselist;
-          filteredData = statewiselist; // Initialize filteredData
-                    print("Total Orders Count: $filteredData");
-
+          filteredData = statewiselist;
+          print("Processed Data=============================: $filteredData");
         });
       } else {
         print("Unexpected data structure: ${parsed.runtimeType}");
@@ -372,6 +368,7 @@ Future<void> getstatewisereport() async {
     print("Error: $error");
   }
 }
+
  void _filterProducts(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -379,7 +376,7 @@ Future<void> getstatewisereport() async {
       } else {
         filteredData = expensedata
             .where((product) =>
-                product['state'].toLowerCase().contains(query.toLowerCase()))
+                product['name'].toLowerCase().contains(query.toLowerCase()))
             .toList(); // Filter based on query
       }
     });
@@ -626,6 +623,53 @@ Widget build(BuildContext context) {
             onChanged: _filterProducts,
           ),
         ),
+          Padding(
+                        padding: const EdgeInsets.only(right: 10,left: 10),
+                        child: Container(
+                          
+                          height: 49,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blue),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Container(
+                                width: 276,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                  ),
+                                  child: DropdownButton<int>(
+                                    value: selectedstaffId,
+                                      isExpanded: true,
+                                    underline: Container(), // This removes the underline
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedstaffId = newValue!;
+                                        print(selectedstaffId);
+                                      });
+                                    },
+                                    items: sta.map<DropdownMenuItem<int>>((staff) {
+                                      return DropdownMenuItem<int>(
+                                        value:staff['id'],
+                                        child: Text(staff['name'],style: TextStyle(fontSize: 12),),
+                                      );
+                                    }).toList(),
+                                    icon: Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -649,7 +693,7 @@ Widget build(BuildContext context) {
                         children: [
                           // State name with a bold header
                           Text(
-                            stateData["state"],
+                            stateData["name"],
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -667,7 +711,7 @@ Widget build(BuildContext context) {
                                 color: Colors.blue,
                               ),
                               SizedBox(width: 5),
-                              Text("Completed Orders: ${stateData["completed_orders"]} "),
+                              Text("Completed Orders: ${stateData["completed_orders_count"]} "),
                               Spacer(),
                               Text("₹ ${stateData["completed_amount"]}")
                             ],
@@ -680,7 +724,7 @@ Widget build(BuildContext context) {
                                 color: Colors.blue,
                               ),
                               SizedBox(width: 5),
-                              Text("Cancelled Orders: ${stateData["cancelled_orders"]} "),
+                              Text("Cancelled Orders: ${stateData["cancelled_orders_count"]} "),
                               Spacer(),
                               Text("₹ ${stateData["cancelled_amount"]}")
                             ],
@@ -693,9 +737,9 @@ Widget build(BuildContext context) {
                                 color: Colors.blue,
                               ),
                               SizedBox(width: 5),
-                              Text("Returned Orders: ${stateData["returned_orders"]} "),
+                              Text("Returned Orders: ${stateData["refunded_orders_count"]} "),
                               Spacer(),
-                              Text("₹ ${stateData["returned_amount"]}")
+                              Text("₹ ${stateData["refunded_amount"]}")
                             ],
                           ),
                           SizedBox(height: 5),
@@ -706,9 +750,9 @@ Widget build(BuildContext context) {
                                 color: Colors.blue,
                               ),
                               SizedBox(width: 5),
-                              Text("Rejected Orders: ${stateData["rejected_orders"]} "),
+                              Text("Rejected Orders: ${stateData["returned_orders_count"]} "),
                               Spacer(),
-                              Text("₹ ${stateData["rejected_amount"]}")
+                              Text("₹ ${stateData["returned_amount"]}")
                             ],
                           ),
                           SizedBox(height: 2),
@@ -721,9 +765,9 @@ Widget build(BuildContext context) {
                                 color: Colors.grey,
                               ),
                               SizedBox(width: 5),
-                              Text("Total Orders: ${stateData["totalcount"]} "),
+                              Text("Total Orders: ${stateData["total_orders_count"]} "),
                               Spacer(),
-                              Text("₹ ${stateData["totalamount"]}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
+                              Text("₹ ${stateData["total_amount"]}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
                             ],
                           ),
                         ],

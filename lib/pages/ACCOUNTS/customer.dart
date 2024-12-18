@@ -204,17 +204,7 @@ class _customer_listState extends State<customer_list> {
                       MaterialPageRoute(builder: (context) => dashboard()));
                 },
               ),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
-              ]),
+             
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Company'),
@@ -305,6 +295,17 @@ class _customer_listState extends State<customer_list> {
                 },
               ),
               Divider(),
+              _buildDropdownTile(context, 'Reports', [
+                'Sales Report',
+                'Credit Sales Report',
+                'COD Sales Report',
+                'Statewise Sales Report',
+                'Expence Report',
+                'Delivery Report',
+                'Product Sale Report',
+                'Stock Report',
+                'Damaged Stock'
+              ]),
               _buildDropdownTile(context, 'Customers', [
                 'Add Customer',
                 'Customers',

@@ -213,13 +213,13 @@ Future<void> getSoldReport() async {
   try {
     final token = await getTokenFromPrefs();
     var response = await http.get(
-      Uri.parse('$api/api/productstock/'),
+      Uri.parse('$api/api/sold/products/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
     );
-    print(response.body);
+    print("soldddddddddddddddddddddddd prooooooooooooooo${response.body}");
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -339,17 +339,7 @@ Widget build(BuildContext context) {
                       MaterialPageRoute(builder: (context) => dashboard()));
                 },
               ),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
-              ]),
+             
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Company'),
@@ -440,6 +430,17 @@ Widget build(BuildContext context) {
                 },
               ),
               Divider(),
+              _buildDropdownTile(context, 'Reports', [
+                'Sales Report',
+                'Credit Sales Report',
+                'COD Sales Report',
+                'Statewise Sales Report',
+                'Expence Report',
+                'Delivery Report',
+                'Product Sale Report',
+                'Stock Report',
+                'Damaged Stock'
+              ]),
               _buildDropdownTile(context, 'Customers', [
                 'Add Customer',
                 'Customers',

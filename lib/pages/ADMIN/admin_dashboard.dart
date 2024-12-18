@@ -445,17 +445,7 @@ int grv=0;
                       MaterialPageRoute(builder: (context) => admin_dashboard()));
                 },
               ),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
-              ]),
+              
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Company'),
@@ -546,6 +536,17 @@ int grv=0;
                 },
               ),
               Divider(),
+              _buildDropdownTile(context, 'Reports', [
+                'Sales Report',
+                'Credit Sales Report',
+                'COD Sales Report',
+                'Statewise Sales Report',
+                'Expence Report',
+                'Delivery Report',
+                'Product Sale Report',
+                'Stock Report',
+                'Damaged Stock'
+              ]),
               _buildDropdownTile(context, 'Customers', [
                 'Add Customer',
                 'Customers',

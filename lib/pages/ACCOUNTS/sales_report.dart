@@ -38,7 +38,7 @@ List<Map<String, dynamic>> sta = [];
   double approvedAmount = 0.0;
   double rejectedBills = 0.0;
   double rejectedAmount = 0.0;
-    int? selectedstaffId;
+    String? selectedstaff;
 
   DateTime? selectedDate; // For single date filter
   DateTime? startDate; // For date range filter
@@ -203,7 +203,7 @@ void _filterOrdersBySingleDate() {
     return prefs.getString('token');
   }
 
-  void _filterDataByStaff(int staffId) {
+  void _filterDataByStaff(staffId) {
   setState(() {
     // Ensure salesReportList is not null
     if (salesReportList == null || salesReportList.isEmpty) {
@@ -217,7 +217,7 @@ void _filterOrdersBySingleDate() {
           // Guard against null in report['staff_orders']
           List<dynamic> staffOrders = report['staff_orders'] ?? [];
           List<dynamic> filteredOrders = staffOrders
-              .where((order) => order['manage_staff_id'] == staffId)
+              .where((order) => order['manage_staff__name'] == staffId)
               .toList();
 
           // If no orders match, exclude this report
@@ -296,16 +296,16 @@ var staff;
     final token = await getTokenFromPrefs();
 
     var response = await http.get(
-      Uri.parse('$api/api/salesreport'),
+      Uri.parse('$api/api/salesreport/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
     );
-
+print("responsee:${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
-      var salesData = parsed['Sales report'];
+      var salesData = parsed['sales_report'];
 print("salesData:$salesData");
       List<Map<String, dynamic>> salesReportDataList = [];
       List<String> approvedStatuses = [
@@ -339,7 +339,7 @@ print("salesData:$salesData");
 
         salesReportDataList.add({
           'date': reportData['date'],
-          "staff_orders":reportData['staff_orders'],
+          "staff_orders":reportData['order_details'],
           'total_bills_in_date': reportData['total_bills_in_date'],
           'amount': reportData['amount'],
           'approved': {
@@ -565,17 +565,7 @@ print("salesData:$salesData");
                       MaterialPageRoute(builder: (context) => dashboard()));
                 },
               ),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
-              ]),
+              
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Company'),
@@ -666,6 +656,17 @@ print("salesData:$salesData");
                 },
               ),
               Divider(),
+              _buildDropdownTile(context, 'Reports', [
+                'Sales Report',
+                'Credit Sales Report',
+                'COD Sales Report',
+                'Statewise Sales Report',
+                'Expence Report',
+                'Delivery Report',
+                'Product Sale Report',
+                'Stock Report',
+                'Damaged Stock'
+              ]),
               _buildDropdownTile(context, 'Customers', [
                 'Add Customer',
                 'Customers',
@@ -743,40 +744,40 @@ print("salesData:$salesData");
       children: [
         SizedBox(width: 20),
         Container(
-          width: 276,
-          child: InputDecorator(
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 1),
-            ),
-            child: DropdownButton<int>(
-              value: selectedstaffId,
-              isExpanded: true,
-              hint: Text( // Add hint text here
-                "Select Staff",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              underline: Container(), // This removes the underline
-              onChanged: (int? newValue) {
-                setState(() {
-                  selectedstaffId = newValue!;
-                  print(selectedstaffId);
-                });
-                _filterDataByStaff(selectedstaffId!);
-              },
-              items: sta.map<DropdownMenuItem<int>>((staff) {
-                return DropdownMenuItem<int>(
-                  value: staff['id'],
-                  child: Text(staff['name'], style: TextStyle(fontSize: 12)),
-                );
-              }).toList(),
-              icon: Container(
-                alignment: Alignment.centerRight,
-                child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-              ),
-            ),
-          ),
-        ),
+  width: 276,
+  child: InputDecorator(
+    decoration: InputDecoration(
+      border: InputBorder.none,
+      contentPadding: EdgeInsets.symmetric(horizontal: 1),
+    ),
+    child: DropdownButton<String>(
+      value: selectedstaff, // Ensure this is a String
+      isExpanded: true,
+      hint: Text(
+        "Select Staff",
+        style: TextStyle(fontSize: 12, color: Colors.grey),
+      ),
+      underline: Container(), // Removes the underline
+      onChanged: (newValue) {
+        setState(() {
+          selectedstaff = newValue;
+          print(selectedstaff);
+        });
+        _filterDataByStaff(selectedstaff!);
+      },
+      items: sta.map<DropdownMenuItem<String>>((staff) {
+        return DropdownMenuItem<String>(
+          value: staff['name'], // Ensure staff['name'] is a String
+          child: Text(staff['name'], style: TextStyle(fontSize: 12)),
+        );
+      }).toList(),
+      icon: Container(
+        alignment: Alignment.centerRight,
+        child: Icon(Icons.arrow_drop_down),
+      ),
+    ),
+  ),
+),
       ],
     ),
   ),
@@ -825,6 +826,31 @@ print("salesData:$salesData");
                 _buildRow('Rejected Bills:', reportData['rejected']['bills'] ?? 0),
                 _buildRow('Rejected Amount:', reportData['rejected']['amount'] ?? 0.0),
                 SizedBox(height: 12),
+
+
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              Invoice_Report(date: reportData['date']),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "Report",
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                    ),
+                  ),
                 // Text(
                 //   'Orders:',
                 //   style: TextStyle(fontWeight: FontWeight.bold),
