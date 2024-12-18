@@ -291,7 +291,7 @@ void _filterOrdersBySingleDate() {
 
 var staff;
   Future<void> getSalesReport() async {
-  setState(() {});
+  setState(() {}); // Update UI
   try {
     final token = await getTokenFromPrefs();
 
@@ -302,11 +302,13 @@ var staff;
         'Content-Type': 'application/json',
       },
     );
-print("responsee:${response.body}");
+
+    print("Response: ${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var salesData = parsed['sales_report'];
-print("salesData:$salesData");
+      print("salesData: $salesData");
+
       List<Map<String, dynamic>> salesReportDataList = [];
       List<String> approvedStatuses = [
         "Completed",
@@ -317,35 +319,35 @@ print("salesData:$salesData");
         "To Print",
         "Processing"
       ];
-      List<String> rejectedStatuses = ["Cancelled", "Refunded", "Return","Invoice Rejectd"];
+      List<String> rejectedStatuses = ["Cancelled", "Refunded", "Return", "Invoice Rejected"];
 
       for (var reportData in salesData) {
-        List<dynamic> staffOrders = reportData['staff_orders'] ?? [];
+        List<dynamic> staffOrders = reportData['order_details'] ?? [];
         int totalApprovedBills = 0;
         double totalApprovedAmount = 0.0;
         int totalRejectedBills = 0;
         double totalRejectedAmount = 0.0;
 
+        // Iterate through each staff order and classify based on status
         for (var order in staffOrders) {
+          double orderAmount = (order['total_amount'] ?? 0.0).toDouble();
           if (approvedStatuses.contains(order['status'])) {
             totalApprovedBills++;
-            totalApprovedAmount += order['total_amount'] ?? 0.0;
+            totalApprovedAmount += orderAmount;
           } else if (rejectedStatuses.contains(order['status'])) {
             totalRejectedBills++;
-            totalRejectedAmount += order['total_amount'] ?? 0.0;
+            totalRejectedAmount += orderAmount;
           }
-
         }
 
         salesReportDataList.add({
           'date': reportData['date'],
-          "staff_orders":reportData['order_details'],
+          'staff_orders': staffOrders,
           'total_bills_in_date': reportData['total_bills_in_date'],
           'amount': reportData['amount'],
           'approved': {
             'bills': totalApprovedBills,
             'amount': totalApprovedAmount,
-            
           },
           'rejected': {
             'bills': totalRejectedBills,
@@ -357,7 +359,7 @@ print("salesData:$salesData");
       setState(() {
         salesReportList = salesReportDataList;
         filterdata = salesReportDataList;
-        print("salesReportList$salesReportList");
+        print("Sales Report List: $salesReportList");
         _updateTotals();
       });
     } else {
@@ -376,9 +378,10 @@ print("salesData:$salesData");
       ),
     );
   } finally {
-    setState(() {});
+    setState(() {}); // Final UI update
   }
 }
+
 
   Widget _buildRow(String label, dynamic value) {
     return Padding(

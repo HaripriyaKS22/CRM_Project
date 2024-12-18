@@ -122,24 +122,35 @@ void _filterOrdersByDateRange() {
       startDate = DateTime(startDate!.year, startDate!.month, startDate!.day);
       endDate = DateTime(endDate!.year, endDate!.month, endDate!.day);
 
-      // Filter orders by date range
-      filteredData = expensedata.where((order) {
-        return order['orders'].any((orderItem) {
-          final orderDateString = orderItem['order_date'];
-          try {
-            final orderDate = DateFormat('yyyy-MM-dd').parse(orderDateString).toLocal();
-            print('dateeeeeeeeeeeeeeeeeeeeeeee$orderDate');
-            // Include orders between startDate and endDate inclusively
-            return (orderDate.isAtSameMomentAs(startDate!) || orderDate.isAfter(startDate!)) &&
-                   (orderDate.isAtSameMomentAs(endDate!) || orderDate.isBefore(endDate!));
-          } catch (e) {
-            print('Error parsing date: $orderDateString');
-            return false;
-          }
-        });
-      }).toList();
+      // Filter states and their orders
+      filteredData = expensedata
+          .where((stateData) {
+            List<dynamic> orders = stateData['orders'] ?? [];
 
-      print("Filtered Dataaaaaaaaaaaaaaaaaaaaaaaaaaa: $filteredData");
+            // Check if any orders match the date range
+            List<dynamic> filteredOrders = orders.where((o) {
+              final orderDateString = o['order_date'];
+              try {
+                final orderDate = DateFormat('yyyy-MM-dd').parse(orderDateString).toLocal();
+                return (orderDate.isAtSameMomentAs(startDate!) || orderDate.isAfter(startDate!)) &&
+                       (orderDate.isAtSameMomentAs(endDate!) || orderDate.isBefore(endDate!));
+              } catch (e) {
+                print('Error parsing date: $orderDateString');
+                return false;
+              }
+            }).toList();
+
+            // Only keep the state if there are matching orders
+            if (filteredOrders.isNotEmpty) {
+              // Replace the 'orders' with filtered orders
+              stateData['orders'] = filteredOrders;
+              return true;
+            }
+            return false;
+          })
+          .toList(); // Ensure final result is a List<Map<String, dynamic>>
+
+      print("Filtered Data: $filteredData");
 
       // Aggregate totals based on the filtered data
       List<Map<String, dynamic>> aggregatedData = [];
@@ -160,40 +171,36 @@ void _filterOrdersByDateRange() {
         int returnedOrdersCount = 0;
         double returnedAmount = 0.0;
 
-        // Iterate through the orders
+        // Iterate through the filtered orders
         List<dynamic> orders = stateData['orders'] ?? [];
         for (var order in orders) {
-          List<dynamic> waitingOrders = order['waiting_orders'] ?? [];
+          // Increment total orders count and amount
+          totalOrdersCount += 1;
+          totalAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
 
-          for (var waitingOrder in waitingOrders) {
-            // Increment total orders count and amount
-            totalOrdersCount += 1;
-            totalAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
+          String status = order['status']?.toString() ?? '';
 
-            String status = waitingOrder['status']?.toString() ?? '';
-
-            // Handle different statuses
-            switch (status) {
-              case 'Completed':
-                completedOrdersCount += 1;
-                completedAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
-                break;
-              case 'Cancelled':
-                cancelledOrdersCount += 1;
-                cancelledAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
-                break;
-              case 'Refunded':
-                refundedOrdersCount += 1;
-                refundedAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
-                break;
-              case 'Return':
-                returnedOrdersCount += 1;
-                returnedAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
-                break;
-              default:
-                print('Unhandled status: $status');
-                break;
-            }
+          // Handle different statuses
+          switch (status) {
+            case 'Completed':
+              completedOrdersCount += 1;
+              completedAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+              break;
+            case 'Cancelled':
+              cancelledOrdersCount += 1;
+              cancelledAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+              break;
+            case 'Refunded':
+              refundedOrdersCount += 1;
+              refundedAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+              break;
+            case 'Return':
+              returnedOrdersCount += 1;
+              returnedAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+              break;
+            default:
+              print('Unhandled status: $status');
+              break;
           }
         }
 
@@ -220,6 +227,107 @@ void _filterOrdersByDateRange() {
     });
   }
 }
+void _filterOrdersByStaffId() {
+  print("Selected Staff ID: $selectedstaffId");
+  print("Expense Data: $expensedata");
+
+  if (selectedstaffId != null) {
+    setState(() {
+      print("=== DEBUG: Start Filtering ===");
+
+      // Debug: Check all orders for each state
+      expensedata.forEach((stateData) {
+        print("State: ${stateData['name']}, Orders: ${stateData['orders']}");
+      });
+
+      // Filter states containing orders with the selected staff ID
+      filteredData = expensedata
+          .where((stateData) {
+            List<dynamic> orders = stateData['orders'] ?? [];
+            // Check if any order matches the selected staff ID
+            bool hasMatchingOrders = orders.any((order) {
+              print("Checking Order: $order");
+              return order['staffID'].toString() == selectedstaffId.toString();
+            });
+            return hasMatchingOrders;
+          })
+          .map<Map<String, dynamic>>((stateData) {
+            List<dynamic> orders = stateData['orders'] ?? [];
+
+            // Filter orders based on the selected staff ID
+            List<dynamic> filteredOrders = orders
+                .where((order) => order['staffID'].toString() == selectedstaffId.toString())
+                .toList();
+
+            print("Filtered Orders for State '${stateData['name']}': $filteredOrders");
+
+            // Initialize counters for order statuses
+            int totalOrdersCount = 0;
+            double totalAmount = 0.0;
+
+            int completedOrdersCount = 0;
+            double completedAmount = 0.0;
+
+            int cancelledOrdersCount = 0;
+            double cancelledAmount = 0.0;
+
+            int refundedOrdersCount = 0;
+            double refundedAmount = 0.0;
+
+            int returnedOrdersCount = 0;
+            double returnedAmount = 0.0;
+
+            // Process the filtered orders
+            for (var order in filteredOrders) {
+              totalOrdersCount++;
+              totalAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+
+              String status = order['status']?.toString() ?? '';
+              print("Order Status: $status");
+              switch (status) {
+                case 'Completed':
+                  completedOrdersCount++;
+                  completedAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+                  break;
+                case 'Cancelled':
+                  cancelledOrdersCount++;
+                  cancelledAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+                  break;
+                case 'Refunded':
+                  refundedOrdersCount++;
+                  refundedAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+                  break;
+                case 'Return':
+                  returnedOrdersCount++;
+                  returnedAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
+                  break;
+              }
+            }
+
+            // Return the updated state with filtered orders and counts
+            return {
+              ...stateData, // Spread original state data
+              'orders': filteredOrders, // Replace orders with filtered list
+              'total_orders_count': totalOrdersCount,
+              'total_amount': totalAmount,
+              'completed_orders_count': completedOrdersCount,
+              'completed_amount': completedAmount,
+              'cancelled_orders_count': cancelledOrdersCount,
+              'cancelled_amount': cancelledAmount,
+              'refunded_orders_count': refundedOrdersCount,
+              'refunded_amount': refundedAmount,
+              'returned_orders_count': returnedOrdersCount,
+              'returned_amount': returnedAmount,
+            };
+          })
+          .toList();
+
+      print("=== DEBUG: Filtered Data ===");
+      print("Processed Data: $filteredData");
+    });
+  }
+}
+
 
 
  Future<void> getstaff() async {
@@ -282,7 +390,8 @@ Future<void> getstatewisereport() async {
       if (parsed is Map && parsed.containsKey('data')) {
         final List<dynamic> statewiseData = parsed['data'];
         List<Map<String, dynamic>> statewiselist = [];
-print("statewiseData:::::::::::::$statewiseData");
+        print("statewiseData:::::::::::::$statewiseData");
+
         for (var stateData in statewiseData) {
           int totalOrdersCount = 0;
           double totalAmount = 0.0;
@@ -299,17 +408,19 @@ print("statewiseData:::::::::::::$statewiseData");
           int returnedOrdersCount = 0;
           double returnedAmount = 0.0;
 
-          // Loop through each state's orders list
+          // Process orders for the current state
           List<dynamic> orders = stateData['orders'] ?? [];
+          List<Map<String, dynamic>> processedOrders = []; // For storing transformed orders
           print('orderssssssssssssssssssssss$orders');
+
           for (var order in orders) {
             List<dynamic> waitingOrders = order['waiting_orders'] ?? [];
 
             for (var waitingOrder in waitingOrders) {
               // Aggregate totals
               totalOrdersCount += 1;
-              // totalAmount += (waitingOrder['total_amount'] as num).toDouble();
- totalAmount = (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
+              totalAmount += (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0;
+
               String status = waitingOrder['status'];
 
               switch (status) {
@@ -333,34 +444,43 @@ print("statewiseData:::::::::::::$statewiseData");
                   returnedAmount += (waitingOrder['total_amount'] as num).toDouble();
                   break;
               }
+
+              // Transform the waiting order into the required format
+              processedOrders.add({
+                'id': waitingOrder['id'],
+                'manage_staff': waitingOrder['manage_staff'] ?? '',
+                'staffID': waitingOrder['staffID'] ?? '',
+                'order_date': waitingOrder['order_date'] ?? '',
+                'status': waitingOrder['status'] ?? '',
+                'total_amount': (waitingOrder['total_amount'] as num?)?.toDouble() ?? 0.0,
+              });
             }
           }
-print("stateData: $stateData");  // Check for any null or unexpected values
-          // Add calculated data to the list
-         statewiselist.add({
-            'orders':orders,
 
-  'id': stateData['id'] ?? 'Unknown ID',  // Default value if null
-  'name': stateData['name'] ?? 'Unknown Name',  // Default value if null
-  'total_orders_count': totalOrdersCount ?? 0,  // Ensure it defaults to 0
-  'total_amount': totalAmount ?? 0.0,  // Ensure it defaults to 0.0
-  'completed_orders_count': completedOrdersCount ?? 0,
-  'completed_amount': completedAmount ?? 0.0,
-  'cancelled_orders_count': cancelledOrdersCount ?? 0,
-  'cancelled_amount': cancelledAmount ?? 0.0,
-  'refunded_orders_count': refundedOrdersCount ?? 0,
-  'refunded_amount': refundedAmount ?? 0.0,
-  'returned_orders_count': returnedOrdersCount ?? 0,
-  'returned_amount': returnedAmount ?? 0.0,
-});
-
-
+          // Add calculated data and processed orders to the statewise list
+          statewiselist.add({
+            'id': stateData['id'] ?? 'Unknown ID',
+            'name': stateData['name'] ?? 'Unknown Name',
+            'total_orders_count': totalOrdersCount,
+            'total_amount': totalAmount,
+            'completed_orders_count': completedOrdersCount,
+            'completed_amount': completedAmount,
+            'cancelled_orders_count': cancelledOrdersCount,
+            'cancelled_amount': cancelledAmount,
+            'refunded_orders_count': refundedOrdersCount,
+            'refunded_amount': refundedAmount,
+            'returned_orders_count': returnedOrdersCount,
+            'returned_amount': returnedAmount,
+            'orders': processedOrders, // Assign the processed orders here
+          });
         }
 
         setState(() {
           expensedata = statewiselist;
           filteredData = statewiselist;
-          print("Processed Data=============================: $filteredData");
+                    print("Processed Data=============================: ${filteredData}");
+
+          print("Processed Data=============================: ${filteredData[5]}");
         });
       } else {
         print("Unexpected data structure: ${parsed.runtimeType}");
@@ -372,6 +492,7 @@ print("stateData: $stateData");  // Check for any null or unexpected values
     print("Error: $error");
   }
 }
+
 
  void _filterProducts(String query) {
     setState(() {
@@ -655,6 +776,7 @@ Widget build(BuildContext context) {
                                       setState(() {
                                         selectedstaffId = newValue!;
                                         print(selectedstaffId);
+                                        _filterOrdersByStaffId();
                                       });
                                     },
                                     items: sta.map<DropdownMenuItem<int>>((staff) {
