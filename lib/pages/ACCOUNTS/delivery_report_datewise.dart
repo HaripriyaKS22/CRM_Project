@@ -96,7 +96,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
 
         for (var productData in productsData) {
           deliverylist.add({
-            'invoice_name': productData['invoice_name'],
+            'invoice_name': productData['invoice'],
             'customer': productData['customer'],
             'order_date': productData['order_date'],
             'weight': productData['weight'],
@@ -111,7 +111,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

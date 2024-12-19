@@ -578,51 +578,56 @@ class _add_product_variantState extends State<add_product_variant> {
     }
   }
 
-  Future<void> getvariant() async {
-    try {
-      final token = await gettokenFromPrefs();
+ Future<void> getvariant() async {
+  try {
+    final token = await gettokenFromPrefs();
+    print('urlllllllllllllllllll$api/api/products/${widget.id}/variants/');
+    var response = await http.get(
+      Uri.parse('$api/api/products/${widget.id}/variants/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print("haiiiiiiiiiiiiiiiiiiiiiiiiiiii: ${response.body}");
 
-      var response = await http.get(
-        Uri.parse('$api/api/products/${widget.id}/variants/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print("haiiiiiiiiiiiiiiiiiiiiiiiiiiii: ${response.body}");
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productData = parsed['products']; // Map of the product
+      var variantIDs = productData['variantIDs']; // List of variants
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['products'];
-
+      if (variantIDs is List) {
         setState(() {
           // Handle response based on widget.type
           if (widget.type == 'single') {
-            // Handle single product response
-            singleProducts = List<Map<String, dynamic>>.from(productsData);
-            if (productsData.isNotEmpty) {
-              product.text = productsData[0]['name'] ?? '';
-
-              print(
-                  "AAAAAAAAAAAAA======================P${productsData[0]['name']}");
+            singleProducts = [productData]; // Single product as a list
+            if (singleProducts.isNotEmpty) {
+              product.text = singleProducts[0]['name'] ?? '';
+              print("Single Product Name: ${singleProducts[0]['name']}");
             }
           } else if (widget.type == 'variant') {
-            // Handle variant product response
-            variantProducts = List<Map<String, dynamic>>.from(productsData);
-            if (productsData.isNotEmpty) {
-              product.text = productsData[0]['name'] ?? '';
+            variantProducts = List<Map<String, dynamic>>.from(variantIDs); // List of variants
+            if (variantProducts.isNotEmpty) {
+              product.text = variantProducts[0]['name'] ?? '';
+              print("Variant Product Name: ${variantProducts[0]['name']}");
             }
           }
         });
 
-        print("Fetched Products: $productsData");
+        print("Fetched Variants: $variantIDs");
+      } else {
+        print("Error: Variant IDs is not a list");
       }
-    } catch (error) {
-      print("Error: $error");
+    } else {
+      print("Error: ${response.statusCode}");
     }
+  } catch (error) {
+    print("Error: $error");
   }
+}
 
   void addvariant(BuildContext scaffoldContext) async {
+    print("selectedvalueeeeeeeeeeeeeeeeee$selectedValues");
     try {
       final token = await gettokenFromPrefs();
 
@@ -645,7 +650,7 @@ class _add_product_variantState extends State<add_product_variant> {
 
       // Prepare the final JSON body
       String jsonString =
-          jsonEncode({'product': widget.id, 'attributes': attributesToSend});
+          jsonEncode({'product': widget.id, 'attributessssssssssssssssssssssssssssssss': attributesToSend});
 
       print(jsonString);
 
@@ -1032,8 +1037,8 @@ void logout() async {
                 SizedBox(
                   height: 15,
                 ),
-                SizedBox(
-                  width: 340,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Card(
                     elevation: 4,
                     child: Container(
@@ -1063,7 +1068,7 @@ void logout() async {
                               decoration: InputDecoration(
                                 hintText: name.text,
                                 enabled: false,
-
+                  
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -1088,21 +1093,21 @@ void logout() async {
                               decoration: InputDecoration(
                                 hintText: product.text,
                                 enabled: false,
-
+                  
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
                                 ),
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10.0),
-
+                  
                                 // Set vertical padding
                               ),
                             ),
                             SizedBox(
                               height: 10,
                             ),
-
+                  
                             if (widget.type != "single")
                               Column(
                                 children:
@@ -1133,7 +1138,7 @@ void logout() async {
                                   );
                                 }),
                               ),
-
+                  
                             // Display all selected images with a cross icon to remove
                             if (selectedImagesList.isNotEmpty &&
                                 widget.type != "single")
@@ -1145,7 +1150,7 @@ void logout() async {
                                     .map((entry) {
                                   int index = entry.key;
                                   File image = entry.value;
-
+                  
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child: Row(
@@ -1229,9 +1234,9 @@ void logout() async {
                     ],
                   ),
                 ),
-                if(widget.type!='single')
+                if(flag==true)
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(10),
                     child: Container(
                       child: DropdownButtonHideUnderline(
                         child: Container(
@@ -1329,7 +1334,7 @@ void logout() async {
                       ),
                     ),
                   ),
-                if(widget.type!='single')
+                if(flag==true)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(

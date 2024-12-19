@@ -64,7 +64,7 @@ class _Delivery_ReportState extends State<Delivery_Report> {
       final token = await getTokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/warehouse/boxdetail/'),
+        Uri.parse('$api/api/warehouse/box/detail/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -497,8 +497,7 @@ class _Delivery_ReportState extends State<Delivery_Report> {
                                           DeliveryReportDatewise(
                                               date: order['shipped_date'])));
                               // Handle button press
-                              print(
-                                  'View button pressed for ${order['shipped_date']}');
+                            
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue, // Button color

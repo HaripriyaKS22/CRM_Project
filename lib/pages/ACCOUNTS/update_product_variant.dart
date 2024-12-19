@@ -992,9 +992,8 @@ void logout() async {
                 SizedBox(
                   height: 15,
                 ),
-                SizedBox(
-                 
-                  width: 340,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Card(
                     elevation: 4,
                     child: Container(
@@ -1024,7 +1023,7 @@ void logout() async {
                               decoration: InputDecoration(
                                 hintText: name.text,
                                 enabled: false,
-
+                  
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
@@ -1049,27 +1048,27 @@ void logout() async {
                               decoration: InputDecoration(
                                 hintText: product.text,
                                 
-
+                  
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Colors.grey),
                                 ),
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10.0),
-
+                  
                                 // Set vertical padding
                               ),
                             ),
                             SizedBox(height: 5),
-
-
+                  
+                  
                           
-
+                  
                              Text("Is variant ",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),
                             SizedBox(height: 5),
-
+                  
                              Container(
                               width: 360,
                               height: 49,
@@ -1121,20 +1120,20 @@ void logout() async {
                                 ],
                               ),
                             ),
-
+                  
                             SizedBox(height: 5),
-
-
+                  
+                  
                           
-
+                  
                              Text("Images",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),
                             SizedBox(height: 5),
-
-
+                  
+                  
                              Column(
-                children: List.generate(imagePickerCount, (index) {
+                                  children: List.generate(imagePickerCount, (index) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1155,19 +1154,19 @@ void logout() async {
                       SizedBox(height: 20),
                     ],
                   );
-                }),
-              ),
-
-              
-
-              // Display all selected images with a cross icon to remove
-              if (selectedImagesList.isNotEmpty)
-                Column(
+                                  }),
+                                ),
+                  
+                                
+                  
+                                // Display all selected images with a cross icon to remove
+                                if (selectedImagesList.isNotEmpty)
+                                  Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: selectedImagesList.asMap().entries.map((entry) {
                     int index = entry.key;
                     File image = entry.value;
-
+                  
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Row(
@@ -1185,60 +1184,60 @@ void logout() async {
                             icon: Icon(Icons.close, color: Colors.red),
                             onPressed: (){
                               removeImage(index);
-
+                  
                             }, // Remove image on click
                           ),
                         ],
                       ),
                     );
                   }).toList(),
-                ),
-            if (img.isNotEmpty)
-  Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: img.asMap().entries.map((entry) {
-      int index = entry.key;
-      var imageData = entry.value;
-      String imageUrl = imageData['image'];
-
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Row(
-          children: [
-            Image.network(
-              imageUrl,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                imageUrl.split('/').last,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.close, color: Colors.red),
-              onPressed: () {
-                deleteimage(imageData['id']);
-                removeProduct(index);
-              },
-            ),
-          ],
-        ),
-      );
-    }).toList(),
-  ),
-
-               
-
-
+                                  ),
+                              if (img.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: img.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        var imageData = entry.value;
+                        String imageUrl = imageData['image'];
+                  
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            children: [
+                              Image.network(
+                                imageUrl,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  imageUrl.split('/').last,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.close, color: Colors.red),
+                                onPressed: () {
+                                  deleteimage(imageData['id']);
+                                  removeProduct(index);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  
+                                 
+                  
+                  
                           if(selecttype=="no")
-
-              
-
+                  
+                                
+                  
                              Text(
                               "Stock",
                               style: TextStyle(
@@ -1257,15 +1256,15 @@ void logout() async {
                                 ),
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10.0),
-
+                  
                                 // Set vertical padding
                               ),
                             ),
                                 SizedBox(
                   height: 5,
-                ),
-
-
+                                  ),
+                  
+                  
                           ],
                         ),
                       ),

@@ -126,7 +126,7 @@ class _Stock_ReportState extends State<Stock_Report> {
 
     for (var reportData in salesReportList) {
       tempTotalstock += reportData['stock_quantity'];
-            print("temptotalstock:$tempTotalstock");
+            
 
       tempTotalsold += reportData['items_sold'];
       tempremaining += reportData['remaining_stock'];
@@ -137,7 +137,7 @@ class _Stock_ReportState extends State<Stock_Report> {
 
     setState(() {
       totalstock = tempTotalstock;
-      print("totalstock:$totalstock");
+      
       totalsold = tempTotalsold;
       remaingitem = tempremaining;
       // approvedAmount = tempApprovedAmount;
@@ -156,7 +156,7 @@ class _Stock_ReportState extends State<Stock_Report> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        print("selectedDate:$selectedDate");
+        
       });
       _filterOrdersBySingleDate();
     }
@@ -201,20 +201,20 @@ class _Stock_ReportState extends State<Stock_Report> {
         },
       );
 
-      print("Response:${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var salesData = parsed['data'];
-        print(salesData);
+        
 
         List<Map<String, dynamic>> salesReportDataList = [];
         for (var reportData in salesData) {
           salesReportDataList.add({
             'date': reportData['date'],
-            'product_title': reportData['product_name'],
-            'stock_quantity': reportData['total_amount'],
-            'items_sold': reportData['total_sold'],
+            'product_title': reportData['product_title'],
+            'stock_quantity': reportData['stock_quantity'],
+            'items_sold': reportData['items_sold'],
             'remaining_stock': reportData['remaining_stock'],            
           });
         }
@@ -322,7 +322,7 @@ class _Stock_ReportState extends State<Stock_Report> {
           IconButton(
             icon: Icon(Icons.calendar_today),
             onPressed: () {
-              print("presseddd");
+              
                _selectSingleDate(context);
             }
           ),
@@ -593,7 +593,7 @@ class _Stock_ReportState extends State<Stock_Report> {
                         SizedBox(height: 8),
                         _buildRow('Product Title :', reportData['product_title']),
                         _buildRow('Items Sold :', reportData['items_sold']),
-                        _buildRow('Total Amount :', reportData['stock_quantity']),
+                        _buildRow('Stock Quantity :', reportData['stock_quantity']),
                         _buildRow('Remaining Stock :', reportData['remaining_stock']),
                       ],
                     ),

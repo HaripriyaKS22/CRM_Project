@@ -192,43 +192,49 @@ setState(() {
    }
 }
   Future<void> getdamagedstock() async {
-    try {
-      final token = await gettokenFromPrefs();
+  try {
+    final token = await gettokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/damaged/stocks/report/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      List<Map<String, dynamic>> damagedstocklist = [];
+    var response = await http.get(
+      Uri.parse('$api/api/grv/data/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    List<Map<String, dynamic>> damagedstocklist = [];
+    print("respoooo${response.body}");
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+      for (var productData in productsData) {
+        // Handle null value for 'updated_at' or other fields
+        String updatedDate = productData['updated_at'] != null
+            ? productData['updated_at'].split('T')[0]
+            : 'N/A'; // Fallback value if 'updated_at' is null
 
-        for (var productData in productsData) {
-          damagedstocklist.add({
-            'id': productData['id'],
-            'product': productData['product'],
-            'quantity': productData['quantity'],
-            'date': productData['date'],
-            'returnreason': productData['returnreason'],
-          });
-        }
-
-        setState(() {
-          damagedstockdata = damagedstocklist;
-          damageList = damagedstockdata;
-          total();
-
+        damagedstocklist.add({
+          'id': productData['id'] ?? 0, // Provide default values if needed
+          'product': productData['product'] ?? 'Unknown Product',
+          'quantity': productData['quantity'] ?? 0,
+          'date': updatedDate,
+          'returnreason': productData['returnreason'] ?? 'No reason provided',
         });
       }
-    } catch (error) {
-      print("Error: $error");
+      print("damagedstocklist$damagedstocklist");
+      setState(() {
+        damagedstockdata = damagedstocklist;
+        damageList = damagedstockdata;
+        total();
+      });
+      print('damagedstockdata$damagedstockdata');
     }
+  } catch (error) {
+    print('Error: $error');
   }
+}
 
   @override
   Widget build(BuildContext context) {
