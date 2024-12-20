@@ -112,7 +112,6 @@ class _add_staffState extends State<add_staff> {
       setState(() {
         selectedDate = DateTime(picked.year, picked.month, picked.day);
         date4 = DateFormat('yyyy-MM-dd').format(selectedDate);
-        print("-----------bod----$date4");
       });
     }
   }
@@ -133,7 +132,6 @@ class _add_staffState extends State<add_staff> {
       setState(() {
         selecteExp = DateTime(picked.year, picked.month, picked.day);
         date3 = DateFormat('yyyy-MM-dd').format(selecteExp);
-        print("--------------------------licenseeeeee----$date3");
       });
     }
   }
@@ -150,7 +148,6 @@ class _add_staffState extends State<add_staff> {
       setState(() {
         selectejoin = DateTime(picked.year, picked.month, picked.day);
         date1 = DateFormat('yyyy-MM-dd').format(selectejoin);
-        print("------------------------------$date1");
       });
     }
   }
@@ -168,7 +165,6 @@ class _add_staffState extends State<add_staff> {
       setState(() {
         selecteconf = DateTime(picked.year, picked.month, picked.day);
         date2 = DateFormat('yyyy-MM-dd').format(selecteconf);
-        print("------------------------------$date2");
       });
     }
   }
@@ -185,16 +181,14 @@ class _add_staffState extends State<add_staff> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================statesssssss${response.body}");
+    
       List<Map<String, dynamic>> stateslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiistatess$parsed");
+       
         for (var productData in productsData) {
           stateslist.add({
             'id': productData['id'],
@@ -204,12 +198,10 @@ class _add_staffState extends State<add_staff> {
         setState(() {
           statess = stateslist;
            _checkboxValues = List<bool>.filled(statess.length, false);
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTstatesss$statess");
-            print("_checkboxValues initialized with length: ${_checkboxValues.length}");
+        
         });
       }
     } catch (error) {
-      print("Error: $error");
     }
   }
 
@@ -217,7 +209,6 @@ class _add_staffState extends State<add_staff> {
 
   void imageSelect() async {
     try {
-      print("sdgs");
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
       );
@@ -225,7 +216,6 @@ class _add_staffState extends State<add_staff> {
         setState(() {
           selectedImage = File(result.files.single.path!);
 
-          print("imggg$selectedImage");
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("image1 selected successfully."),
@@ -244,7 +234,6 @@ class _add_staffState extends State<add_staff> {
 
   void imageSelect1() async {
     try {
-      print("sdgs");
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
       );
@@ -252,7 +241,6 @@ class _add_staffState extends State<add_staff> {
         setState(() {
           selectedImage1 = File(result.files.single.path!);
 
-          print("imggg$selectedImage");
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("image1 selected successfully."),
@@ -282,15 +270,13 @@ class _add_staffState extends State<add_staff> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+     
       List<Map<String, dynamic>> departmentlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           departmentlist.add({
@@ -300,11 +286,9 @@ class _add_staffState extends State<add_staff> {
         }
         setState(() {
           dep = departmentlist;
-          print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
         });
       }
     } catch (error) {
-      print("Error: $error");
     }
   }
 
@@ -320,15 +304,13 @@ class _add_staffState extends State<add_staff> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "getstaffffffffffffffffffffff${response.body}");
+     
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           stafflist.add({
@@ -339,11 +321,9 @@ class _add_staffState extends State<add_staff> {
         }
         setState(() {
           sta = stafflist;
-          print("55555555555555555555555555555555$sta");
         });
       }
     } catch (error) {
-      print("Error: $error");
     }
   }
 
@@ -358,14 +338,12 @@ class _add_staffState extends State<add_staff> {
           'Content-Type': 'application/json',
         },
       );
-      print("=============================================${response.body}");
       List<Map<String, dynamic>> managerlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           managerlist.add({
@@ -376,17 +354,14 @@ class _add_staffState extends State<add_staff> {
         }
         setState(() {
           manager = managerlist;
-          print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
         });
       }
     } catch (error) {
-      print("Error: $error");
     }
   }
 
   void addsupervisor(String name, BuildContext context) async {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$name");
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$url");
+  
 
     final token = await gettokenFromPrefs();
 
@@ -402,7 +377,6 @@ class _add_staffState extends State<add_staff> {
         },
       );
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
 
       if (response.statusCode == 201) {
         var responseData = jsonDecode(response.body);
@@ -417,7 +391,6 @@ class _add_staffState extends State<add_staff> {
         );
       }
     } catch (e) {
-      print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -437,7 +410,6 @@ class _add_staffState extends State<add_staff> {
   //         'Authorization': '$token',
   //       },
   //     );
-  //     print(response.statusCode);
   //     if (response.statusCode == 200) {
   //       ScaffoldMessenger.of(context).showSnackBar(
   //         SnackBar(
@@ -489,17 +461,14 @@ class _add_staffState extends State<add_staff> {
 //   void stattt(
 //      String state,
 //   ){
-// print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$state");
-// print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$dynamicStatid");
+
 
 //    String allocatedStates='';
 
 //   for(int i=0;i<dynamicStatid.length;i++){
 //     allocatedStates += '${dynamicStatid[i]},';
-//         print("AAAAAAAAAAAALLLLLLLLLLLOOOOOOOOOOOOOOOOO$allocatedStates");
 
 //    }
-// print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$allocatedStates");
 
 //   }
 
@@ -530,11 +499,13 @@ void RegisterUserData(
     request.fields['confirmation_date'] = selecteconf.toIso8601String().substring(0, 10);
 
     // Append each state ID separately using the key 'allocated_states[]'
-    for (var stateId in dynamicStatid) {
-      request.fields['allocated_states[]'] = stateId.toString();
+   if (dynamicStatid != null && dynamicStatid.isNotEmpty) {
+      request.fields['allocated_states'] = jsonEncode(dynamicStatid);
+    } else {
+      request.fields['allocated_states'] = jsonEncode([]);
     }
 
-    print("Selected State IDs: $dynamicStatid");
+
 
     // Add other form fields
     request.fields['name'] = name.text;
@@ -564,15 +535,10 @@ void RegisterUserData(
       request.files.add(await http.MultipartFile.fromPath('signatur_up', image2.path));
     }
 
-    // Print the data being sent
-    print("Sending Data:");
-    print("Headers: ${request.headers}");
-    print("Fields: ${request.fields}");
-    print("Files: ${request.files.map((file) => file.filename).toList()}");
+   
 
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
-    print("Response: ${response.body}");
 
     // Handle response based on status code
     if (response.statusCode == 201) {
@@ -1149,7 +1115,6 @@ void logout() async {
                                             GestureDetector(
                                               onTap: () {
                                                 _selectDate(context);
-                                                print('Icon pressed');
                                               },
                                               child: Icon(Icons.date_range),
                                             ),
@@ -1186,7 +1151,6 @@ void logout() async {
                             //                   _selectedFamily
                             //                       .remove(statess[index]['id']);
                             //                 }
-                            //                 print(_selectedFamily);
                             //               });
                             //             },
                             //             controlAffinity:
@@ -1259,8 +1223,7 @@ Padding(
                     stat.remove(selectstate!);
                     dynamicStatid.remove(selectedStateId);
                   }
-                  print('Selected State Name: $stat');
-                  print('Selected State ID: $dynamicStatid');
+                 
                 });
               }
             },
@@ -1284,7 +1247,7 @@ Padding(
                 if (stat.isEmpty) {
                   selectstate = null; // Reset the selected state
                 }
-                print("Updated Selected Values: $stat");
+                
               });
             },
           );
@@ -1354,10 +1317,6 @@ Padding(
                                 //                         selectedStateId);
                                 //                   }
 
-                                //                   print(
-                                //                       'Selected State Name: $stat');
-                                //                   print(
-                                //                       'Selected State ID: $dynamicStatid');
                                 //                 });
                                 //               }
                                 //             : null,
@@ -1426,7 +1385,7 @@ Padding(
                                             onChanged: (String? newValue) {
                                               setState(() {
                                                 selectgender = newValue!;
-                                                print(selectgender);
+                                                
                                               });
                                             },
                                             items: gender
@@ -1491,7 +1450,7 @@ Padding(
                                             onChanged: (String? newValue) {
                                               setState(() {
                                                 selectmarital = newValue!;
-                                                print(selectmarital);
+                                                
                                               });
                                             },
                                             items: material
@@ -1575,7 +1534,7 @@ Padding(
                                             GestureDetector(
                                               onTap: () {
                                                 _selectDate2(context);
-                                                print('Icon pressed');
+                                                
                                               },
                                               child: Icon(Icons.date_range),
                                             ),
@@ -1739,7 +1698,7 @@ Padding(
                                             GestureDetector(
                                               onTap: () {
                                                 _selectDate3(context);
-                                                print('Icon pressed');
+                                                
                                               },
                                               child: Icon(Icons.date_range),
                                             ),
@@ -1789,7 +1748,7 @@ Padding(
                                             GestureDetector(
                                               onTap: () {
                                                 _selectDate4(context);
-                                                print('Icon pressed');
+                                                
                                               },
                                               child: Icon(Icons.date_range),
                                             ),
@@ -1885,7 +1844,7 @@ Padding(
                                             onChanged: (String? newValue) {
                                               setState(() {
                                                 approvalstatus = newValue!;
-                                                print(approvalstatus);
+                                                
                                               });
                                             },
                                             items: approval
@@ -1915,7 +1874,7 @@ Padding(
                                   onPressed: () {
                                     setState(() {
                                       // stattt(stat.toString());
-                                      print(stat);
+                                      
                                       RegisterUserData(
                                           selectedDepartmentId!,
                                           selectedImage,

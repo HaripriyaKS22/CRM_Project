@@ -192,7 +192,7 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
       for (var familyId in _selectedFamily) {
         request.fields['family[]'] = familyId.toString();
       }
-      print("Sending family IDs: $_selectedFamily");
+      print("Sending family IDs: $_selectedFamily");  
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
