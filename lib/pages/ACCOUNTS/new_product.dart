@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
@@ -49,6 +48,7 @@ class new_product extends StatefulWidget {
 }
 
 class _new_productState extends State<new_product> {
+  String globalProductId = '';
   drower d = drower();
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
@@ -114,7 +114,7 @@ class _new_productState extends State<new_product> {
     if (pickedFile != null) {
       setState(() {
         image = File(pickedFile.path);
-        print("iiiiiiiiiiiiiiiiiiiiiiiii$image");
+        
       });
     }
   }
@@ -153,7 +153,7 @@ void logout() async {
         image = File(pickedFile
             .path); // Store the selected image in the 'image' variable
       });
-      print("Selected image path: ${image.path}");
+      
     }
   }
 
@@ -163,36 +163,175 @@ void logout() async {
       imagePickerCount += 1; // Increment the number of image pickers
     });
   }
+// Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
+//   final token = await gettokenFromPrefs();
 
-Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
+//   try {
+//     var request = http.MultipartRequest(
+//       'POST',
+//       Uri.parse('$api/api/add/product/'),
+//     );
+
+//     request.headers.addAll({
+//       'Authorization': 'Bearer $token',
+//     });
+
+//     // Add common fields to the request
+//     request.fields['name'] = name.text;
+//     request.fields['hsn_code'] = hsncode.text;
+//     request.fields['type'] = selecttype;
+//     request.fields['unit'] = selectunit;
+//     request.fields['purchase_rate'] = purchaserate.text;
+//     request.fields['tax'] = taxx.text;
+//     request.fields['selling_price'] = sellingprice.text;
+
+//     // Ensure _selectedFamily is populated correctly
+//     if (_selectedFamily != null && _selectedFamily.isNotEmpty) {
+//       // Add each family ID as a separate entry with the key 'family[]'
+//       for (var familyId in _selectedFamily) {
+//         request.fields['family[]'] = familyId.toString();
+//       }
+//     } else {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(
+//           content: Text('Please select a valid family.'),
+//         ),
+//       );
+//       return;
+//     }
+
+//     if (selecttype == 'single') {
+//       if (stock.text.isNotEmpty && int.tryParse(stock.text) != null) {
+//         int stockValue = int.parse(stock.text);
+//         request.fields['stock'] = stockValue.toString();
+//       } else {
+//         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//           SnackBar(
+//             content: Text('Please enter a valid stock value.'),
+//           ),
+//         );
+//         return;
+//       }
+//     }
+
+//     // Add the image file if available
+//     if (image != null) {
+//       request.files.add(await http.MultipartFile.fromPath('image', image.path));
+//     } else {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(
+//           content: Text('Please select an image.'),
+//         ),
+//       );
+//       return;
+//     }
+
+//     // Send the request
+//     var response = await request.send();
+//     var responseData = await http.Response.fromStream(response);
+
+//     // Print the response status and body for debugging
+//     print("Response status: ${responseData.statusCode}");
+//     print("Response body: ${responseData.body}");
+
+//     // Log the response status and body for debugging
+//     if (responseData.statusCode == 201) {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(
+//           content: Text('Product added successfully.'),
+//         ),
+//       );
+//       Navigator.push(
+//           context, MaterialPageRoute(builder: (context) => new_product()));
+//     } else if (responseData.statusCode == 400) {
+//       // Handle the case of a 400 response, typically indicating validation errors
+//       final Map<String, dynamic> responseDataBody = jsonDecode(responseData.body);
+//       if (responseDataBody.containsKey('errors')) {
+//         final errors = responseDataBody['errors'];
+//         String errorMessage = errors.entries
+//             .map((entry) => "${entry.key}: ${entry.value.join(', ')}")
+//             .join('\n');
+//         showDialog(
+//           context: context,
+//           builder: (BuildContext context) {
+//             return AlertDialog(
+//               title: Text("Validation Error"),
+//               content: Text(errorMessage),
+//               actions: <Widget>[
+//                 TextButton(
+//                   onPressed: () {
+//                     Navigator.of(context).pop();
+//                   },
+//                   child: Text("OK"),
+//                 ),
+//               ],
+//             );
+//           },
+//         );
+//       } else {
+//         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//           SnackBar(
+//             content: Text('Invalid response format.'),
+//           ),
+//         );
+//       }
+//     } else if (responseData.statusCode == 500) {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(
+//           content: Text('Session expired.'),
+//         ),
+//       );
+//     } else {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(
+//           content: Text('Something went wrong. Please try again later.'),
+//         ),
+//       );
+//     }
+//   } catch (e) {
+//     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//       SnackBar(
+//         content: Text('Enter valid information'),
+//       ),
+//     );
+//   }
+// }
+
+Future<void> addProduct(BuildContext scaffoldContext) async {
   final token = await gettokenFromPrefs();
 
   try {
-    var request = http.MultipartRequest(
+    // Create the request
+    var request = http.Request(
       'POST',
-      Uri.parse('$api/api/add/product/'),
+      Uri.parse("$api/api/add/product/"),
     );
 
+    // Add headers
     request.headers.addAll({
       'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json', // Specify content type as JSON
     });
 
-    // Add common fields to the request
-    request.fields['name'] = name.text;
-    request.fields['hsn_code'] = hsncode.text;
-    request.fields['type'] = selecttype;
-    request.fields['unit'] = selectunit;
-    request.fields['purchase_rate'] = purchaserate.text;
-    request.fields['tax'] = taxx.text;
-    request.fields['selling_price'] = sellingprice.text;
+    // Prepare the data to send in JSON format
+    Map<String, dynamic> data = {
+      'name': name.text,
+      'hsn_code': hsncode.text,
+      'type': selecttype,
+      'unit': selectunit,
+      'purchase_rate': purchaserate.text,
+      'tax': taxx.text,
+      'selling_price': sellingprice.text,
 
-    // Ensure _selectedFamily is populated correctly
+
+    };
+
+    
+
+    // Ensure _selectedFamily is populated correctly and send as a list of numbers
     if (_selectedFamily != null && _selectedFamily.isNotEmpty) {
-      // Add each family ID as a separate entry with the key 'family[]'
-      for (var familyId in _selectedFamily) {
-        request.fields['family[]'] = familyId.toString();
-      }
-      print("Sending family IDs: $_selectedFamily");  
+      // Send family as a list of integers: [1, 2, 3]
+      data['family'] = _selectedFamily; // Directly send the list as is
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
@@ -202,89 +341,28 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
       return;
     }
 
-
-    if (selecttype == 'single') {
-      print("Stock value from TextField: ${stock.text}");
-
-      if (stock.text.isNotEmpty && int.tryParse(stock.text) != null) {
-        int stockValue = int.parse(stock.text);
-        request.fields['stock'] = stockValue.toString();
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            content: Text('Please enter a valid stock value.'),
-          ),
-        );
-        return;
-      }
-    }
-
-    // Add the image file if available
-    if (image != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', image.path));
-    } else {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Please select an image.'),
-        ),
-      );
-      return;
-    }
-
-    print("Final request fields: ${request.fields}");
+    // Convert data to JSON and set the request body
+    request.body = jsonEncode(data);
 
     // Send the request
     var response = await request.send();
     var responseData = await http.Response.fromStream(response);
 
-    // Log the response status and body for debugging
+    // Print the response status and body for debugging
     print("Response status: ${responseData.statusCode}");
     print("Response body: ${responseData.body}");
 
     if (responseData.statusCode == 201) {
+      // Parse the response body
+      final Map<String, dynamic> responseBody = jsonDecode(responseData.body);
+
+      // Store the product ID in the global variable
+      globalProductId = responseBody['data']['id'].toString();
+
+      // Show success message
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Product added successfully.'),
-        ),
-      );
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => new_product()));
-    } else if (responseData.statusCode == 400) {
-      // Handle the case of a 400 response, typically indicating validation errors
-      final Map<String, dynamic> responseDataBody = jsonDecode(responseData.body);
-      if (responseDataBody.containsKey('errors')) {
-        final errors = responseDataBody['errors'];
-        String errorMessage = errors.entries
-            .map((entry) => "${entry.key}: ${entry.value.join(', ')}")
-            .join('\n');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Validation Error"),
-              content: Text(errorMessage),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK"),
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            content: Text('Invalid response format.'),
-          ),
-        );
-      }
-    } else if (responseData.statusCode == 500) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Session expired.'),
         ),
       );
     } else {
@@ -295,168 +373,119 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
       );
     }
   } catch (e) {
-    print(e);
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
-        content: Text('Enter valid information'),
+        content: Text('Error: ${e.toString()}'),
       ),
     );
   }
 }
-  // void addProduct(
-  //   BuildContext scaffoldContext,
-  // ) async {
-  //   final token = await gettokenFromPrefs();
 
-  //   print("object $token");
-  //   // var slug = name.text.toUpperCase().replaceAll(' ', '-');
-  //   // print(slug);
-  //   // print("$url/vendor/vendor-create-product/");
+Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) async {
+  final token = await gettokenFromPrefs();
 
-  //   try {
-  //     var request = http.MultipartRequest(
-  //       'POST',
-  //       Uri.parse("$api/api/add/product/"),
-  //     );
+  try {
+    var request = http.MultipartRequest(
+      'PUT',
+      Uri.parse("$api/api/product/update/$globalProductId/"), // Use the global product ID
+    );
 
-  //     // Add headers
-  //     request.headers.addAll({
-  //       "Content-Type": "multipart/form-data",
-  //       'Authorization': 'Bearer $token',
-  //     });
+    // Add headers
+    request.headers.addAll({
+      'Authorization': 'Bearer $token',
+    });
 
-  //     // Add other fields
-  //     request.fields['name'] = name.text;
-  //     request.fields['hsn_code'] = hsncode.text;
-  //     request.fields['type'] = selecttype;
-  //     request.fields['unit'] = selectunit;
-  //     request.fields['purchase_rate'] = purchaserate.text;
-  //     request.fields['tax'] = taxx.text;
-  //     request.fields['selling_price'] = sellingprice.text;
+    // Check if new image is provided
+    if (newImage != null) {
+      // Add the image file to the request
+      request.files.add(await http.MultipartFile.fromPath('image', newImage.path));
+    } else {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Please select a valid image.'),
+        ),
+      );
+      return;
+    }
 
-  //     if (image != null) {
-  //       request.files
-  //           .add(await http.MultipartFile.fromPath('image', image.path));
-  //     }
+    // Send the request
+    var response = await request.send();
+    var responseData = await http.Response.fromStream(response);
 
-  //     // Add image files to request
+    // Print the response status and body for debugging
+    print("Response status: ${responseData.statusCode}");
+    print("Response body: ${responseData.body}");
 
-  //     // Send the request
-  //     var response = await request.send();
-  //     var responseData = await http.Response.fromStream(response);
+    if (responseData.statusCode == 200) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Image updated successfully.'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Something went wrong. Please try again later.'),
+        ),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text('Error: ${e.toString()}'),
+      ),
+    );
+  }
+}
 
-  //     print(responseData.body);
+// void add_family_list(BuildContext scaffoldContext) async {
+//   try {
+//     final token = await gettokenFromPrefs();
 
-  //     if (responseData.statusCode == 201) {
-  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Product added successfully.'),
-  //         ),
-  //       );
-  //       // Navigator.push(
-  //       //     context, MaterialPageRoute(builder: (context) => add_product()));
-  //     } else if (responseData.statusCode == 500) {
-  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Session expired.'),
-  //         ),
-  //       );
-  //       // Navigator.push(
-  //       //     context, MaterialPageRoute(builder: (context) => Login_Page()));
-  //     } else if (responseData.statusCode == 400) {
-  //       Map<String, dynamic> responseDataBody = jsonDecode(responseData.body);
-  //       Map<String, dynamic> data = responseDataBody['data'];
-  //       String errorMessage =
-  //           data.entries.map((entry) => entry.value[0]).join('\n');
-  //       showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: Text("Error"),
-  //             content: Text(errorMessage),
-  //             actions: <Widget>[
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //                 child: Text("OK"),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Something went wrong. Please try again later.'),
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Enter valid information'),
-  //       ),
-  //     );
-  //   }
-  // }
+//     // Build the product data, excluding "stock" when the product type is "variant"
+//     Map<String, dynamic> productData = {
+//       "family": _selectedFamily,
+//     };
 
-  // void add_family_list(
-  //   BuildContext scaffoldContext,
-  // ) async {
-  //   try {
-  //     final token = await gettokenFromPrefs();
-  //     print("AAAAAAAAAZZZZZZSSSSSSSSSSSSWWWWWWWWWWW$_selectedFamily");
+//     // Add "stock" only if the product type is "single"
+//     if (selecttype == "single") {
+//       productData["stock"] = stock;
+//     }
 
-  //     // Build the product data, excluding "stock" when the product type is "variant"
-  //     Map<String, dynamic> productData = {
-  //       "family": _selectedFamily,
-  //     };
+//     var response = await http.post(
+//       Uri.parse('$api/api/add/product/'),
+//       headers: {
+//         "Content-Type": "application/json",
+//         'Authorization': 'Bearer $token',
+//       },
+//       body: jsonEncode(productData),
+//     );
 
-  //     // Add "stock" only if the product type is "single"
-  //     if (selecttype == "single") {
-  //       productData["stock"] = stock;
-  //     }
-  //     var response = await http.post(
-  //       Uri.parse('$api/api/add/product/'),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         'Authorization': 'Bearer $token',
-  //       },
-  //       body: jsonEncode(productData),
-  //     );
+//     if (response.statusCode == 201) {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(
+//           content: Text('Product added Successfully.'),
+//         ),
+//       );
 
-  //     print(
-  //         "Responsessssssssssssssssssssssssssssssssssssssssytytttttttttttqqqqqq: ${response.body}");
-
-  //     print("SSSSSSSSSELLLLLLLLLLLLLLLLL$selectedImagesList");
-
-  //     if (response.statusCode == 201) {
-  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Product added Successfully.'),
-  //         ),
-  //       );
-
-  //       Navigator.push(
-  //           context, MaterialPageRoute(builder: (context) => new_product()));
-  //     } else {
-  //       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-  //         SnackBar(
-  //           backgroundColor: Colors.red,
-  //           content: Text('Adding product failed.'),
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Enter valid information'),
-  //       ),
-  //     );
-  //   }
-  // }
+//       Navigator.push(
+//           context, MaterialPageRoute(builder: (context) => new_product()));
+//     } else {
+//       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//         SnackBar(
+//           backgroundColor: Colors.red,
+//           content: Text('Adding product failed.'),
+//         ),
+//       );
+//     }
+//   } catch (e) {
+//     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+//       SnackBar(
+//         content: Text('Enter valid information'),
+//       ),
+//     );
+//   }
+// }
 
   List<File> selectedImagesList =[]; // Single list to store all selected images
 
@@ -490,7 +519,7 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -873,7 +902,7 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
                                         onChanged: (String? newValue) {
                                           setState(() {
                                             selecttype = newValue!;
-                                            print(selecttype);
+                                            
                                           });
                                         },
                                         items: type
@@ -924,7 +953,7 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
                                               _selectedFamily
                                                   .remove(fam[index]['id']);
                                             }
-                                            print(_selectedFamily);
+                                            
                                           });
                                         },
                                         controlAffinity:
@@ -963,7 +992,7 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
                                         onChanged: (String? newValue) {
                                           setState(() {
                                             selectunit = newValue!;
-                                            print(selectunit);
+                                            
                                           });
                                         },
                                         items: unit
@@ -1334,10 +1363,10 @@ Future<void> addOrUpdateProduct(BuildContext scaffoldContext) async {
                       // ),
                       SizedBox(width: 13),
                       ElevatedButton(
-                        onPressed: () {
-                          // addProduct(context);
-                          // add_family_list(context);
-                          addOrUpdateProduct(context);
+                        onPressed: () async{
+                         await addProduct(context);
+updateProductImage(context, image);                          // add_family_list(context);
+                          // addOrUpdateProduct(context);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
