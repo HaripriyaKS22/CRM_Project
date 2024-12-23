@@ -118,6 +118,7 @@ class _new_productState extends State<new_product> {
       });
     }
   }
+  
 void logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove('userId');
