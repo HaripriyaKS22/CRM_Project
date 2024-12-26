@@ -49,10 +49,12 @@ class add_staff extends StatefulWidget {
 }
 
 class _add_staffState extends State<add_staff> {
-    List<Map<String, dynamic>> statess = [];
+  List<Map<String, dynamic>> statess = [];
+  String staffId = '';
 
   List<bool> _checkboxValues = [];
   List<int> _selectedFamily = [];
+  List<Map<String, dynamic>> fam = [];
 
   @override
   void initState() {
@@ -65,6 +67,7 @@ class _add_staffState extends State<add_staff> {
 
   void initdata() async {
     await getstates();
+    getfamily();
   }
 
   var url = "$api/api/add/department/";
@@ -169,6 +172,38 @@ class _add_staffState extends State<add_staff> {
     }
   }
 
+  Future<void> getfamily() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/familys/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+        List<Map<String, dynamic>> familylist = [];
+
+        for (var productData in productsData) {
+          familylist.add({
+            'id': productData['id'].toString(), // Convert the ID to String
+            'name': productData['name'],
+          });
+        }
+
+        setState(() {
+          fam = familylist;
+        });
+      }
+    } catch (error) {
+      print("Error fetching family data: $error");
+    }
+  }
 
   Future<void> getstates() async {
     try {
@@ -181,14 +216,13 @@ class _add_staffState extends State<add_staff> {
           'Content-Type': 'application/json',
         },
       );
-    
+
       List<Map<String, dynamic>> stateslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-       
         for (var productData in productsData) {
           stateslist.add({
             'id': productData['id'],
@@ -197,12 +231,10 @@ class _add_staffState extends State<add_staff> {
         }
         setState(() {
           statess = stateslist;
-           _checkboxValues = List<bool>.filled(statess.length, false);
-        
+          _checkboxValues = List<bool>.filled(statess.length, false);
         });
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   File? selectedImage;
@@ -215,7 +247,6 @@ class _add_staffState extends State<add_staff> {
       if (result != null) {
         setState(() {
           selectedImage = File(result.files.single.path!);
-
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("image1 selected successfully."),
@@ -240,7 +271,6 @@ class _add_staffState extends State<add_staff> {
       if (result != null) {
         setState(() {
           selectedImage1 = File(result.files.single.path!);
-
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("image1 selected successfully."),
@@ -270,7 +300,7 @@ class _add_staffState extends State<add_staff> {
           'Content-Type': 'application/json',
         },
       );
-     
+
       List<Map<String, dynamic>> departmentlist = [];
 
       if (response.statusCode == 200) {
@@ -288,8 +318,7 @@ class _add_staffState extends State<add_staff> {
           dep = departmentlist;
         });
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   List<Map<String, dynamic>> sta = [];
@@ -304,7 +333,7 @@ class _add_staffState extends State<add_staff> {
           'Content-Type': 'application/json',
         },
       );
-     
+
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
@@ -323,8 +352,7 @@ class _add_staffState extends State<add_staff> {
           sta = stafflist;
         });
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   Future<void> getmanegers() async {
@@ -356,13 +384,10 @@ class _add_staffState extends State<add_staff> {
           manager = managerlist;
         });
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   void addsupervisor(String name, BuildContext context) async {
-  
-
     final token = await gettokenFromPrefs();
 
     try {
@@ -376,7 +401,6 @@ class _add_staffState extends State<add_staff> {
           "department": selectedDepartmentId.toString(),
         },
       );
-
 
       if (response.statusCode == 201) {
         var responseData = jsonDecode(response.body);
@@ -462,108 +486,169 @@ class _add_staffState extends State<add_staff> {
 //      String state,
 //   ){
 
-
 //    String allocatedStates='';
 
 //   for(int i=0;i<dynamicStatid.length;i++){
 //     allocatedStates += '${dynamicStatid[i]},';
-
 //    }
-
 //   }
 
+  Future<void> RegisterUserData(
+    int selectedDepartmentId,
+    DateTime selectedDate,
+    String selectgender,
+    String selectmarital,
+    DateTime selecteExp,
+    DateTime selectejoin,
+    DateTime selecteconf,
+    BuildContext scaffoldContext,
+  ) async {
+    final token = await gettokenFromPrefs();
 
-void RegisterUserData(
-  int selectedDepartmentId,
-  File? image1,
-  DateTime selectedDate,
-  String selectgender,
-  String selectmarital,
-  DateTime selecteExp,
-  DateTime selectejoin,
-  DateTime selecteconf,
-  File? image2,
-  BuildContext scaffoldContext,
-) async {
-  final token = await gettokenFromPrefs();
-  try {
-    var request = http.MultipartRequest('POST', Uri.parse('$api/api/add/staff/'));
+    try {
+      // Create the request
+      var request = http.Request(
+        'POST',
+        Uri.parse('$api/api/add/staff/'),
+      );
 
-    // Add headers to the request
-    request.headers['Authorization'] = 'Bearer $token';
+      // Add headers
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json', // Specify content type as JSON
+      });
 
-    // Add form fields directly
-    request.fields['date_of_birth'] = selectedDate.toIso8601String().substring(0, 10);
-    request.fields['driving_license_exp_date'] = selecteExp.toIso8601String().substring(0, 10);
-    request.fields['join_date'] = selectejoin.toIso8601String().substring(0, 10);
-    request.fields['confirmation_date'] = selecteconf.toIso8601String().substring(0, 10);
+      // Prepare the data to send in JSON format
+      Map<String, dynamic> data = {
+        'date_of_birth': selectedDate.toIso8601String().substring(0, 10),
+        'driving_license_exp_date':
+            selecteExp.toIso8601String().substring(0, 10),
+        'join_date': selectejoin.toIso8601String().substring(0, 10),
+        'confirmation_date': selecteconf.toIso8601String().substring(0, 10),
+        'allocated_states':
+            dynamicStatid.map((stateId) => stateId.toString()).toList(),
+        'name': name.text,
+        'username': username.text,
+        'email': email.text,
+        'phone': phone.text,
+        'password': password.text,
+        'alternate_number': alternate_number.text,
+        'designation': designation.text,
+        'grade': grade.text,
+        'address': address.text,
+        'city': city.text,
+        'country': Country.text,
+        'driving_license': driving_license.text,
+        'department_id': selectedDepartmentId.toString(),
+        'supervisor_id': selectedmanagerId.toString(),
+        'gender': selectgender,
+        'marital_status': selectmarital,
+        'employment_status': employment_status.text,
+        'APPROVAL_CHOICE': approvalstatus,
+        'family': _selectedFamily.isNotEmpty ? _selectedFamily[0] : null,
+      };
 
-    // Append each state ID separately using the key 'allocated_states[]'
-   if (dynamicStatid != null && dynamicStatid.isNotEmpty) {
-      request.fields['allocated_states'] = jsonEncode(dynamicStatid);
-    } else {
-      request.fields['allocated_states'] = jsonEncode([]);
-    }
+      // Convert data to JSON and set the request body
+      request.body = jsonEncode(data);
 
+      // Send the request
+      var response = await request.send();
+      var responseData = await http.Response.fromStream(response);
 
+      // Print the response status and body for debugging
+      print("Response statussssssss: ${responseData.statusCode}");
+      print("Response bodyyyyyyyyy: ${responseData.body}");
 
-    // Add other form fields
-    request.fields['name'] = name.text;
-    request.fields['username'] = username.text;
-    request.fields['email'] = email.text;
-    request.fields['phone'] = phone.text;
-    request.fields['password'] = password.text;
-    request.fields['alternate_number'] = alternate_number.text;
-    request.fields['designation'] = designation.text;
-    request.fields['grade'] = grade.text;
-    request.fields['address'] = address.text;
-    request.fields['city'] = city.text;
-    request.fields['country'] = Country.text;
-    request.fields['driving_license'] = driving_license.text;
-    request.fields['department_id'] = selectedDepartmentId.toString();
-    request.fields['supervisor_id'] = selectedmanagerId.toString();
-    request.fields['gender'] = selectgender;
-    request.fields['marital_status'] = selectmarital;
-    request.fields['employment_status'] = employment_status.text;
-    request.fields['APPROVAL_CHOICE'] = approvalstatus;
+      if (responseData.statusCode == 201) {
+        // Parse the response body
+        final Map<String, dynamic> responseJson = jsonDecode(responseData.body);
 
-    // Add images to the request if they are not null
-    if (image1 != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', image1.path));
-    }
-    if (image2 != null) {
-      request.files.add(await http.MultipartFile.fromPath('signatur_up', image2.path));
-    }
+        print("------------------------$responseJson");
 
-   
+        // Store the product ID in the global variable
+        staffId = responseJson['data']['id'].toString();
 
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
+        // Show success message
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Data Added Successfully.'),
+          ),
+        );
 
-    // Handle response based on status code
-    if (response.statusCode == 201) {
+        // Navigate to another page after successful registration
+        Navigator.pushReplacement(
+          scaffoldContext,
+          MaterialPageRoute(builder: (context) => add_staff()),
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Something went wrong. Please try again later.'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-            backgroundColor: Colors.green,
-            content: Text('Data Added Successfully.')),
-      );
-      Navigator.pushReplacement(
-        scaffoldContext,
-        MaterialPageRoute(builder: (context) => add_staff()),
-      );
-    } else {
-      Map<String, dynamic> responseData = jsonDecode(response.body);
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-            content: Text(responseData['message'] ?? 'Something went wrong. Please try again later.')),
+          content: Text('Error: ${e.toString()}'),
+        ),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-      SnackBar(content: Text('Network error. Please check your connection.')),
-    );
   }
-}
+
+  Future<void> updateStaffImage(
+    String staffId,
+    File? image1,
+    File? image2,
+    BuildContext scaffoldContext,
+  ) async {
+    final token = await gettokenFromPrefs();
+    print("============$staffId");
+    try {
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('$api/api/staff/update/$staffId/'),
+      );
+
+      // Add headers
+      request.headers['Authorization'] = 'Bearer $token';
+
+      // Add the images to the request if they are not null
+      if (image1 != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('image', image1.path));
+      }
+      if (image2 != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('signatur_up', image2.path));
+      }
+
+      // Send the request
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print("Response statusttttttttt: ${response.statusCode}");
+      print("Response bodyttttttttttttt: ${response.body}");
+      // Handle response based on status code
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Images Updated Successfully.')),
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Something went wrong while updating images. Please try again later.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
 
   //searchable dropdown
 
@@ -575,32 +660,33 @@ void RegisterUserData(
     textEditingController.dispose();
     super.dispose();
   }
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -614,7 +700,7 @@ void logout() async {
             ),
           ],
         ),
-       drawer: Drawer(
+        drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
@@ -642,7 +728,6 @@ void logout() async {
                       MaterialPageRoute(builder: (context) => dashboard()));
                 },
               ),
-             
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Company'),
@@ -721,14 +806,16 @@ void logout() async {
                   // Navigate to the Settings page or perform any other action
                 },
               ),
-               ListTile(
+              ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Delivery Notes'),
                 onTap: () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => WarehouseOrderView(status: null,)));
+                          builder: (context) => WarehouseOrderView(
+                                status: null,
+                              )));
                   // Navigate to the Settings page or perform any other action
                 },
               ),
@@ -816,7 +903,6 @@ void logout() async {
                   child: Column(
                     children: [
                       SizedBox(height: 15),
-                      
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 1),
                         child: Container(
@@ -836,7 +922,7 @@ void logout() async {
                                   width:
                                       MediaQuery.of(context).size.width * 0.9,
                                   decoration: BoxDecoration(
-                                    color:const Color.fromARGB(255, 2, 65, 96),
+                                    color: const Color.fromARGB(255, 2, 65, 96),
                                     border: Border.all(
                                         color:
                                             Color.fromARGB(255, 202, 202, 202)),
@@ -1127,138 +1213,165 @@ void logout() async {
                                 SizedBox(
                                   height: 10,
                                 ),
-                            //    Text("Checkbox Family",
-                            //     style: TextStyle(
-                            //         fontSize: 15, fontWeight: FontWeight.bold)),
-                            // SizedBox(height: 20),
-                            // statess.isEmpty
-                            //     ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
-                            //     : ListView.builder(
-                            //         shrinkWrap: true,
-                            //         itemCount: statess.length,
-                            //         itemBuilder: (context, index) {
-                            //           return CheckboxListTile(
-                            //             title: Text(statess[index]['name']),
-                            //             value: _checkboxValues[index],
-                            //             onChanged: (bool? value) {
-                            //               setState(() {
-                            //                 _checkboxValues[index] =
-                            //                     value ?? false;
-                            //                 if (_checkboxValues[index]) {
-                            //                   _selectedFamily
-                            //                       .add(statess[index]['id']);
-                            //                 } else {
-                            //                   _selectedFamily
-                            //                       .remove(statess[index]['id']);
-                            //                 }
-                            //               });
-                            //             },
-                            //             controlAffinity:
-                            //                 ListTileControlAffinity.leading,
-                            //           );
-                            //         },
-                            //       ),
-Padding(
-  padding: const EdgeInsets.all(.0),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(
-        height: 46,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey, width: 1.0),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<Map<String, dynamic>>(
-            isExpanded: true,
-            hint: Text(
-              'Select State',
-              style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
-            ),
-            value: statess.isNotEmpty && selectstate != null
-                ? statess.firstWhere(
-                    (element) => element['name'] == selectstate,
-                    orElse: () => statess[0], // Default to first state if not found
-                  )
-                : null,
-            items: statess.isNotEmpty
-                ? statess.map<DropdownMenuItem<Map<String, dynamic>>>(
-                    (Map<String, dynamic> state) {
-                      return DropdownMenuItem<Map<String, dynamic>>(
-                        value: state,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              state['name'],
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            if (stat.contains(state['name']))
-                              Icon(
-                                Icons.check,
-                                color: Colors.blue, // Indicate selected items
-                              ),
-                          ],
-                        ),
-                      );
-                    },
-                  ).toList()
-                : [
-                    DropdownMenuItem(
-                      child: Text('No states available'),
-                      value: null,
-                    ),
-                  ],
-            onChanged: (Map<String, dynamic>? newValue) {
-              if (newValue != null) {
-                setState(() {
-                  selectstate = newValue['name'];
-                  selectedStateId = newValue['id'];
-                  if (!stat.contains(selectstate) &&
-                      !dynamicStatid.contains(selectedStateId)) {
-                    stat.add(selectstate!);
-                    dynamicStatid.add(selectedStateId!);
-                  } else {
-                    stat.remove(selectstate!);
-                    dynamicStatid.remove(selectedStateId);
-                  }
-                 
-                });
-              }
-            },
-            icon: Icon(Icons.arrow_drop_down),
-          ),
-        ),
-      ),
-      SizedBox(height: 10), // Spacing
-      // Display selected values
-      Wrap(
-        spacing: 8.0,
-        children: stat.map((value) {
-          return Chip(
-            label: Text(value),
-            deleteIcon: Icon(Icons.close),
-            onDeleted: () {
-              setState(() {
-                int index = stat.indexOf(value);
-                stat.removeAt(index);
-                dynamicStatid.removeAt(index);
-                if (stat.isEmpty) {
-                  selectstate = null; // Reset the selected state
-                }
-                
-              });
-            },
-          );
-        }).toList(),
-      ),
-    ],
-  ),
-),
+                                //    Text("Checkbox Family",
+                                //     style: TextStyle(
+                                //         fontSize: 15, fontWeight: FontWeight.bold)),
+                                // SizedBox(height: 20),
+                                // statess.isEmpty
+                                //     ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
+                                //     : ListView.builder(
+                                //         shrinkWrap: true,
+                                //         itemCount: statess.length,
+                                //         itemBuilder: (context, index) {
+                                //           return CheckboxListTile(
+                                //             title: Text(statess[index]['name']),
+                                //             value: _checkboxValues[index],
+                                //             onChanged: (bool? value) {
+                                //               setState(() {
+                                //                 _checkboxValues[index] =
+                                //                     value ?? false;
+                                //                 if (_checkboxValues[index]) {
+                                //                   _selectedFamily
+                                //                       .add(statess[index]['id']);
+                                //                 } else {
+                                //                   _selectedFamily
+                                //                       .remove(statess[index]['id']);
+                                //                 }
+                                //               });
+                                //             },
+                                //             controlAffinity:
+                                //                 ListTileControlAffinity.leading,
+                                //           );
+                                //         },
+                                //       ),
+                                Padding(
+                                  padding: const EdgeInsets.all(.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        height: 46,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey, width: 1.0),
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<
+                                              Map<String, dynamic>>(
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Select State',
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Theme.of(context)
+                                                      .hintColor),
+                                            ),
+                                            value: statess.isNotEmpty &&
+                                                    selectstate != null
+                                                ? statess.firstWhere(
+                                                    (element) =>
+                                                        element['name'] ==
+                                                        selectstate,
+                                                    orElse: () => statess[
+                                                        0], // Default to first state if not found
+                                                  )
+                                                : null,
+                                            items: statess.isNotEmpty
+                                                ? statess.map<
+                                                    DropdownMenuItem<
+                                                        Map<String, dynamic>>>(
+                                                    (Map<String, dynamic>
+                                                        state) {
+                                                      return DropdownMenuItem<
+                                                          Map<String, dynamic>>(
+                                                        value: state,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              state['name'],
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          14),
+                                                            ),
+                                                            if (stat.contains(
+                                                                state['name']))
+                                                              Icon(
+                                                                Icons.check,
+                                                                color: Colors
+                                                                    .blue, // Indicate selected items
+                                                              ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  ).toList()
+                                                : [
+                                                    DropdownMenuItem(
+                                                      child: Text(
+                                                          'No states available'),
+                                                      value: null,
+                                                    ),
+                                                  ],
+                                            onChanged: (Map<String, dynamic>?
+                                                newValue) {
+                                              if (newValue != null) {
+                                                setState(() {
+                                                  selectstate =
+                                                      newValue['name'];
+                                                  selectedStateId =
+                                                      newValue['id'];
+                                                  if (!stat.contains(
+                                                          selectstate) &&
+                                                      !dynamicStatid.contains(
+                                                          selectedStateId)) {
+                                                    stat.add(selectstate!);
+                                                    dynamicStatid
+                                                        .add(selectedStateId!);
+                                                  } else {
+                                                    stat.remove(selectstate!);
+                                                    dynamicStatid.remove(
+                                                        selectedStateId);
+                                                  }
+                                                });
+                                              }
+                                            },
+                                            icon: Icon(Icons.arrow_drop_down),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 10), // Spacing
+                                      // Display selected values
+                                      Wrap(
+                                        spacing: 8.0,
+                                        children: stat.map((value) {
+                                          return Chip(
+                                            label: Text(value),
+                                            deleteIcon: Icon(Icons.close),
+                                            onDeleted: () {
+                                              setState(() {
+                                                int index = stat.indexOf(value);
+                                                stat.removeAt(index);
+                                                dynamicStatid.removeAt(index);
+                                                if (stat.isEmpty) {
+                                                  selectstate =
+                                                      null; // Reset the selected state
+                                                }
+                                              });
+                                            },
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
 
-
-                                  
                                 // Text(
                                 //   "State$stat",
                                 //   style: TextStyle(
@@ -1385,7 +1498,6 @@ Padding(
                                             onChanged: (String? newValue) {
                                               setState(() {
                                                 selectgender = newValue!;
-                                                
                                               });
                                             },
                                             items: gender
@@ -1450,7 +1562,6 @@ Padding(
                                             onChanged: (String? newValue) {
                                               setState(() {
                                                 selectmarital = newValue!;
-                                                
                                               });
                                             },
                                             items: material
@@ -1534,7 +1645,6 @@ Padding(
                                             GestureDetector(
                                               onTap: () {
                                                 _selectDate2(context);
-                                                
                                               },
                                               child: Icon(Icons.date_range),
                                             ),
@@ -1563,6 +1673,39 @@ Padding(
                                     ),
                                   ),
                                 ),
+
+                                SizedBox(height: 10),
+
+// Show a loading indicator while the data is being fetched
+                                fam.isEmpty
+                                    ? CircularProgressIndicator()
+                                    : DropdownButton<String>(
+                                        isExpanded:
+                                            true, // Ensure dropdown takes full width
+                                        value: _selectedFamily.isEmpty
+                                            ? null
+                                            : _selectedFamily[0]
+                                                .toString(), // Convert value to String
+                                        hint: Text("Select a Family"),
+                                        items: fam
+                                            .map<DropdownMenuItem<String>>(
+                                                (family) {
+                                          return DropdownMenuItem<String>(
+                                            value: family[
+                                                'id'], // Value is now a String
+                                            child: Text(family['name']),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            if (newValue != null) {
+                                              _selectedFamily = [
+                                                int.parse(newValue)
+                                              ]; // Convert String back to int and store it
+                                            }
+                                          });
+                                        },
+                                      ),
                                 SizedBox(height: 10),
                                 Container(
                                   width:
@@ -1698,7 +1841,6 @@ Padding(
                                             GestureDetector(
                                               onTap: () {
                                                 _selectDate3(context);
-                                                
                                               },
                                               child: Icon(Icons.date_range),
                                             ),
@@ -1748,7 +1890,6 @@ Padding(
                                             GestureDetector(
                                               onTap: () {
                                                 _selectDate4(context);
-                                                
                                               },
                                               child: Icon(Icons.date_range),
                                             ),
@@ -1844,7 +1985,6 @@ Padding(
                                             onChanged: (String? newValue) {
                                               setState(() {
                                                 approvalstatus = newValue!;
-                                                
                                               });
                                             },
                                             items: approval
@@ -1872,39 +2012,37 @@ Padding(
                                 SizedBox(height: 15),
                                 ElevatedButton(
                                   onPressed: () {
-                                    setState(() {
-                                      // stattt(stat.toString());
-                                      
-                                      RegisterUserData(
+                                    setState(() async {
+                                      await RegisterUserData(
                                           selectedDepartmentId!,
-                                          selectedImage,
                                           selectedDate,
-                                          
                                           selectgender,
                                           selectmarital,
                                           selecteExp,
                                           selectejoin,
                                           selecteconf,
-                                          selectedImage1,
                                           scaffoldContext);
+
+                                      updateStaffImage(staffId, selectedImage,
+                                          selectedImage1, scaffoldContext);
                                     });
                                   },
                                   style: ButtonStyle(
                                     backgroundColor:
                                         MaterialStateProperty.all<Color>(
-                                      Colors.blue,
-                                    ),
+                                            Colors.blue),
                                     shape: MaterialStateProperty.all<
                                         RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius: BorderRadius.circular(
+                                            10), // Set your desired border radius
                                       ),
                                     ),
                                     fixedSize: MaterialStateProperty.all<Size>(
                                       Size(
                                           MediaQuery.of(context).size.width *
                                               0.4,
-                                          50),
+                                          50), // Set your desired width and height
                                     ),
                                   ),
                                   child: Text("Submit",
@@ -1958,7 +2096,8 @@ Padding(
                                     child: Text(
                                       "No.",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold,color: Colors.white),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white),
                                     ),
                                   ),
                                   Padding(
@@ -1966,7 +2105,8 @@ Padding(
                                     child: Text(
                                       "Manager Name",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold,color: Colors.white),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white),
                                     ),
                                   ),
                                   Padding(
@@ -1974,10 +2114,10 @@ Padding(
                                     child: Text(
                                       "Edit",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold,color: Colors.white),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white),
                                     ),
                                   ),
-                                  
                                 ],
                               ),
                               for (int i = 0; i < sta.length; i++)
@@ -2009,7 +2149,6 @@ Padding(
                                         ),
                                       ),
                                     ),
-                                    
                                   ],
                                 ),
                             ],

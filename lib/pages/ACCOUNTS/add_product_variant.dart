@@ -10,6 +10,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_peoduct.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_product_variant.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
@@ -144,7 +145,7 @@ class _add_product_variantState extends State<add_product_variant> {
                   ElevatedButton(
                     onPressed: () {
                      print("dhfgjk");
-                     Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id: product['id'])));
+                     Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product(id: product['id'],type:widget.type)));
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
@@ -260,7 +261,7 @@ class _add_product_variantState extends State<add_product_variant> {
               DataCell(
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product_variant(id: variant['id'])));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product(id: variant['id'],type:widget.type)));
 
                   },
                   style: ElevatedButton.styleFrom(

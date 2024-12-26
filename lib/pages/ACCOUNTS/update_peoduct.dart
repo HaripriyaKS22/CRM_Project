@@ -40,14 +40,16 @@ import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 
-class new_product extends StatefulWidget {
-  const new_product({super.key});
+class update_product extends StatefulWidget {
+  final id;
+  final type;
+   update_product({super.key,required this.id,required this.type});
 
   @override
-  State<new_product> createState() => _new_productState();
+  State<update_product> createState() => _update_productState();
 }
 
-class _new_productState extends State<new_product> {
+class _update_productState extends State<update_product> {
   String globalProductId = '';
   drower d = drower();
   Widget _buildDropdownTile(
@@ -76,6 +78,8 @@ class _new_productState extends State<new_product> {
   bool checkbox2 = false;
   bool checkbox4 = false;
   List<int> _selectedFamily = [];
+    String? selectedManagerName;
+  int? selectedManagerId;
 
   double prate = 0.00;
   double tax = 0.00;
@@ -92,14 +96,20 @@ class _new_productState extends State<new_product> {
   TextEditingController sellingprice = TextEditingController();
   TextEditingController excludedprice = TextEditingController();
   TextEditingController stock = TextEditingController();
+  TextEditingController color = TextEditingController();
+  TextEditingController size = TextEditingController();
+  List<Map<String, dynamic>> manager = [];
 
   List<Map<String, dynamic>> fam = [];
   List<bool> _checkboxValues = [];
-
+  List<Map<String, dynamic>> variantProducts = [];
+  List<Map<String, dynamic>> singleProducts = [];
   @override
   void initState() {
     super.initState();
     getfamily();
+    getmanagers();
+    getvariant();
   }
 
   Future<String?> gettokenFromPrefs() async {
@@ -164,6 +174,77 @@ void logout() async {
       imagePickerCount += 1; // Increment the number of image pickers
     });
   }
+  var fami;
+Future<void> getvariant() async {
+  try {
+    final token = await gettokenFromPrefs();
+    print('urlllllllllllllllllll$api/api/products/${widget.id}/variants/');
+    var response = await http.get(
+      Uri.parse('$api/api/products/${widget.id}/variants/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print("haiiiiiiiiiiiiiiiiiiiiiiiiiiii: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productData = parsed['products']; // Map of the product
+      var variantIDs = productData['variantIDs']; // List of variants
+
+      if (variantIDs is List) {
+       setState(() {
+  // Handle response based on widget.type
+  if (widget.type == 'single') {
+    singleProducts = [productData]; // Single product as a list
+    if (singleProducts.isNotEmpty) {
+      name.text = singleProducts[0]['name']?.toString() ?? '';
+      hsncode.text = singleProducts[0]['hsn_code']?.toString() ?? '';
+      sellingprice.text = singleProducts[0]['selling_price']?.toString() ?? '';
+      purchaserate.text = singleProducts[0]['purchase_rate']?.toString() ?? '';
+      stock.text = singleProducts[0]['stock']?.toString() ?? '';
+      color.text = singleProducts[0]['color']?.toString() ?? '';
+      size.text = singleProducts[0]['size']?.toString() ?? '';
+      taxx.text = singleProducts[0]['tax']?.toString() ?? '';
+      fami=singleProducts[0]['family'];
+
+      print("Single Product Name:eeeeeeeeeeeeeeeeee$fami EEEEEEEEEEEEEEE ${singleProducts[0]['name']}");
+    }
+  } else if (widget.type == 'variant') {
+    variantProducts = List<Map<String, dynamic>>.from(variantIDs); // List of variants
+        singleProducts = [productData]; // Single product as a list
+
+    if (singleProducts.isNotEmpty) {
+      name.text = singleProducts[0]['name']?.toString() ?? '';
+      hsncode.text = singleProducts[0]['hsncode']?.toString() ?? '';
+      sellingprice.text = singleProducts[0]['selling_price']?.toString() ?? '';
+      purchaserate.text = singleProducts[0]['purchase_rate']?.toString() ?? '';
+      stock.text = singleProducts[0]['stock']?.toString() ?? '';
+      color.text = singleProducts[0]['color']?.toString() ?? '';
+      size.text = singleProducts[0]['size']?.toString() ?? '';
+      taxx.text = singleProducts[0]['tax']?.toString() ?? '';
+      fami=singleProducts[0]['family'];
+      print("Single Product Name:eeeeeeeeeeeeeeeeee$fami EEEEEEEEEEEEEEE ${singleProducts[0]['name']}");
+
+
+      print("Variant Product Name: ${variantProducts[0]['name']}");
+    }
+  }
+});
+
+
+        print("Fetched Variants: $variantIDs");
+      } else {
+        print("Error: Variant IDs is not a list");
+      }
+    } else {
+      print("Error: ${response.statusCode}");
+    }
+  } catch (error) {
+    print("Error: $error");
+  }
+}
 
 
 Future<void> addProduct(BuildContext scaffoldContext) async {
@@ -306,6 +387,45 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
     );
   }
 }
+
+  Future<void> getmanagers() async {
+    try {
+            final token = await gettokenFromPrefs();
+
+print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
+      var response = await http.get(
+        Uri.parse('$api/api/staffs/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(
+          "staffffffffffffffffffffffffffffff${response.body}");
+      List<Map<String, dynamic>> managerlist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print(
+            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
+        for (var productData in productsData) {
+          managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          manager = managerlist;
+
+          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT$manager");
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
   List<File> selectedImagesList =[]; // Single list to store all selected images
 
   Future<void> getfamily() async {
@@ -334,6 +454,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
 
         setState(() {
           fam = familylist;
+          print('familyyyyyyyyyyyyyyyyyyyyyyyyy$fam');
           _checkboxValues = List<bool>.filled(fam.length, false);
         });
       }
@@ -572,7 +693,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                   height: 15,
                 ),
                 SizedBox(
-                  height: 260,
+                  height:300,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -614,7 +735,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                             //   height: 10,
                             // ),
                             Text(
-                              "Product Name * ",
+                              "Product Name ",
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.bold),
                             ),
@@ -624,7 +745,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                             TextField(
                               controller: name,
                               decoration: InputDecoration(
-                                labelText: 'Label/Description of prodct',
+                                labelText: 'Label',
                                 prefixIcon: Icon(Icons.mode_edit),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
@@ -660,6 +781,75 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                                 // Set vertical padding
                               ),
                             ),
+                            SizedBox(
+                              height: 10,
+                            ),
+ Text(
+                              "Created User",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 10),
+                            Container(
+                              width: 310,
+                              height: 49,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 20),
+                                   Flexible(
+  child: InputDecorator(
+    decoration: InputDecoration(
+      border: InputBorder.none,
+      hintText: '',
+      contentPadding: EdgeInsets.symmetric(horizontal: 1),
+    ),
+    child: DropdownButton<Map<String, dynamic>>(
+      value: manager.isNotEmpty
+          ? manager.firstWhere(
+              (element) => element['id'] == selectedManagerId,
+              orElse: () => manager[0],
+            )
+          : null,
+      underline: Container(),
+      onChanged: manager.isNotEmpty
+          ? (Map<String, dynamic>? newValue) {
+              setState(() {
+                selectedManagerName = newValue!['name'];
+                selectedManagerId = newValue['id'];
+                print('Selected Manager Name: $selectedManagerName');
+                print('Selected Manager ID: $selectedManagerId');
+              });
+            }
+          : null,
+      items: manager.isNotEmpty
+          ? manager.map<DropdownMenuItem<Map<String, dynamic>>>(
+              (Map<String, dynamic> manager) {
+                return DropdownMenuItem<Map<String, dynamic>>(
+                  value: manager,
+                  child: Text(manager['name']),
+                );
+              },
+            ).toList()
+          : [
+              DropdownMenuItem(
+                child: Text('No managers available'),
+                value: null,
+              ),
+            ],
+      icon: Container(
+        alignment: Alignment.centerRight,
+        child: Icon(Icons.arrow_drop_down),
+      ),
+    ),
+  ),
+)
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -691,7 +881,54 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Product Type * ",
+
+                             Text(
+                              "Attribute",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                              controller: color,
+                              decoration: InputDecoration(
+                                labelText: '',
+                                prefixIcon: Icon(Icons.mode_edit),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 8.0), // Set vertical padding
+                              ),
+                            ),
+                                                        SizedBox(height: 10),
+                                                         Text(
+                              "Values",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                              controller: size,
+                              decoration: InputDecoration(
+                                labelText: '',
+                                prefixIcon: Icon(Icons.mode_edit),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 8.0), // Set vertical padding
+                              ),
+                            ),
+                                                        SizedBox(height: 10),
+
+
+                            Text("Product Type ",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),
                             SizedBox(height: 20),
@@ -748,7 +985,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                             ),
 
                             SizedBox(height: 10),
-                            Text("Checkbox Family",
+                            Text("Family",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),
                             SizedBox(height: 20),
