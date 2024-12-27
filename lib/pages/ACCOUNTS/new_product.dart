@@ -230,7 +230,9 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
 
       // Show success message
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        
         SnackBar(
+          
           content: Text('Product added successfully.'),
         ),
       );
@@ -294,7 +296,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          content: Text('Something went wrong. Please try again later.'),
+          content: Text('Image is not Updated'),
         ),
       );
     }

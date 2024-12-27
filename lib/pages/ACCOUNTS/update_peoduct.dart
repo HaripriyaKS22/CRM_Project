@@ -253,8 +253,8 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
   try {
     // Create the request
     var request = http.Request(
-      'POST',
-      Uri.parse("$api/api/add/product/"),
+      'PUT',
+      Uri.parse("$api/api/product/update/${widget.id}/"),
     );
 
     // Add headers
@@ -302,7 +302,7 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
     print("Response status: ${responseData.statusCode}");
     print("Response body: ${responseData.body}");
 
-    if (responseData.statusCode == 201) {
+    if (responseData.statusCode == 200) {
       // Parse the response body
       final Map<String, dynamic> responseBody = jsonDecode(responseData.body);
 
@@ -311,10 +311,12 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
 
       // Show success message
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Product added successfully.'),
-        ),
-      );
+  SnackBar(
+    content: Text('Product added successfully.'),
+    backgroundColor: Colors.green, // Replace with your desired color
+  ),
+);
+
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
@@ -331,13 +333,24 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
   }
 }
 
-Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) async {
+Future<void> updateProductImage(BuildContext scaffoldContext, File? newImage) async {
   final token = await gettokenFromPrefs();
 
   try {
+    // Validate if the image is provided
+    if (newImage == null) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Please select a valid image.'),
+          backgroundColor: Colors.red, // Optional: Add background color
+        ),
+      );
+      return;
+    }
+
     var request = http.MultipartRequest(
       'PUT',
-      Uri.parse("$api/api/product/update/$globalProductId/"), // Use the global product ID
+      Uri.parse("$api/api/product/update/${widget.id}/"), // Use the global product ID
     );
 
     // Add headers
@@ -345,18 +358,8 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
       'Authorization': 'Bearer $token',
     });
 
-    // Check if new image is provided
-    if (newImage != null) {
-      // Add the image file to the request
-      request.files.add(await http.MultipartFile.fromPath('image', newImage.path));
-    } else {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Please select a valid image.'),
-        ),
-      );
-      return;
-    }
+    // Add the image file to the request
+    request.files.add(await http.MultipartFile.fromPath('image', newImage.path));
 
     // Send the request
     var response = await request.send();
@@ -370,12 +373,14 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Image updated successfully.'),
+          backgroundColor: Colors.green, // Optional: Add background color
         ),
       );
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Something went wrong. Please try again later.'),
+          backgroundColor: Colors.orange, // Optional: Add background color
         ),
       );
     }
@@ -383,6 +388,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
         content: Text('Error: ${e.toString()}'),
+        backgroundColor: Colors.red, // Optional: Add background color
       ),
     );
   }
@@ -429,39 +435,51 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
   List<File> selectedImagesList =[]; // Single list to store all selected images
 
   Future<void> getfamily() async {
-    try {
-      final token = await gettokenFromPrefs();
+  try {
+    final token = await gettokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/familys/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    var response = await http.get(
+      Uri.parse('$api/api/familys/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-        List<Map<String, dynamic>> familylist = [];
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
+      List<Map<String, dynamic>> familylist = [];
 
-        for (var productData in productsData) {
-          familylist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-
-        setState(() {
-          fam = familylist;
-          print('familyyyyyyyyyyyyyyyyyyyyyyyyy$fam');
-          _checkboxValues = List<bool>.filled(fam.length, false);
+      for (var productData in productsData) {
+        familylist.add({
+          'id': productData['id'],
+          'name': productData['name'],
         });
       }
-    } catch (error) {
-      
+setState(() {
+  fam = familylist;
+  print('familyyyyyyyyyyyyyyyyyyyyyyyyy$fam');
+  
+  // Correctly map to a List<bool> by ensuring the condition explicitly returns a bool
+  _checkboxValues = fam.map<bool>((family) {
+    return fami.contains(family['id']); // This will be true or false
+  }).toList();
+
+  // Update `_selectedFamily` for pre-selected items
+  _selectedFamily = fam
+      .where((family) => fami.contains(family['id']))
+      .map<int>((family) => family['id'] as int) // Explicit cast to int
+      .toList();
+});
+
+
     }
+  } catch (error) {
+    print('Error fetching families: $error');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
