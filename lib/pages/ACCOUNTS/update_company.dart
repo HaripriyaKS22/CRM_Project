@@ -72,7 +72,6 @@ class _update_companyState extends State<update_company> {
     if (response.statusCode == 200) {
       final productsData = jsonDecode(response.body);
 
-      print("========================${response.body}");
       List<Map<String, dynamic>> companylist = [];
 
       for (var productData in productsData) {
@@ -147,8 +146,7 @@ class _update_companyState extends State<update_company> {
         },
       );
 
-      print("compppadddddddddddddddddd${response.statusCode}");
-      print("compppadddddddddddddddddd${response.body}");
+     
 
       if (response.statusCode == 201) {
          ScaffoldMessenger.of(context).showSnackBar(

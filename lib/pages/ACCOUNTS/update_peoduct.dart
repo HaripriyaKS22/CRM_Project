@@ -271,6 +271,8 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
       'unit': selectunit,
       'purchase_rate': purchaserate.text,
       'tax': taxx.text,
+      'color': color.text,
+      'size': size.text,
       'selling_price': sellingprice.text,
 
 
@@ -457,30 +459,26 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
           'name': productData['name'],
         });
       }
-setState(() {
-  fam = familylist;
-  print('familyyyyyyyyyyyyyyyyyyyyyyyyy$fam');
-  
-  // Correctly map to a List<bool> by ensuring the condition explicitly returns a bool
-  _checkboxValues = fam.map<bool>((family) {
-    return fami.contains(family['id']); // This will be true or false
-  }).toList();
 
-  // Update `_selectedFamily` for pre-selected items
-  _selectedFamily = fam
-      .where((family) => fami.contains(family['id']))
-      .map<int>((family) => family['id'] as int) // Explicit cast to int
-      .toList();
-});
+      setState(() {
+        fam = familylist;
 
+        // Correctly initialize `_checkboxValues` with the same length as `fam`
+        _checkboxValues = List<bool>.filled(fam.length, false);
 
+        // Automatically select checkboxes for `fami` items
+        for (int i = 0; i < fam.length; i++) {
+          if (fami.contains(fam[i]['id'])) {
+            _checkboxValues[i] = true;
+            _selectedFamily.add(fam[i]['id']);
+          }
+        }
+      });
     }
   } catch (error) {
     print('Error fetching families: $error');
   }
 }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -501,7 +499,7 @@ setState(() {
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                   ),
-                  child: Row(
+                child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(

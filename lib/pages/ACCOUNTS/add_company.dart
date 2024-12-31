@@ -157,40 +157,6 @@ class _add_companyState extends State<add_company> {
       );
     }
   }
-//  Future<void> deletedepartment(int Id) async {
-//     final token = await gettokenFromPrefs();
-
-//     try {
-//       final response = await http.delete(
-//         Uri.parse('$api/api/department/update/$Id/'),
-//         headers: {
-//           'Authorization': '$token',
-//         },
-//       );
-//     print(response.statusCode);
-//     if(response.statusCode == 200){
-//          ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           backgroundColor: Color.fromARGB(255, 49, 212, 4),
-//           content: Text('Deleted sucessfully'),
-//         ),
-//       );
-//          Navigator.push(context, MaterialPageRoute(builder: (context)=>add_department()));
-//     }
-
-//       if (response.statusCode == 204) {
-//       } else {
-//         throw Exception('Failed to delete wishlist ID: $Id');
-//       }
-//     } catch (error) {
-//     }
-//   }
-
-  // void removeProduct(int index) {
-  //   setState(() {
-  //     dep.removeAt(index);
-  //   });
-  // }
 
   void logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();

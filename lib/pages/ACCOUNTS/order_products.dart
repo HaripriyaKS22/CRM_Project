@@ -96,7 +96,105 @@ Future<void> _getAndShowVariants(int productId) async {
   }
 
   
-   Future<void> fetchProductList() async {
+//    Future<void> fetchProductList() async {
+//   final token = await getTokenFromPrefs();
+
+//   try {
+//     final response = await http.get(
+//       Uri.parse("$api/api/products/"),
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Authorization': 'Bearer $token',
+//       },
+//     );
+
+//     if (response.statusCode == 200) {
+//       final parsed = jsonDecode(response.body);
+//       var productsData = parsed['data'];
+//       List<Map<String, dynamic>> productList = [];
+
+//       print("Products Responseeeeeeeeeeeeeeeeeeeeeeeeeee: ${response.body}");
+
+//       for (var productData in productsData) {
+//         List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
+//             (famItem) => famItem['id'] == id,
+//             orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
+//         var imgurl = '$api/${productData['image']}';
+// print("imggggggggg$imgurl");
+//         // Check if the product type is 'variant'
+//         if (productData['type'] == "variant") {
+//                       print("nameeeeeeeeeeeeeeeeeeeeeeee====${productData['name']}");
+
+
+//           for (var variant in productData['variant_products']) {
+//             print("nameeeeeeeeeeeeeeeeeeeeeeee${variant['name']}");
+
+//             if (variant['is_variant'] == true && variant['sizes'] != null) {
+
+//                productList.add({
+//               'mainid':productData['id'],
+//               'id': variant['id'],
+//               'is_vaiant':variant['is_variant'],
+//               'name': variant['name'],
+//               'color': variant['color'],
+//               'stock': variant['stock'],
+//               'created_user': variant['created_user'],
+//               'family': familyNames,
+//               'image': variant['variant_images'].isNotEmpty
+//                   ? '${variant['variant_images'][0]['image']}'
+//                   : imgurl, // Use variant image or fallback to main image
+//                'sizes': variant['sizes'],
+//             });
+
+//             }
+//             // Process each variant product
+//             else{
+//             productList.add({
+//               'mainid':productData['id'],
+//               'type':productData['type'],
+//               'id': variant['id'],
+//               'name': variant['name'],
+//               'color': variant['color'],
+//               'is_vaiant':variant['is_variant'],
+//               'stock': variant['stock'],
+//               'created_user': variant['created_user'],
+//               'family': familyNames,
+//               'image': variant['variant_images'].isNotEmpty
+//                   ? '${variant['variant_images'][0]['image']}'
+//                   : imgurl, // Use variant image or fallback to main image
+//             });}
+//           }
+//         } else {
+//           // Process non-variant products
+//           productList.add({
+//             'id': productData['id'],
+//             'name': productData['name'],
+//             'hsn_code': productData['hsn_code'],
+//             'type': productData['type'],
+//             'unit': productData['unit'],
+//             'purchase_rate': productData['purchase_rate'],
+//             'tax': productData['tax'],
+//             'exclude_price': productData['exclude_price'],
+//             'selling_price': productData['selling_price'],
+//             'stock': productData['stock'],
+//             'created_user': productData['created_user'],
+//             'family': familyNames,
+//             'image': imgurl,
+//           });
+//         }
+//       }
+
+//       setState(() {
+//         products = productList;
+//         print("Products: $products");
+//         filteredProducts = products;
+//       });
+//     }
+//   } catch (error) {
+//     print("Error: $error");
+//   }
+// }
+ Future<void> fetchProductList() async {
   final token = await getTokenFromPrefs();
 
   try {
@@ -113,87 +211,43 @@ Future<void> _getAndShowVariants(int productId) async {
       var productsData = parsed['data'];
       List<Map<String, dynamic>> productList = [];
 
-      print("Products Response: ${response.body}");
+      print("Products Responsehhhhhhhhhhhhhhhhhhhhhhhhh: ${response.body}");
 
       for (var productData in productsData) {
+        // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
         List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
             (famItem) => famItem['id'] == id,
             orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
-        var imgurl = '$api/${productData['image']}';
-print("imggggggggg$imgurl");
-        // Check if the product type is 'variant'
-        if (productData['type'] == "variant") {
-                      print("nameeeeeeeeeeeeeeeeeeeeeeee====${productData['name']}");
 
-
-          for (var variant in productData['variant_products']) {
-            print("nameeeeeeeeeeeeeeeeeeeeeeee${variant['name']}");
-
-            if (variant['is_variant'] == true && variant['sizes'] != null) {
-
-               productList.add({
-              'mainid':productData['id'],
-              'id': variant['id'],
-              'is_vaiant':variant['is_variant'],
-              'name': variant['name'],
-              'color': variant['color'],
-              'stock': variant['stock'],
-              'created_user': variant['created_user'],
-              'family': familyNames,
-              'image': variant['variant_images'].isNotEmpty
-                  ? '${variant['variant_images'][0]['image']}'
-                  : imgurl, // Use variant image or fallback to main image
-               'sizes': variant['sizes'],
-            });
-
-            }
-            // Process each variant product
-            else{
-            productList.add({
-              'mainid':productData['id'],
-              'type':productData['type'],
-              'id': variant['id'],
-              'name': variant['name'],
-              'color': variant['color'],
-              'is_vaiant':variant['is_variant'],
-              'stock': variant['stock'],
-              'created_user': variant['created_user'],
-              'family': familyNames,
-              'image': variant['variant_images'].isNotEmpty
-                  ? '${variant['variant_images'][0]['image']}'
-                  : imgurl, // Use variant image or fallback to main image
-            });}
-          }
-        } else {
-          // Process non-variant products
-          productList.add({
-            'id': productData['id'],
-            'name': productData['name'],
-            'hsn_code': productData['hsn_code'],
-            'type': productData['type'],
-            'unit': productData['unit'],
-            'purchase_rate': productData['purchase_rate'],
-            'tax': productData['tax'],
-            'exclude_price': productData['exclude_price'],
-            'selling_price': productData['selling_price'],
-            'stock': productData['stock'],
-            'created_user': productData['created_user'],
-            'family': familyNames,
-            'image': imgurl,
-          });
-        }
+        // Add the product data to the list
+        productList.add({
+          'id': productData['id'],
+          'variantIDs':productData['variantIDs'],
+          'name': productData['name'],
+          'hsn_code': productData['hsn_code'],
+          'type': productData['type'],
+          'unit': productData['unit'],
+          'purchase_rate': productData['purchase_rate'],
+          'tax': productData['tax'],
+          'exclude_price': productData['exclude_price'],
+          'selling_price': productData['selling_price'],
+          'stock': productData['stock'],
+          'created_user': productData['created_user'],
+          'family': familyNames, // Add family names here
+          'image': productData['image'], // Main product image
+          // Don't process single_products or variant_products
+        });
       }
 
       setState(() {
         products = productList;
-        print("Products: $products");
-        filteredProducts = products;
       });
     }
   } catch (error) {
     print("Error: $error");
   }
 }
+
 void logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove('userId');
@@ -1093,7 +1147,9 @@ Padding(
       product['id'],
     );
   }
-  else if(product['type'] == 'variant'&& product['is_vaiant'] == false){
+  else if(product['type'] == 'variant'){
+        print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
+
     showSizeDialog2(
       context,
       product['mainid'],
@@ -1103,6 +1159,7 @@ Padding(
 
   }
   else if(product['type']=='single'){
+    print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
     showSizeDialog3(
       context,
       product['mainid'],
@@ -1113,12 +1170,12 @@ Padding(
 },
 
                   icon: Icon(
-                    product['type'] == 'single' || product['is_vaiant'] == false ? Icons.add : Icons.view_agenda,
+                    product['type'] == 'single' ? Icons.add : Icons.view_agenda,
                     size: 14,
                     color: Colors.white,
                   ),
                   label: Text(
-                    product['type'] == 'single' || product['is_vaiant'] == false ? "Add" : "View",
+                    product['type'] == 'single' ? "Add" : "View",
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
                   style: ElevatedButton.styleFrom(
