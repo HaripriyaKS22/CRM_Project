@@ -189,7 +189,7 @@ class drower{
       case 'Credit Sales Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => CreditsaleReport()),
+          MaterialPageRoute(builder: (context) => Creditsalereport2()),
         );
         break;
 
@@ -198,7 +198,7 @@ class drower{
         case 'COD Sales Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>COD_Sales_Report()),
+          MaterialPageRoute(builder: (context) =>CodSales2()),
         );
         break;
       case 'Statewise Sales Report':
@@ -222,7 +222,7 @@ class drower{
       case 'Product Sale Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => SoldProductReport()),
+          MaterialPageRoute(builder: (context) => Sold_pro_report()),
         );
         break;
       case 'Stock Report':
