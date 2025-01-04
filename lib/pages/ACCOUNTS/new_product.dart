@@ -83,6 +83,7 @@ class _new_productState extends State<new_product> {
 
   TextEditingController name = TextEditingController();
   TextEditingController hsncode = TextEditingController();
+  TextEditingController groupID = TextEditingController();
   TextEditingController price = TextEditingController();
   TextEditingController family = TextEditingController();
   TextEditingController types = TextEditingController();
@@ -574,7 +575,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                   height: 15,
                 ),
                 SizedBox(
-                  height: 260,
+                  height: 299,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -649,6 +650,32 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                             ),
                             TextField(
                               controller: hsncode,
+                              decoration: InputDecoration(
+                                labelText: 'Index',
+
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 10.0),
+
+                                // Set vertical padding
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Group ID",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                              controller: groupID,
                               decoration: InputDecoration(
                                 labelText: 'Index',
 
@@ -782,6 +809,7 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
                                       );
                                     },
                                   ),
+
                             SizedBox(height: 10),
                             Text("Unit * ",
                                 style: TextStyle(
