@@ -92,30 +92,38 @@ class _CustomerLedgerState extends State<CustomerLedger> {
 }
 
   Future<void> getCompanyList() async {
-    try {
-      final token = await getTokenFromPrefs();
-      var response = await http.get(
-        Uri.parse('$api/api/company/getadd/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+  try {
+    final token = await getTokenFromPrefs();
+    var response = await http.get(
+      Uri.parse('$api/api/company/data/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print("Response: ${response.body}");
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List;
-        setState(() {
-          companyList = data
-              .map((company) => {'id': company['id'], 'name': company['name']})
-              .toList();
-        });
-      } else {
-        print("Failed to load companies: ${response.statusCode}");
-      }
-    } catch (error) {
-      print("Error fetching companies: $error");
+    if (response.statusCode == 200) {
+      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final data = decodedResponse['data'] as List<dynamic>; // Access the 'data' key
+
+      setState(() {
+        companyList = data
+            .map((company) => {
+                  'id': company['id'],
+                  'name': company['name'],
+                })
+            .toList();
+            print("companyList:$companyList");
+      });
+    } else {
+      print("Failed to load companies: ${response.statusCode}");
     }
+  } catch (error) {
+    print("Error fetching companies: $error");
   }
+}
+
     drower d = drower();
 
  Widget _buildDropdownTile(
@@ -135,88 +143,88 @@ class _CustomerLedgerState extends State<CustomerLedger> {
     );
   }
 
-  Future<void> fetchCustomerLedgerDetails() async {
-    try {
-      final token = await getTokenFromPrefs();
-      final response = await http.get(
-        Uri.parse('$api/api/customer/${widget.customerid}/ledger/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+Future<void> fetchCustomerLedgerDetails() async {
+  try {
+    final token = await getTokenFromPrefs();
+    final response = await http.get(
+      Uri.parse('$api/api/customer/${widget.customerid}/ledger/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print("Response: ${response.body}");
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        final data = parsed['data'] as List;
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      final data = parsed['data'] as List;
 
-        List<Map<String, dynamic>> entries = [];
-        double debitSum = 0.0;
-        double creditSum = 0.0;
+      List<Map<String, dynamic>> entries = [];
+      double debitSum = 0.0;
+      double creditSum = 0.0;
 
-        print("Fetched Data from API: $data"); // Debugging print for API data
+      print("Fetched Data from API: $data");
 
-        for (var entry in data) {
-          double? debitAmount = entry['total_amount'];
-          debitSum += debitAmount ?? 0.0;
+      for (var entry in data) {
+        double? debitAmount = entry['total_amount'];
+        debitSum += debitAmount ?? 0.0;
 
-          // Find the company name based on the company ID
-          String companyName = companyList.firstWhere(
-            (comp) => comp['id'] == entry['company'],
-            orElse: () => {'name': 'Unknown Company'},
-          )['name'];
+        // Find the company name based on the company ID
+        String companyName = companyList.firstWhere(
+          (comp) => comp['name'] == entry['company'],
+          orElse: () => {'name': 'Unknown Company'},
+        )['name'];
 
-          // Debugging print for each entry being added
-          print(
-              "Adding Debit Entry: Date: ${entry['order_date']}, Invoice: ${entry['invoice']}/$companyName, Amount: $debitAmount");
+        print(
+            "Adding Debit Entry: Date: ${entry['order_date']}, Invoice: ${entry['invoice']}/$companyName, Amount: $debitAmount");
 
-          entries.add({
-            'date': entry['order_date'],
-            'invoice': '${entry['invoice']}/$companyName',
-            'company': companyName,
-            'particular': 'Goods Sale',
-            'debit': debitAmount,
-            'credit': null,
-            'isFirstOfOrder': true,
-          });
-
-          for (var receipt in entry['payment_receipts']) {
-            double creditAmount = double.parse(receipt['amount']);
-            creditSum += creditAmount;
-
-            print(
-                "Adding Credit Entry: Date: ${receipt['received_at']}, Invoice: ${entry['invoice']}/$companyName, Amount: $creditAmount");
-
-            entries.add({
-              'date': receipt['received_at'],
-              'invoice': '${entry['invoice']}/$companyName',
-              'company': companyName,
-              'particular': 'Payment received',
-              'debit': null,
-              'credit': creditAmount,
-              'isFirstOfOrder': false,
-            });
-          }
-        }
-
-        setState(() {
-          ledgerEntries = entries;
-          filteredEntries = entries;
-          totalDebit = debitSum;
-          totalCredit = creditSum;
+        entries.add({
+          'date': entry['order_date'],
+          'invoice': '${entry['invoice']}/$companyName',
+          'company': companyName,
+          'particular': 'Goods Sale',
+          'debit': debitAmount,
+          'credit': null,
+          'isFirstOfOrder': true,
         });
 
-        print(
-            "Final ledgerEntries: $ledgerEntries"); // Debugging print for ledger entries
-        print(
-            "Final filteredEntries: $filteredEntries"); // Debugging print for filtered entries
-      } else {
-        print("Failed to fetch ledger details: ${response.statusCode}");
+        // Safely handle `recived_payment`
+        var receivedPayments = entry['recived_payment'] as List<dynamic>? ?? [];
+        for (var receipt in receivedPayments) {
+          double creditAmount = double.parse(receipt['amount']);
+          creditSum += creditAmount;
+
+          print(
+              "Adding Credit Entry: Date: ${receipt['received_at']}, Invoice: ${entry['invoice']}/$companyName, Amount: $creditAmount");
+
+          entries.add({
+            'date': receipt['received_at'],
+            'invoice': '${entry['invoice']}/$companyName',
+            'company': companyName,
+            'particular': 'Payment received',
+            'debit': null,
+            'credit': creditAmount,
+            'isFirstOfOrder': false,
+          });
+        }
       }
-    } catch (error) {
-      print("Error fetching ledger data: $error");
+
+      setState(() {
+        ledgerEntries = entries;
+        filteredEntries = entries;
+        totalDebit = debitSum;
+        totalCredit = creditSum;
+      });
+
+      print("Final ledgerEntries: $ledgerEntries");
+      print("Final filteredEntries: $filteredEntries");
+    } else {
+      print("Failed to fetch ledger details: ${response.statusCode}");
     }
+  } catch (error) {
+    print("Error fetching ledger data: $error");
   }
+}
 
   void filterEntriesByCompanyAndDate() {
     double debitSum = 0.0;
