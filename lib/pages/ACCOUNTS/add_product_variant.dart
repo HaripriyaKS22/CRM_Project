@@ -330,7 +330,7 @@ class _add_product_variantState extends State<add_product_variant> {
   List<Map<String, dynamic>> valuess = [];
   List<Map<String, dynamic>> variantProducts = [];
   List<Map<String, dynamic>> singleProducts = [];
-
+ List<Map<String, dynamic>> attributesToSend = []; 
   @override
   void initState() {
     super.initState();
@@ -338,7 +338,6 @@ class _add_product_variantState extends State<add_product_variant> {
     getprofiledata();
     getvariant();
     getattributes();
-
     print(widget.type);
 
     print("PPPPPPPPROOOOOOOOOOOOOOIDDDDDD${widget.id}");
@@ -628,77 +627,73 @@ class _add_product_variantState extends State<add_product_variant> {
 }
 
   void addvariant(BuildContext scaffoldContext) async {
-    print("selectedvalueeeeeeeeeeeeeeeeee$selectedValues");
-    try {
-      final token = await gettokenFromPrefs();
+  print("Selected attributes to send: $attributesToSend");
+  try {
+    final token = await gettokenFromPrefs();
 
-      // Check if selectedAttributeName is null or if selectedValues is empty
-      if (selectedAttributeName == null || selectedValues.isEmpty) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(content: Text('Please select an attribute and its values.')),
-        );
-        return; // Exit the function if there's no attribute or values selected
-      }
+    // Check if selectedAttributeName is null or if selectedValues is empty
+    // if (selectedAttributeName == null || selectedValues.isEmpty) {
+    //   ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+    //     SnackBar(content: Text('Please select an attribute and its values.')),
+    //   );
+    //   return;
+    // }
 
-      // Prepare the data for sending as a JSON string
-      // Convert the attributes to JSON string before sending
-      String attributesToSend = jsonEncode([
-        {
-          'attribute': selectedAttributeName,
-          'values': selectedValues, // Ensure this is a list of selected values
-        }
-      ]);
+    // Convert attributesToSend to a JSON string
+    String attributesJson = jsonEncode(attributesToSend);
 
-      // Prepare the final JSON body
-      String jsonString =
-          jsonEncode({'product': widget.id, 'attributessssssssssssssssssssssssssssssss': attributesToSend});
+    // Prepare the final JSON body
+    String jsonString = jsonEncode({
+      'product': widget.id.toString(), // Ensure product ID is a string
+      'attributes': attributesJson,   // Send attributes as a JSON string
+    });
 
-      print(jsonString);
+    print("JSON String to send: $jsonString");
 
-      // Sending the request to the backend
-      var response = await http.post(
-        Uri.parse('$api/api/add/product/variant/'),
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonString, // Use the valid JSON string
-      );
+    // Sending the request to the backend
+    var response = await http.post(
+      Uri.parse('$api/api/add/product/variant/'),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonString,
+    );
 
-      // Debugging output
-      print("Response status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
+    // Debugging output
+    print("Response status code: ${response.statusCode}");
+    print("Response body: ${response.body}");
 
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            content: Text('Product added successfully.'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => add_product_variant(
-                      id: widget.id,
-                      type: widget.type,
-                    )));
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding product failed: ${response.body}'),
-          ),
-        );
-      }
-    } catch (e) {
+    if (response.statusCode == 201) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          content: Text('Enter valid information: ${e.toString()}'),
+          content: Text('Product added successfully.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => add_product_variant(
+                    id: widget.id,
+                    type: widget.type,
+                  )));
+    } else {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Adding product failed: ${response.body}'),
         ),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text('Enter valid information: ${e.toString()}'),
+      ),
+    );
   }
+}
 
   Future<void> getfamily() async {
     try {
@@ -764,9 +759,7 @@ void logout() async {
     final token = await gettokenFromPrefs();
 
     try {
-      final url = widget.type == 'single'
-          ? '$api/api/product/$productId/variant/data/'
-          : '$api/api/variant/$productId/images/';
+      final url = '$api/api/product/update/$productId/';
 
       final response = await http.delete(
         Uri.parse(url),
@@ -777,6 +770,8 @@ void logout() async {
       );
 
       print("Response status: ${response.statusCode}");
+            print("Response status: ${response.body}");
+
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1185,58 +1180,13 @@ void logout() async {
                 SizedBox(
                   height: 5,
                 ),
-              if(widget.type!='single')
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              
+                if(widget.type!='single')
+                 Container(
+                  child: 
+                  Column(
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            flag = !flag;
-                            print(flag);
-                          });
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.white), // Set background color to white
-                          foregroundColor: MaterialStateProperty.all<Color>(
-                              Colors.blue), // Set text color to blue
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  10), // Set your desired border radius
-                              side: BorderSide(
-                                  color: Colors
-                                      .blue), // Set the border color to blue
-                            ),
-                          ),
-                          fixedSize: MaterialStateProperty.all<Size>(
-                            Size(120, 15), // Set your desired width and height
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.add, // Use the add icon
-                              color: Colors.blue, // Set icon color to blue
-                              size: 15, // Set the desired size of the icon
-                            ),
-                            Text(
-                              "Attribute",
-                              style: TextStyle(
-                                  color: Colors.blue), // Set text color to blue
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if(flag==true)
-                  Padding(
+                        Padding(
                     padding: const EdgeInsets.all(10),
                     child: Container(
                       child: DropdownButtonHideUnderline(
@@ -1335,7 +1285,6 @@ void logout() async {
                       ),
                     ),
                   ),
-                if(flag==true)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -1418,6 +1367,57 @@ void logout() async {
                       ],
                     ),
                 ),
+
+                    ],
+                  ),
+                ),
+
+                if(widget.type!='single')
+               Padding(
+  padding: const EdgeInsets.only(right: 8.0),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      ElevatedButton(
+        onPressed: () {
+          if (selectedAttributeName != null &&
+              selectedAttributeName!.isNotEmpty &&
+              selectedValues.isNotEmpty) {
+            setState(() {
+              // Add the new attribute to the list
+              attributesToSend.add({
+                'attribute': selectedAttributeName!,
+                'values': selectedValues,
+              });
+
+              // Reset input fields
+              selectedAttributeName = null;
+              selectedValues = [];
+            });
+            print("Updated attributesToSend: $attributesToSend");
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please provide valid inputs')),
+            );
+          }
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 255, 255, 255)), // Background color
+          foregroundColor: MaterialStateProperty.all<Color>(Colors.white), // Text color
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0), // Border radius
+              side: BorderSide(color: Colors.blue, width: 2.0), // Border color and width
+            ),
+          ),
+        ),
+        child: Text("Add Attribute",style: TextStyle(color: Colors.blue),),
+      ),
+    ],
+  ),
+),
+
+                
                 SizedBox(
                   height: 13,
                 ),
