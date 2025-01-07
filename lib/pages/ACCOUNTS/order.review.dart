@@ -569,7 +569,7 @@ print("productttttttttttttttttssssssssssss${response.body}");
             'discount': item['discount'],
             'actual_price': item['actual_price'],
             'exclude_price': item['exclude_price'],
-            'images': item['images'],
+            'images': item['image'],
           });
 
           // Convert values to double for safe calculation

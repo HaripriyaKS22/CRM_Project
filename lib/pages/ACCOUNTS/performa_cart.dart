@@ -41,22 +41,6 @@ class _Performa_CartState extends State<Performa_Cart> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-  Widget _buildDropdownTile(
-      BuildContext context, String title, List<String> options) {
-    return ExpansionTile(
-      title: Text(title),
-      children: options.map((option) {
-        return ListTile(
-          title: Text(option),
-          onTap: () {
-            Navigator.pop(context);
-            d.navigateToSelectedPage(
-                context, option); // Navigate to selected page
-          },
-        );
-      }).toList(),
-    );
-  }
 
   Future<void> fetchCartData() async {
     try {
@@ -68,8 +52,8 @@ class _Performa_CartState extends State<Performa_Cart> {
           'Content-Type': 'application/json',
         },
       );
-
-      print("API Response: ${response.body}");
+print("${response.statusCode}");
+      print("API Responseeeeeeeeeeeeeeeeeeeeeeeeeee: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -80,7 +64,7 @@ class _Performa_CartState extends State<Performa_Cart> {
           cartList.add({
             'id': cartData['id'],
             'name': cartData['name'],
-            'image': cartData['images'][0],
+            'image': cartData['image'],
             'slug': cartData['slug'],
             'size': cartData['size'],
             'quantity': cartData['quantity'],
@@ -92,6 +76,7 @@ class _Performa_CartState extends State<Performa_Cart> {
         }
         setState(() {
           cartdata = cartList;
+          print("cartdateeeeeeeeeeeeeeeeeeeeeee$cartdata");
         });
       } else {
         throw Exception('Failed to load cart data');
@@ -105,40 +90,14 @@ class _Performa_CartState extends State<Performa_Cart> {
     double total = 0;
     for (var item in cartdata) {
       final discountPerQuantity = item['discount'] ?? 0.0;
-      final quantity = item['quantity'] ?? 0;
-      final price = item['price'] ?? 0.0;
+      final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
+final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
       final totalItemPrice = quantity * price;
       final totalDiscount = quantity * discountPerQuantity;
       total += totalItemPrice - totalDiscount;
     }
     return total;
   }
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
-
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
-
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
-
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
 
   Future<void> updatecartdetails(
       int id, int quantity, String description, double discount) async {
@@ -281,6 +240,49 @@ void logout() async {
       },
     );
   }
+  Widget _buildDropdownTile(
+      BuildContext context, String title, List<String> options) {
+    return ExpansionTile(
+      title: Text(title),
+      children: options.map((option) {
+        return ListTile(
+          title: Text(option),
+          onTap: () {
+            Navigator.pop(context);
+            d.navigateToSelectedPage(
+                context, option); // Navigate to selected page
+          },
+        );
+      }).toList(),
+    );
+  }
+
+void logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
+  await prefs.remove('token');
+
+  // Use a post-frame callback to show the SnackBar after the current frame
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (ScaffoldMessenger.of(context).mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logged out successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  });
+
+  // Wait for the SnackBar to disappear before navigating
+  await Future.delayed(Duration(seconds: 2));
+
+  // Navigate to the HomePage after the snackbar is shown
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => login()),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -498,13 +500,17 @@ void logout() async {
                           shrinkWrap: true,
                           itemCount: cartdata.length,
                           itemBuilder: (context, index) {
-                            final item = cartdata[index];
-                            final discountPerQuantity = item['discount'] ?? 0.0;
-                            final quantity = item['quantity'] ?? 0;
-                            final price = item['price'] ?? 0.0;
-                            final totalItemPrice = quantity * price;
-                            final totalDiscount = quantity * discountPerQuantity;
-                            final discountedTotalPrice = totalItemPrice - totalDiscount;
+                             final item = cartdata[index];
+                             final discountPerQuantity = item['discount'] ?? 0.0;
+                            final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
+final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
+                              print("quantity:::::::::::::::::::::$quantity");
+                              print("price:::::::::::::::::::::$price");
+                             final totalItemPrice = quantity * price;
+                           
+                             print("totalItemPrice:::::::::::::::::::::$totalItemPrice");
+                           final totalDiscount = quantity * discountPerQuantity;
+                             final discountedTotalPrice = totalItemPrice - totalDiscount;
 
                             return InkWell(
                               onTap: () => showPopupDialog(context, item),
@@ -518,7 +524,7 @@ void logout() async {
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
                                         children: [
-                                        Image.network(
+                                          Image.network(
                                                     "${item['image']}",
                                                     width: 80,
                                                     height: 80,
@@ -529,6 +535,7 @@ void logout() async {
                                                           .image_not_supported); // Fallback image or icon
                                                     },
                                                   ),
+
                                           SizedBox(width: 10),
                                           Expanded(
                                             child: Column(
@@ -541,8 +548,7 @@ void logout() async {
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
-                                                Text("Size: ${item['size']}"),
-                                                Text("Tax: ${item['tax']} %"),
+                                                // Text("Tax: ${item['tax']} %"),
                                                 if (item['note'] != null && item['note'].isNotEmpty)
                                                   Text(
                                                     "Description: ${item['note']}",

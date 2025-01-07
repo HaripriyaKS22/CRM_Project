@@ -129,7 +129,7 @@ class _Performa_order_requestState extends State<Performa_order_request> {
       final token = await gettokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/company/getadd/'),
+        Uri.parse('$api/api/company/data/'),
         headers: {
           'Authorization': ' Bearer $token',
           'Content-Type': 'application/json',
@@ -141,8 +141,8 @@ class _Performa_order_requestState extends State<Performa_order_request> {
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
-        final productsData = jsonDecode(response.body);
-
+        final Data = jsonDecode(response.body);
+final productsData=Data['data'];
         print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
@@ -313,64 +313,65 @@ class _Performa_order_requestState extends State<Performa_order_request> {
 //     print("priceeeeeeeeeeeeeeeeeeeeee$total");
 //   }
 
-  Future<void> fetchCartData() async {
-    try {
-      final token = await gettokenFromPrefs();
+ Future<void> fetchCartData() async {
+  try {
+    final token = await gettokenFromPrefs();
 
-      final response = await http.get(
-        Uri.parse("$api/api/cart/products/"),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    final response = await http.get(
+      Uri.parse("$api/api/cart/products/"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      print("Response Body: ${response.body}");
+    print("Response Body carttttttttttttttt: ${response.body}");
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        final List<dynamic> cartsData = parsed['data'];
-        List<Map<String, dynamic>> cartList = [];
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      final List<dynamic> cartsData = parsed['data'];
+      List<Map<String, dynamic>> cartList = [];
 
-        double total = 0.0; // Initialize total here
+      double total = 0.0; // Initialize total here
 
-        for (var cartData in cartsData) {
-          String imageUrl = cartData['images'][0];
-
-          cartList.add({
-            'id': cartData['id'],
-            'name': cartData['name'],
-            'image': imageUrl,
-            'slug': cartData['slug'],
-            'size': cartData['size'],
-            'quantity': cartData['quantity'],
-            'price': cartData['price'],
-            'discount': cartData['discount'],
-          });
-        }
-
-        setState(() {
-          cartdata = cartList;
-
-          // Calculate total
-          for (var item in cartdata) {
-            final discountPerQuantity = item['discount'] ?? 0.0;
-            final quantity = item['quantity'] ?? 0;
-            final price = item['price'] ?? 0.0;
-            final totalItemPrice = quantity * price;
-            final totalDiscount = quantity * discountPerQuantity;
-            total += totalItemPrice - totalDiscount;
-          }
+      for (var cartData in cartsData) {
+        String imageUrl = cartData['image'];
+        
+        cartList.add({
+          'id': cartData['id'],
+          'name': cartData['name'],
+          'image': imageUrl,
+          'slug': cartData['slug'],
+          'size': cartData['size'],
+          'quantity': cartData['quantity'],
+          'price': cartData['price'],
+          'discount': cartData['discount'],
         });
-        print("totaaaaaaaaaaaaaaaaallllll$total");
-        // Call the function to show total in a dialog box
-      } else {
-        throw Exception('Failed to load cart data');
       }
-    } catch (error) {
-      print(error); // Consider adding error handling in the UI
+
+      setState(() {
+        cartdata = cartList;
+print("cartdataaaaaaaaaaaaaaaaaaaaaaaaaaa$cartdata");
+        // Calculate total
+        for (var item in cartdata) {
+          final discountPerQuantity = item['discount'] ?? 0.0;
+          final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
+final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
+          final totalItemPrice = quantity * price;
+          final totalDiscount = quantity * discountPerQuantity;
+          total += totalItemPrice - totalDiscount;
+        }
+      });
+print("totaaaaaaaaaaaaaaaaallllll$total");
+      // Call the function to show total in a dialog box
+
+    } else {
+      throw Exception('Failed to load cart data');
     }
+  } catch (error) {
+    print(error); // Consider adding error handling in the UI
   }
+}
 
   var tot;
   void showTotalDialog(BuildContext context) {
@@ -380,8 +381,9 @@ class _Performa_order_requestState extends State<Performa_order_request> {
     // Calculate total
     for (var item in cartdata) {
       final discountPerQuantity = item['discount'] ?? 0.0;
-      final quantity = item['quantity'] ?? 0;
-      final price = item['price'] ?? 0.0;
+      final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
+final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
+ print("quantity:::::::::::::::::::::$quantity");
       totalItemPrice += quantity * price;
       totalDiscount += quantity * discountPerQuantity;
       print("==================================$totalDiscount");
