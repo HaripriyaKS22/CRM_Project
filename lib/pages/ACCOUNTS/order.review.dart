@@ -189,7 +189,7 @@ statuses = [
       final token = await getTokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/company/getadd/'),
+        Uri.parse('$api/api/company/data/'),
         headers: {
           'Authorization': ' Bearer $token',
           'Content-Type': 'application/json',
@@ -526,113 +526,114 @@ statuses = [
   bool flag = false;
 
   double totalDiscount = 0.0; // Define at the class level
-  Future<void> fetchOrderItems() async {
-    try {
-      print('$api/api/order/${widget.id}/items/');
-      final token = await getTokenFromPrefs();
-      final jwt = JWT.decode(token!);
-      var name = jwt.payload['name'];
-      setState(() {
-        createdBy = name;
-      });
-      print("Decoded Token Payload: ${jwt.payload}");
-      print("User ID: $createdBy");
-      print('$api/api/order/${widget.id}/items/');
-      var response = await http.get(
-        Uri.parse('$api/api/order/${widget.id}/items/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-print("productttttttttttttttttssssssssssss${response.body}");
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        ord = parsed['order'];
-        List<dynamic> itemsData = parsed['items'];
-        getaddress(ord['customer']['id']);
-
-        List<Map<String, dynamic>> orderList = [];
-        double calculatedNetAmount = 0.0;
-        double calculatedTotalTax = 0.0;
-        double calculatedPayableAmount = 0.0;
-        double calculatedTotalDiscount = 0.0;
-
-        // Process each item and calculate totals
-        for (var item in itemsData) {
-          orderList.add({
-            'id': item['id'],
-            'name': item['name'],
-            'quantity': item['quantity'],
-            'rate': item['rate'],
-            'tax': item['tax'],
-            'discount': item['discount'],
-            'actual_price': item['actual_price'],
-            'exclude_price': item['exclude_price'],
-            'images': item['image'],
-          });
-
-          // Convert values to double for safe calculation
-          double excludePrice = (item['exclude_price'] ?? 0).toDouble();
-          double actualPrice = (item['actual_price'] ?? 0).toDouble();
-          double discount = (item['discount'] ?? 0).toDouble();
-          int quantity = item['quantity'] ?? 1;
-
-          // Add the exclude_price to net amount
-          calculatedNetAmount += excludePrice;
-
-          // Calculate and add the tax amount for each product
-          double taxAmountForItem = actualPrice - excludePrice;
-          calculatedTotalTax += taxAmountForItem;
-
-          // Add discount amount for each product
-          calculatedTotalDiscount += discount * quantity;
-
-          // Calculate payable amount after subtracting discount
-          double payableForItem = (actualPrice - discount) * quantity;
-          calculatedPayableAmount += payableForItem;
-        }
-
-        // Calculate the sum of payment receipts
-        double paymentReceiptsSum = 0.0;
-        for (var receipt in parsed['order']['payment_receipts']) {
-          paymentReceiptsSum +=
-              double.tryParse(receipt['amount'].toString()) ?? 0.0;
-          print("paymentReceiptsSum:$paymentReceiptsSum");
-        }
-
-        // Calculate remaining amount after comparing with calculatedPayableAmount
-        double remainingAmount = 0.0;
-        if (paymentReceiptsSum > calculatedPayableAmount) {
-          remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
-          flag = true;
-        } else {
-          remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
-          flag = false;
-        }
-        getcompany(ord['company']);
-
+    Future<void> fetchOrderItems() async {
+      try {
+        print('$api/api/order/${widget.id}/items/');
+        final token = await getTokenFromPrefs();
+        final jwt = JWT.decode(token!);
+        var name = jwt.payload['name'];
         setState(() {
-          items = orderList;
-          netAmountBeforeTax = calculatedNetAmount;
-          totalTaxAmount = calculatedTotalTax;
-          payableAmount = calculatedPayableAmount;
-          totalDiscount = calculatedTotalDiscount;
-          Balance = remainingAmount;
-          print("Net Amount Before Tax: $netAmountBeforeTax");
-          print("Total Tax Amount: $totalTaxAmount");
-          print("Payable Amount: $payableAmount");
-          print("Total Discount: $totalDiscount");
-          print("Payment Receipts Sum: $paymentReceiptsSum");
-          print("Remaining Amount: $remainingAmount");
+          createdBy = name;
         });
-      } else {
-        print("Failed to fetch data. Status Code: ${response.statusCode}");
+        print("Decoded Token Payload: ${jwt.payload}");
+        print("User ID: $createdBy");
+        print('$api/api/order/${widget.id}/items/');
+        var response = await http.get(
+          Uri.parse('$api/api/order/${widget.id}/items/'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        );
+  print("productttttttttttttttttssssssssssss${response.body}");
+        if (response.statusCode == 200) {
+          final parsed = jsonDecode(response.body);
+          ord = parsed['order'];
+          print("Orderrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr: $ord");
+          List<dynamic> itemsData = parsed['items'];
+          getaddress(ord['customer']['id']);
+
+          List<Map<String, dynamic>> orderList = [];
+          double calculatedNetAmount = 0.0;
+          double calculatedTotalTax = 0.0;
+          double calculatedPayableAmount = 0.0;
+          double calculatedTotalDiscount = 0.0;
+
+          // Process each item and calculate totals
+          for (var item in itemsData) {
+            orderList.add({
+              'id': item['id'],
+              'name': item['name'],
+              'quantity': item['quantity'],
+              'rate': item['rate'],
+              'tax': item['tax'],
+              'discount': item['discount'],
+              'actual_price': item['actual_price'],
+              'exclude_price': item['exclude_price'],
+              'images': item['image'],
+            });
+
+            // Convert values to double for safe calculation
+            double excludePrice = (item['exclude_price'] ?? 0).toDouble();
+            double actualPrice = (item['actual_price'] ?? 0).toDouble();
+            double discount = (item['discount'] ?? 0).toDouble();
+            final quantity = int.tryParse(item['quantity'].toString()) ?? 1; // Ensure it's an integer
+
+            // Add the exclude_price to net amount
+            calculatedNetAmount += excludePrice;
+
+            // Calculate and add the tax amount for each product
+            double taxAmountForItem = actualPrice - excludePrice;
+            calculatedTotalTax += taxAmountForItem;
+
+            // Add discount amount for each product
+            calculatedTotalDiscount += discount * quantity;
+
+            // Calculate payable amount after subtracting discount
+            double payableForItem = (actualPrice - discount) * quantity;
+            calculatedPayableAmount += payableForItem;
+          }
+
+          // Calculate the sum of payment receipts
+          double paymentReceiptsSum = 0.0;
+          for (var receipt in parsed['order']['recived_payment']) {
+            paymentReceiptsSum +=
+                double.tryParse(receipt['amount'].toString()) ?? 0.0;
+            print("paymentReceiptsSum:$paymentReceiptsSum");
+          }
+
+          // Calculate remaining amount after comparing with calculatedPayableAmount
+          double remainingAmount = 0.0;
+          if (paymentReceiptsSum > calculatedPayableAmount) {
+            remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
+            flag = true;
+          } else {
+            remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
+            flag = false;
+          }
+         // getcompany(ord['company']);
+
+          setState(() {
+            items = orderList;
+            netAmountBeforeTax = calculatedNetAmount;
+            totalTaxAmount = calculatedTotalTax;
+            payableAmount = calculatedPayableAmount;
+            totalDiscount = calculatedTotalDiscount;
+            Balance = remainingAmount;
+            print("Net Amount Before Tax: $netAmountBeforeTax");
+            print("Total Tax Amount: $totalTaxAmount");
+            print("Payable Amount: $payableAmount");
+            print("Total Discount: $totalDiscount");
+            print("Payment Receipts Sum: $paymentReceiptsSum");
+            print("Remaining Amount: $remainingAmount");
+          });
+        } else {
+          print("Failed to fetch data. Status Code: ${response.statusCode}");
+        }
+      } catch (error) {
+        print("Error: $error");
       }
-    } catch (error) {
-      print("Error: $error");
     }
-  }
 
   Future<void> removeproduct(int Id) async {
     final token = await getTokenFromPrefs();
@@ -825,8 +826,8 @@ print("productttttttttttttttttssssssssssss${response.body}");
                             ),
                           ),
                           Text(
-                            companyname != null
-                                ? companyname ?? 'Company'
+                            ord != null
+                                ? ord['company']['name'] ?? 'Company'
                                 : 'Loading...',
                             style: TextStyle(color: Colors.black),
                           ),
@@ -1089,8 +1090,10 @@ print("productttttttttttttttttssssssssssss${response.body}");
 
                   // Display each item in the visibleItems list within a card
                   for (var item in visibleItems)
+                 
                     GestureDetector(
                       onTap: () {
+                         print(item);
                         showPopupDialog(context, item);
                       },
                       child: Card(
@@ -1113,7 +1116,7 @@ print("productttttttttttttttttssssssssssss${response.body}");
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
                                     image: NetworkImage(
-                                        '$api${item["images"][0]}'),
+                                        '${item["images"]}'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -1261,29 +1264,29 @@ print("productttttttttttttttttssssssssssss${response.body}");
                     ),
                     SizedBox(height: 18),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Account Holder',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              ord != null
-                                  ? ord["customer"]["name"]
-                                  : 'Loading...',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
+                        // Column(
+                        //   crossAxisAlignment: CrossAxisAlignment.start,
+                        //   children: [
+                        //     Text(
+                        //       'Account Holder',
+                        //       style: TextStyle(
+                        //         color: Colors.grey[400],
+                        //         fontSize: 12,
+                        //       ),
+                        //     ),
+                        //     Text(
+                        //       ord != null
+                        //           ? ord["customer"]["name"]
+                        //           : 'Loading...',
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontWeight: FontWeight.bold,
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1632,7 +1635,7 @@ print("productttttttttttttttttssssssssssss${response.body}");
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (ord != null && ord["payment_receipts"].isNotEmpty)
+                  if (ord != null && ord["recived_payment"].isNotEmpty)
                     Text(
                       'Receipt Details',
                       style: TextStyle(
@@ -1641,10 +1644,10 @@ print("productttttttttttttttttssssssssssss${response.body}");
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  if (ord != null && ord["payment_receipts"].isNotEmpty)
+                  if (ord != null && ord["recived_payment"].isNotEmpty)
                     SizedBox(height: 10),
-                  // Check if ord and ord["payment_receipts"] are not null
-                  if (ord != null && ord["payment_receipts"].isNotEmpty)
+                  // Check if ord and ord["recived_payment"] are not null
+                  if (ord != null && ord["recived_payment"].isNotEmpty)
                     Table(
                       border: TableBorder.all(color: Colors.grey),
                       columnWidths: const <int, TableColumnWidth>{
@@ -1691,7 +1694,7 @@ print("productttttttttttttttttssssssssssss${response.body}");
                           ],
                         ),
                         // Data Rows
-                        for (var receipt in ord["payment_receipts"])
+                        for (var receipt in ord["recived_payment"])
                           TableRow(
                             children: [
                               Padding(
@@ -1720,7 +1723,7 @@ print("productttttttttttttttttssssssssssss${response.body}");
                       ],
                     )
                   else
-                    // Display a loading or empty message if ord["payment_receipts"] is null
+                    // Display a loading or empty message if ord["recived_payment"] is null
                     Text(
                       'No receipt details available.',
                       style: TextStyle(color: Colors.grey),

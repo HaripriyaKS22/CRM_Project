@@ -346,6 +346,7 @@ String getStateNameById(int stateId) {
 // Fetch performa list data and map state ID to state name
 Future<void> fetchperformalistData() async {
   try {
+    print("$api/api/perfoma/${widget.invoice}/invoice/");
     final token = await getTokenFromPrefs();
     final response = await http.get(
       Uri.parse('$api/api/perfoma/${widget.invoice}/invoice/'),
@@ -367,9 +368,7 @@ Future<void> fetchperformalistData() async {
           'name': item['name'],
           'quantity': item['quantity'],
           'actual_price': item['actual_price'],
-          'first_image': item['images'] != null && item['images'].isNotEmpty
-              ? '$api/${item['images'][0]}'
-              : null,
+          'first_image': item['images']  
         };
       }).toList();
 
@@ -620,7 +619,7 @@ Widget build(BuildContext context) {
                   itemBuilder: (context, index) {
                     final order = orders[index];
                     final items = order['perfoma_items'] as List<dynamic>;
-
+                    print("Items: $items");
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Card(
@@ -705,7 +704,8 @@ Widget build(BuildContext context) {
                                     'Order Status: ${order['status']}',
                                     style: const TextStyle(fontSize: 16),
                                   ),
-                                
+                                   const SizedBox(height: 10),
+                                Divider(),
                                   const SizedBox(height: 10),
                                   Text(
                                     'Items:',
@@ -745,6 +745,7 @@ Widget build(BuildContext context) {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
+
                                                 Text(
                                                   'Item Name: ${item['name']}',
                                                   overflow:
@@ -770,6 +771,8 @@ Widget build(BuildContext context) {
                                         ],
                                       ),
                                     ),
+                                     const SizedBox(height: 10),
+                                     Divider(),
                                       Text(
                                     'Total Amount: \$${order['total_amount']}',
                                     style: const TextStyle(
@@ -789,12 +792,21 @@ Widget build(BuildContext context) {
                 ),
         ),
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: downloadInvoice,
-            child: const Text('Download Invoice'),
-          ),
-        ),
+  padding: const EdgeInsets.all(16.0),
+  child: ElevatedButton(
+    onPressed: downloadInvoice,
+    style: ElevatedButton.styleFrom(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0), // Border radius
+        side: const BorderSide(color: Colors.blue, width: 2.0), // Border color and width
+      ),
+      backgroundColor: Colors.white, // Button background color
+      foregroundColor: Colors.black, // Text color
+    ),
+    child: const Text('Download Invoice',style: TextStyle(color: Colors.blue),),
+  ),
+),
+
       ],
     ),
   );

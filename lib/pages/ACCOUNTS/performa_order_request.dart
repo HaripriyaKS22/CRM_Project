@@ -189,7 +189,7 @@ final productsData=Data['data'];
           'payment_method': selectpaymethod,
         }),
       );
-
+print("statussscodeeeeeeeeeee${response.statusCode}");
       print(
           "Responsepppppppppppppppppppppppppppppppppppppppp: ${response.body}");
 
