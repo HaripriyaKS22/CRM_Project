@@ -132,7 +132,7 @@ class _add_product_variantState extends State<add_product_variant> {
                 ),
                 DataCell(
                   Image.network(
-                    '$api${product['image']}',
+                    '${product['image']}',
                     width: 30,
                     height: 30,
                     fit: BoxFit.cover,
@@ -235,6 +235,7 @@ class _add_product_variantState extends State<add_product_variant> {
           ),
         ],
         rows: variantProducts.map((variant) {
+          print(variant);
           return DataRow(
             cells: <DataCell>[
               DataCell(
@@ -248,7 +249,7 @@ class _add_product_variantState extends State<add_product_variant> {
               DataCell(
                 variant['variant_images']?.isNotEmpty == true
                     ? Image.network(
-                        '$api${variant['variant_images'][0]['image']}',
+                        '${variant['image']}',
                         width: 50,
                         height: 40,
                         fit: BoxFit.cover,

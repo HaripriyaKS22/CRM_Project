@@ -63,7 +63,7 @@ print("${response.statusCode}");
           cartList.add({
             'id': cartData['id'],
             'name': cartData['name'],
-            'image': cartData['images'][0],
+            'image': cartData['image'],
             'slug': cartData['slug'],
             'size': cartData['size'],
             'quantity': cartData['quantity'],
@@ -499,13 +499,13 @@ void logout() async {
                           shrinkWrap: true,
                           itemCount: cartdata.length,
                           itemBuilder: (context, index) {
-                            final item = cartdata[index];
-                            final discountPerQuantity = item['discount'] ?? 0.0;
-                            final quantity = item['quantity'] ?? 0;
+                             final item = cartdata[index];
+                             final discountPerQuantity = item['discount'] ?? 0.0;
+                             final quantity = item['quantity'] ?? 0;
                             final price = item['price'] ?? 0.0;
-                            final totalItemPrice = quantity * price;
-                            final totalDiscount = quantity * discountPerQuantity;
-                            final discountedTotalPrice = totalItemPrice - totalDiscount;
+                             final totalItemPrice = quantity * price;
+                           final totalDiscount = quantity * discountPerQuantity;
+                             final discountedTotalPrice = totalItemPrice - totalDiscount;
 
                             return InkWell(
                               onTap: () => showPopupDialog(context, item),
@@ -543,8 +543,7 @@ void logout() async {
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
-                                                Text("Size: ${item['size']}"),
-                                                Text("Tax: ${item['tax']} %"),
+                                                // Text("Tax: ${item['tax']} %"),
                                                 if (item['note'] != null && item['note'].isNotEmpty)
                                                   Text(
                                                     "Description: ${item['note']}",
@@ -558,17 +557,17 @@ void logout() async {
                                                   Text("Discount per item: ₹$discountPerQuantity"),
                                                 Text("Price per item: ₹$price"),
                                                 Text("Total price: ₹${totalItemPrice.toStringAsFixed(2)}"),
-                                                Text(
-                                                  "Total discount: -₹${totalDiscount.toStringAsFixed(2)}",
-                                                  style: TextStyle(color: Colors.red),
-                                                ),
-                                                Text(
-                                                  "Final price after discount: ₹${discountedTotalPrice.toStringAsFixed(2)}",
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.green,
-                                                  ),
-                                                ),
+                                                // Text(
+                                                //   "Total discount: -₹${totalDiscount.toStringAsFixed(2)}",
+                                                //   style: TextStyle(color: Colors.red),
+                                                // ),
+                                                // Text(
+                                                //   "Final price after discount: ₹${discountedTotalPrice.toStringAsFixed(2)}",
+                                                //   style: TextStyle(
+                                                //     fontWeight: FontWeight.bold,
+                                                //     color: Colors.green,
+                                                //   ),
+                                                // ),
                                               ],
                                             ),
                                           ),
@@ -603,14 +602,14 @@ void logout() async {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Total Price: ₹${calculateTotalPrice().toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
+                  // Text(
+                  //   'Total Price: ₹${calculateTotalPrice().toStringAsFixed(2)}',
+                  //   style: TextStyle(
+                  //     fontSize: 18,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Colors.black,
+                  //   ),
+                  // ),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>order_request()));

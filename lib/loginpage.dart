@@ -120,7 +120,7 @@ void login(String email, String password, BuildContext context) async {
             MaterialPageRoute(builder: (context) => bdo_dashbord()),
           );
         }
-        if (active == 'Admin') {
+        if (active == 'COO') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,
@@ -133,7 +133,10 @@ void login(String email, String password, BuildContext context) async {
           );
         } 
         
-         if (active == 'Business Development Manager (BDM)') {
+         if (active == 'Business Development Manager (BDM)')
+         
+          {
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,
@@ -144,6 +147,7 @@ void login(String email, String password, BuildContext context) async {
             context,
             MaterialPageRoute(builder: (context) => bdm_dashbord()),
           );
+
         } 
         if (active == 'Accounts / Accounting') {
           ScaffoldMessenger.of(context).showSnackBar(

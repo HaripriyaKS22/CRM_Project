@@ -1,1 +1,1 @@
-var api="https://brass-mental-cite-barrel.trycloudflare.com";
+var api="http://65.1.147.199";

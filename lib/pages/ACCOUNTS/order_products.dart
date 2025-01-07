@@ -340,7 +340,7 @@ Future<void> getvariant(int id, var type) async {
   }
 }
 
-Future<void> addtocart(BuildContext scaffoldContext,mainid,varid,sizeid,quantity) async{
+Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
     final token = await getTokenFromPrefs();
  try{
    final response= await http.post(Uri.parse('$api/api/cart/product/'),
@@ -350,9 +350,7 @@ Future<void> addtocart(BuildContext scaffoldContext,mainid,varid,sizeid,quantity
   },
   body:jsonEncode(
     {
-     'product':mainid,
-     'variant':varid,
-     'size':sizeid,
+     'product':varid,
      'quantity':quantity
     }
   )
@@ -461,136 +459,309 @@ Future<void> addtocart3(BuildContext scaffoldContext,mainid,quantity) async{
   print("error:$e");
  }
 }
-void showSizeDialog(BuildContext context, List<String> colors, List<Map<String, dynamic>> sizes, mainid, varid) {
+// void showSizeDialog(BuildContext context, List<String> colors, List<Map<String, dynamic>> sizes, mainid, varid) {
+//   showDialog(
+//     context: context,
+//     barrierDismissible: true,
+//     builder: (BuildContext context) {
+//       String selectedColor = '';
+//       String selectedSize = '';
+//       int? selectedSizeId;
+//       int? selectedStock; // Variable to store the selected stock
+//       TextEditingController quantityController = TextEditingController(); // Controller for quantity input
+
+//       return StatefulBuilder(
+//         builder: (BuildContext context, StateSetter setState) {
+//           return Dialog(
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(20),
+//             ),
+//             child: Padding(
+//               padding: EdgeInsets.all(20),
+//               child: SingleChildScrollView( // Make the content scrollable if needed
+//                 child: Column(
+//                   mainAxisSize: MainAxisSize.min,
+//                   crossAxisAlignment: CrossAxisAlignment.center,
+//                   children: [
+//                     if (selectedStock != null) // Show stock info only if a size is selected
+//                       Container(
+//                         child: Padding(
+//                           padding: const EdgeInsets.only(bottom: 10),
+//                           child: Text(
+//                             'Available Stock: $selectedStock',
+//                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+//                           ),
+//                         ),
+//                       ),
+//                     Wrap(
+//                       spacing: 10,
+//                       children: colors.map((color) {
+//                         return ChoiceChip(
+//                           label: Text(color),
+//                           selected: selectedColor == color,
+//                           onSelected: (bool selected) {
+//                             setState(() {
+//                               selectedColor = selected ? color : '';
+//                             });
+//                           },
+//                           selectedColor: Colors.green,
+//                         );
+//                       }).toList(),
+//                     ),
+//                     SizedBox(height: 10),
+//                     Wrap(
+//                       spacing: 5,
+//                       children: sizes.map((sizeMap) {
+//                         String sizeAttribute = sizeMap['attribute'];
+//                         int sizeId = sizeMap['id'];
+//                         int stock = sizeMap['stock'];
+
+//                         return ChoiceChip(
+//                           label: Text(sizeAttribute),
+//                           selected: selectedSize == sizeAttribute,
+//                           onSelected: (bool selected) {
+//                             setState(() {
+//                               if (selected) {
+//                                 selectedSize = sizeAttribute;
+//                                 selectedSizeId = sizeId;
+//                                 selectedStock = stock; // Update stock based on selected size
+//                                 quantityController.clear(); // Clear quantity input when selecting a new size
+//                               } else {
+//                                 selectedSize = '';
+//                                 selectedSizeId = null;
+//                                 selectedStock = null;
+//                               }
+//                             });
+//                           },
+//                           selectedColor:const Color.fromARGB(223, 229, 230, 231),
+//                         );
+//                       }).toList(),
+//                     ),
+//                     SizedBox(height: 10),
+//                     if (selectedSize.isNotEmpty) // Show quantity input field only if a size is selected
+//                      Padding(
+//                        padding: const EdgeInsets.only(bottom: 8),
+//                        child: SizedBox(
+//                          width: 300, // Set the desired width here
+//                          height: 40,
+//                          child: TextField(
+//                            controller: quantityController,
+//                            keyboardType: TextInputType.number,
+//                            decoration: InputDecoration(
+//                              labelText: 'Enter Quantity',
+//                              border: OutlineInputBorder(
+//                                borderRadius: BorderRadius.circular(10),
+//                              ),
+//                            ),
+//                          ),
+//                        ),
+//                      ),
+
+//                     SizedBox(
+//                       height: 50,
+//                       width: 300,
+//                       child: ElevatedButton(
+//                         onPressed: () {
+//                           // Get the entered quantity value
+//                           int quantity = int.tryParse(quantityController.text) ?? 1;
+                      
+//                           // Add logic for adding to cart, using selectedSizeId and quantity
+//                           print("Selected Size ID: $selectedSizeId");
+//                           print("Quantity: $quantity");
+                      
+//                           // Call add to cart function
+//                           addtocart(context, mainid, varid, selectedSizeId, quantity);
+                      
+//                           // Close the dialog after adding to cart
+//                           Navigator.of(context).pop();
+//                         },
+//                         child: Text("ADD TO CART", style: TextStyle(color: Colors.white)),
+//                         style: ElevatedButton.styleFrom(
+//                           backgroundColor: Colors.blue,
+//                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+//                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           );
+//         },
+//       );
+//     },
+//   );
+// }
+
+
+void showSizeDialog2(BuildContext context, List variants) {
+  // Create a ValueNotifier to track the selected product
+  ValueNotifier<Map<String, dynamic>?> selectedProductNotifier = ValueNotifier(null);
+
   showDialog(
     context: context,
     barrierDismissible: true,
     builder: (BuildContext context) {
-      String selectedColor = '';
-      String selectedSize = '';
-      int? selectedSizeId;
-      int? selectedStock; // Variable to store the selected stock
-      TextEditingController quantityController = TextEditingController(); // Controller for quantity input
+      TextEditingController quantityController = TextEditingController();
 
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: SingleChildScrollView( // Make the content scrollable if needed
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if (selectedStock != null) // Show stock info only if a size is selected
-                      Container(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Text(
-                            'Available Stock: $selectedStock',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                          ),
-                        ),
-                      ),
-                    Wrap(
-                      spacing: 10,
-                      children: colors.map((color) {
-                        return ChoiceChip(
-                          label: Text(color),
-                          selected: selectedColor == color,
-                          onSelected: (bool selected) {
-                            setState(() {
-                              selectedColor = selected ? color : '';
-                            });
-                          },
-                          selectedColor: Colors.green,
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 10),
-                    Wrap(
-                      spacing: 5,
-                      children: sizes.map((sizeMap) {
-                        String sizeAttribute = sizeMap['attribute'];
-                        int sizeId = sizeMap['id'];
-                        int stock = sizeMap['stock'];
-
-                        return ChoiceChip(
-                          label: Text(sizeAttribute),
-                          selected: selectedSize == sizeAttribute,
-                          onSelected: (bool selected) {
-                            setState(() {
-                              if (selected) {
-                                selectedSize = sizeAttribute;
-                                selectedSizeId = sizeId;
-                                selectedStock = stock; // Update stock based on selected size
-                                quantityController.clear(); // Clear quantity input when selecting a new size
-                              } else {
-                                selectedSize = '';
-                                selectedSizeId = null;
-                                selectedStock = null;
-                              }
-                            });
-                          },
-                          selectedColor:const Color.fromARGB(223, 229, 230, 231),
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 10),
-                    if (selectedSize.isNotEmpty) // Show quantity input field only if a size is selected
-                     Padding(
-                       padding: const EdgeInsets.only(bottom: 8),
-                       child: SizedBox(
-                         width: 300, // Set the desired width here
-                         height: 40,
-                         child: TextField(
-                           controller: quantityController,
-                           keyboardType: TextInputType.number,
-                           decoration: InputDecoration(
-                             labelText: 'Enter Quantity',
-                             border: OutlineInputBorder(
-                               borderRadius: BorderRadius.circular(10),
-                             ),
-                           ),
-                         ),
-                       ),
-                     ),
-
-                    SizedBox(
-                      height: 50,
-                      width: 300,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Get the entered quantity value
-                          int quantity = int.tryParse(quantityController.text) ?? 1;
-                      
-                          // Add logic for adding to cart, using selectedSizeId and quantity
-                          print("Selected Size ID: $selectedSizeId");
-                          print("Quantity: $quantity");
-                      
-                          // Call add to cart function
-                          addtocart(context, mainid, varid, selectedSizeId, quantity);
-                      
-                          // Close the dialog after adding to cart
-                          Navigator.of(context).pop();
-                        },
-                        child: Text("ADD TO CART", style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                  ],
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "Select Variant",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
+                SizedBox(height: 20),
+
+                // Display the selected product as the "Selected Option"
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedProductNotifier,
+                  builder: (context, selectedProduct, child) {
+                    if (selectedProduct != null) {
+                      return Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blue, width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.network(
+                                  selectedProduct['image'],
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        selectedProduct['name'],
+                                        style: TextStyle(
+                                            fontSize: 16, fontWeight: FontWeight.bold),
+                                      ),
+                                      Text("Stock: ${selectedProduct['stock']}"),
+                                      Text("Price: \$${selectedProduct['selling_price']}"),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                        ],
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  },
+                ),
+
+                // Display the variants
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: variants.length,
+                  itemBuilder: (context, index) {
+                    var variant = variants[index];
+                    return ListTile(
+                      leading: Image.network(
+                        variant['image'],
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                      title: Text(variant['name']),
+                      subtitle: Text("Stock: ${variant['stock']}"),
+                      trailing: selectedProductNotifier.value == variant
+                          ? Icon(Icons.check_circle, color: Colors.green)
+                          : null,
+                      onTap: () {
+                        // Update the selected product using ValueNotifier
+                        selectedProductNotifier.value = variant;
+                      },
+                    );
+                  },
+                ),
+
+                SizedBox(height: 20),
+
+                // Quantity input
+                TextField(
+                  controller: quantityController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: "Enter Quantity",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 20),
+
+                // Add to Cart button
+                SizedBox(
+                  height: 50,
+                  width: 300,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (selectedProductNotifier.value == null) {
+                        // Show an error if no product is selected
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Please select a product first!")),
+                        );
+                        return;
+                      }
+
+                      // Get the selected product and entered quantity
+                      var selectedProduct = selectedProductNotifier.value;
+                      int quantity = int.tryParse(quantityController.text) ?? 1;
+
+                      // Validate stock
+                      if (quantity > selectedProduct!['stock']) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Quantity exceeds available stock!")),
+                        );
+                        return;
+                      }
+
+                      // Call add to cart function
+                      print("Selected Product ID: ${selectedProduct['id']}");
+                      print("Quantity: $quantity");
+
+                      // Example add-to-cart function
+                      addtocart(context, selectedProduct['id'], quantity);
+
+                      // Close the dialog
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("ADD TO CART", style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       );
     },
   );
@@ -598,96 +769,7 @@ void showSizeDialog(BuildContext context, List<String> colors, List<Map<String, 
 
 
 
-void showSizeDialog2(BuildContext context, mainid,varid, stock) {
-  showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (BuildContext context) {
-      String selectedColor = '';
-      String selectedSize = '';
-      int? selectedSizeId;
-      int? selectedStock; // Variable to store the selected stock
-      TextEditingController quantityController = TextEditingController(); // Controller for quantity input
 
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: SingleChildScrollView( // Make the content scrollable if needed
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if (stock != null) // Show stock info only if a size is selected
-                      Container(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Text(
-                            'Available Stock: $stock',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                          ),
-                        ),
-                      ),
-                  
-                    SizedBox(height: 10),
-                     Padding(
-                       padding: const EdgeInsets.only(bottom: 8),
-                       child: SizedBox(
-                         width: 300, // Set the desired width here
-                         height: 40,
-                         child: TextField(
-                           controller: quantityController,
-                           keyboardType: TextInputType.number,
-                           decoration: InputDecoration(
-                             labelText: 'Enter Quantity',
-                             border: OutlineInputBorder(
-                               borderRadius: BorderRadius.circular(10),
-                             ),
-                           ),
-                         ),
-                       ),
-                     ),
-
-                    SizedBox(
-                      height: 50,
-                      width: 300,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Get the entered quantity value
-                          int quantity = int.tryParse(quantityController.text) ?? 1;
-                      
-                          // Add logic for adding to cart, using selectedSizeId and quantity
-                          print("Selected Size ID: $selectedSizeId");
-                          print("Quantity: $quantity");
-                      
-                          // Call add to cart function
-                          addtocart2(context, mainid, varid,quantity);
-                      
-                          // Close the dialog after adding to cart
-                          Navigator.of(context).pop();
-                        },
-                        child: Text("ADD TO CART", style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    },
-  );
-}
 void showSizeDialog3(BuildContext context, mainid, stock) {
   showDialog(
     context: context,
@@ -1139,23 +1221,20 @@ Padding(
     List<String> colors = extractStringList(product['colors'] ?? [], 'color_name');
     List<Map<String, dynamic>> sizes = extractSizeList(product['sizes'] ?? []);
     print("Extracted sizes: $sizes");
-    showSizeDialog(
-      context,
-      colors,
-      sizes,
-      product['mainid'],
-      product['id'],
-    );
+    // showSizeDialog(
+    //   context,
+    //   colors,
+    //   sizes,
+    //   product['mainid'],
+    //   product['id'],
+    // );
   }
   else if(product['type'] == 'variant'){
         print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
 
     showSizeDialog2(
       context,
-      product['mainid'],
-      product['id'],
-      product['stock'],
-    );
+      product['variantIDs'] );
 
   }
   else if(product['type']=='single'){

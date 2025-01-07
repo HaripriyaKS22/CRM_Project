@@ -10,6 +10,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -314,10 +315,12 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
       // Show success message
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
   SnackBar(
-    content: Text('Product added successfully.'),
+    content: Text('Product updated successfully.'),
     backgroundColor: Colors.green, // Replace with your desired color
   ),
 );
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Product_List()));
+
 
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
