@@ -160,7 +160,7 @@ print('$api/api/order/create/');
       );
 
       print("Response: ${response.body}");
-
+print("${response.statusCode}");
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -342,7 +342,7 @@ Future<void> fetchCartData() async {
       },
     );
 
-    print("Response Body: ${response.body}");
+    print("Response Body carttttttttttttttt: ${response.body}");
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -352,7 +352,7 @@ Future<void> fetchCartData() async {
       double total = 0.0; // Initialize total here
 
       for (var cartData in cartsData) {
-        String imageUrl = cartData['images'][0];
+        String imageUrl = cartData['image'];
         
         cartList.add({
           'id': cartData['id'],
@@ -368,12 +368,12 @@ Future<void> fetchCartData() async {
 
       setState(() {
         cartdata = cartList;
-
+print("cartdataaaaaaaaaaaaaaaaaaaaaaaaaaa$cartdata");
         // Calculate total
         for (var item in cartdata) {
           final discountPerQuantity = item['discount'] ?? 0.0;
-          final quantity = item['quantity'] ?? 0;
-          final price = item['price'] ?? 0.0;
+          final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
+final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
           final totalItemPrice = quantity * price;
           final totalDiscount = quantity * discountPerQuantity;
           total += totalItemPrice - totalDiscount;
@@ -396,9 +396,12 @@ double totalDiscount=0.0;
 double totalItemPrice=0.0;
    // Calculate total
         for (var item in cartdata) {
+          print("item--------------------------$item");
           final discountPerQuantity = item['discount'] ?? 0.0;
-          final quantity = item['quantity'] ?? 0;
-          final price = item['price'] ?? 0.0;
+          final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
+final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
+ print("quantity:::::::::::::::::::::$quantity");
+                              print("price:::::::::::::::::::::$price");
            totalItemPrice += quantity * price;
            totalDiscount += quantity * discountPerQuantity;
            print("==================================$totalDiscount");

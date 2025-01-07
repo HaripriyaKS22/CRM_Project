@@ -89,8 +89,8 @@ print("${response.statusCode}");
     double total = 0;
     for (var item in cartdata) {
       final discountPerQuantity = item['discount'] ?? 0.0;
-      final quantity = item['quantity'] ?? 0;
-      final price = item['price'] ?? 0.0;
+      final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
+final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
       final totalItemPrice = quantity * price;
       final totalDiscount = quantity * discountPerQuantity;
       total += totalItemPrice - totalDiscount;
@@ -501,9 +501,13 @@ void logout() async {
                           itemBuilder: (context, index) {
                              final item = cartdata[index];
                              final discountPerQuantity = item['discount'] ?? 0.0;
-                             final quantity = item['quantity'] ?? 0;
-                            final price = item['price'] ?? 0.0;
+                            final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
+final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
+                              print("quantity:::::::::::::::::::::$quantity");
+                              print("price:::::::::::::::::::::$price");
                              final totalItemPrice = quantity * price;
+                           
+                             print("totalItemPrice:::::::::::::::::::::$totalItemPrice");
                            final totalDiscount = quantity * discountPerQuantity;
                              final discountedTotalPrice = totalItemPrice - totalDiscount;
 
@@ -557,17 +561,17 @@ void logout() async {
                                                   Text("Discount per item: ₹$discountPerQuantity"),
                                                 Text("Price per item: ₹$price"),
                                                 Text("Total price: ₹${totalItemPrice.toStringAsFixed(2)}"),
-                                                // Text(
-                                                //   "Total discount: -₹${totalDiscount.toStringAsFixed(2)}",
-                                                //   style: TextStyle(color: Colors.red),
-                                                // ),
-                                                // Text(
-                                                //   "Final price after discount: ₹${discountedTotalPrice.toStringAsFixed(2)}",
-                                                //   style: TextStyle(
-                                                //     fontWeight: FontWeight.bold,
-                                                //     color: Colors.green,
-                                                //   ),
-                                                // ),
+                                                Text(
+                                                  "Total discount: -₹${totalDiscount.toStringAsFixed(2)}",
+                                                  style: TextStyle(color: Colors.red),
+                                                ),
+                                                Text(
+                                                  "Final price after discount: ₹${discountedTotalPrice.toStringAsFixed(2)}",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -602,14 +606,14 @@ void logout() async {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Text(
-                  //   'Total Price: ₹${calculateTotalPrice().toStringAsFixed(2)}',
-                  //   style: TextStyle(
-                  //     fontSize: 18,
-                  //     fontWeight: FontWeight.bold,
-                  //     color: Colors.black,
-                  //   ),
-                  // ),
+                  Text(
+                    'Total Price: ₹${calculateTotalPrice().toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>order_request()));
