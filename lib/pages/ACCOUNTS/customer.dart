@@ -83,9 +83,14 @@ class _customer_listState extends State<customer_list> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   Future<void> getcustomer() async {
     try {
+              final dep= await getdepFromPrefs();
+
       final token = await gettokenFromPrefs();
       var response = await http.get(
         Uri.parse('$api/api/customers/'),
