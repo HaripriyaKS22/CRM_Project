@@ -44,7 +44,7 @@ class _update_staffState extends State<update_staff> {
     getmanegers();
     getstaff();
     getstates();
-    getstafff();
+     getstafff();
   }
   void initdata()async{
     await getdepartments();
@@ -304,48 +304,45 @@ var departments;
   }
 
 
-   List<Map<String, dynamic>> sta = [];
-   Future<void> getstafff() async {
-    try {
-      final token = await gettokenFromPrefs();
+   List sta = [];
+Future<void> getstafff() async {
+  try {
+    final token = await gettokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/staffs/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
-        List<Map<String, dynamic>> stafflist = [];
+    var response = await http.get(
+      Uri.parse('$api/api/staff/update/${widget.id}/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+    print("Response: ${response.body}");
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
- for (var productData in productsData) {
-          stafflist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-            'allocated_states':productData['allocated_states']
-            
-          });
-        
-        }
-        setState(() {
-          sta = stafflist;
-                  print("55555555555555555555555555555555$sta");
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
 
-          
-        });
+      // Extract allocated_states
+      List<int> allocatedStates = [];
+      if (productsData['allocated_states'] != null && productsData['allocated_states'] is List) {
+        allocatedStates = List<int>.from(productsData['allocated_states']);
       }
-    } catch (error) {
-      print("Error: $error");
+
+      print("Allocated States: $allocatedStates");
+
+      // Use the variable as needed
+      setState(() {
+      });
+    } else {
+      print("Failed to fetch staff: ${response.statusCode}");
     }
+  } catch (error) {
+    print("Error: $error");
   }
-  
-   Future<void> getstaff() async {
+}
+
+  Future<void> getstaff() async {
     try {
       final token = await gettokenFromPrefs();
 

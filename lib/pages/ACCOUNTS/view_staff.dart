@@ -15,6 +15,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer_ledger.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer_singleview.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
@@ -543,120 +544,132 @@ Expanded(
     itemCount: filteredProducts.length,
     itemBuilder: (context, index) {
       final staffData = filteredProducts[index];
-      return Card(
-        color: Colors.white,
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Profile Image with Approval Status circle around it
-              Stack(
-                clipBehavior: Clip.none, // Allow text to go outside the boundary
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      "lib/assets/user.png", // Profile image
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  // Circular Approval Status ring around the image
-                  Positioned(
-                    bottom: -4,
-                    right: -4,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: staffData['approval_status'] == 'approved'
-                            ? Colors.green
-                            : Colors.red,
-                        // border: Border.all(
-                        //   color: Colors.white, // Border color for the ring
-                        //   width: 3,
-                        // ),
+      return GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => update_staff(
+                id:staffData['id'],
+              ),
+            ),
+          );
+        },
+        child: Card(
+          color: Colors.white,
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile Image with Approval Status circle around it
+                Stack(
+                  clipBehavior: Clip.none, // Allow text to go outside the boundary
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Image.asset(
+                        "lib/assets/user.png", // Profile image
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
                       ),
-                      child: Center(
-                        child: Text(
-                          staffData['approval_status'] == 'approved' ? 'A' : 'I',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                    ),
+                    // Circular Approval Status ring around the image
+                    Positioned(
+                      bottom: -4,
+                      right: -4,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: staffData['approval_status'] == 'approved'
+                              ? Colors.green
+                              : Colors.red,
+                          // border: Border.all(
+                          //   color: Colors.white, // Border color for the ring
+                          //   width: 3,
+                          // ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            staffData['approval_status'] == 'approved' ? 'A' : 'I',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-  children: [
-    // Staff Name - Bold and larger size
-    Flexible(
-      child: Text(
-        staffData['name'] ?? 'No Name',
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
+                  ],
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+          children: [
+            // Staff Name - Bold and larger size
+            Flexible(
+        child: Text(
+          staffData['name'] ?? 'No Name',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+          overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
         ),
-        overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
-      ),
-    ),
-    SizedBox(width: 8),
-    Text(
-      "-",
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: Colors.blueGrey,
-      ),
-    ),
-    SizedBox(width: 8),
-    // Staff Designation - Smaller and lighter weight
-    Flexible(
-      child: Text(
-        staffData['designation'] ?? 'No Designation',
+            ),
+            SizedBox(width: 8),
+            Text(
+        "-",
         style: TextStyle(
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
           color: Colors.blueGrey,
         ),
-        overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
-        maxLines: 1,
-      ),
-    ),
-  ],
-),
-
-                    SizedBox(height: 8),
-                    // Staff Email - Grey color for subtlety
-                    Text(
-                      staffData['email'] ?? 'No Email',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
+            ),
+            SizedBox(width: 8),
+            // Staff Designation - Smaller and lighter weight
+            Flexible(
+        child: Text(
+          staffData['designation'] ?? 'No Designation',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: Colors.blueGrey,
+          ),
+          overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
+          maxLines: 1,
+        ),
+            ),
+          ],
+        ),
+        
+                      SizedBox(height: 8),
+                      // Staff Email - Grey color for subtlety
+                      Text(
+                        staffData['email'] ?? 'No Email',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

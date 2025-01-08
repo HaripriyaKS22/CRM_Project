@@ -37,6 +37,9 @@ import 'package:beposoft/pages/ACCOUNTS/statewise_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
+import 'package:beposoft/pages/BDO/bdo_add_customer.dart';
+import 'package:beposoft/pages/BDO/bdo_customer_list.dart';
+import 'package:beposoft/pages/BDO/bdo_order_list.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/BDM/bdm_order_list.dart';
 import 'package:beposoft/pages/BDM/bdm_order_request.dart';
@@ -290,6 +293,18 @@ class drower{
           MaterialPageRoute(builder: (context) => ProformaInvoiceList()),
         );
         break;
+      case 'Customers':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => bdo_customer_list()),
+        );
+        break;
+      case 'Add Customer':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => bdo_add_new_customer()),
+        );
+        break;
 
        
       case 'New Orders':
@@ -301,7 +316,7 @@ class drower{
       case 'Orders List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdm_oredr_list()),
+          MaterialPageRoute(builder: (context) => bod_oredr_list(status: null,)),
         );
         break;
       case 'Product List':

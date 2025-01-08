@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
+import 'package:beposoft/pages/BDO/bdo_customer_list.dart';
+import 'package:beposoft/pages/BDO/bdo_order_list.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart';
 
@@ -51,7 +54,12 @@ int customers=0;
 
 int toprint=0;
 int packed=0;
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
 Future<void> getcustomer() async {
+
     try {
       final token = await getTokenFromPrefs();
             final username = await getusernameFromPrefs();
@@ -416,7 +424,7 @@ Future<void> getcustomer() async {
           title: Text(option),
           onTap: () {
             Navigator.pop(context);
-            d.navigateToSelectedPage(
+            d.navigateToSelectedPage2(
                 context, option); // Navigate to selected page
           },
         );
@@ -549,7 +557,7 @@ Future<void> getcustomer() async {
                 onTap: () {
                   Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderList(status:'To Print' ,)),
+          MaterialPageRoute(builder: (context) => bdo_customer_list()),
         );
                 },
                 child: _buildCard(
@@ -562,7 +570,7 @@ Future<void> getcustomer() async {
                 onTap: () {
                   Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderList(status:'Packed')),
+          MaterialPageRoute(builder: (context) => bod_oredr_list(status:null)),
         );
                   
                 },

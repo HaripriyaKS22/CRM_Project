@@ -109,7 +109,7 @@ void login(String email, String password, BuildContext context) async {
             MaterialPageRoute(builder: (context) => WarehouseDashboard()),
           );
         }
-        if (active == 'Business Development Executive (BDE)') {
+        if (active == 'BDO') {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,

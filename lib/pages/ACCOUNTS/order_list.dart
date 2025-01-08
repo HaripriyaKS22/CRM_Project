@@ -21,6 +21,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 import 'package:pdf/pdf.dart';
 
@@ -74,10 +75,17 @@ class _OrderListState extends State<OrderList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   Future<void> fetchOrderData() async {
     try {
       final token = await getTokenFromPrefs();
+                    final dep= await getdepFromPrefs();
+ final jwt = JWT.decode(token!);
+          var name = jwt.payload['name'];
+          print("Name: $name");
       var response = await http.get(
         Uri.parse('$api/api/orders/'),
         headers: {
@@ -110,51 +118,6 @@ class _OrderListState extends State<OrderList> {
           }
 if(widget.status==null){
 
-
-          orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-        }
-        else if(widget.status==productData['status']){
 
              orderList.add({
             'id': productData['id'],
@@ -198,8 +161,59 @@ if(widget.status==null){
             'total_amount': productData['total_amount'],
             'order_date': formattedOrderDate, // Use the formatted string
           });
+          
+         
+        }
+        else if(widget.status==productData['status']){
+
+          
+               orderList.add({
+            'id': productData['id'],
+            'invoice': productData['invoice'],
+            'manage_staff': productData['manage_staff'],
+            'customer': {
+              'name': productData['customer']['name'],
+              'phone': productData['customer']['phone'],
+              'email': productData['customer']['email'],
+              'address': productData['customer']['address'],
+            },
+            'billing_address': {
+              'name': productData['billing_address']['name'],
+              'email': productData['billing_address']['email'],
+              'zipcode': productData['billing_address']['zipcode'],
+              'address': productData['billing_address']['address'],
+              'phone': productData['billing_address']['phone'],
+              'city': productData['billing_address']['city'],
+              'state': productData['billing_address']['state'],
+            },
+            'bank': {
+              'name': productData['bank']['name'],
+              'account_number': productData['bank']['account_number'],
+              'ifsc_code': productData['bank']['ifsc_code'],
+              'branch': productData['bank']['branch'],
+            },
+            'items': productData['items'] != null
+                ? productData['items'].map((item) {
+                    return {
+                      'id': item['id'],
+                      'name': item['name'],
+                      'quantity': item['quantity'],
+                      'price': item['price'],
+                      'tax': item['tax'],
+                      'discount': item['discount'],
+                      'images': item['images'],
+                    };
+                  }).toList()
+                : [], // Fallback to empty list
+            'status': productData['status'],
+            'total_amount': productData['total_amount'],
+            'order_date': formattedOrderDate, // Use the formatted string
+          });
+          
+          
 
         }
+
         
         
         }

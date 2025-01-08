@@ -363,7 +363,7 @@ class _logistics_dashbordState extends State<logistics_dashbord> {
         case 'Option 4':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bod_oredr_list()),
+          MaterialPageRoute(builder: (context) => bod_oredr_list(status: null,)),
         );
         break; 
       default:

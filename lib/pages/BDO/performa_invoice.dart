@@ -749,7 +749,7 @@ class _performa_invoiceState extends State<performa_invoice> {
         case 'Option 4':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bod_oredr_list()),
+          MaterialPageRoute(builder: (context) => bod_oredr_list(status: null,)),
         );
         break; 
       default:
