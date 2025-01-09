@@ -44,7 +44,7 @@ class _update_staffState extends State<update_staff> {
     getmanegers();
     getstaff();
     getstates();
-     getstafff();
+      getstafff();
   }
   void initdata()async{
     await getdepartments();
