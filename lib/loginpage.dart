@@ -133,7 +133,7 @@ void login(String email, String password, BuildContext context) async {
           );
         } 
         
-         if (active == 'Business Development Manager (BDM)')
+         if (active == 'BDM')
          
           {
 

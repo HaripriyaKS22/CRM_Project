@@ -316,6 +316,181 @@ class drower{
       case 'Orders List':
         Navigator.push(
           context,
+          MaterialPageRoute(builder: (context) => OrderList(status: null,)),
+        );
+        break;
+      case 'Product List':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => new_product()),
+        );
+        break;
+      case 'Stock':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => add_new_stock()),
+        );
+        break;
+
+        case 'New Purchase':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>Purchases_request()),
+        );
+        break;
+      case 'Purchase List':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => purchase_list()),
+        );
+        break;
+      case 'Add Expence':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => expence()),
+        );
+        break;
+      case 'Expence List':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => expence_list()),
+        );
+        break;
+      case 'Sales Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => new_product()),
+        );
+        break;
+      case 'Credit Sales Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => add_new_stock()),
+        );
+        break;
+
+
+        
+        case 'COD Sales Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>Purchases_request()),
+        );
+        break;
+      case 'Statewise Sales Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => purchase_list()),
+        );
+        break;
+      case 'Expence Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => expence()),
+        );
+        break;
+      case 'Delivery Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Delivery_Report()),
+        );
+        break;
+      case 'Product Sale Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => new_product()),
+        );
+        break;
+      case 'Stock Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => add_new_stock()),
+        );
+        break;
+         
+        case 'Damaged Stock':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>DamagedStockReport()),
+        );
+        break;
+      case 'Create New GRV':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NewGrv()),
+        );
+        break;
+      case 'GRVs List':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => GrvList(status: null,)),
+        );
+        break;
+      case 'Add Bank':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => add_bank()),
+        );
+        break;
+      case 'List':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => bank_list()),
+        );
+        break;
+      case 'Other Transfer':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => transfer()),
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+
+
+
+   void navigateToSelectedPage3(BuildContext context, String option) {
+    // Navigate to the selected page based on the option
+    switch (option) {
+     
+      case 'New Proforma Invoice':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CreatePerformaProduct_List()),
+        );
+        break;
+      case 'Proforma Invoice List':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProformaInvoiceList()),
+        );
+        break;
+      case 'Customers':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => bdo_customer_list()),
+        );
+        break;
+      case 'Add Customer':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => bdo_add_new_customer()),
+        );
+        break;
+
+       
+      case 'New Orders':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => order_products()),
+        );
+        break;
+      case 'Orders List':
+        Navigator.push(
+          context,
           MaterialPageRoute(builder: (context) => bod_oredr_list(status: null,)),
         );
         break;

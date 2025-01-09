@@ -737,36 +737,5 @@ class _bdm_performa_invoiceState extends State<bdm_performa_invoice> {
   }
 
 
-   void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_performa_invoice()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>credit_note_list()),
-        );
-        break;
-        case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_order_request()),
-        );
-        break;
-        case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_oredr_list()),
-        );
-        break; 
-      default:
-        // Handle default case or unexpected options
-        break;
-    }
-  }
+   
 }
