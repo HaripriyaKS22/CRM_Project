@@ -33,6 +33,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   var eid = "";
   var username = "";
+  var family = "";
   var email = "";
   var phone = "";
   var alternate_number = "";
@@ -79,6 +80,7 @@ print("==============0000000000000000000000000${response.body}");
               "https://az-powerpoint-dishes-toyota.trycloudflare.com${productsData['image'] ?? ''}";
           eid = productsData['eid'] ?? '';
           username = productsData['name'] ?? '';
+          family = productsData['family'] ?? '';
           email = productsData['email'] ?? '';
           phone = productsData['phone'] ?? '';
           alternate_number = productsData['alternate_number'] ?? '';

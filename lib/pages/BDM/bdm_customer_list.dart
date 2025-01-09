@@ -1,17 +1,43 @@
-import 'package:beposoft/main.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
-import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/customer_singleview.dart';
-import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/BDM/bdm_add_customer.dart';
-import 'package:beposoft/pages/BDM/bdm_customer_list.dart';
-import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
-import 'package:beposoft/pages/BDM/bdm_order_list.dart';
-import 'package:beposoft/pages/BDM/bdm_order_request.dart';
-import 'package:beposoft/pages/BDM/bdm_proforma_invoice.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
+import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_address.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
+import 'package:beposoft/pages/ACCOUNTS/customer_ledger.dart';
+import 'package:beposoft/pages/ACCOUNTS/customer_singleview.dart';
+import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
+import 'package:beposoft/pages/api.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+
+import 'package:beposoft/main.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
+import 'package:beposoft/pages/ACCOUNTS/customer.dart';
+import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
+import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/expence.dart';
+import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
+import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
+import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class bdm_customer_list extends StatefulWidget {
   const bdm_customer_list({super.key});
@@ -21,15 +47,32 @@ class bdm_customer_list extends StatefulWidget {
 }
 
 class _bdm_customer_listState extends State<bdm_customer_list> {
+  List<Map<String, dynamic>> fam = [];
+  List<bool> _checkboxValues = [];
+  String? _selectedFamily;
+  TextEditingController searchController = TextEditingController();
 
+  List<Map<String, dynamic>> filteredProducts = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    getcustomer();
+  }
+
+  void initdata() async{
+    await getfamily();
+    await getprofiledata();
+
+  }
+
+  List<String> categories = ["cycling", 'skating', 'fitness', 'bepocart'];
+  String selectededu = "cycling";
   
-  List<String>  categories = ["cycling",'skating','fitnass','bepocart'];
-  String selectededu="cycling";
-  
-
-     drower d=drower();
-
-    Widget _buildDropdownTile(BuildContext context, String title, List<String> options) {
+  drower d = drower();
+  Widget _buildDropdownTile(
+      BuildContext context, String title, List<String> options) {
     return ExpansionTile(
       title: Text(title),
       children: options.map((option) {
@@ -37,303 +80,616 @@ class _bdm_customer_listState extends State<bdm_customer_list> {
           title: Text(option),
           onTap: () {
             Navigator.pop(context);
-            d.navigateToSelectedPage2(context, option); // Navigate to selected page
+            d.navigateToSelectedPage(
+                context, option); // Navigate to selected page
           },
         );
       }).toList(),
     );
   }
 
+  List<Map<String, dynamic>> customer = [];
+  Future<String?> gettokenFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
+
+var family='';
+String familyName='';
+
+  Future<void> getprofiledata() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/profile/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+print("==============0000000000000000000000000${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+
+        setState(() {
+         
+          family = productsData['family'].toString() ?? '';
+          print("uuuuuuuuuuuuuuuuuuuuuuuuuuuuy$family");
+
+
+             var matchingFamily = fam.firstWhere(
+          (element) => element['id'].toString() == family,
+          orElse: () => {'id': null, 'name': 'Unknown'},
+        );
+
+        // Store the matching family name
+        familyName = matchingFamily['name'];
+        print("Matching Family Name: $familyName");
+        
+        });
+
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+  Future<void> getfamily() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/familys/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+        List<Map<String, dynamic>> familylist = [];
+
+        for (var productData in productsData) {
+          familylist.add({
+            'id': productData['id'].toString(), // Convert the ID to String
+            'name': productData['name'],
+          });
+        }
+
+        setState(() {
+          fam = familylist;
+          print("Familyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy$fam");
+
+        
+        });
+      }
+    } catch (error) {
+      print("Error fetching family data: $error");
+    }
+  }
+
+  Future<void> getcustomer() async {
+    try {
+              final dep= await getdepFromPrefs();
+
+      final token = await gettokenFromPrefs();
+
+      final jwt = JWT.decode(token!);
+          var name = jwt.payload['name'];
+          print("Name: $name");
+          print("Decoded Token Payload: ${jwt.payload}");
+      var response = await http.get(
+        Uri.parse('$api/api/customers/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print(
+          "Customer dataaaaaaaaaaaaaaaaaaaaa: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+        List<Map<String, dynamic>> managerlist = [];
+
+        for (var productData in productsData) {
+          
+           if(dep=="BDO" || dep=="BDM"){
+          if(name==productData['manager']){
+             managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'created_at': productData['created_at']
+          });
+          }
+           
+          }
+             
+          
+         
+        }
+
+        setState(() {
+          customer = managerlist; // Update full customer list
+          filteredProducts = List.from(customer); // Show all customers initially
+        });
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+  void _filterProducts(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredProducts = List.from(customer); // Show all if search is empty
+      } else {
+        filteredProducts = customer
+            .where((product) =>
+                product['name'].toLowerCase().contains(query.toLowerCase()))
+            .toList(); // Filter based on query
+      }
+    });
+  }
+ void logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
+  await prefs.remove('token');
+
+  // Use a post-frame callback to show the SnackBar after the current frame
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (ScaffoldMessenger.of(context).mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logged out successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  });
+
+  // Wait for the SnackBar to disappear before navigating
+  await Future.delayed(Duration(seconds: 2));
+
+  // Navigate to the HomePage after the snackbar is shown
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => login()),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
-     
     return Scaffold(
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
-      appBar: AppBar(
+      backgroundColor: Colors.white,
+       appBar: AppBar(
+        title: Text(
+          "Customer List",
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Custom back arrow
+          onPressed: () async{
+                    final dep= await getdepFromPrefs();
+if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else {
+    Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+            );
+
+}
+           
+          },
+        ),
         actions: [
-            IconButton(
-              icon: Image.asset('lib/assets/profile.png'), 
-              onPressed: () {  
-              },
-            ),
-          ],
-          
+          IconButton(
+            icon: Image.asset('lib/assets/profile.png'),
+            onPressed: () {},
           ),
-       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 110, 110, 110),
-                  ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        "lib/assets/logo-white.png",
-                        width: 100, // Change width to desired size
-                        height: 100, // Change height to desired size
-                        fit: BoxFit
-                            .contain, // Use BoxFit.contain to maintain aspect ratio
-                      ),
-                      SizedBox(width: 70,),
-                      Text(
-                        'BepoSoft',
-                        style: TextStyle(
-                          color: Color.fromARGB(236, 255, 255, 255),
-                          fontSize: 20,
-                         
+        ],
+      ),
+      //  drawer: Drawer(
+      //     child: ListView(
+      //       padding: EdgeInsets.zero,
+      //       children: <Widget>[
+      //         DrawerHeader(
+      //             decoration: BoxDecoration(
+      //               color: Colors.grey[200],
+      //             ),
+      //             child: Row(
+      //               mainAxisAlignment: MainAxisAlignment.center,
+      //               children: [
+      //                 Image.asset(
+      //                   "lib/assets/logo.png",
+      //                   width: 150, // Change width to desired size
+      //                   height: 150, // Change height to desired size
+      //                   fit: BoxFit
+      //                       .contain, // Use BoxFit.contain to maintain aspect ratio
+      //                 ),
+      //               ],
+      //             )),
+      //         ListTile(
+      //           leading: Icon(Icons.dashboard),
+      //           title: Text('Dashboard'),
+      //           onTap: () {
+      //             Navigator.push(context,
+      //                 MaterialPageRoute(builder: (context) => dashboard()));
+      //           },
+      //         ),
+             
+      //         ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('Company'),
+      //           onTap: () {
+      //             Navigator.push(context,
+      //                 MaterialPageRoute(builder: (context) => add_company()));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //         ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('Departments'),
+      //           onTap: () {
+      //             Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                     builder: (context) => add_department()));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //         ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('Supervisors'),
+      //           onTap: () {
+      //             Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                     builder: (context) => add_supervisor()));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //         ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('Family'),
+      //           onTap: () {
+      //             Navigator.push(context,
+      //                 MaterialPageRoute(builder: (context) => add_family()));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //         ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('Bank'),
+      //           onTap: () {
+      //             Navigator.push(context,
+      //                 MaterialPageRoute(builder: (context) => add_bank()));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //         ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('States'),
+      //           onTap: () {
+      //             Navigator.push(context,
+      //                 MaterialPageRoute(builder: (context) => add_state()));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //         ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('Attributes'),
+      //           onTap: () {
+      //             Navigator.push(context,
+      //                 MaterialPageRoute(builder: (context) => add_attribute()));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //         ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('Services'),
+      //           onTap: () {
+      //             Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                     builder: (context) => CourierServices()));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //          ListTile(
+      //           leading: Icon(Icons.person),
+      //           title: Text('Delivery Notes'),
+      //           onTap: () {
+      //             Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                     builder: (context) => WarehouseOrderView(status: null,)));
+      //             // Navigate to the Settings page or perform any other action
+      //           },
+      //         ),
+      //         Divider(),
+      //         _buildDropdownTile(context, 'Reports', [
+      //           'Sales Report',
+      //           'Credit Sales Report',
+      //           'COD Sales Report',
+      //           'Statewise Sales Report',
+      //           'Expence Report',
+      //           'Delivery Report',
+      //           'Product Sale Report',
+      //           'Stock Report',
+      //           'Damaged Stock'
+      //         ]),
+      //         _buildDropdownTile(context, 'Customers', [
+      //           'Add Customer',
+      //           'Customers',
+      //         ]),
+      //         _buildDropdownTile(context, 'Staff', [
+      //           'Add Staff',
+      //           'Staff',
+      //         ]),
+      //         _buildDropdownTile(context, 'Credit Note', [
+      //           'Add Credit Note',
+      //           'Credit Note List',
+      //         ]),
+      //         _buildDropdownTile(context, 'Proforma Invoice', [
+      //           'New Proforma Invoice',
+      //           'Proforma Invoice List',
+      //         ]),
+      //         _buildDropdownTile(context, 'Delivery Note',
+      //             ['Delivery Note List', 'Daily Goods Movement']),
+      //         _buildDropdownTile(
+      //             context, 'Orders', ['New Orders', 'Orders List']),
+      //         Divider(),
+      //         Text("Others"),
+      //         Divider(),
+      //         _buildDropdownTile(context, 'Product', [
+      //           'Product List',
+      //           'Product Add',
+      //           'Stock',
+      //         ]),
+      //         _buildDropdownTile(context, 'Expence', [
+      //           'Add Expence',
+      //           'Expence List',
+      //         ]),
+      //         _buildDropdownTile(
+      //             context, 'GRV', ['Create New GRV', 'GRVs List']),
+      //         _buildDropdownTile(context, 'Banking Module',
+      //             ['Add Bank ', 'List', 'Other Transfer']),
+      //         Divider(),
+      //         ListTile(
+      //           leading: Icon(Icons.settings),
+      //           title: Text('Methods'),
+      //           onTap: () {
+      //             Navigator.push(context,
+      //                 MaterialPageRoute(builder: (context) => Methods()));
+      //           },
+      //         ),
+      //         ListTile(
+      //           leading: Icon(Icons.chat),
+      //           title: Text('Chat'),
+      //           onTap: () {
+      //             Navigator.pop(context); // Close the drawer
+      //           },
+      //         ),
+      //         Divider(),
+      //         ListTile(
+      //           leading: Icon(Icons.exit_to_app),
+      //           title: Text('Logout'),
+      //           onTap: () {
+      //             logout();
+      //           },
+      //         ),
+      //       ],
+      //     ),
+      //   ),
+      body:Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+   Padding(
+  padding: const EdgeInsets.all(8.0),
+  child: TextField(
+    controller: searchController,
+    decoration: InputDecoration(
+      hintText: "Search customers...",
+      prefixIcon: Icon(Icons.search),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30.0),
+        borderSide: BorderSide(
+          color: Colors.blue, // Set your desired border color here
+          width: 2.0, // Set the border width
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30.0),
+        borderSide: BorderSide(
+          color: Colors.blue, // Border color when TextField is not focused
+          width: 2.0,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30.0),
+        borderSide: BorderSide(
+          color: Colors.blueAccent, // Border color when TextField is focused
+          width: 2.0,
+        ),
+      ),
+    ),
+    onChanged: _filterProducts,
+  ),
+),
+
+    Expanded(
+      child: ListView.builder(
+        itemCount: filteredProducts.length,
+        itemBuilder: (context, index) {
+          final customerData = filteredProducts[index];
+          return Card(
+            color: Colors.white,
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          customerData['name'] ?? '',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Created on: ${customerData['created_at']}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert,color:Colors.blue),
+                    onSelected: (value) {
+                      if (value == 'View') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => view_customer(customerid:customerData['id']),
+                          ),
+                        );
+                      } else if (value == 'Add Address') {
+                       Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => add_address(customerid:customerData['id'],name:customerData['name']),
+                          ),
+                        );
+                      }
+                      else if (value == 'View Ledger') {
+                       Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CustomerLedger(customerid:customerData['id'],customerName:customerData['name']),
+                          ),
+                        );
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem<String>(
+                        value: 'View',
+                        child: Text('View'),
                       ),
-                      
+                      PopupMenuItem<String>(
+                        value: 'Add Address',
+                        child: Text('Add Address'),
+                      ),
+                       PopupMenuItem<String>(
+                        value: 'View Ledger',
+                        child: Text('View Ledger'),
+                      ),
                     ],
-                  )),
-                  ListTile(
-              leading: Icon(Icons.dashboard),
-              title: Text('Dashboard'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>bdm_dashbord()));
-              },
-            ),
-                  ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Customer'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>bdm_customer_list()));
-              },
-            ),
-             Divider(),
-         
-            _buildDropdownTile(context, 'Proforma Invoice', ['New Proforma Invoice', 'Proforma Invoice List',]),
-            _buildDropdownTile(context, 'Orders', ['New Orders', 'Orders List']),
-             Divider(),
-
-             Text("Others"),
-             Divider(),
-
-
-
-
-
-
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('users'),
-              onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (context)=>Methods()));
-
-              },
-            ),
-
-            ListTile(
-              leading: Icon(Icons.chat),
-              title: Text('Chat'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Perform logout action
-              },
-            ),
-            
-          
-          ],
-        ),
-      ),
-       body:SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 45),
-                child: Text(
-                  "CUSTOMER LIST",
-                  style: TextStyle(
-                    letterSpacing: 2.0,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
+                ],
               ),
-              SizedBox(height: 20),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9, // Adjust width based on screen size
-                color: Colors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color.fromARGB(255, 62, 62, 62),
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Search...',
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Image.asset(
-                              "lib/assets/search.png",
-                              width: 40,
-                              height: 20,
-                              fit: BoxFit.contain,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.9, // Adjust width based on screen size
-                        height: 49,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: const Color.fromARGB(255, 62, 62, 62)),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            SizedBox(width: 20),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.7
-                              , // Adjust width based on screen size
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Select your class',
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                ),
-                                child: DropdownButton<String>(
-                                  value: selectededu,
-                                  underline: Container(), // This removes the underline
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectededu = newValue!;
-                                      print(selectededu);
-                                    });
-                                  },
-                                  items: categories.map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                  icon: Container(
-                                    padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.4), // Adjust padding as needed
-                                    alignment: Alignment.centerRight,
-                                    child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.4, // Adjust width based on screen size
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => bdm_add_new_customer()));
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 4, 171, 29)),
-                              ),
-                              child: Text("New Customer", style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.45, // Adjust width based on screen size
-                            child: ElevatedButton(
-                              onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => customer_singleview()));
-
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 4, 171, 29)),
-                              ),
-                              child: Text("Download Excel", style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
+    ),
+  ],
+)
 
-      );
-    
-
+    );
   }
 
   void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
     switch (selectedOption) {
       case 'Option 1':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdm_performa_invoice()),
+          MaterialPageRoute(builder: (context) => add_credit_note()),
         );
         break;
       case 'Option 2':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>credit_note_list()),
+          MaterialPageRoute(builder: (context) => add_credit_note()),
         );
         break;
-        case 'Option 3':
+      case 'Option 3':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdm_order_request()),
+          MaterialPageRoute(builder: (context) => add_receipts()),
         );
         break;
-        case 'Option 4':
+      case 'Option 4':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdm_OrderList(status: null,)),
+          MaterialPageRoute(builder: (context) => receips()),
         );
-        break; 
+        break;
+      case 'Option 5':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+      case 'Option 6':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+      case 'Option 7':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+      case 'Option 8':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+
       default:
         // Handle default case or unexpected options
         break;
     }
   }
-
-
-
-   
 }

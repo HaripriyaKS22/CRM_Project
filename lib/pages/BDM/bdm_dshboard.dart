@@ -446,7 +446,7 @@ int grv=0;
           title: Text(option),
           onTap: () {
             Navigator.pop(context);
-            d.navigateToSelectedPage(
+            d.navigateToSelectedPage3(
                 context, option); // Navigate to selected page
           },
         );

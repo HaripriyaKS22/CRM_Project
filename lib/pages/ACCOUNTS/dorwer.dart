@@ -477,7 +477,7 @@ class drower{
       case 'Add Customer':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdo_add_new_customer()),
+          MaterialPageRoute(builder: (context) => add_new_customer()),
         );
         break;
 
@@ -491,7 +491,7 @@ class drower{
       case 'Orders List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bod_oredr_list(status: null,)),
+          MaterialPageRoute(builder: (context) => bdm_OrderList(status: null,)),
         );
         break;
       case 'Product List':
@@ -617,6 +617,23 @@ class drower{
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => transfer()),
+        );
+      case 'Add Staff':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>add_staff()),
+        );
+        break;
+      case 'Staff':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => staff_list()),
+        );
+        break;
+      case 'Add Credit Note':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>add_credit_note()),
         );
         break;
       default:

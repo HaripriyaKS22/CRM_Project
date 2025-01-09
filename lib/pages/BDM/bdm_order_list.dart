@@ -44,6 +44,7 @@ class _bdm_OrderListState extends State<bdm_OrderList> {
   List<Map<String, dynamic>> orders = [];
   List<Map<String, dynamic>> filteredOrders = [];
   String searchQuery = '';
+  List<Map<String, dynamic>> fam = [];
 
   DateTime? selectedDate; // For single date filter
   DateTime? startDate; // For date range filter
@@ -59,7 +60,7 @@ class _bdm_OrderListState extends State<bdm_OrderList> {
           title: Text(option),
           onTap: () {
             Navigator.pop(context);
-            d.navigateToSelectedPage(
+            d.navigateToSelectedPage3(
                 context, option); // Navigate to selected page
           },
         );
@@ -70,7 +71,12 @@ class _bdm_OrderListState extends State<bdm_OrderList> {
   @override
   void initState() {
     super.initState();
+    initdata();
     fetchOrderData();
+  }
+  void initdata() async {
+      await  getfamily();
+      await getprofiledata();
   }
 
   Future<String?> getTokenFromPrefs() async {
@@ -81,6 +87,87 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
+var family='';
+String familyName='';
+   
+Future<void> getprofiledata() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/profile/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+print("==============0000000000000000000000000${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+
+        setState(() {
+         
+          family = productsData['family'].toString() ?? '';
+          print("uuuuuuuuuuuuuuuuuuuuuuuuuuuuy$family");
+
+
+             var matchingFamily = fam.firstWhere(
+          (element) => element['id'].toString() == family,
+          orElse: () => {'id': null, 'name': 'Unknown'},
+        );
+
+        // Store the matching family name
+        familyName = matchingFamily['name'];
+        print("Matching Family Name: $familyName");
+        
+        });
+
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+  Future<void> getfamily() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/familys/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+        List<Map<String, dynamic>> familylist = [];
+
+        for (var productData in productsData) {
+          familylist.add({
+            'id': productData['id'].toString(), // Convert the ID to String
+            'name': productData['name'],
+          });
+        }
+
+        setState(() {
+          fam = familylist;
+          print("Familyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy$fam");
+
+        
+        });
+      }
+    } catch (error) {
+      print("Error fetching family data: $error");
+    }
+  }
+
   Future<void> fetchOrderData() async {
     try {
       final token = await getTokenFromPrefs();
@@ -119,7 +206,9 @@ Future<String?> getdepFromPrefs() async {
             print("Error parsing date: $rawOrderDate - $e");
           }
 if(widget.status==null){
+  print('$familyName==${productData['family']}');
 
+   if(familyName==productData['family']){
 
              orderList.add({
             'id': productData['id'],
@@ -168,6 +257,8 @@ if(widget.status==null){
         }
         else if(widget.status==productData['status']){
 
+          if(familyName==productData['family']){
+
           
                orderList.add({
             'id': productData['id'],
@@ -214,8 +305,8 @@ if(widget.status==null){
           
           
 
-        }
-
+        }}
+}
         
         
         }
@@ -231,7 +322,7 @@ if(widget.status==null){
       print("Error: $error");
     }
   }
-
+ 
   void _filterOrders(String query) {
     setState(() {
       searchQuery = query;
