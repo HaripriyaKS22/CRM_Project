@@ -255,6 +255,20 @@ var departments;
       backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
 
+         title: Text(
+            'Update State',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+            ),
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+            Navigator.pop(context);
+            },
+          ),
+
         actions: [
             IconButton(
               icon: Image.asset('lib/assets/profile.png'),
@@ -266,200 +280,7 @@ var departments;
           ],
           
           ),
-     drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        "lib/assets/logo.png",
-                        width: 150, // Change width to desired size
-                        height: 150, // Change height to desired size
-                        fit: BoxFit
-                            .contain, // Use BoxFit.contain to maintain aspect ratio
-                      ),
-                    ],
-                  )),
-              ListTile(
-                leading: Icon(Icons.dashboard),
-                title: Text('Dashboard'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => dashboard()));
-                },
-              ),
-              
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Company'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_company()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Departments'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => add_department()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Supervisors'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => add_supervisor()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Family'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_family()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Bank'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_bank()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('States'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_state()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Attributes'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_attribute()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Services'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CourierServices()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-               ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Delivery Notes'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => WarehouseOrderView(status: null,)));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              Divider(),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
-              ]),
-              _buildDropdownTile(context, 'Customers', [
-                'Add Customer',
-                'Customers',
-              ]),
-              _buildDropdownTile(context, 'Staff', [
-                'Add Staff',
-                'Staff',
-              ]),
-              _buildDropdownTile(context, 'Credit Note', [
-                'Add Credit Note',
-                'Credit Note List',
-              ]),
-              _buildDropdownTile(context, 'Proforma Invoice', [
-                'New Proforma Invoice',
-                'Proforma Invoice List',
-              ]),
-              _buildDropdownTile(context, 'Delivery Note',
-                  ['Delivery Note List', 'Daily Goods Movement']),
-              _buildDropdownTile(
-                  context, 'Orders', ['New Orders', 'Orders List']),
-              Divider(),
-              Text("Others"),
-              Divider(),
-              _buildDropdownTile(context, 'Product', [
-                'Product List',
-                'Product Add',
-                'Stock',
-              ]),
-              _buildDropdownTile(context, 'Expence', [
-                'Add Expence',
-                'Expence List',
-              ]),
-              _buildDropdownTile(
-                  context, 'GRV', ['Create New GRV', 'GRVs List']),
-              _buildDropdownTile(context, 'Banking Module',
-                  ['Add Bank ', 'List', 'Other Transfer']),
-              Divider(),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Methods'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Methods()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.chat),
-                title: Text('Chat'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(Icons.exit_to_app),
-                title: Text('Logout'),
-                onTap: () {
-                  logout();
-                },
-              ),
-            ],
-          ),
-        ),
-
+   
         body: LayoutBuilder(
   builder: (context, constraints) {
     return SingleChildScrollView(

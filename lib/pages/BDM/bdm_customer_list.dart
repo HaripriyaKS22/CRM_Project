@@ -57,7 +57,7 @@ class _bdm_customer_listState extends State<bdm_customer_list> {
   @override
   void initState() {
     super.initState();
-
+initdata();
     getcustomer();
   }
 
@@ -206,7 +206,7 @@ print("==============0000000000000000000000000${response.body}");
 
         for (var productData in productsData) {
           
-           if(dep=="BDO" || dep=="BDM"){
+           if(familyName==productData['family']){
           if(name==productData['manager']){
              managerlist.add({
             'id': productData['id'],

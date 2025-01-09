@@ -4,6 +4,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
+import 'package:beposoft/pages/BDM/bdm_order_list.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart';
 
@@ -622,7 +623,7 @@ int grv=0;
                           onTap: () {
                          Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderList(status: "Shipped",)),
+          MaterialPageRoute(builder: (context) => bdm_OrderList(status: "Shipped",)),
         );
                       },
                         child: _buildGridItem(

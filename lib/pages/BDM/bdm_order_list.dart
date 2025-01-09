@@ -72,7 +72,6 @@ class _bdm_OrderListState extends State<bdm_OrderList> {
   void initState() {
     super.initState();
     initdata();
-    fetchOrderData();
   }
   void initdata() async {
       await  getfamily();
@@ -126,6 +125,7 @@ print("==============0000000000000000000000000${response.body}");
         print("Matching Family Name: $familyName");
         
         });
+    fetchOrderData();
 
       }
     } catch (error) {
@@ -205,10 +205,11 @@ print("==============0000000000000000000000000${response.body}");
           } catch (e) {
             print("Error parsing date: $rawOrderDate - $e");
           }
-if(widget.status==null){
-  print('$familyName==${productData['family']}');
+print('$familyName==${productData['family']}');
+          if(familyName==productData['family']){
 
-   if(familyName==productData['family']){
+if(widget.status==null){
+
 
              orderList.add({
             'id': productData['id'],
@@ -257,8 +258,6 @@ if(widget.status==null){
         }
         else if(widget.status==productData['status']){
 
-          if(familyName==productData['family']){
-
           
                orderList.add({
             'id': productData['id'],
@@ -305,8 +304,8 @@ if(widget.status==null){
           
           
 
-        }}
-}
+        }
+        }
         
         
         }
@@ -322,6 +321,7 @@ if(widget.status==null){
       print("Error: $error");
     }
   }
+
  
   void _filterOrders(String query) {
     setState(() {

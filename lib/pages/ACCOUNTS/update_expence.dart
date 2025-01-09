@@ -335,6 +335,19 @@ Future<void> updatexpense() async {
     return Scaffold(
       backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
+         title: Text(
+            'Update Expense',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+            ),
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+            Navigator.pop(context);
+            },
+          ),
         actions: [
           IconButton(
             icon: Image.asset('lib/assets/profile.png'),
