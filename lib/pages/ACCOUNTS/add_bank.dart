@@ -12,6 +12,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_bank.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
@@ -24,7 +25,6 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
@@ -529,7 +529,7 @@ SizedBox(height: 15),
                                        padding: const EdgeInsets.all(8.0),
                                        child: GestureDetector(
                                             onTap: () {
-                                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>update_family(id:fam[i]['id'])));
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>update_bank(id:bank[i]['id'])));
                                        
                                             },
                                             child: Image.asset(
@@ -559,103 +559,6 @@ SizedBox(height: 15),
 
   }
 
-   void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>credit_note_list()),
-        );
-        break;
-        case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-        case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => order_request()),
-        );
-        break;
-         case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => new_product()),
-        );
-        break;
-        case 'Option 9':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => new_product()),
-        );
-        break;
-        case 'Option 10':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_new_stock()),
-        );
-        break;
-        case 'Option 11':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  Purchases_request()),
-        );
-        break;
-        case 'Option 12':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  Purchases_request()),
-        );
-        break;
-        case 'Option 13':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  expence()),
-        );
-        break;
-        case 'Option 13':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  expence()),
-        );
-        break;
-        
-        
-    
-      
-      default:
-        // Handle default case or unexpected options
-        break;
-    }
-  }
-
-
+ 
    
 }

@@ -1,5 +1,6 @@
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
@@ -9,7 +10,6 @@ import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/daily_goods_movement.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
@@ -252,12 +252,12 @@ class drower{
           MaterialPageRoute(builder: (context) => bank_list()),
         );
         break;
-      case 'Other Transfer':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => transfer()),
-        );
-        break;
+      // case 'Other Transfer':
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => transfer()),
+      //   );
+      //  break;
       default:
         break;
     }

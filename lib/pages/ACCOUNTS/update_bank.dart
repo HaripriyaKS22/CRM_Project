@@ -4,15 +4,13 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
-import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
-import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:flutter/material.dart';
 
@@ -35,45 +33,78 @@ import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class add_department extends StatefulWidget {
-  const add_department({super.key});
+class update_bank extends StatefulWidget {
+  final id;
+  const update_bank({super.key, required this.id});
 
   @override
-  State<add_department> createState() => _add_departmentState();
+  State<update_bank> createState() => _update_bankState();
 }
 
-class _add_departmentState extends State<add_department> {
+class _update_bankState extends State<update_bank> {
   @override
   void initState() {
     super.initState();
-    getdepartments();
+    getbank();
+    print(widget.id);
   }
 
   var url = "$api/api/add/department/";
+  List<Map<String, dynamic>> banks = [];
 
-  TextEditingController department = TextEditingController();
+  TextEditingController bank = TextEditingController();
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
 
   var departments;
-  List<Map<String, dynamic>> dep = [];
 
-  Future<void> getdepartments() async {
+  Future<void> deletefamily(int Id) async {
+    final token = await gettokenFromPrefs();
+
     try {
-      final token = await gettokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/departments/'),
+      final response = await http.delete(
+        Uri.parse('$api/api/family/update/$Id/'),
         headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
-      List<Map<String, dynamic>> departmentlist = [];
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Color.fromARGB(255, 49, 212, 4),
+            content: Text('Deleted sucessfully'),
+          ),
+        );
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => add_family()));
+      }
+
+      if (response.statusCode == 204) {
+      } else {
+        throw Exception('Failed to delete wishlist ID: $Id');
+      }
+    } catch (error) {}
+  }
+
+  void removeProduct(int index) {
+    setState(() {
+      fam.removeAt(index);
+    });
+  }
+
+  List<Map<String, dynamic>> fam = [];
+
+  Future<void> getbank() async {
+    final token = await gettokenFromPrefs();
+    try {
+      final response = await http.get(Uri.parse('$api/api/banks/'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+      List<Map<String, dynamic>> banklist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -82,120 +113,71 @@ class _add_departmentState extends State<add_department> {
         print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
-          departmentlist.add({
+          banklist.add({
             'id': productData['id'],
             'name': productData['name'],
+            'branch': productData['branch']
           });
+
+          if (widget.id == productData['id']) {
+            bank.text = productData['name'] ?? '';
+            ;
+          }
         }
         setState(() {
-          dep = departmentlist;
+          banks = banklist;
+          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
         });
       }
-    } catch (error) {
-      print("Error: $error");
+    } catch (e) {
+      print("error:$e");
     }
   }
 
-  void adddepartment(String department, BuildContext context) async {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$department");
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$url");
-
-    final token = await gettokenFromPrefs();
-
+  Future<void> updatebank() async {
     try {
-      var response = await http.post(
-        Uri.parse(url),
+      final token = await gettokenFromPrefs();
+
+      var response = await http.put(
+        Uri.parse('$api/api/bank/view/${widget.id}/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
         },
-        body: {"name": department},
+        body: jsonEncode(
+          {
+            'name': bank.text,
+          },
+        ),
       );
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
-
-      if (response.statusCode == 201) {
-        var responseData = jsonDecode(response.body);
-
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => add_department()));
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Color.fromARGB(255, 49, 212, 4),
-            content: Text('sucess'),
+            content: Text('Profile updated successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => add_family()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile'),
+            duration: Duration(seconds: 2),
           ),
         );
       }
-    } catch (e) {
-      print("Error: $e");
+    } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('An error occurred. Please try again.'),
-        ),
-      );
-    }
-  }
-
-  void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
-
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
+          content: Text('Error updating profile'),
           duration: Duration(seconds: 2),
         ),
       );
     }
-  });
-
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
-
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
-
-//  Future<void> deletedepartment(int Id) async {
-//     final token = await gettokenFromPrefs();
-
-//     try {
-//       final response = await http.delete(
-//         Uri.parse('$api/api/department/update/$Id/'),
-//         headers: {
-//           'Authorization': '$token',
-//         },
-//       );
-//     print(response.statusCode);
-//     if(response.statusCode == 200){
-//          ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           backgroundColor: Color.fromARGB(255, 49, 212, 4),
-//           content: Text('Deleted sucessfully'),
-//         ),
-//       );
-//          Navigator.push(context, MaterialPageRoute(builder: (context)=>add_department()));
-//     }
-
-//       if (response.statusCode == 204) {
-//       } else {
-//         throw Exception('Failed to delete wishlist ID: $Id');
-//       }
-//     } catch (error) {
-//     }
-//   }
-
-  void removeProduct(int index) {
-    setState(() {
-      dep.removeAt(index);
-    });
   }
 
   drower d = drower();
@@ -226,46 +208,47 @@ class _add_departmentState extends State<add_department> {
     textEditingController.dispose();
     super.dispose();
   }
-Future<String?> getdepFromPrefs() async {
+
+  void logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('department');
+    await prefs.remove('userId');
+    await prefs.remove('token');
+
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
+
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(242, 255, 255, 255),
         appBar: AppBar(
-             title: Text(
-          "Add Department",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
+          
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+            Navigator.pop(context);
+            },
+          ),
 
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
-          },
-        ),
           actions: [
             IconButton(
               icon: Image.asset('lib/assets/profile.png'),
@@ -273,7 +256,7 @@ else {
             ),
           ],
         ),
-      
+        
         body: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
@@ -282,7 +265,7 @@ else {
                 child: Column(
                   children: [
                     SizedBox(height: 15),
-                    
+                  
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 1),
                       child: Container(
@@ -290,7 +273,7 @@ else {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10.0),
                           border: Border.all(
-                              color: Color.fromARGB(255, 202, 202, 202)),
+                              color: Color.fromARGB(255, 194, 194, 194)),
                         ),
                         width: constraints.maxWidth * 0.9,
                         child: Padding(
@@ -301,7 +284,7 @@ else {
                               Container(
                                 width: constraints.maxWidth * 0.9,
                                 decoration: BoxDecoration(
-                                  color: const Color.fromARGB(255, 2, 65, 96),
+                                  color:const Color.fromARGB(255, 2, 65, 96),
                                   border: Border.all(
                                       color:
                                           Color.fromARGB(255, 202, 202, 202)),
@@ -310,7 +293,7 @@ else {
                                   children: [
                                     SizedBox(height: 10),
                                     Text(
-                                      " Department",
+                                      "Update Bank",
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
@@ -322,7 +305,7 @@ else {
                                 ),
                               ),
                               Text(
-                                "Department",
+                                "Bank",
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -332,9 +315,11 @@ else {
                               Container(
                                 width: constraints.maxWidth * 0.9,
                                 child: TextField(
-                                  controller: department,
+                                  controller: bank,
                                   decoration: InputDecoration(
-                                    labelText: 'Department',
+                                    hintText: bank.text.isNotEmpty
+                                        ? bank.text
+                                        : 'Enter Bank Name',
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10.0),
                                       borderSide:
@@ -349,13 +334,13 @@ else {
                               ElevatedButton(
                                 onPressed: () {
                                   setState(() {
-                                    adddepartment(department.text, context);
+                                    updatebank();
                                   });
                                 },
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
-                                    Colors.blue,
+                                    Colors.blue
                                   ),
                                   shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
@@ -385,7 +370,7 @@ else {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            "Available Departments",
+                            "Available Banks",
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold),
                           ),
@@ -395,86 +380,74 @@ else {
                     SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.only(right: 15, left: 15),
-                      child: Container(
-                        color: Colors.white,
-                        child: Table(
-                          border: TableBorder.all(
-                              color: Color.fromARGB(255, 214, 213, 213)),
-                          columnWidths: {
-                            0: FixedColumnWidth(
-                                40.0), // Fixed width for the first column (No.)
-                            1: FlexColumnWidth(
-                                2), // Flex width for the second column (Department Name)
-                            2: FixedColumnWidth(
-                                50.0), // Fixed width for the third column (Edit)
-                            3: FixedColumnWidth(
-                                50.0), // Fixed width for the fourth column (Delete)
-                          },
-                          children: [
-                            const TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
+                      child: Table(
+                        border: TableBorder.all(
+                            color: const Color.fromARGB(255, 255, 255, 255)),
+                        columnWidths: {
+                          0: FixedColumnWidth(40.0),
+                          1: FlexColumnWidth(),
+                           2: FixedColumnWidth(50.0),
+                        },
+                        children: [
+                          const TableRow(
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                            ),
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  "No.",
+                                  style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                ),
                               ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Bank Name",
+                                  style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Edit",
+                                  style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                          for (int i = 0; i < banks.length; i++)
+                            TableRow(
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "No.",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
-                                  ),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text((i + 1).toString()),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Department Name",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
-                                  ),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(banks[i]['name']),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Edit",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            for (int i = 0; i < dep.length; i++)
-                              TableRow(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text((i + 1).toString()),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(dep[i]['name']),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    update_department(
-                                                        id: dep[i]['id'])));
-                                      },
-                                      child: Image.asset(
-                                        "lib/assets/edit.jpg",
-                                        width: 20,
-                                        height: 20,
-                                      ),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => update_bank(
+                                                  id: banks[i]['id'])));
+                                    },
+                                    child: Image.asset(
+                                      "lib/assets/edit.jpg",
+                                      width: 20,
+                                      height: 20,
                                     ),
                                   ),
-                                ],
-                              ),
-                          ],
-                        ),
+                                )
+                              ],
+                            ),
+                        ],
                       ),
                     ),
                   ],

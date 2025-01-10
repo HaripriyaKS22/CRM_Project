@@ -24,7 +24,6 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
@@ -253,15 +252,9 @@ var departments;
     return Scaffold(
 
 
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
+      backgroundColor:const Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
- title: Text(
-            'Update Family',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-            ),
-          ),
+
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
@@ -289,14 +282,7 @@ var departments;
         child: Column(
           children: [
             SizedBox(height: 15),
-            Text(
-              "FAMILY",
-              style: TextStyle(
-                fontSize: 20,
-                letterSpacing: 9.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+           
             Padding(
   padding: EdgeInsets.symmetric(horizontal: 1),
   child: Container(
@@ -314,7 +300,7 @@ var departments;
           Container(
             width: constraints.maxWidth * 0.9,
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 121, 121, 121),
+              color:const Color.fromARGB(255, 2, 65, 96),
               border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
             ),
             child: Column(
@@ -363,7 +349,7 @@ var departments;
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
-                Color.fromARGB(255, 244, 66, 66),
+                Colors.blue,
               ),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
@@ -406,32 +392,33 @@ var departments;
               columnWidths: {
                 0: FixedColumnWidth(40.0),
                 1: FlexColumnWidth(),
+                 2: FixedColumnWidth(70.0),
               },
               children: [
                 const TableRow(
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 234, 231, 231),
+                    color: Colors.blue,
                   ),
                   children: [
                     Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
                         "No.",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
                         "Department Name",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                       ),
                     ),
                       Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        "No.",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        "Edit",
+                        style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                       ),
                     ),
                    
@@ -452,11 +439,11 @@ var departments;
                            padding: const EdgeInsets.all(8.0),
                            child: GestureDetector(
                                             onTap: () {
-                                               deletefamily(fam[i]['id']);
-                                              removeProduct(i);
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>update_family(id:fam[i]['id'])));
+
                                             },
                                             child: Image.asset(
-                                              "lib/assets/delete.gif",
+                                              "lib/assets/edit.jpg",
                                               width: 20,
                                               height: 20,
                                               

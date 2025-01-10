@@ -23,7 +23,6 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
@@ -53,6 +52,8 @@ class _update_courierState extends State<update_courier> {
   var url = "$api/api/add/department/";
 
   TextEditingController courier = TextEditingController();
+    TextEditingController label = TextEditingController();
+
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -60,43 +61,55 @@ class _update_courierState extends State<update_courier> {
 
   List<Map<String, dynamic>> courierdata = [];
 
+  
   Future<void> getcourierservices() async {
-    try {
-      final token = await gettokenFromPrefs();
+  try {
+    final token = await gettokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/courier/service/data/'),
-        headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+    var response = await http.get(
+      Uri.parse('$api/api/parcal/service/'),
+      headers: {
+        'Authorization': ' Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+    
+    // Ensure the response is in the expected format
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      
+      // Access the 'data' field which contains the list of courier services
       List<Map<String, dynamic>> Courierlist = [];
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
-        for (var productData in parsed) {
+      // Check if 'data' exists in the response
+      if (parsed.containsKey('data')) {
+        for (var productData in parsed['data']) {
           Courierlist.add({
             'id': productData['id'],
             'name': productData['name'],
+            'label':productData['label'],
           });
-          if (widget.id == productData['id']) {
+
+            if (widget.id == productData['id']) {
             courier.text = productData['name'] ?? '';
+            label.text = productData['label'] ?? '';
+
+            ;
           }
         }
-
-        setState(() {
-          courierdata = Courierlist;
-        });
       }
-    } catch (error) {
-      print("Error: $error");
+
+      setState(() {
+        courierdata = Courierlist;
+      });
     }
+  } catch (error) {
+    print("Error: $error");
   }
+}
+
 
   Future<void> updatecourierservices() async {
     try {
@@ -204,14 +217,7 @@ void logout() async {
     return Scaffold(
         backgroundColor: Color.fromARGB(242, 255, 255, 255),
         appBar: AppBar(
-           title: Text(
-            'Update Service',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-            ),
-          ),
-          leading: IconButton(
+           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
             Navigator.pop(context);
@@ -224,7 +230,7 @@ void logout() async {
             ),
           ],
         ),
-   
+    
         body: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
@@ -287,6 +293,34 @@ void logout() async {
                                     hintText: courier.text.isNotEmpty
                                         ? courier.text
                                         : 'Courier',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding:
+                                        EdgeInsets.symmetric(vertical: 8.0),
+                                  ),
+                                ),
+                              ),
+
+                              SizedBox(height: 10,),
+                               Text(
+                                "Label",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                width: constraints.maxWidth * 0.9,
+                                child: TextField(
+                                  controller: label,
+                                  decoration: InputDecoration(
+                                    hintText: label.text.isNotEmpty
+                                        ? label.text
+                                        : 'Label',
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10.0),
                                       borderSide:

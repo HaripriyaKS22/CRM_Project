@@ -32,6 +32,8 @@ class CourierServices extends StatefulWidget {
 
 class _CourierServicesState extends State<CourierServices> {
   TextEditingController courier = TextEditingController();
+    TextEditingController label = TextEditingController();
+
     List<Map<String, dynamic>> courierdata = [];
 
 
@@ -71,17 +73,20 @@ class _CourierServicesState extends State<CourierServices> {
 
     try {
       var response = await http.post(
-        Uri.parse('$api/api/courier/service/data/'),
+        Uri.parse('$api/api/parcal/service/'),
         headers: {
           'Authorization': 'Bearer $token',
         },
-        body: {"name": courier},
+        body: {"name": courier,
+        "label":label
+        
+        },
       );
 
       print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
       print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.body}");
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
 
         Navigator.push(context,
@@ -131,52 +136,56 @@ void logout() async {
   );
 }
 
-  
   Future<void> getcourierservices() async {
-    try {
-      final token = await gettokenFromPrefs();
+  try {
+    final token = await gettokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/courier/service/data/'),
-        headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+    var response = await http.get(
+      Uri.parse('$api/api/parcal/service/'),
+      headers: {
+        'Authorization': ' Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+    
+    // Ensure the response is in the expected format
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      
+      // Access the 'data' field which contains the list of courier services
       List<Map<String, dynamic>> Courierlist = [];
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
-        for (var productData in parsed) {
+      // Check if 'data' exists in the response
+      if (parsed.containsKey('data')) {
+        for (var productData in parsed['data']) {
           Courierlist.add({
             'id': productData['id'],
             'name': productData['name'],
           });
         }
-        setState(() {
-          courierdata = Courierlist;
-        });
       }
-    } catch (error) {
-      print("Error: $error");
+
+      setState(() {
+        courierdata = Courierlist;
+      });
     }
+  } catch (error) {
+    print("Error: $error");
   }
-  Future<String?> getdepFromPrefs() async {
+}
+Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
-           title: Text(
-          "Add services",
+         title: Text(
+          "Add Receipts",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
         leading: IconButton(
@@ -213,7 +222,7 @@ else {
           ),
         ],
       ),
-    
+     
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -277,6 +286,31 @@ else {
                                 controller: courier,
                                 decoration: InputDecoration(
                                   labelText: 'Courier',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide:
+                                        const BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20,),
+                             const Text(
+                              "Enter Label",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              width: constraints.maxWidth * 0.9,
+                              child: TextField(
+                                controller: label,
+                                decoration: InputDecoration(
+                                  labelText: 'Label',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10.0),
                                     borderSide:

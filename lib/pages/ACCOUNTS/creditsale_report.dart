@@ -113,84 +113,94 @@ class _Creditsalereport2State extends State<Creditsalereport2> {
   }
 
   // Fetch sales report
-  Future<void> getCreditsaleReport() async {
-    setState(() {});
-    try {
-      final token = await getTokenFromPrefs();
+ Future<void> getCreditsaleReport() async {
+  setState(() {});
+  try {
+    final token = await getTokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/credit/sales/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    var response = await http.get(
+      Uri.parse('$api/api/credit/sales/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final salesData = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      final salesData = jsonDecode(response.body);
 
-        List<Map<String, dynamic>> salesReportDataList = [];
+      List<Map<String, dynamic>> salesReportDataList = [];
+      double totalAmount = 0.0;
+      int totalOrders = 0;
+      double totalPaidAmount = 0.0;
+      double balanceAmount = 0.0;
 
-        for (var reportData in salesData) {
-          // Filter orders based on the selected family and staff name
-          if (selectedFamily != null) {
-            reportData['orders'] = reportData['orders'].where((order) {
-              return order['family_name'] == selectedFamily;
-            }).toList();
-          }
+      // Loop over the data and extract values
+      for (var reportData in salesData) {
+        // Get the date for the current report (assuming each reportData has a `date` field)
+        String date = reportData['date'] ?? 'Unknown'; // Default to 'Unknown' if no date is found
 
-          if (selectedStaff != null) {
-            reportData['orders'] = reportData['orders'].where((order) {
-              return order['staff_name'] == selectedStaff;
-            }).toList();
-          }
-
-          double totalAmount = 0.0;
-          int totalOrders = 0;
-          double totalPaidAmount = 0.0;
-          double balanceAmount = 0.0;
-
-          for (var order in reportData['orders']) {
-            totalAmount += order['total_amount'];
-          }
-
-          totalOrders = reportData['orders'].length;
-          totalPaidAmount = reportData['orders']
-              .fold(0.0, (sum, order) => sum + order['total_paid_amount']);
-          balanceAmount = reportData['orders']
-              .fold(0.0, (sum, order) => sum + order['balance_amount']);
-
-          salesReportDataList.add({
-            'date': reportData['date'],
-            'total_amount': totalAmount,
-            'total_orders': totalOrders,
-            'total_paid_amount': totalPaidAmount,
-            'balance_amount': balanceAmount,
-          });
+        // Filter orders based on the selected family and staff name
+        if (selectedFamily != null) {
+          reportData['orders'] = reportData['orders'].where((order) {
+            return order['family_name'] == selectedFamily;
+          }).toList();
         }
 
-        setState(() {
-          allSalesReportList = salesReportDataList;
+        if (selectedStaff != null) {
+          reportData['orders'] = reportData['orders'].where((order) {
+            return order['staff_name'] == selectedStaff;
+          }).toList();
+        }
+
+        for (var order in reportData['orders']) {
+          totalOrders++;
+          totalAmount += order['total_amount'];
+
+          // Calculate the total received payment for this order
+          double totalReceivedPayment = 0.0;
+          for (var payment in order['recived_payment']) {
+            // Parse the amount as a double
+            totalReceivedPayment += double.parse(payment['amount']);
+          }
+
+          totalPaidAmount += totalReceivedPayment;
+          balanceAmount += (order['total_amount'] - totalReceivedPayment);
+        }
+
+        // Add calculated values to the report list
+        salesReportDataList.add({
+          'date': date, // Use the extracted date
+          'total_amount': totalAmount,
+          'total_orders': totalOrders,
+          'total_paid_amount': totalPaidAmount,
+          'balance_amount': balanceAmount,
         });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to fetch sales report data'),
-            duration: Duration(seconds: 2),
-          ),
-        );
       }
-    } catch (error) {
+
+      setState(() {
+        allSalesReportList = salesReportDataList;
+      });
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Error fetching sales report data'),
+          content: Text('Failed to fetch sales report data'),
           duration: Duration(seconds: 2),
         ),
       );
-    } finally {
-      setState(() {});
     }
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Error fetching sales report data'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  } finally {
+    setState(() {});
   }
+}
+
 
   drower d = drower();
   Widget _buildDropdownTile(
@@ -218,11 +228,11 @@ Future<String?> getdepFromPrefs() async {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-           title: Text(
-          "Credit Sale Report",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
+        title: Text(
+          'Credit Sale Report',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
         ),
-        leading: IconButton(
+       leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async{
                     final dep= await getdepFromPrefs();
@@ -365,32 +375,34 @@ else {
                                 'Balance Amount: ₹${report['balance_amount']}',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
-                              SizedBox(height: 10,),
-                               ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CreditsaleDateReport(date: report['date']),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        "View",
-                        style: TextStyle(fontSize: 14, color: Colors.white),
-                      ),
-                    ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueAccent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          CreditsaleDateReport(
+                                              date: report['date']),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "View",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.white),
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                        
                       );
                     },
                   ),

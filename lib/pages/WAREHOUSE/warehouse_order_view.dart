@@ -4,6 +4,8 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_review.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -580,7 +582,10 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
     await Printing.sharePdf(
         bytes: await pdf.save(), filename: 'order_list.pdf');
   }
-
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  } 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -588,6 +593,33 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
         title: const Text('Order List',
             style: TextStyle(fontSize: 14, color: Colors.grey)),
         centerTitle: true,
+         leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Custom back arrow
+          onPressed: () async{
+                    final dep= await getdepFromPrefs();
+if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else {
+    Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+            );
+
+}
+           
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.calendar_today), // Calendar icon
@@ -632,125 +664,11 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 110, 110, 110),
-                ),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      "lib/assets/logo-white.png",
-                      width: 100, // Change width to desired size
-                      height: 100, // Change height to desired size
-                      fit: BoxFit
-                          .contain, // Use BoxFit.contain to maintain aspect ratio
-                    ),
-                    SizedBox(
-                      width: 70,
-                    ),
-                    Text(
-                      'BepoSoft',
-                      style: TextStyle(
-                        color: Color.fromARGB(236, 255, 255, 255),
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
-                )),
-            ListTile(
-              leading: Icon(Icons.dashboard),
-              title: Text('Dashboard'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => dashboard()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Customer'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => customer_list()));
-                // Navigate to the Settings page or perform any other action
-              },
-            ),
-            Divider(),
-            _buildDropdownTile(context, 'Credit Note', [
-              'Add Credit Note',
-              'Credit Note List',
-            ]),
-            _buildDropdownTile(
-                context, 'Recipts', ['Add recipts', 'Recipts List']),
-            _buildDropdownTile(context, 'Proforma Invoice', [
-              'New Proforma Invoice',
-              'Proforma Invoice List',
-            ]),
-            _buildDropdownTile(context, 'Delivery Note',
-                ['Delivery Note List', 'Daily Goods Movement']),
-            _buildDropdownTile(
-                context, 'Orders', ['New Orders', 'Orders List']),
-            Divider(),
-            Text("Others"),
-            Divider(),
-            _buildDropdownTile(context, 'Product', [
-              'Product List',
-              'Stock',
-            ]),
-            _buildDropdownTile(
-                context, 'Purchase', [' New Purchase', 'Purchase List']),
-            _buildDropdownTile(context, 'Expence', [
-              'Add Expence',
-              'Expence List',
-            ]),
-            _buildDropdownTile(context, 'Reports', [
-              'Sales Report',
-              'Credit Sales Report',
-              'COD Sales Report',
-              'Statewise Sales Report',
-              'Expence Report',
-              'Delivery Report',
-              'Product Sale Report',
-              'Stock Report',
-              'Damaged Stock'
-            ]),
-            _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
-            _buildDropdownTile(context, 'Banking Module',
-                ['Add Bank ', 'List', 'Other Transfer']),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Methods'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Methods()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.chat),
-              title: Text('Chat'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Perform logout action
-              },
-            ),
-          ],
-        ),
-      ),
+     
       body: Column(
         children: [
           // Search Bar
+          SizedBox(height: 20,),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(

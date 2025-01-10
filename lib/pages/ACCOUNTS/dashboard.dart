@@ -524,17 +524,17 @@ int grv=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
-               ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Delivery Notes'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => WarehouseOrderView(status: null,)));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
+              //  ListTile(
+              //   leading: Icon(Icons.person),
+              //   title: Text('Delivery Notes'),
+              //   onTap: () {
+              //     Navigator.push( 
+              //         context,
+              //         MaterialPageRoute(
+              //             builder: (context) => WarehouseOrderView(status: null,)));
+              //     // Navigate to the Settings page or perform any other action
+              //   },
+              // ),
               Divider(),
               _buildDropdownTile(context, 'Reports', [
                 'Sales Report',
@@ -555,10 +555,10 @@ int grv=0;
                 'Add Staff',
                 'Staff',
               ]),
-              _buildDropdownTile(context, 'Credit Note', [
-                'Add Credit Note',
-                'Credit Note List',
-              ]),
+              // _buildDropdownTile(context, 'Credit Note', [
+              //   'Add Credit Note',
+              //   'Credit Note List',
+              // ]),
               _buildDropdownTile(context, 'Proforma Invoice', [
                 'New Proforma Invoice',
                 'Proforma Invoice List',

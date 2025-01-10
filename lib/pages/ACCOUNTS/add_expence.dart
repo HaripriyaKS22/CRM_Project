@@ -30,7 +30,6 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
@@ -180,6 +179,7 @@ class _expenceState extends State<expence> {
 
 
 void addexpense() async {
+  print("nbvcbdjbc");
   final token = await gettokenFromPrefs();
 
   try {
@@ -609,7 +609,7 @@ else {
                         // Paid By Dropdown (Staff)
               Text("Paid By"),
               Container(
-                width: MediaQuery.of(context).size.width * 0.9, // Adjust width
+                width: MediaQuery.of(context).size.width * 0.8, // Adjust width
                 height: 49,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
@@ -649,42 +649,38 @@ else {
                           height: 10,
                         ),
                        Text("Bank Name"),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9, // Adjust width
-                height: 49,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: DropdownButton<String>(
-                        value: selectbankId.isEmpty ? null : selectbankId,
-                        hint: Text("Select Bank"),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectbankId = newValue!;
-                            print("Selected Bank ID: $selectbankId");
-                          });
-                        },
-                        items: bank.map<DropdownMenuItem<String>>((bankData) {
-                          return DropdownMenuItem<String>(
-                            value: bankData['id'].toString(),
-                            child: Text(bankData['name']),
-                          );
-                        }).toList(),
-                        icon: Container(
-                          padding: EdgeInsets.only(left: 150),
-                          alignment: Alignment.centerRight,
-                          child: Icon(Icons.arrow_drop_down),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+             Container(
+  width: MediaQuery.of(context).size.width * 0.8, // Adjust width
+  height: 49,
+  decoration: BoxDecoration(
+    border: Border.all(color: Colors.grey),
+    borderRadius: BorderRadius.circular(10),
+  ),
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 10), // Adds padding inside the container
+    child: DropdownButtonHideUnderline( // Hides the default underline
+      child: DropdownButton<String>(
+        value: selectbankId.isEmpty ? null : selectbankId,
+        hint: Text("Select Bank"),
+        onChanged: (String? newValue) {
+          setState(() {
+            selectbankId = newValue!;
+            print("Selected Bank ID: $selectbankId");
+          });
+        },
+        items: bank.map<DropdownMenuItem<String>>((bankData) {
+          return DropdownMenuItem<String>(
+            value: bankData['id'].toString(),
+            child: Text(bankData['name']),
+          );
+        }).toList(),
+        icon: Icon(Icons.arrow_drop_down), // Correctly positions the dropdown icon
+        isExpanded: true, // Ensures the dropdown covers the full width
+      ),
+    ),
+  ),
+),
+
                         SizedBox(
                           height: 20,
                         ),

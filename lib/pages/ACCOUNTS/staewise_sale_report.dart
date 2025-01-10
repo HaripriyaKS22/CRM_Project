@@ -384,6 +384,10 @@ Future<void> getstatewisereport() async {
       }
     });
   }
+  Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   @override
 Widget build(BuildContext context) {
   return Scaffold(

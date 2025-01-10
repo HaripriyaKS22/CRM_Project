@@ -59,7 +59,7 @@ class _daily_goods_movementState extends State<daily_goods_movement> {
       final token = await getTokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/warehouse/boxdetail/'),
+        Uri.parse('$api/api/warehouse/box/detail/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

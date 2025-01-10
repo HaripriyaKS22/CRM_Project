@@ -24,7 +24,6 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
@@ -71,7 +70,7 @@ var departments;
       var response = await http.get(
         Uri.parse('$api/api/states/'),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );

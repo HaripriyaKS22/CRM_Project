@@ -25,7 +25,6 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
@@ -56,7 +55,7 @@ class _update_supervisorState extends State<update_supervisor> {
 var url = "$api/api/add/department/";
 
  int? selectedDepartmentId; // Variable to store the selected department's ID
-
+String? selectedDepartmentName; // Variable to store the selected department's name
 
 Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -139,9 +138,11 @@ var depp;
           });
 
             if(widget.id==productData['id']){
+              print("=============================================${productData['name']}");
+              print("=============================================${productData['department']}");
           namehint.text=productData['name']?? '';;
-          dephint.text=productData['department_name']?? '';;
-        selectedDepartmentId=productData['department'];
+        selectedDepartmentName=productData['department'];
+        print("$selectedDepartmentId");
               
         }
         
@@ -237,7 +238,6 @@ var depp;
       manager.removeAt(index);
     });
   }
-  String? selectedDepartmentName; // Variable to store the selected department's name
  drower d=drower();
    Widget _buildDropdownTile(BuildContext context, String title, List<String> options) {
     return ExpansionTile(
@@ -301,13 +301,7 @@ var depp;
 
       backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
-         title: Text(
-            'Update Maneger',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-            ),
-          ),
+         
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
@@ -335,15 +329,7 @@ var depp;
         width: double.infinity,
         child: Column(
           children: [
-            SizedBox(height: 15),
-            Text(
-              "SUPERVISOR",
-              style: TextStyle(
-                fontSize: 20,
-                letterSpacing: 9.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+           SizedBox(height: 20,),
            Padding(
       padding: EdgeInsets.symmetric(horizontal: 1),
       child: Container(
@@ -361,7 +347,7 @@ var depp;
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 0, 0, 0),
+                  color:const Color.fromARGB(255, 2, 65, 96),
                   border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
                 ),
                 child: Column(
@@ -412,9 +398,9 @@ var depp;
   padding: EdgeInsets.symmetric(horizontal: 12),
   child: DropdownButton<int>(
     isExpanded: true,
-    value: selectedDepartmentId != null
+    value: selectedDepartmentName != null
         ? dep.firstWhere(
-            (department) => department['id'] == selectedDepartmentId,
+            (department) => department['name'] == selectedDepartmentName,
             orElse: () => dep[0],
           )['id']
         : null, // This will handle the default selection
@@ -444,7 +430,7 @@ var depp;
                 },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
-                    Color.fromARGB(255, 244, 66, 66),
+                    Colors.blue,
                   ),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -493,37 +479,31 @@ var depp;
                 children: [
                   const TableRow(
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 234, 231, 231),
+                      color: Colors.blue,
                     ),
                     children: [
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           "No.",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           "Manager Name",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                         ),
                       ),
                         Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           "Edit",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "Delete",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                     
                     ],
                   ),
                   for (int i = 0; i < manager.length; i++)
@@ -535,13 +515,13 @@ var depp;
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("${manager[i]['name']}(${manager[i]['department_name']})"),
+                          child: Text("${manager[i]['name']}(${manager[i]['department']})"),
                         ),
                                      Padding(
                                        padding: const EdgeInsets.all(8.0),
                                        child: GestureDetector(
                                             onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>update_department(id:manager[i]['id'])));
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>update_supervisor(id:manager[i]['id'])));
                                        
                                             },
                                             child: Image.asset(
@@ -553,28 +533,13 @@ var depp;
                                             ),
                                           ),
                                      ),
-                         Padding(
-                           padding: const EdgeInsets.all(8.0),
-                           child: GestureDetector(
-                                            onTap: () {
-                                               deletedepartment(manager[i]['id']);
-                                              removeProduct(i);
-                                            },
-                                            child: Image.asset(
-                                              "lib/assets/delete.gif",
-                                              width: 20,
-                                              height: 20,
-                                              
-                                            ),
-                           ),
-                         )
+                        
                       ],
                     ),
                 ],
               ),
             ),
           ),
-
           ],
         ),
       ),

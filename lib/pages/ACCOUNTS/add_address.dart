@@ -305,7 +305,7 @@ print(response.statusCode);
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async{
-            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>customer_list()));
                        
           },
         ),

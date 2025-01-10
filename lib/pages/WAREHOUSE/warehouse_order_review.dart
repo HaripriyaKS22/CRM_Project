@@ -172,6 +172,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
           SnackBar(
             content: Text('status updated successfully'),
             duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
           ),
         );
       } else {
@@ -235,41 +236,47 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
     }
   }
 
-  Future<void> getcourierservices() async {
-    try {
-      final token = await getTokenFromPrefs();
+   Future<void> getcourierservices() async {
+  try {
+    final token = await getTokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/courier/service/data/'),
-        headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+    var response = await http.get(
+      Uri.parse('$api/api/parcal/service/'),
+      headers: {
+        'Authorization': ' Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print("corierrrrrrrrrrrrrrrrr${response.body}");
+    
+    // Ensure the response is in the expected format
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      
+      // Access the 'data' field which contains the list of courier services
       List<Map<String, dynamic>> Courierlist = [];
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
-        for (var productData in parsed) {
+      // Check if 'data' exists in the response
+      if (parsed.containsKey('data')) {
+        for (var productData in parsed['data']) {
           Courierlist.add({
             'id': productData['id'],
             'name': productData['name'],
           });
         }
-        setState(() {
-          courierdata = Courierlist;
-          print("courierdata:::::::::$courierdata");
-        });
       }
-    } catch (error) {
-      print("Error: $error");
-    }
-  }
 
+      setState(() {
+        courierdata = Courierlist;
+        print("courierdata$Courierlist");
+      });
+
+    }
+  } catch (error) {
+    print("Error: $error");
+  }
+}
   Future<void> getmanagers() async {
     try {
       final token = await getTokenFromPrefs();
@@ -316,7 +323,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
     final token = await getTokenFromPrefs();
     try {
       var request = http.MultipartRequest(
-          'POST', Uri.parse('$api/api/warehouse/datadd/'));
+          'POST', Uri.parse('$api/api/warehouse/data/'));
 
       // Add headers to the request
       request.headers['Authorization'] = 'Bearer $token';
@@ -352,8 +359,8 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
           service.text; // Assuming service.text is already a string
       request.fields['tracking_id'] =
           transactionid.text; // Assuming transactionid.text is already a string
-      request.fields['shipping_charge'] =
-          shippingcharge.text.toString(); // Ensure shipping charge is a string
+      // request.fields['shipping_charge'] =
+      //     shippingcharge.text.toString(); // Ensure shipping charge is a string
       request.fields['status'] =
           selectedStatus ?? ''; // Ensure selectedStatus is not null
 
@@ -379,7 +386,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
       print("Response: ${response.body}");
-
+print("Response: ${response.statusCode}");
       // Handle response based on status code
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -712,113 +719,113 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
 
   double totalDiscount = 0.0; // Define at the class level
   Future<void> fetchOrderItems() async {
-    try {
-      print('$api/api/order/${widget.id}/items/');
-      final token = await getTokenFromPrefs();
-      final jwt = JWT.decode(token!);
-      var name = jwt.payload['name'];
-      var id = jwt.payload['id'];
-      setState(() {
-        createdBy = name;
-        loginid = id;
-      });
-      print("Decoded Token Payload: ${jwt.payload}");
-      print("User ID: $createdBy");
-      var response = await http.get(
-        Uri.parse('$api/api/order/${widget.id}/items/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        ord = parsed['order'];
-        List<dynamic> itemsData = parsed['items'];
-        getaddress(ord['customer']['id']);
-
-        List<Map<String, dynamic>> orderList = [];
-        double calculatedNetAmount = 0.0;
-        double calculatedTotalTax = 0.0;
-        double calculatedPayableAmount = 0.0;
-        double calculatedTotalDiscount = 0.0;
-
-        // Process each item and calculate totals
-        for (var item in itemsData) {
-          orderList.add({
-            'id': item['id'],
-            'name': item['name'],
-            'quantity': item['quantity'],
-            'rate': item['rate'],
-            'tax': item['tax'],
-            'discount': item['discount'],
-            'actual_price': item['actual_price'],
-            'exclude_price': item['exclude_price'],
-            'images': item['images'],
-          });
-
-          // Convert values to double for safe calculation
-          double excludePrice = (item['exclude_price'] ?? 0).toDouble();
-          double actualPrice = (item['actual_price'] ?? 0).toDouble();
-          double discount = (item['discount'] ?? 0).toDouble();
-          int quantity = item['quantity'] ?? 1;
-
-          // Add the exclude_price to net amount
-          calculatedNetAmount += excludePrice;
-
-          // Calculate and add the tax amount for each product
-          double taxAmountForItem = actualPrice - excludePrice;
-          calculatedTotalTax += taxAmountForItem;
-
-          // Add discount amount for each product
-          calculatedTotalDiscount += discount * quantity;
-
-          // Calculate payable amount after subtracting discount
-          double payableForItem = (actualPrice - discount) * quantity;
-          calculatedPayableAmount += payableForItem;
-        }
-
-        // Calculate the sum of payment receipts
-        double paymentReceiptsSum = 0.0;
-        for (var receipt in parsed['order']['payment_receipts']) {
-          paymentReceiptsSum +=
-              double.tryParse(receipt['amount'].toString()) ?? 0.0;
-          print("paymentReceiptsSum:$paymentReceiptsSum");
-        }
-
-        // Calculate remaining amount after comparing with calculatedPayableAmount
-        double remainingAmount = 0.0;
-        if (paymentReceiptsSum > calculatedPayableAmount) {
-          remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
-          flag = true;
-        } else {
-          remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
-          flag = false;
-        }
-        getcompany(ord['company']);
-
+      try {
+        print('$api/api/order/${widget.id}/items/');
+        final token = await getTokenFromPrefs();
+        final jwt = JWT.decode(token!);
+        var name = jwt.payload['name'];
         setState(() {
-          items = orderList;
-          netAmountBeforeTax = calculatedNetAmount;
-          totalTaxAmount = calculatedTotalTax;
-          payableAmount = calculatedPayableAmount;
-          totalDiscount = calculatedTotalDiscount;
-          Balance = remainingAmount;
-          print("Net Amount Before Tax: $netAmountBeforeTax");
-          print("Total Tax Amount: $totalTaxAmount");
-          print("Payable Amount: $payableAmount");
-          print("Total Discount: $totalDiscount");
-          print("Payment Receipts Sum: $paymentReceiptsSum");
-          print("Remaining Amount: $remainingAmount");
+          createdBy = name;
         });
-      } else {
-        print("Failed to fetch data. Status Code: ${response.statusCode}");
+        print("Decoded Token Payload: ${jwt.payload}");
+        print("User ID: $createdBy");
+        print('$api/api/order/${widget.id}/items/');
+        var response = await http.get(
+          Uri.parse('$api/api/order/${widget.id}/items/'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        );
+  print("productttttttttttttttttssssssssssss${response.body}");
+        if (response.statusCode == 200) {
+          final parsed = jsonDecode(response.body);
+          ord = parsed['order'];
+          print("Orderrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr: $ord");
+          List<dynamic> itemsData = parsed['items'];
+          getaddress(ord['customer']['id']);
+
+          List<Map<String, dynamic>> orderList = [];
+          double calculatedNetAmount = 0.0;
+          double calculatedTotalTax = 0.0;
+          double calculatedPayableAmount = 0.0;
+          double calculatedTotalDiscount = 0.0;
+
+          // Process each item and calculate totals
+          for (var item in itemsData) {
+            orderList.add({
+              'id': item['id'],
+              'name': item['name'],
+              'quantity': item['quantity'],
+              'rate': item['rate'],
+              'tax': item['tax'],
+              'discount': item['discount'],
+              'actual_price': item['actual_price'],
+              'exclude_price': item['exclude_price'],
+              'images': item['image'],
+            });
+
+            // Convert values to double for safe calculation
+            double excludePrice = (item['exclude_price'] ?? 0).toDouble();
+            double actualPrice = (item['actual_price'] ?? 0).toDouble();
+            double discount = (item['discount'] ?? 0).toDouble();
+            final quantity = int.tryParse(item['quantity'].toString()) ?? 1; // Ensure it's an integer
+
+            // Add the exclude_price to net amount
+            calculatedNetAmount += excludePrice;
+
+            // Calculate and add the tax amount for each product
+            double taxAmountForItem = actualPrice - excludePrice;
+            calculatedTotalTax += taxAmountForItem;
+
+            // Add discount amount for each product
+            calculatedTotalDiscount += discount * quantity;
+
+            // Calculate payable amount after subtracting discount
+            double payableForItem = (actualPrice - discount) * quantity;
+            calculatedPayableAmount += payableForItem;
+          }
+
+          // Calculate the sum of payment receipts
+          double paymentReceiptsSum = 0.0;
+          for (var receipt in parsed['order']['recived_payment']) {
+            paymentReceiptsSum +=
+                double.tryParse(receipt['amount'].toString()) ?? 0.0;
+            print("paymentReceiptsSum:$paymentReceiptsSum");
+          }
+
+          // Calculate remaining amount after comparing with calculatedPayableAmount
+          double remainingAmount = 0.0;
+          if (paymentReceiptsSum > calculatedPayableAmount) {
+            remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
+            flag = true;
+          } else {
+            remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
+            flag = false;
+          }
+         // getcompany(ord['company']);
+
+          setState(() {
+            items = orderList;
+            netAmountBeforeTax = calculatedNetAmount;
+            totalTaxAmount = calculatedTotalTax;
+            payableAmount = calculatedPayableAmount;
+            totalDiscount = calculatedTotalDiscount;
+            Balance = remainingAmount;
+            print("Net Amount Before Tax: $netAmountBeforeTax");
+            print("Total Tax Amount: $totalTaxAmount");
+            print("Payable Amount: $payableAmount");
+            print("Total Discount: $totalDiscount");
+            print("Payment Receipts Sum: $paymentReceiptsSum");
+            print("Remaining Amount: $remainingAmount");
+          });
+        } else {
+          print("Failed to fetch data. Status Code: ${response.statusCode}");
+        }
+      } catch (error) {
+        print("Error: $error");
       }
-    } catch (error) {
-      print("Error: $error");
     }
-  }
 
   Future<void> removeproduct(int Id) async {
     final token = await getTokenFromPrefs();
@@ -1010,9 +1017,9 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                               color: const Color.fromARGB(255, 0, 0, 0),
                             ),
                           ),
-                          Text(
-                            companyname != null
-                                ? companyname ?? 'Company'
+                         Text(
+                            ord != null
+                                ? ord['company']['name'] ?? 'Company'
                                 : 'Loading...',
                             style: TextStyle(color: Colors.black),
                           ),
@@ -1299,7 +1306,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
                                     image: NetworkImage(
-                                        '$api${item["images"][0]}'),
+                                        '${item["images"]}'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -1580,7 +1587,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                                     SizedBox(), // Removes default underline
                                 hint: Text('Select a Parcel Service'),
                                 value: selectedserviceId,
-                                items: company.map((item) {
+                                items: courierdata.map((item) {
                                   return DropdownMenuItem<int>(
                                     value: item['id'],
                                     child: Text(item['name']),
@@ -1610,16 +1617,16 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      TextField(
-                        controller: shippingcharge,
-                        decoration: InputDecoration(
-                          labelText: 'Shipping Charge',
-                          labelStyle: TextStyle(fontSize: 13),
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 8.0),
-                        ),
-                      ),
+                      // TextField(
+                      //   controller: shippingcharge,
+                      //   decoration: InputDecoration(
+                      //     labelText: 'Shipping Charge',
+                      //     labelStyle: TextStyle(fontSize: 13),
+                      //     border: OutlineInputBorder(),
+                      //     contentPadding: EdgeInsets.symmetric(
+                      //         horizontal: 8.0, vertical: 8.0),
+                      //   ),
+                      // ),
                       SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: selectedStatus,
@@ -1690,12 +1697,32 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                       ),
                       SizedBox(height: 12), // Reduced spacing
 
-                      ElevatedButton(
-                          onPressed: () {
-                            addboxdetails(selectedImage, selectedDate, context);
-                            updatestatus();
-                          },
-                          child: Text("Submit"))
+                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                       children: [
+                         ElevatedButton(
+                           onPressed: () {
+                             addboxdetails(selectedImage, selectedDate, context);
+                             //updatestatus();
+                           },
+                           style: ElevatedButton.styleFrom(
+                             backgroundColor: Colors.blue, // Button background color
+                             foregroundColor: Colors.white, // Text color
+                             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding inside the button
+                             shape: RoundedRectangleBorder(
+                               borderRadius: BorderRadius.circular(10), // Rounded corners
+                             ),
+                             elevation: 5, // Shadow effect
+                             fixedSize: Size(200, 50), // Width and height of the button
+                           ),
+                           child: Text(
+                             "Submit",
+                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Text styling
+                           ),
+                         ),
+                       ],
+                     ),
+
                     ],
                   ),
                 ),
@@ -1707,7 +1734,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Warehouse Orders',
+                    'BOX Details',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -1715,10 +1742,10 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  ord == null || ord['warehouse_orders'] == null
+                  ord == null || ord['warehouse'] == null
                       ? Center(
                           child: Text(
-                            'No Warehouse Orders Available',
+                            'No BOX Details Available',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey,
@@ -1727,7 +1754,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                         )
                       : Column(
                           children:
-                              ord['warehouse_orders'].map<Widget>((order) {
+                              ord['warehouse'].map<Widget>((order) {
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 8.0),

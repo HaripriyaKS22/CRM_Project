@@ -9,6 +9,8 @@ import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
@@ -73,112 +75,31 @@ class _Stock_ReportState extends State<Stock_Report> {
   );
 }
   // Method to filter orders by single date
-  void _filterOrdersBySingleDate() {
-    if (selectedDate != null) {
-      setState(() {
-        salesReportList = salesReportList.where((order) {
-          final orderDate = _parseDate(order['date']);
-          return orderDate.year == selectedDate!.year &&
-              orderDate.month == selectedDate!.month &&
-              orderDate.day == selectedDate!.day;
-        }).toList();
-        _updateTotals();
-      });
-    }
-  }
-
-  // Method to filter orders between two dates, inclusive of start and end dates
-  void _filterOrdersByDateRange() {
-    if (startDate != null && endDate != null) {
-      setState(() {
-        salesReportList = salesReportList.where((order) {
-          final orderDate = _parseDate(order['date']);
-          return (orderDate.isAtSameMomentAs(startDate!) ||
-              orderDate.isAtSameMomentAs(endDate!) ||
-              (orderDate.isAfter(startDate!) && orderDate.isBefore(endDate!)));
-        }).toList();
-        _updateTotals();
-      });
-    }
-  }
-
-  // Function to parse both MM/dd/yy and yyyy-MM-dd formats
-  DateTime _parseDate(String dateString) {
-    try {
-      return DateFormat('MM/dd/yy').parseStrict(dateString);
-    } catch (e) {
-      try {
-        return DateTime.parse(dateString);
-      } catch (e) {
-        throw FormatException('Invalid date format: $dateString');
-      }
-    }
-  }
-
+ 
   // Function to update totals based on filtered data
-  void _updateTotals() {
-    double tempTotalstock = 0.0;
-    double tempTotalsold = 0.0;
-    double tempremaining = 0.0;
-    double tempApprovedAmount = 0.0;
-    double tempRejectedBills = 0.0;
-    double tempRejectedAmount = 0.0;
+ void _updateTotals() {
+  double tempTotalstock = 0.0;
+  double tempTotalsold = 0.0;
+  double tempTotalPrice = 0.0;
 
-    for (var reportData in salesReportList) {
-      tempTotalstock += reportData['stock_quantity'];
-            
+  for (var reportData in salesReportList) {
+    // Accumulate stock quantities
+    tempTotalstock += reportData['stock_quantity'];
 
-      tempTotalsold += reportData['items_sold'];
-      tempremaining += reportData['remaining_stock'];
-      // tempApprovedAmount += reportData['approved']['amount'];
-      // tempRejectedBills += reportData['rejected']['bills'];
-      // tempRejectedAmount += reportData['rejected']['amount'];
-    }
-
-    setState(() {
-      totalstock = tempTotalstock;
-      
-      totalsold = tempTotalsold;
-      remaingitem = tempremaining;
-      // approvedAmount = tempApprovedAmount;
-      // rejectedBills = tempRejectedBills;
-      // rejectedAmount = tempRejectedAmount;
-    });
+    // Calculate total price for each product (price * quantity)
+    tempTotalsold += reportData['items_sold']; // Total items sold (this seems to represent price as well)
+    
+    // Assuming 'items_sold' is the price, and 'stock_quantity' is the quantity.
+    tempTotalPrice += reportData['stock_quantity'] * reportData['items_sold'];
   }
 
-  Future<void> _selectSingleDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        
-      });
-      _filterOrdersBySingleDate();
-    }
-  }
-
-  Future<void> _selectDateRange(BuildContext context) async {
-    final DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-      initialDateRange: startDate != null && endDate != null
-          ? DateTimeRange(start: startDate!, end: endDate!)
-          : null,
-    );
-    if (picked != null) {
-      setState(() {
-        startDate = picked.start;
-        endDate = picked.end;
-      });
-      _filterOrdersByDateRange();
-    }
-  }
+  setState(() {
+    totalstock = tempTotalstock;
+    totalsold = tempTotalsold;
+    remaingitem = tempTotalstock - tempTotalsold; // You can calculate remaining items as stock - sold
+    approvedAmount = tempTotalPrice; // If you want to show approved amounts in the summary, use this
+  });
+}
 
   drower d = drower();
 
@@ -194,7 +115,7 @@ class _Stock_ReportState extends State<Stock_Report> {
       final token = await getTokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/sold/products/'),
+        Uri.parse('$api/api/product/stock/report/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -210,12 +131,13 @@ class _Stock_ReportState extends State<Stock_Report> {
 
         List<Map<String, dynamic>> salesReportDataList = [];
         for (var reportData in salesData) {
+      String imageUrl = "${reportData['image']}";
+
           salesReportDataList.add({
-            'date': reportData['date'],
-            'product_title': reportData['product_title'],
-            'stock_quantity': reportData['stock_quantity'],
-            'items_sold': reportData['items_sold'],
-            'remaining_stock': reportData['remaining_stock'],            
+            'product_title': reportData['name'],
+            'stock_quantity': reportData['stock'],
+            'items_sold': reportData['selling_price'],
+            'image':imageUrl,            
           });
         }
         setState(() {
@@ -304,7 +226,10 @@ class _Stock_ReportState extends State<Stock_Report> {
     );
   }
 
-
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -314,216 +239,53 @@ class _Stock_ReportState extends State<Stock_Report> {
           "Stock Report",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
+       leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Custom back arrow
+          onPressed: () async{
+                    final dep= await getdepFromPrefs();
+if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else {
+    Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+            );
+
+}
+           
+          },
+        ),
+        
         actions: [
           IconButton(
             icon: Image.asset('lib/assets/profile.png'),
             onPressed: () {},
           ),
-          IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () {
+          // IconButton(
+          //   icon: Icon(Icons.calendar_today),
+          //   onPressed: () {
               
-               _selectSingleDate(context);
-            }
-          ),
-          IconButton(
-            icon: Icon(Icons.date_range),
-            onPressed: () => _selectDateRange(context),
-          ),
+          //      _selectSingleDate(context);
+          //   }
+          // ),
+          // IconButton(
+          //   icon: Icon(Icons.date_range),
+          //   onPressed: () => _selectDateRange(context),
+          // ),
         ],
       ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        "lib/assets/logo.png",
-                        width: 150, // Change width to desired size
-                        height: 150, // Change height to desired size
-                        fit: BoxFit
-                            .contain, // Use BoxFit.contain to maintain aspect ratio
-                      ),
-                    ],
-                  )),
-              ListTile(
-                leading: Icon(Icons.dashboard),
-                title: Text('Dashboard'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => dashboard()));
-                },
-              ),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
-              ]),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Company'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_company()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Departments'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => add_department()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Supervisors'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => add_supervisor()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Family'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_family()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Bank'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_bank()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('States'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_state()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Attributes'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_attribute()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Services'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CourierServices()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-               ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Delivery Notes'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => WarehouseOrderView(status: null,)));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              Divider(),
-              _buildDropdownTile(context, 'Customers', [
-                'Add Customer',
-                'Customers',
-              ]),
-              _buildDropdownTile(context, 'Staff', [
-                'Add Staff',
-                'Staff',
-              ]),
-              _buildDropdownTile(context, 'Credit Note', [
-                'Add Credit Note',
-                'Credit Note List',
-              ]),
-              _buildDropdownTile(context, 'Proforma Invoice', [
-                'New Proforma Invoice',
-                'Proforma Invoice List',
-              ]),
-              _buildDropdownTile(context, 'Delivery Note',
-                  ['Delivery Note List', 'Daily Goods Movement']),
-              _buildDropdownTile(
-                  context, 'Orders', ['New Orders', 'Orders List']),
-              Divider(),
-              Text("Others"),
-              Divider(),
-              _buildDropdownTile(context, 'Product', [
-                'Product List',
-                'Product Add',
-                'Stock',
-              ]),
-              _buildDropdownTile(context, 'Expence', [
-                'Add Expence',
-                'Expence List',
-              ]),
-              _buildDropdownTile(
-                  context, 'GRV', ['Create New GRV', 'GRVs List']),
-              _buildDropdownTile(context, 'Banking Module',
-                  ['Add Bank ', 'List', 'Other Transfer']),
-              Divider(),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Methods'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Methods()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.chat),
-                title: Text('Chat'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(Icons.exit_to_app),
-                title: Text('Logout'),
-                onTap: () {
-                  logout();
-                },
-              ),
-            ],
-          ),
-        ),
+        
       body:Column(
   children: [
     // Search bar
@@ -532,7 +294,7 @@ class _Stock_ReportState extends State<Stock_Report> {
       child: TextField(
         controller: searchController,
         decoration: InputDecoration(
-          hintText: "Search Staff...",
+          hintText: "Search product...",
           prefixIcon: Icon(Icons.search),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30.0),
@@ -562,107 +324,95 @@ class _Stock_ReportState extends State<Stock_Report> {
 
     // Main content in Stack
     Expanded(
-      child: Stack(
-        children: [
-          // Main content: Sales report list
-          SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: 260),
-            child: Column(
-              children: salesReportList.map((reportData) {
-                return Card(
-                  color: Colors.white,
-                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Date: ${reportData['date']}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        Divider(color: Colors.grey),
-                        SizedBox(height: 8),
-                        _buildRow('Product Title :', reportData['product_title']),
-                        _buildRow('Items Sold :', reportData['items_sold']),
-                        _buildRow('Stock Quantity :', reportData['stock_quantity']),
-                        _buildRow('Remaining Stock :', reportData['remaining_stock']),
-                      ],
+      child: RefreshIndicator(
+        onRefresh: getStockReport,
+        child: Stack(
+          children: [
+            // Main content: Sales report list
+            SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: 260),
+              child: Column(
+                children: salesReportList.map((reportData) {
+                  return Card(
+                    color: Colors.white,
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-
-          // Bottom summary card
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Material(
-              elevation: 12,
-              color: const Color.fromARGB(255, 12, 80, 163),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  color: const Color.fromARGB(255, 12, 80, 163),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Total Report Summary',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                         
+                          SizedBox(height: 8),
+                          _buildRow('Product Title :', reportData['product_title']),
+                          _buildRow('Product Price :', reportData['items_sold']),
+                          _buildRow('Stock Quantity :', reportData['stock_quantity']),
+                        ],
                       ),
                     ),
-                    Divider(
-                      color: Colors.white.withOpacity(0.5),
-                      thickness: 1,
-                      indent: 0,
-                      endIndent: 0,
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Text('Total Stocks: ', style: TextStyle(color: Colors.white)),
-                        Spacer(),
-                        Text('$totalstock', style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text('Total Item Sold: ', style: TextStyle(color: Colors.white)),
-                        Spacer(),
-                        Text('$totalsold', style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text('Remaining Item: ', style: TextStyle(color: Colors.white)),
-                        Spacer(),
-                        Text('$remaingitem', style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
-                  ],
-                ),
+                  );
+                }).toList(),
               ),
             ),
+        
+            // Bottom summary card
+          Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Material(
+            elevation: 12,
+            color: const Color.fromARGB(255, 12, 80, 163),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            child: Container(
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          color: const Color.fromARGB(255, 12, 80, 163),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Total Report Summary',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            Divider(
+              color: Colors.white.withOpacity(0.5),
+              thickness: 1,
+              indent: 0,
+              endIndent: 0,
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Text('Total Stocks: ', style: TextStyle(color: Colors.white)),
+                Spacer(),
+                Text('$totalstock', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+            Row(
+              children: [
+                Text('Total Price: ', style: TextStyle(color: Colors.white)),
+                Spacer(),
+                Text('$approvedAmount', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+          ],
+        ),
+            ),
           ),
-        ],
+        ),
+        
+          ],
+        ),
       ),
     ),
   ],
