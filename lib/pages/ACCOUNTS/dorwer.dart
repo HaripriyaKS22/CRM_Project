@@ -37,6 +37,7 @@ import 'package:beposoft/pages/ACCOUNTS/statewise_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
+import 'package:beposoft/pages/BDM/bdm_customer_list.dart';
 import 'package:beposoft/pages/BDO/bdo_add_customer.dart';
 import 'package:beposoft/pages/BDO/bdo_customer_list.dart';
 import 'package:beposoft/pages/BDO/bdo_order_list.dart';
@@ -471,7 +472,7 @@ class drower{
       case 'Customers':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdo_customer_list()),
+          MaterialPageRoute(builder: (context) => bdm_customer_list()),
         );
         break;
       case 'Add Customer':

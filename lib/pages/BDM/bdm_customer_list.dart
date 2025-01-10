@@ -58,7 +58,6 @@ class _bdm_customer_listState extends State<bdm_customer_list> {
   void initState() {
     super.initState();
 initdata();
-    getcustomer();
   }
 
   void initdata() async{
@@ -136,7 +135,7 @@ print("==============0000000000000000000000000${response.body}");
         print("Matching Family Name: $familyName");
         
         });
-
+getcustomer();
       }
     } catch (error) {
       print("Error: $error");
@@ -205,15 +204,15 @@ print("==============0000000000000000000000000${response.body}");
         List<Map<String, dynamic>> managerlist = [];
 
         for (var productData in productsData) {
+          print("$family==${productData['family']}");
+           if(family==productData['family']){
           
-           if(familyName==productData['family']){
-          if(name==productData['manager']){
              managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
             'created_at': productData['created_at']
           });
-          }
+          
            
           }
              

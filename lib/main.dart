@@ -68,11 +68,11 @@ class _beposoftmainState extends State<beposoftmain> {
       debugShowCheckedModeBanner: false,
       
       home:tok
-          ? department == "Business Development Manager (BDM)"
+          ? department == "BDM"
               ? bdm_dashbord()  // Navigate to IT Dashboard if department is "it"
               : department == "warehouse"
                   ? WarehouseDashboard()  // Navigate to Warehouse Dashboard if department is "warehouse"
-                  : department == "Business Development Executive (BDE)"
+                  : department == "BDO"
                   ? bdo_dashbord() 
                   : department == "Admin"
                   ? admin_dashboard()
