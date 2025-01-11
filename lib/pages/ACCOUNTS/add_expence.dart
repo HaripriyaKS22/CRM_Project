@@ -68,7 +68,7 @@ class _expenceState extends State<expence> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
+   
   Future<void> getbank() async {
     final token = await gettokenFromPrefs();
     try {
@@ -390,425 +390,417 @@ else {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 25, left: 15, right: 15),
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border:
-                        Border.all(color: Color.fromARGB(255, 202, 202, 202)),
-                  ),
-                  width: 700,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 10,
-                            top: 10,
-                          ),
-                          child: Container(
-                            width: 600,
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 2, 65, 96),
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10)),
-                              border: Border.all(
-                                  color: Color.fromARGB(255, 2, 65, 96)),
-                            ),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  " New Expence ",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                                SizedBox(
-                                  height: 13,
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                          Text("Select Company"),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9, // Adjust width
-                height: 49,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: DropdownButton<String>(
-                        value: selectcompanyId.isEmpty ? null : selectcompanyId,
-                        hint: Text("Select Company"),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectcompanyId = newValue!;
-                            print("Selected Company ID: $selectcompanyId");
-                          });
-                        },
-                        items: company.map<DropdownMenuItem<String>>(
-                          (companyData) {
-                            return DropdownMenuItem<String>(
-                              value: companyData['id'].toString(),
-                              child: Text(companyData['name']),
-                            );
-                          },
-                        ).toList(),
-                        icon: Container(
-                          padding: EdgeInsets.only(left: 150),
-                          alignment: Alignment.centerRight,
-                          child: Icon(Icons.arrow_drop_down),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        right: 10,
+                        top: 10,
+                      ),
+                      child: Container(
+                        width: 600,
+                        decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 2, 65, 96),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10)),
+                          border: Border.all(
+                              color: Color.fromARGB(255, 2, 65, 96)),
+                        ),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              " New Expence ",
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                            SizedBox(
+                              height: 13,
+                            ),
+                            SizedBox(
+                              height: 10,
+                            )
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Amount",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: 350,
-                          child: TextField(
-                            controller: amount,
-                            decoration: InputDecoration(
-                              labelText: 'Amount',
-                              prefixIcon: Icon(Icons.currency_rupee_sharp),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 8.0), // Set vertical padding
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Purpose Of Payment",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: 350,
-                          child: TextField(
-                            controller: purposes,
-                            decoration: InputDecoration(
-                              labelText: 'Purpose',
-                              prefixIcon: Icon(Icons.mail_lock),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 6.0), // Set vertical padding
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Payement Date",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
+                    SizedBox(
+                      height: 20,
+                    ),
+                      Text("Select Company"),
                             Container(
-                              width: 350, // Set the desired width here
-                              height: 46, // Set the desired height here
+                              width: MediaQuery.of(context).size.width * 0.9, // Adjust width
+                              height: 49,
                               decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors
-                                      .grey, // You can set the border color here
-                                  width:
-                                      1.0, // You can adjust the border width here
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                    8.0), // You can adjust the border radius here
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 30,
-                                  ),
-                                  Text(
-                                    '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        color:
-                                            Color.fromARGB(255, 116, 116, 116)),
-                                  ),
-                                  SizedBox(
-                                    width: 162,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      _selectDate(context);
-                                      print('Icon pressed');
-                                    },
-                                    child: Icon(Icons.date_range),
-                                  ),
-                                ],
+              children: [
+                SizedBox(width: 20),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: selectcompanyId.isEmpty ? null : selectcompanyId,
+                    hint: Text("Select Company"),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectcompanyId = newValue!;
+                        print("Selected Company ID: $selectcompanyId");
+                      });
+                    },
+                    items: company.map<DropdownMenuItem<String>>(
+                      (companyData) {
+                        return DropdownMenuItem<String>(
+                          value: companyData['id'].toString(),
+                          child: Text(companyData['name']),
+                        );
+                      },
+                    ).toList(),
+                    icon: Container(
+                      padding: EdgeInsets.only(left: 150),
+                      alignment: Alignment.centerRight,
+                      child: Icon(Icons.arrow_drop_down),
+                    ),
+                  ),
+                ),
+              ],
                               ),
                             ),
-                          ],
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Amount",
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      width: 350,
+                      child: TextField(
+                        controller: amount,
+                        decoration: InputDecoration(
+                          labelText: 'Amount',
+                          prefixIcon: Icon(Icons.currency_rupee_sharp),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 8.0), // Set vertical padding
                         ),
-                        SizedBox(
-                          height: 20,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Purpose Of Payment",
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      width: 350,
+                      child: TextField(
+                        controller: purposes,
+                        decoration: InputDecoration(
+                          labelText: 'Purpose',
+                          prefixIcon: Icon(Icons.mail_lock),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 6.0), // Set vertical padding
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 1,
-                              width: 300,
-                              color: Color.fromARGB(255, 215, 201, 201),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Payement Date",
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          width: 350, // Set the desired width here
+                          height: 46, // Set the desired height here
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors
+                                  .grey, // You can set the border color here
+                              width:
+                                  1.0, // You can adjust the border width here
                             ),
-                          ],
+                            borderRadius: BorderRadius.circular(
+                                8.0), // You can adjust the border radius here
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 30,
+                              ),
+                              Text(
+                                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color:
+                                        Color.fromARGB(255, 116, 116, 116)),
+                              ),
+                              SizedBox(
+                                width: 162,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  _selectDate(context);
+                                  print('Icon pressed');
+                                },
+                                child: Icon(Icons.date_range),
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(
-                          height: 10,
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 1,
+                          width: 300,
+                          color: Color.fromARGB(255, 215, 201, 201),
                         ),
-                        // Paid By Dropdown (Staff)
-              Text("Paid By"),
-              Container(
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    // Paid By Dropdown (Staff)
+                            Text("Paid By"),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.8, // Adjust width
+                              height: 49,
+                              decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+              children: [
+                SizedBox(width: 20),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: selectpaybyId.isEmpty ? null : selectpaybyId,
+                    hint: Text("Select Paid By"),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectpaybyId = newValue!;
+                        print("Selected Paid By ID: $selectpaybyId");
+                      });
+                    },
+                    items: sta.map<DropdownMenuItem<String>>((staffData) {
+                      return DropdownMenuItem<String>(
+                        value: staffData['id'].toString(),
+                        child: Text(staffData['name']),
+                      );
+                    }).toList(),
+                    icon: Container(
+                      padding: EdgeInsets.only(left: 150),
+                      alignment: Alignment.centerRight,
+                      child: Icon(Icons.arrow_drop_down),
+                    ),
+                  ),
+                ),
+              ],
+                              ),
+                            ),
+              
+                    SizedBox(
+                      height: 10,
+                    ),
+                   Text("Bank Name"),
+                           Container(
                 width: MediaQuery.of(context).size.width * 0.8, // Adjust width
                 height: 49,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: DropdownButton<String>(
-                        value: selectpaybyId.isEmpty ? null : selectpaybyId,
-                        hint: Text("Select Paid By"),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectpaybyId = newValue!;
-                            print("Selected Paid By ID: $selectpaybyId");
-                          });
-                        },
-                        items: sta.map<DropdownMenuItem<String>>((staffData) {
-                          return DropdownMenuItem<String>(
-                            value: staffData['id'].toString(),
-                            child: Text(staffData['name']),
-                          );
-                        }).toList(),
-                        icon: Container(
-                          padding: EdgeInsets.only(left: 150),
-                          alignment: Alignment.centerRight,
-                          child: Icon(Icons.arrow_drop_down),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10), // Adds padding inside the container
+                  child: DropdownButtonHideUnderline( // Hides the default underline
+                    child: DropdownButton<String>(
+                      value: selectbankId.isEmpty ? null : selectbankId,
+                      hint: Text("Select Bank"),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectbankId = newValue!;
+                          print("Selected Bank ID: $selectbankId");
+                        });
+                      },
+                      items: bank.map<DropdownMenuItem<String>>((bankData) {
+                        return DropdownMenuItem<String>(
+                          value: bankData['id'].toString(),
+                          child: Text(bankData['name']),
+                        );
+                      }).toList(),
+                      icon: Icon(Icons.arrow_drop_down), // Correctly positions the dropdown icon
+                      isExpanded: true, // Ensures the dropdown covers the full width
+                    ),
+                  ),
+                ),
+              ),
+              
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 1,
+                          width: 350,
+                          color: Color.fromARGB(255, 215, 201, 201),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Transaction Details",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Transaction Id",
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      width: 350,
+                      child: TextField(
+                        controller: transactionid,
+                        decoration: InputDecoration(
+                          labelText: '',
+                          prefixIcon: Icon(Icons.numbers),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          contentPadding:
+                              EdgeInsets.symmetric(vertical: 8.0),
                         ),
                       ),
                     ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Description",
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      width: 350,
+                      child: TextField(
+                        controller: description,
+                        decoration: InputDecoration(
+                          labelText: 'Enter Description',
+                          prefixIcon: Icon(Icons.description),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 8.0), // Set vertical padding
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 1,
+                          width: 300,
+                          color: Color.fromARGB(255, 215, 201, 201),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        addexpense();
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          Color.fromARGB(255, 244, 66, 66),
+                        ),
+                        shape: MaterialStateProperty.all<
+                            RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                10), // Set your desired border radius
+                          ),
+                        ),
+                        fixedSize: MaterialStateProperty.all<Size>(
+                          Size(95, 15), // Set your desired width and heigh
+                        ),
+                      ),
+                      child: Text("Submit",
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    )
                   ],
                 ),
               ),
-
-                        SizedBox(
-                          height: 10,
-                        ),
-                       Text("Bank Name"),
-             Container(
-  width: MediaQuery.of(context).size.width * 0.8, // Adjust width
-  height: 49,
-  decoration: BoxDecoration(
-    border: Border.all(color: Colors.grey),
-    borderRadius: BorderRadius.circular(10),
-  ),
-  child: Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 10), // Adds padding inside the container
-    child: DropdownButtonHideUnderline( // Hides the default underline
-      child: DropdownButton<String>(
-        value: selectbankId.isEmpty ? null : selectbankId,
-        hint: Text("Select Bank"),
-        onChanged: (String? newValue) {
-          setState(() {
-            selectbankId = newValue!;
-            print("Selected Bank ID: $selectbankId");
-          });
-        },
-        items: bank.map<DropdownMenuItem<String>>((bankData) {
-          return DropdownMenuItem<String>(
-            value: bankData['id'].toString(),
-            child: Text(bankData['name']),
-          );
-        }).toList(),
-        icon: Icon(Icons.arrow_drop_down), // Correctly positions the dropdown icon
-        isExpanded: true, // Ensures the dropdown covers the full width
-      ),
-    ),
-  ),
-),
-
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 1,
-                              width: 350,
-                              color: Color.fromARGB(255, 215, 201, 201),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Transaction Details",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Transaction Id",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: 350,
-                          child: TextField(
-                            controller: transactionid,
-                            decoration: InputDecoration(
-                              labelText: '',
-                              prefixIcon: Icon(Icons.numbers),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 8.0),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Description",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: 350,
-                          child: TextField(
-                            controller: description,
-                            decoration: InputDecoration(
-                              labelText: 'Enter Description',
-                              prefixIcon: Icon(Icons.description),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 8.0), // Set vertical padding
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 1,
-                              width: 300,
-                              color: Color.fromARGB(255, 215, 201, 201),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            addexpense();
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Color.fromARGB(255, 244, 66, 66),
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    10), // Set your desired border radius
-                              ),
-                            ),
-                            fixedSize: MaterialStateProperty.all<Size>(
-                              Size(95, 15), // Set your desired width and heigh
-                            ),
-                          ),
-                          child: Text("Submit",
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        )
-                      ],
-                    ),
-                  )),
             ),
           ],
         ),

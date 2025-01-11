@@ -1,3 +1,4 @@
+import 'package:beposoft/pages/ACCOUNTS/add_Expenses.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_expence.dart';
@@ -14,8 +15,8 @@ import 'package:beposoft/pages/ACCOUNTS/daily_goods_movement.dart';
 import 'package:beposoft/pages/ACCOUNTS/damaged_stock_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_report.dart';
-import 'package:beposoft/pages/ACCOUNTS/expence_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_reeport.dart';
+import 'package:beposoft/pages/ACCOUNTS/expense_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
@@ -175,7 +176,7 @@ class drower{
       case 'Add Expence':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => expence()),
+          MaterialPageRoute(builder: (context) => add_expence()),
         );
         break;
       case 'Expence List':
