@@ -219,42 +219,50 @@ class _expence_listState extends State<expence_list> {
   }
 
   Future<void> getexpenselist() async {
-    try {
-      final token = await gettokenFromPrefs();
+  print("Fetching expense list...");
+  try {
+    final token = await gettokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/expense/get/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      List<Map<String, dynamic>> expenselist = [];
-print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrr${response.body}");
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
+    var response = await http.get(
+      Uri.parse('$api/api/expense/add/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    List<Map<String, dynamic>> expenselist = [];
+    print("Response body: ${response.body}");
 
-        for (var productData in parsed) {
-          expenselist.add({
-            'id': productData['id'],
-            'purpose_of_payment': productData['purpose_of_payment'],
-            'bank': productData['bank'],
-            'amount': productData['amount'],
-            'company':productData['company'],
-            'added_by': productData['added_by'],
-            'transaction_id':productData['transaction_id'],
-            'payed_by': productData['payed_by'],
-            'expense_date': productData['expense_date'],
-          });
-        }
-        setState(() {
-          expensedata = expenselist;
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      final productsDatas = parsed['data'];
+
+      for (var productData in productsDatas) {
+        expenselist.add({
+          'id': productData['id'],
+          'purpose_of_payment': productData['purpose_of_payment'],
+          'bank': productData['bank']?['id'], // Extract bank ID
+          'amount': productData['amount'],
+          'company': productData['company']?['id'], // Extract company ID
+          'company_name': productData['company']?['name'], // For direct use
+          'payed_by': productData['payed_by']?['id'], // Extract payed_by ID
+          'payed_by_name': productData['payed_by']?['name'], // For direct use
+          'transaction_id': productData['transaction_id'],
+          'expense_date': productData['expense_date'],
+          'added_by': productData['added_by'],
         });
       }
-    } catch (error) {
-      print("Error: $error");
+      setState(() {
+        expensedata = expenselist;
+      });
+    } else {
+      print("Failed to fetch expense list. Status code: ${response.statusCode}");
     }
+  } catch (error) {
+    print("Error: $error");
   }
+}
+
 
   drower d = drower();
   Widget _buildDropdownTile(
@@ -323,22 +331,27 @@ print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrr${response.body}");
                           'Amount: ₹${expense['amount']}',
                           style: TextStyle(fontSize: 14),
                         ),
-                        SizedBox(height: 8),
-                         Text(
-                          'Company: ${getNameById(company, expense['company'])}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
+                        
+                        Text(
+                        'Company: ${expense['company_name'] ?? 'Unknown'}',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        'Payed By: ${expense['payed_by_name'] ?? 'Unknown'}',
+                        style: TextStyle(fontSize: 14),
+                      ),
+
+                       
                         Text(
                           'Bank: ${getNameById(bank, expense['bank'])}',
                           style: TextStyle(fontSize: 14),
                         ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Payed By: ${getNameById(sta, expense['payed_by'] ?? -1)}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
+                     
+                        // Text(
+                        //   'Payed By: ${getNameById(sta, expense['payed_by'] ?? -1)}',
+                        //   style: TextStyle(fontSize: 14),
+                        // ),
+                        SizedBox(height: 2),
                         Text(
                           'Added By: ${expense['added_by'] ?? 'Unknown'}',
                           style: TextStyle(fontSize: 14),
@@ -380,11 +393,19 @@ print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrr${response.body}");
   }
 
   String getNameById(List<Map<String, dynamic>> dataList, dynamic id) {
-    if (id == null || dataList.isEmpty) return 'Unknown';
-    final item = dataList.firstWhere(
-      (element) => element['id'] == id,
-      orElse: () => {}, 
-    );
-    return item != null ? item['name'] : 'Unknown';
+  if (id == null || dataList.isEmpty) return 'Unknown';
+
+  if (id is Map<String, dynamic>) {
+    // If `id` is a map, extract the name directly
+    return id['name'] ?? 'Unknown';
   }
+
+  // For standard cases with an ID
+  final item = dataList.firstWhere(
+    (element) => element['id'] == id,
+    orElse: () => {},
+  );
+  return item.isNotEmpty ? item['name'] : 'Unknown';
+}
+
 }
