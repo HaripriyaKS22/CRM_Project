@@ -303,6 +303,8 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
     // Print the response status and body for debugging
     print("Response status: ${responseData.statusCode}");
     print("Response body: ${responseData.body}");
+    var res=responseData.body;
+   
 
     if (responseData.statusCode == 200) {
       // Parse the response body
@@ -324,7 +326,7 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
     } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          content: Text('Something went wrong. Please try again later.'),
+          content: Text('${responseData.body}'),
         ),
       );
     }
