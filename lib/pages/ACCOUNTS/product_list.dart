@@ -287,76 +287,79 @@ Padding(
 
 
            Expanded(
-             child: ListView.builder(
-               itemCount: filteredProducts.length, // Show filtered products
-               itemBuilder: (context, index) {
-                 final product = filteredProducts[index];
-                 return Padding(
-               padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-               child: Container(
-                 height: 80,
-                 decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10.0), // Add border radius here
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3), // changes position of shadow
-                ),
-              ],
-                 ),
-                 child: ListTile(
-              leading: product['image'] != null && product['image'].isNotEmpty
-                  ? Image.network(
-                      '${product['image']}', // Display product image
-                      width: 50, // Set width for the image
-                      height: 50, // Set height for the image
-                      fit: BoxFit.cover, // Adjust the image aspect ratio
-                      errorBuilder: (context, error, stackTrace) => Icon(Icons.error), // Handle image load error
-                    )
-                  : Icon(Icons.image_not_supported), // Placeholder if no image
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "${product['name']}",
-                      style: TextStyle(fontSize: 14),
-                      maxLines: 1, // Ensures the text only takes up one line
-                      overflow: TextOverflow.ellipsis, // Adds ellipsis if the text is too long
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => add_product_variant(id: product['id'], type: product['type']),
-                        ),
-                      );
-                    },
-                    label: Text(
-                      "View",
-                      style: TextStyle(color: Colors.white, fontSize: 10), // White text with smaller font size
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Blue background color
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
-                      minimumSize: const Size(60, 24), // Set a smaller minimum size
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                      ),
-                    ),
+             child: RefreshIndicator(
+              onRefresh: fetchProductList,
+               child: ListView.builder(
+                 itemCount: filteredProducts.length, // Show filtered products
+                 itemBuilder: (context, index) {
+                   final product = filteredProducts[index];
+                   return Padding(
+                 padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                 child: Container(
+                   height: 80,
+                   decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10.0), // Add border radius here
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3), // changes position of shadow
                   ),
                 ],
-              ),
+                   ),
+                   child: ListTile(
+                leading: product['image'] != null && product['image'].isNotEmpty
+                    ? Image.network(
+                        '${product['image']}', // Display product image
+                        width: 50, // Set width for the image
+                        height: 50, // Set height for the image
+                        fit: BoxFit.cover, // Adjust the image aspect ratio
+                        errorBuilder: (context, error, stackTrace) => Icon(Icons.error), // Handle image load error
+                      )
+                    : Icon(Icons.image_not_supported), // Placeholder if no image
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "${product['name']}",
+                        style: TextStyle(fontSize: 14),
+                        maxLines: 1, // Ensures the text only takes up one line
+                        overflow: TextOverflow.ellipsis, // Adds ellipsis if the text is too long
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => add_product_variant(id: product['id'], type: product['type']),
+                          ),
+                        );
+                      },
+                      label: Text(
+                        "View",
+                        style: TextStyle(color: Colors.white, fontSize: 10), // White text with smaller font size
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, // Blue background color
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
+                        minimumSize: const Size(60, 24), // Set a smaller minimum size
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                   ),
                  ),
+               );
+               
+                 },
                ),
-             );
-             
-               },
              ),
            ),
            SizedBox(height: 20,)

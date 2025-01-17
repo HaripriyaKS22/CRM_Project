@@ -72,6 +72,20 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
   final TextEditingController transactionid = TextEditingController();
   final TextEditingController shippingcharge = TextEditingController();
 
+
+
+ double? totalVolume; // Variable to store calculated volume
+
+  // Function to calculate volume
+  void calculateVolume() {
+    final lengthValue = double.tryParse(length.text) ?? 0.0;
+    final breadthValue = double.tryParse(breadth.text) ?? 0.0;
+    final heightValue = double.tryParse(height.text) ?? 0.0;
+
+    setState(() {
+      totalVolume = (lengthValue * breadthValue * heightValue) / 6000;
+    });
+  }
   File? selectedImage;
 
   void imageSelect() async {
@@ -106,19 +120,10 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
   }
 
   final List<String> statuses = [
-    'Pending',
-    'Approved',
-    'Invoice Created',
-    'Invoice Approved',
-    'Waiting For Confirmation',
-    'To Print',
-    'Invoice Rejectd',
-    'Processing',
-    'Refunded',
-    'Return',
-    'Completed',
-    'Cancelled',
-    'Shipped'
+   'Packing under Progress',
+    'Packed',
+    'Shipped',
+    
   ];
   double netAmountBeforeTax = 0.0; // Define at the class level
   double totalTaxAmount = 0.0; // Define at the class level
@@ -465,7 +470,7 @@ print("Response: ${response.statusCode}");
                 TextField(
                   controller: transactionIdController,
                   decoration: InputDecoration(
-                      labelText: 'Transaction ID',
+                      labelText: 'Tracking ID',
                       prefixIcon: Icon(Icons.receipt)),
                 ),
                 TextField(
@@ -1497,52 +1502,62 @@ print("Response: ${response.statusCode}");
                         ),
                       ),
                       SizedBox(height: 8), // Reduced spacing
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: length,
-                              decoration: InputDecoration(
-                                labelText: 'Length',
-                                labelStyle: TextStyle(
-                                    fontSize: 13), // Reduced font size
-                                border: OutlineInputBorder(),
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 8.0,
-                                    vertical: 8.0), // Reduced padding
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: height,
-                              decoration: InputDecoration(
-                                labelText: 'Height',
-                                labelStyle: TextStyle(fontSize: 13),
-                                border: OutlineInputBorder(),
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 8.0),
-                              ),
-                            ),
-                          ),
-                        ],
+                       Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: length,
+                      decoration: InputDecoration(
+                        labelText: 'Length',
+                        labelStyle: TextStyle(fontSize: 13),
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 8.0,
+                        ),
                       ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) => calculateVolume(),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: breadth,
+                      decoration: InputDecoration(
+                        labelText: 'Breadth',
+                        labelStyle: TextStyle(fontSize: 13),
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 8.0,
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) => calculateVolume(),
+                    ),
+                  ),
+                ],
+              ),
                       SizedBox(height: 8),
                       Row(
                         children: [
-                          Expanded(
-                            child: TextField(
-                              controller: breadth,
-                              decoration: InputDecoration(
-                                labelText: 'Breadth',
-                                labelStyle: TextStyle(fontSize: 13),
-                                border: OutlineInputBorder(),
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 8.0),
-                              ),
-                            ),
-                          ),
+                           Expanded(
+                    child: TextField(
+                      controller: height,
+                      decoration: InputDecoration(
+                        labelText: 'Height',
+                        labelStyle: TextStyle(fontSize: 13),
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 8.0,
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) => calculateVolume(),
+                    ),
+                  ),
                           SizedBox(width: 8),
                           Expanded(
                             child: TextField(
@@ -1558,7 +1573,21 @@ print("Response: ${response.statusCode}");
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 3),
+                       if (totalVolume != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "Total Volume: ${totalVolume!.toStringAsFixed(2)}",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                                        SizedBox(height: 5),
+
                       // TextField(
                       //   controller: service,
                       //   decoration: InputDecoration(

@@ -33,6 +33,7 @@ class _Sales_ReportState extends State<Sales_Report> {
   List<Map<String, dynamic>> salesReportList = [];
     List<Map<String, dynamic>> filterdata = [];
 List<Map<String, dynamic>> sta = [];
+  List<Map<String, dynamic>> fam = [];
 
   double totalBills = 0.0;
   double totalAmount = 0.0;
@@ -41,6 +42,7 @@ List<Map<String, dynamic>> sta = [];
   double rejectedBills = 0.0;
   double rejectedAmount = 0.0;
     String? selectedstaff;
+  String? selectedFamily;
 
   DateTime? selectedDate; // For single date filter
   DateTime? startDate; // For date range filter
@@ -51,6 +53,7 @@ List<Map<String, dynamic>> sta = [];
     super.initState();
     getSalesReport();
     getstaff();
+    getfamily();
   }
 
 Future<void> getstaff() async {
@@ -196,7 +199,37 @@ void _filterOrdersBySingleDate() {
       _filterOrdersByDateRange();
     }
   }
+ Future<void> getfamily() async {
+    try {
+      final token = await getTokenFromPrefs();
 
+      var response = await http.get(
+        Uri.parse('$api/api/familys/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      List<Map<String, dynamic>> familylist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        for (var productData in productsData) {
+          familylist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          fam = familylist;
+        });
+      }
+    } catch (error) {
+      // Handle error
+    }
+  }
   drower d = drower();
 
   // Get token from SharedPreferences
@@ -576,6 +609,53 @@ else {
      
       body: Column(
         children: [
+
+
+         Padding(
+  padding: const EdgeInsets.all(12.0),
+  child: Container(
+    padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 0.0),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.blue, width: 1.0),
+      borderRadius: BorderRadius.circular(30.0),
+    ),
+    child: DropdownButton<String>(
+      value: selectedFamily,
+      hint: Text('Select Family'),
+      isExpanded: true,
+      underline: SizedBox(), // Removes the default underline
+      items: fam.map((family) {
+        return DropdownMenuItem<String>(
+          value: family['name'],
+          child: Text(family['name']),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          selectedFamily = newValue;
+
+          if (selectedFamily == null || selectedFamily!.isEmpty) {
+            // Reset to the original data if no value is selected
+            filterdata = List.from(filterdata);
+          } else {
+            // Filter the data based on family__name
+            filterdata = filterdata.where((data) {
+              final staffOrders = data['staff_orders'] as List<dynamic>;
+              return staffOrders.any((order) =>
+                  order['family__name'].toString().toLowerCase() ==
+                  selectedFamily!.toLowerCase());
+            }).toList();
+          }
+        });
+      },
+    ),
+  ),
+),
+
+
+
+
+
             Padding(
   padding: const EdgeInsets.all(10),
   child: Container(
@@ -662,16 +742,13 @@ else {
                 Divider(color: Colors.grey),
                 SizedBox(height: 8),
                 
-                 _buildRow('Total Bills:', reportData['total_bills_in_date']?? 0),
-                 _buildRow('Total Amount:', reportData['amount']?? 0),
-              
+                _buildRow('Total Bills:', reportData['total_bills_in_date']?? 0),
+                _buildRow('Total Amount:', reportData['amount']?? 0),
                 _buildRow('Approved Bills:', reportData['approved']['bills'] ?? 0),
                 _buildRow('Approved Amount:', reportData['approved']['amount'] ?? 0.0),
                 _buildRow('Rejected Bills:', reportData['rejected']['bills'] ?? 0),
                 _buildRow('Rejected Amount:', reportData['rejected']['amount'] ?? 0.0),
                 SizedBox(height: 12),
-
-
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,

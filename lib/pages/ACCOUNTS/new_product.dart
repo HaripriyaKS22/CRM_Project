@@ -187,6 +187,7 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
     Map<String, dynamic> data = {
       'name': name.text,
       'hsn_code': hsncode.text,
+      'groupID': groupID.text,
       'type': selecttype,
       'unit': selectunit,
       'purchase_rate': purchaserate.text,

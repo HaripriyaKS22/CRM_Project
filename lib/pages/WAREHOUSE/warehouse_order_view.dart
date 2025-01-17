@@ -6,6 +6,7 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_review.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -608,6 +609,12 @@ else if(dep=="BDM" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
 else {

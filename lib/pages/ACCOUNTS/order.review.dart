@@ -81,6 +81,21 @@ statuses = [
   ];
 
         }
+        else{
+
+            statuses = [
+              
+              'Invoice Approved',
+              'Waiting For Confirmation',
+              'To Print',
+              'Packing under progress', 
+              'Packed',
+              'Ready to ship',
+              'Shipped',
+              'Invoice Rejectd',
+  ];
+
+        }
 
   
   }
@@ -225,90 +240,114 @@ statuses = [
     }
   }
 
-  void showAddDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Receipt Against Invoice Generate'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Received Date field with default today's date
-                TextField(
-                  readOnly: true,
-                  controller: receivedDateController,
-                  decoration: InputDecoration(
-                    labelText: 'Received Date',
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.calendar_today),
-                      onPressed: () => _selectDate(context),
+void showAddDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            title: Text('Receipt Against Invoice Generate'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Received Date field with default today's date
+                  TextField(
+                    readOnly: true,
+                    controller: receivedDateController,
+                    decoration: InputDecoration(
+                      labelText: 'Received Date',
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: () => _selectDate(context),
+                      ),
                     ),
                   ),
-                ),
-                TextField(
-                  controller: amountController,
-                  decoration: InputDecoration(labelText: 'Amount'),
-                  keyboardType: TextInputType.number,
-                ),
-                DropdownButtonFormField<String>(
-                  value: selectedBank,
-                  items: bank
-                      .map((bankItem) => DropdownMenuItem<String>(
-                            value: bankItem['id'].toString(),
-                            child: Text(bankItem['name']),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedBank = value; // Update selected bank
-                    });
-                  },
-                  decoration: InputDecoration(labelText: 'Bank'),
-                ),
-                TextField(
-                  controller: transactionIdController,
-                  decoration: InputDecoration(
-                      labelText: 'Transaction ID',
-                      prefixIcon: Icon(Icons.receipt)),
-                ),
-                TextField(
-                  readOnly: true, // Make this field non-editable
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person),
-                    hintText:
-                        createdBy ?? 'Loading...', // Display the creator's name
+                  SizedBox(height: 10), // Add spacing between fields
+                  TextField(
+                    controller: amountController,
+                    decoration: InputDecoration(labelText: 'Amount'),
+                    keyboardType: TextInputType.number,
                   ),
-                ),
+                  SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+  value: selectedBank,
+  items: bank
+      .map((bankItem) => DropdownMenuItem<String>(
+            value: bankItem['id'].toString(),
+            child: Text(bankItem['name']),
+          ))
+      .toList(),
+  onChanged: (value) {
+    setState(() {
+      selectedBank = value;
+    });
+  },
+  decoration: InputDecoration(
+    labelText: 'Bank',
+    contentPadding: EdgeInsets.symmetric(
+      vertical: 12.0,
+      horizontal: 10.0,
+    ),
+    border: OutlineInputBorder(),
+    isDense: true, // Makes the dropdown compact
+  ),
+  isExpanded: true, // Ensures the dropdown text fits properly
+),
 
-                TextField(
-                  controller: remarkController,
-                  decoration: InputDecoration(labelText: 'Remark (optional)'),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle save action here
 
-                AddReceipt(context);
-              },
-              child: Text('Save'),
+                  SizedBox(height: 10),
+                  TextField(
+                    controller: transactionIdController,
+                    decoration: InputDecoration(
+                      labelText: 'Transaction ID',
+                      prefixIcon: Icon(Icons.receipt),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  TextField(
+                    readOnly: true, // Make this field non-editable
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.person),
+                      hintText:
+                          createdBy ?? 'Loading...', // Display the creator's name
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  TextField(
+                    controller: remarkController,
+                    decoration: InputDecoration(
+                      labelText: 'Remark',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        );
-      },
-    );
-  }
+            actions: [
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle save action here
+                  AddReceipt(context);
+                },
+                child: Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 
   TableRow _buildTableRow(String label, String value) {
     return TableRow(
@@ -1804,7 +1843,7 @@ statuses = [
                         padding: const EdgeInsets.only(right: 10),
                         child: Container(
                           height: 50,
-                          width: 340,
+                          width: 360,
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey),
                           ),

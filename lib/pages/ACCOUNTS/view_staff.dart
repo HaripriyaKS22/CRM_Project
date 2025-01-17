@@ -15,6 +15,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer_ledger.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer_singleview.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
@@ -388,7 +389,7 @@ Expanded(
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => update_staff(
+              builder: (context) => Staff_Update(
                 id:staffData['id'],
               ),
             ),

@@ -1,12 +1,16 @@
+import 'dart:convert';
+
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
+import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(beposoftmain());
@@ -26,6 +30,7 @@ class _beposoftmainState extends State<beposoftmain> {
   void initState() {
     super.initState();
     check();
+    getbank();
   }
 
   Future<String?> gettokenFromPrefs() async {
@@ -40,6 +45,8 @@ class _beposoftmainState extends State<beposoftmain> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
   }
+
+bool tokenn=true;
   var department;
   void check() async {
     final token = await gettokenFromPrefs();
@@ -61,6 +68,30 @@ class _beposoftmainState extends State<beposoftmain> {
       print(tok);
     });
   }
+Future<void> getbank() async{
+  final token=await gettokenFromPrefs();
+  try{
+    final response= await http.get(Uri.parse('$api/api/banks/'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    }
+    );
+    List<Map<String, dynamic>> banklist = [];
+print("mainnnnnnnnnnnnnnnnnnnnnnn:${response.body}");
+final parsed = jsonDecode(response.body);
+print('mssssssssssggggggggggggggggg${parsed['message']}');
+if(parsed['message']=="Token has expired"){
+  tokenn=false;
+
+}
+     
+
+  }
+  catch(e){
+    print("error:$e");
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +101,7 @@ class _beposoftmainState extends State<beposoftmain> {
       home:tok
           ? department == "BDM"
               ? bdm_dashbord()  // Navigate to IT Dashboard if department is "it"
+
               : department == "warehouse"
                   ? WarehouseDashboard()  // Navigate to Warehouse Dashboard if department is "warehouse"
                   : department == "BDO"

@@ -6,11 +6,13 @@ import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/expense_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_family.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
@@ -37,22 +39,26 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class add_expence extends StatefulWidget {
-  const add_expence({super.key});
+class update_expence extends StatefulWidget {
+  final id;
+  const update_expence({super.key,required this.id});
 
   @override
-  State<add_expence> createState() => _add_expenceState();
+  State<update_expence> createState() => _update_expenceState();
 }
 
-class _add_expenceState extends State<add_expence> {
+class _update_expenceState extends State<update_expence> {
  @override
   void initState() {
     super.initState();
+initdata();
     getcompany();
     getstaff();
     getbank();
   }
-
+void initdata() async {
+    await getexpenselist();
+  }
 var url = "$api/api/add/department/";
  TextEditingController transactionid = TextEditingController();
   TextEditingController purposes = TextEditingController();
@@ -69,32 +75,7 @@ var departments;
     List<Map<String, dynamic>> bank = [];
 String? selectedpurpose; // Holds the selected value
   final List<String> items = ['water', 'electricity','salary','emi','rent','travel','Others'];
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
-
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
-
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
  String selectedstaff='';
     int? selectedstaffId;
         int? selectedbankId;
@@ -138,10 +119,6 @@ void logout() async {
     print("error:$e");
   }
 }
-
-
-
-
 List<Map<String, dynamic>> sta = [];
 
   Future<void> getstaff() async {
@@ -190,62 +167,12 @@ List<Map<String, dynamic>> sta = [];
 
   print('Current Time: $formattedTime');
 }
- Future<void> deletefamily(int Id) async {
-    final token = await gettokenFromPrefs();
-
-    try {
-      final response = await http.delete(
-        Uri.parse('$api/api/family/update/$Id/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
-    print(response.statusCode);
-    if(response.statusCode == 200){
-         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Color.fromARGB(255, 49, 212, 4),
-          content: Text('Deleted sucessfully'),
-        ),
-      );
-         Navigator.push(context, MaterialPageRoute(builder: (context)=>add_expence()));
-    }
-
-      if (response.statusCode == 204) {
-      } else {
-        throw Exception('Failed to delete wishlist ID: $Id');
-      }
-    } catch (error) {
-    }
-  }
-
   void removeProduct(int index) {
     setState(() {
       fam.removeAt(index);
     });
   }
-
- drower d=drower();
-   Widget _buildDropdownTile(BuildContext context, String title, List<String> options) {
-    return ExpansionTile(
-      title: Text(title),
-      children: options.map((option) {
-        return ListTile(
-          title: Text(option),
-          onTap: () {
-            Navigator.pop(context);
-            d.navigateToSelectedPage(context, option); // Navigate to selected page
-          },
-        );
-      }).toList(),
-    );
-  }
-
-  //searchable dropdown
-
- 
-
-  String? selectedValue;
+ String? selectedValue;
   final TextEditingController textEditingController = TextEditingController();
 
   @override
@@ -259,10 +186,7 @@ List<Map<String, dynamic>> sta = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   } 
-
-
-  
-  List<Map<String, dynamic>> company = [];
+List<Map<String, dynamic>> company = [];
 
   Future<void> getcompany() async {
     try {
@@ -324,7 +248,75 @@ String formatDate(DateTime date) {
 
 
 
-void addexpense() async {
+
+
+Future<void> getexpenselist() async {
+  try {
+    final token = await gettokenFromPrefs();
+    var response = await http.get(
+      Uri.parse('$api/api/expense/add/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    List<Map<String, dynamic>> expenselist = [];
+    print("Response Body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      final productsData = parsed['data'];
+
+      for (var productData in productsData) {
+        // Parse the expense_date string into a DateTime object
+        DateTime expenseDate = DateTime.parse(productData['expense_date']);
+        
+        expenselist.add({
+          'id': productData['id'],
+          'purpose_of_payment': productData['purpose_of_payment'],
+          'amount': productData['amount'],
+          'expense_date': expenseDate, // Store as DateTime
+          'transaction_id': productData['transaction_id'],
+          'description': productData['description'],
+          'added_by': productData['added_by'],
+          'company': productData['company'], // Handle as a map or ID
+          'payed_by': productData['payed_by'], // Handle as a map or ID
+          'bank': productData['bank'], // Handle as a map or ID
+        });
+      }
+
+    final selectedExpense = expenselist.firstWhere(
+  (expense) => expense['id'] == widget.id,
+  orElse: () => {}, // Return an empty map instead of null
+);
+      if (selectedExpense != null) {
+        setState(() {
+          transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
+          purposes.text = selectedExpense['purpose_of_payment'] ?? '';
+          amount.text = selectedExpense['amount']?.toString() ?? '';
+          description.text = selectedExpense['description'] ?? '';
+
+          // Parse nested objects (if necessary)
+          selectedCompanyId = selectedExpense['company']?['id'] as int? ?? selectedExpense['company'] as int?;
+          print("Selected Company ID: $selectedCompanyId");
+          selectedstaffId = selectedExpense['payed_by']?['id'] as int? ?? selectedExpense['payed_by'] as int?;
+          print("Selected Staff ID: $selectedstaffId");
+          selectedbankId = selectedExpense['bank']?['id'] as int? ?? selectedExpense['bank'] as int?;
+          
+          selectedDate = selectedExpense['expense_date']; // Should already be DateTime
+        });
+      }
+    } else {
+      print("Failed to fetch expenses: ${response.statusCode}");
+    }
+  } catch (error) {
+    print("Error: $error");
+  }
+}
+
+
+void updateexpense() async {
   print("nbvcbdjbc");
   final token = await gettokenFromPrefs();
 
@@ -340,8 +332,8 @@ void addexpense() async {
       return;
     }
 
-    var response = await http.post(
-      Uri.parse('$api/api/expense/add/'),
+    var response = await http.put(
+      Uri.parse('$api/api/expense/get/${widget.id}/'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -365,12 +357,12 @@ void addexpense() async {
       var responseData = jsonDecode(response.body);
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => add_expence()),
+        MaterialPageRoute(builder: (context) => expence_list()),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Color.fromARGB(255, 49, 212, 4),
-          content: Text('Expense added successfully'),
+          content: Text('Expense Updated successfully'),
         ),
       );
     } else {
@@ -406,27 +398,7 @@ void addexpense() async {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
-
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
+                   Navigator.pop(context);
            
           },
         ),
@@ -534,8 +506,11 @@ else {
           Container(
             child: TextField(
               controller: amount,
+              
               decoration: InputDecoration(
                 labelText: 'Amount',
+                                hintText: amount.text.isNotEmpty ? amount.text : 'Enter your amount',
+
                 labelStyle: TextStyle(
         fontSize: 13.0, // Adjust the font size as needed
       ),
@@ -649,122 +624,134 @@ else {
                       height: 5,
                     ),
 
+Container(
+  width: 310,
+  height: 49,
+  decoration: BoxDecoration(
+    border: Border.all(color: Colors.grey),
+    borderRadius: BorderRadius.circular(10),
+  ),
+  child: Row(
+    children: [
+      SizedBox(width: 20),
+      Flexible(
+        child: InputDecorator(
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: '',
+            contentPadding: EdgeInsets.symmetric(horizontal: 1),
+          ),
+          child: DropdownButton<Map<String, dynamic>>(
+  value: sta.isNotEmpty
+      ? sta.firstWhere(
+          (element) => element['id'] == selectedstaffId,
+          orElse: () => {'id': null, 'name': 'Select a Staff'}, // Default value
+        )
+      : null,
+  underline: Container(),
+  onChanged: sta.isNotEmpty
+      ? (Map<String, dynamic>? newValue) {
+          setState(() {
+            selectedstaffId = newValue?['id']; // Update the selected ID
+          });
+        }
+      : null,
+  items: sta.isNotEmpty
+      ? sta.map<DropdownMenuItem<Map<String, dynamic>>>(
+          (Map<String, dynamic> staff) {
+            return DropdownMenuItem<Map<String, dynamic>>(
+              value: staff,
+              child: Text(staff['name'], // Display the bank's `name`
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 12,
+                      ),), // Display the name of the staff
+            );
+          },
+        ).toList()
+      : [
+          DropdownMenuItem(
+            child: Text('No staff available'),
+            value: {'id': null, 'name': 'No staff available'}, // Default map
+          ),
+        ],
+  icon: Container(
+    alignment: Alignment.centerRight,
+    child: Icon(Icons.arrow_drop_down),
+  ),
+),
 
-                   Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Container(
-                          
-                          height: 49,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 20),
-                              Container(
-                                width: 270,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child: DropdownButton<int>(
-                                    value: selectedstaffId,
-                                      isExpanded: true,
-                                    underline: Container(), // This removes the underline
-                                     hint: Text('Select a Paid by',style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600]),),
-                                    onChanged: (int? newValue) {
-                                      setState(() {
-                                        selectedstaffId = newValue!;
-                                        print(selectedstaffId);
-                                      });
-                                    },
-                                    items: sta.map<DropdownMenuItem<int>>((staff) {
-                                      return DropdownMenuItem<int>(
-                                        value:staff['id'],
-                                        child: Text(staff['name'],style: TextStyle(fontSize: 12),),
-                                      );
-                                    }).toList(),
-                                    icon: Container(
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+        ),
+      ),
+    ],
+  ),
+),
 
                        SizedBox(height: 5,),
                      Text("Bank",style: TextStyle(fontSize: 12),),
                       SizedBox(height: 5,),
               
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                                              
-                                                height: 49,
-                                                decoration: BoxDecoration(
-                            border: Border.all(color: const Color.fromARGB(255, 206, 206, 206)),
-                            borderRadius: BorderRadius.circular(10),
-                                                ),
-                                                child: Row(
-                            children: [
-                              SizedBox(width: 20),
-                              Container(
-                                width: 270,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Select',
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child:DropdownButtonHideUnderline(
-                                          child: DropdownButton<int>(
-                                        hint: Text(
-                                          'Select Bank',
-                                          
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600]),
-                                          
-                                        ),
-                                        value: selectedbankId,
-                                        isExpanded: true,
-                                        dropdownColor: const Color.fromARGB(255, 255, 255, 255),
-                                        icon: Icon(Icons.arrow_drop_down, color:const Color.fromARGB(255, 107, 107, 107)),
-                                        onChanged: (int? newValue) {
-                                          setState(() {
-                                            selectedbankId = newValue; // Store the selected family ID
-                                            print("$selectedbankId");
-                                          });
-                                        },
-                                        items: bank.map<DropdownMenuItem<int>>((bank) {
-                                          return DropdownMenuItem<int>(
-                                            value: bank['id'],
-                                            child: Text(
-                                              bank['name'],
-                                              style: TextStyle(color: Colors.black87, fontSize: 12),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),)
-                                      
-                                    
-                                  
-                                ),
-                              ),
-                            ],
-                                                ),
-                                              ),
-                          ),
-
+Padding(
+  padding: const EdgeInsets.only(right: 10),
+  child: Container(
+    height: 49,
+    decoration: BoxDecoration(
+      border: Border.all(color: const Color.fromARGB(255, 206, 206, 206)),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Row(
+      children: [
+        SizedBox(width: 20),
+        Container(
+          width: 270,
+          child: InputDecorator(
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Select Bank',
+              contentPadding: EdgeInsets.symmetric(horizontal: 1),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                hint: Text(
+                  'Select Bank',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                value: selectedbankId, // Selected bank ID
+                isExpanded: true,
+                dropdownColor: const Color.fromARGB(255, 255, 255, 255),
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: const Color.fromARGB(255, 107, 107, 107),
+                ),
+                onChanged: (int? newValue) {
+                  setState(() {
+                    selectedbankId = newValue; // Update the selected bank ID
+                    print("Selected Bank ID: $selectedbankId");
+                  });
+                },
+                items: bank.map<DropdownMenuItem<int>>((bankItem) {
+                  return DropdownMenuItem<int>(
+                    value: bankItem['id'], // Use the bank's `id`
+                    child: Text(
+                      bankItem['name'], // Display the bank's `name`
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 12,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
 
    Text(
             "Transaction Id",
@@ -814,13 +801,13 @@ else {
               ),
             ),
           ),
-
-
           SizedBox(height: 15),
           ElevatedButton(
             onPressed: () {
               setState(() {
-                addexpense();
+
+                updateexpense();
+
               });
             },
             style: ButtonStyle(
@@ -848,79 +835,13 @@ else {
   ),
 ),
  SizedBox(height: 15),
- 
-
           ],
         ),
       ),
     );
   },
 )
-
-
-
-
     );
-  }
-
-
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => credit_note_list()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
-        case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-        case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-     
-      
-      default:
-        
-        break;
-    }
   }
 
 }

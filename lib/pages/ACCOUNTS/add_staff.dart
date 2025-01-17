@@ -12,6 +12,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_supervisor.dart';
@@ -1981,7 +1982,7 @@ else {
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      update_staff(
+                                                      update_expence(
                                                           id: sta[i]['id'])));
                                         },
                                         child: Image.asset(
