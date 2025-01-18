@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:intl/intl.dart'; // Add this dependency if not already added
 class Staff_Update extends StatefulWidget {
   final id;
 
@@ -40,23 +41,25 @@ class _Staff_UpdateState extends State<Staff_Update> {
   List<int> _selectedFamily = [];
   List<int> _selectedManager = [];
   String? selectstate;
+  String staffId = '';
 
   List<int> allocated_states = []; // To store state IDs
 List<String> allocatedStateNames = []; // To store state names
 
-
+  List<String> type = ["approved", 'disapproved'];
   List<int> _selectedDep = [];
   List<Map<String, dynamic>> stat = [];
 
   List<Map<String, dynamic>> dep = [];
 
   List<Map<String, dynamic>> manager = [];
+  List<Map<String, dynamic>> Warehouses = [];
 
   String? signatureUrl; // This is the URL of the current signature from API
   String? gender;
   String? maritalStatus;
-  String? approvalStatus;
-
+  String? approvalStatus=null;
+final DateFormat dateFormatter = DateFormat('yyyy-MM-dd');
   // Variables to store the selected dates
   DateTime? selectedDateOfBirth;
   DateTime? selectedDrivingLicenseExpDate;
@@ -67,7 +70,10 @@ List<String> allocatedStateNames = []; // To store state names
   File? selectedSignatureImage; // To hold the selected signature image file
   String? selectedFamilyName;
   String? selecteddepName;
-  String? selectedmanagerepName;
+  String? selectedmanagerepName; 
+   String? selectedwarehouseName;
+  int? selectedwarehouseId;
+
 
   @override
   void initState() {
@@ -81,13 +87,43 @@ List<String> allocatedStateNames = []; // To store state names
     await getmanegers();
     await getdepartments();
     await getstate();
+    await getwarehouse();
   }
 
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+Future<void> getwarehouse() async {
+    final token = await gettokenFromPrefs();
+    try {
+      final response =
+          await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+      List<Map<String, dynamic>> warehouselist = [];
 
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in parsed) {
+          warehouselist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'location': productData['location']
+          });
+        }
+        setState(() {
+          Warehouses = warehouselist;
+          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+        });
+      }
+    } catch (e) {
+      print("error:$e");
+    }
+  }
   Future<void> getstate() async {
     try {
       final token = await gettokenFromPrefs();
@@ -246,6 +282,121 @@ List<String> allocatedStateNames = []; // To store state names
       ));
     }
   }
+Future<void> RegisterUserData(BuildContext scaffoldContext) async {
+  final token = await gettokenFromPrefs(); // Replace with your token retrieval method
+
+  try {
+    // Create the request
+    var request = http.Request(
+      'PUT',
+      Uri.parse('$api/api/staff/update/${widget.id}/'), // Replace `$api` with your base URL
+    );
+
+    // Add headers
+    request.headers.addAll({
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    });
+
+    // Date formatter
+    final DateFormat dateFormatter = DateFormat('yyyy-MM-dd');
+
+    // Prepare the data to send in JSON format
+    Map<String, dynamic> data = {
+      'date_of_birth': selectedDateOfBirth != null ? dateFormatter.format(selectedDateOfBirth!) : null,
+      'driving_license_exp_date': selectedDrivingLicenseExpDate != null
+          ? dateFormatter.format(selectedDrivingLicenseExpDate!)
+          : null,
+      'join_date': selectedJoinDate != null ? dateFormatter.format(selectedJoinDate!) : null,
+      'confirmation_date': selectedConfirmationDate != null
+          ? dateFormatter.format(selectedConfirmationDate!)
+          : null,
+      'termination_date': selectedTerminationDate != null
+          ? dateFormatter.format(selectedTerminationDate!)
+          : null,
+      'allocated_states': allocated_states, // Replace with your actual states list
+      'name': name.text,
+      'username': username.text,
+      'email': email.text,
+      'phone': phone.text,
+      'password': password.text,
+      'alternate_number': alternate_number.text,
+      'designation': designation.text,
+      'grade': grade.text,
+      'address': address.text,
+      'city': city.text,
+      'country': Country.text,
+      'driving_license': driving_license.text,
+      'department_id': selecteddepName != null
+          ? dep.firstWhere((element) => element['name'] == selecteddepName, orElse: () => {})['id']
+          : null,
+      'supervisor_id': selectedmanagerepName != null
+          ? manager.firstWhere((element) => element['name'] == selectedmanagerepName, orElse: () => {})['id']
+          : null,
+      'gender': gender,
+      'marital_status': maritalStatus,
+      'employment_status': employment_status.text,
+      'approval_status': approvalStatus,
+      'family': selectedFamilyName != null
+          ? familyList.firstWhere((element) => element['name'] == selectedFamilyName, orElse: () => {})['id']
+          : null,
+    };
+
+    // Convert data to JSON and set the request body
+    request.body = jsonEncode(data);
+
+    // Send the request
+    var response = await request.send().timeout(Duration(seconds: 10));
+    var responseData = await http.Response.fromStream(response);
+
+    // Debugging output
+    print("Response status: ${responseData.statusCode}");
+    print("Response body: ${responseData.body}");
+
+    if (responseData.statusCode == 200) {
+      // Parse the response body
+      final Map<String, dynamic> responseJson = jsonDecode(responseData.body);
+
+      // Store the product ID in the global variable
+      staffId = responseJson['data']['id'].toString();
+
+      // Show success message
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('Data Added Successfully.'),
+        ),
+      );
+
+      // Navigate to another page after successful registration
+      Navigator.pushReplacement(
+        scaffoldContext,
+        MaterialPageRoute(builder: (context) => staff_list()), // Replace with your staff list page
+      );
+    } else {
+      print('Unexpected response: ${responseData.body}');
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Something went wrong. Please try again later.'),
+        ),
+      );
+    }
+  } catch (e) {
+    print('Error: $e');
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text('Error: ${e.toString()}'),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
 Future<void> getstaff() async {
   try {
     // Ensure state data is loaded before fetching staff
@@ -358,6 +509,59 @@ print("Allocated StatesSSSSSSSSSSSSSSSSSSSSSSSSSSS: $allocated_states");
   }
 }
 
+Future<void> updateStaffImage(
+    String staffId,
+    File? image1,
+    File? image2,
+    BuildContext scaffoldContext,
+  ) async {
+    final token = await gettokenFromPrefs();
+    print("============$staffId");
+    try {
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('$api/api/staff/update/${widget.id}/'),
+      );
+
+      // Add headers
+      request.headers['Authorization'] = 'Bearer $token';
+
+      // Add the images to the request if they are not null
+      if (image1 != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('image', image1.path));
+      }
+      if (image2 != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('signatur_up', image2.path));
+      }
+
+      // Send the request
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print("Response statusttttttttt: ${response.statusCode}");
+      print("Response bodyttttttttttttt: ${response.body}");
+      // Handle response based on status code
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Images Updated Successfully.')),
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Something went wrong while updating images. Please try again later.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
 
   // Function to allow the user to select an image
   void imageSelect1() async {
@@ -840,6 +1044,51 @@ print("Allocated StatesSSSSSSSSSSSSSSSSSSSSSSSSSSS: $allocated_states");
                             ],
                           ),
                         ),
+
+
+
+ SizedBox(
+                                  height: 10,
+                                ),        
+                                 SizedBox(height: 10),
+                        Text('Warehouse',
+                            style: TextStyle(
+                              fontSize: 13,
+                            )),
+                                
+                                
+                                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    border: Border.all(color: Colors.grey),
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: DropdownButton<int>(
+                                    isExpanded: true,
+                                    value: selectedwarehouseId,
+                                    hint: Text('Select a Warehouse'),
+                                    underline:
+                                        SizedBox(), // Remove the default underline
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedwarehouseId = newValue;
+                                        selectedwarehouseName =
+                                            Warehouses.firstWhere((element) =>
+                                                element['id'] ==
+                                                newValue)['name'];
+                                      });
+                                    },
+                                    items:
+                                        Warehouses.map<DropdownMenuItem<int>>(
+                                            (Warehouses) {
+                                      return DropdownMenuItem<int>(
+                                        value: Warehouses['id'],
+                                        child: Text(Warehouses['name']),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                               
                         SizedBox(
                           height: 10,
                         ),
@@ -1157,39 +1406,58 @@ if (selectedSignatureImage != null)
     ],
   ),
 
-
-
-DropdownButton<String>(
-  isExpanded: true,
-  hint: Text(
-    'Select Approval Status',
-    style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
-  ),
-  value: approvalStatus, // Currently selected value
-  items: ['Approved', 'Disapproved']
-      .map<DropdownMenuItem<String>>((String value) {
-    return DropdownMenuItem<String>(
-      value: value,
-      child: Text(
-        value,
-        style: TextStyle(fontSize: 14),
-      ),
-    );
-  }).toList(),
-  onChanged: (String? newValue) {
-    setState(() {
-      approvalStatus = newValue; // Update the selected value
-    });
-  },
-  icon: Icon(Icons.arrow_drop_down),
-  // decoration: InputDecoration(
-  //   border: OutlineInputBorder(
-  //     borderRadius: BorderRadius.circular(8.0),
-  //   ),
-  //   contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-  // ),
-),
-  
+SizedBox(height: 8,),
+ Container(
+                              width: MediaQuery.of(context).size.width * 0.9,
+                              height: 49,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 20),
+                                  Container(
+                                    width: 276,
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding:
+                                            EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: approvalStatus,
+                                        underline:
+                                            Container(), // This removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            approvalStatus = newValue!;
+                                            
+                                          });
+                                        },
+                                        items: type
+                                            .map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(
+                                              left:
+                                                  137), // Adjust padding as needed
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons
+                                              .arrow_drop_down), // Dropdown arrow icon
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
 
                       ],
                     ),
@@ -1199,6 +1467,8 @@ DropdownButton<String>(
               SizedBox(height: 15),
               ElevatedButton(
                 onPressed: () {
+
+                  RegisterUserData(context);
                   // Handle Submit action with updated dates and image
                 },
                 style: ButtonStyle(
