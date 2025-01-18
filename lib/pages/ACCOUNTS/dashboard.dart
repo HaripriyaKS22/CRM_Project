@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
@@ -505,6 +506,16 @@ int grv=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
+
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Warehouse'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_warehouse()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Attributes'),
@@ -571,7 +582,7 @@ int grv=0;
               Divider(),
               Text("Others"),
               Divider(),
-              _buildDropdownTile(context, 'Product', [
+              _buildDropdownTile(context, 'Purchase', [
                 'Product List',
                 'Product Add',
                 'Stock',
