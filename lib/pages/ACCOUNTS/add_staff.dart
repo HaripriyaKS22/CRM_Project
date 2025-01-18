@@ -57,6 +57,7 @@ class _add_staffState extends State<add_staff> {
   List<bool> _checkboxValues = [];
   List<int> _selectedFamily = [];
   List<Map<String, dynamic>> fam = [];
+  List<Map<String, dynamic>> Warehouses = [];
 
   @override
   void initState() {
@@ -64,6 +65,7 @@ class _add_staffState extends State<add_staff> {
     getdepartments();
     getmanegers();
     getstaff();
+    getwarehouse();
     initdata();
   }
 
@@ -171,6 +173,37 @@ class _add_staffState extends State<add_staff> {
         selecteconf = DateTime(picked.year, picked.month, picked.day);
         date2 = DateFormat('yyyy-MM-dd').format(selecteconf);
       });
+    }
+  }
+
+  Future<void> getwarehouse() async {
+    final token = await gettokenFromPrefs();
+    try {
+      final response =
+          await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+      List<Map<String, dynamic>> warehouselist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in parsed) {
+          warehouselist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'location': productData['location']
+          });
+        }
+        setState(() {
+          Warehouses = warehouselist;
+          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+        });
+      }
+    } catch (e) {
+      print("error:$e");
     }
   }
 
@@ -461,9 +494,11 @@ class _add_staffState extends State<add_staff> {
   }
 
   int? selectedmanagerId; // Variable to store the selected department's ID
+  int? selectedwarehouseId; // Variable to store the selected department's ID
+
   String?
       selectedmanagerName; // Variable to store the selected department's name
-
+  String? selectedwarehouseName;
   int? selectedDepartmentId; // Variable to store the selected department's ID
   String?
       selectedDepartmentName; // Variable to store the selected department's name
@@ -543,6 +578,7 @@ class _add_staffState extends State<add_staff> {
         'driving_license': driving_license.text,
         'department_id': selectedDepartmentId.toString(),
         'supervisor_id': selectedmanagerId.toString(),
+        'warehouse_id': selectedwarehouseId.toString(),
         'gender': selectgender,
         'marital_status': selectmarital,
         'employment_status': employment_status.text,
@@ -559,7 +595,7 @@ class _add_staffState extends State<add_staff> {
 
       // Print the response status and body for debugging
       print("Response statussssssss: ${responseData.statusCode}");
-      print("Response bodyyyyyyyyy: ${responseData.body}");
+      print("Response bodyyyyyyyyyyy: ${responseData.body}");
 
       if (responseData.statusCode == 201) {
         // Parse the response body
@@ -689,46 +725,49 @@ class _add_staffState extends State<add_staff> {
       MaterialPageRoute(builder: (context) => login()),
     );
   }
-Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(242, 255, 255, 255),
         appBar: AppBar(
-           title: Text(
-          "Add Staff",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
-
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
-          },
-        ),
+          title: Text(
+            "Add Staff",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+              if (dep == "BDO") {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          bdo_dashbord()), // Replace AnotherPage with your target page
+                );
+              } else if (dep == "BDM") {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          bdm_dashbord()), // Replace AnotherPage with your target page
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
           actions: [
             IconButton(
               icon: Image.asset('lib/assets/profile.png'),
@@ -736,7 +775,6 @@ else {
             ),
           ],
         ),
-        
         body: Builder(builder: (BuildContext scaffoldContext) {
           return LayoutBuilder(
             builder: (context, constraints) {
@@ -966,6 +1004,7 @@ else {
                                 SizedBox(
                                   height: 10,
                                 ),
+
                                 GestureDetector(
                                   onTap: () {
                                     imageSelect();
@@ -1004,6 +1043,41 @@ else {
                                 ),
                                 SizedBox(
                                   height: 5,
+                                ),
+
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    border: Border.all(color: Colors.grey),
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: DropdownButton<int>(
+                                    isExpanded: true,
+                                    value: selectedwarehouseId,
+                                    hint: Text('Select a Warehouse'),
+                                    underline:
+                                        SizedBox(), // Remove the default underline
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedwarehouseId = newValue;
+                                        selectedwarehouseName =
+                                            Warehouses.firstWhere((element) =>
+                                                element['id'] ==
+                                                newValue)['name'];
+                                      });
+                                    },
+                                    items:
+                                        Warehouses.map<DropdownMenuItem<int>>(
+                                            (Warehouses) {
+                                      return DropdownMenuItem<int>(
+                                        value: Warehouses['id'],
+                                        child: Text(Warehouses['name']),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
                                 ),
                                 Text(
                                   "Date Of Birth",
@@ -1982,7 +2056,7 @@ else {
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      Staff_Update(
+                                                      update_expence(
                                                           id: sta[i]['id'])));
                                         },
                                         child: Image.asset(
