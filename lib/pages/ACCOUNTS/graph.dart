@@ -70,6 +70,7 @@ Future<void> fetchOrderData() async {
           // Increment the count and add to the total amount for this month
           monthlyOrderData[monthKey]!['count'] += 1;
           monthlyOrderData[monthKey]!['totalAmount'] += totalAmount;
+          
         } catch (e) {
           print("Error parsing date: $rawOrderDate - $e");
         }
