@@ -70,7 +70,6 @@ Future<void> fetchOrderData() async {
           // Increment the count and add to the total amount for this month
           monthlyOrderData[monthKey]!['count'] += 1;
           monthlyOrderData[monthKey]!['totalAmount'] += totalAmount;
-          
         } catch (e) {
           print("Error parsing date: $rawOrderDate - $e");
         }
@@ -106,124 +105,128 @@ Future<void> fetchOrderData() async {
       appBar: AppBar(
         title: const Text('Monthly Orders Graph'),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : monthlyOrders.isEmpty
-              ? const Center(child: Text('No data available'))
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: BarChart(
-                    BarChartData(
-  alignment: BarChartAlignment.spaceAround,
-  maxY: monthlyOrders.values.isNotEmpty
-      ? (monthlyOrders.values.reduce((a, b) => a > b ? a : b) + 1).toDouble()
-      : 1,
-  barGroups: monthlyOrders.entries.map((entry) {
-    String month = entry.key; // Example: "2025-01"
-    int count = entry.value;
+     body: isLoading
+    ? const Center(child: CircularProgressIndicator())
+    : monthlyOrders.isEmpty
+        ? const Center(child: Text('No data available'))
+        : Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                height: MediaQuery.of(context).size.height * 0.5, // 50% of screen height
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: monthlyOrders.values.isNotEmpty
+                        ? (monthlyOrders.values.reduce((a, b) => a > b ? a : b) + 1).toDouble()
+                        : 1,
+                    barGroups: monthlyOrders.entries.map((entry) {
+                      String month = entry.key; // Example: "2025-01"
+                      int count = entry.value;
 
-    return BarChartGroupData(
-      x: int.parse(month.split('-')[1]), // Use the month number as x-axis value
-      barRods: [
-        BarChartRodData(
-          toY: count.toDouble(),
-          color: Colors.blue,
-          width: 16,
-          borderRadius: const BorderRadius.all(Radius.circular(4)),
-        ),
-      ],
-    );
-  }).toList(),
-  titlesData: FlTitlesData(
-  leftTitles: AxisTitles(
-    sideTitles: SideTitles(
-      showTitles: true,
-      reservedSize: 40, // Adjust space for Y-axis labels
-      getTitlesWidget: (value, meta) {
-        return Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Text(
-            value.toInt().toString(),
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        );
-      },
-    ),
-  ),
-  bottomTitles: AxisTitles(
-    sideTitles: SideTitles(
-      showTitles: true,
-      reservedSize: 40, // Adjust space for X-axis labels
-      getTitlesWidget: (value, meta) {
-        // Map month numbers to names for the X-axis
-        String text;
-        switch (value.toInt()) {
-          case 1:
-            text = 'Jan';
-            break;
-          case 2:
-            text = 'Feb';
-            break;
-          case 3:
-            text = 'Mar';
-            break;
-          case 4:
-            text = 'Apr';
-            break;
-          case 5:
-            text = 'May';
-            break;
-          case 6:
-            text = 'Jun';
-            break;
-          case 7:
-            text = 'Jul';
-            break;
-          case 8:
-            text = 'Aug';
-            break;
-          case 9:
-            text = 'Sep';
-            break;
-          case 10:
-            text = 'Oct';
-            break;
-          case 11:
-            text = 'Nov';
-            break;
-          case 12:
-            text = 'Dec';
-            break;
-          default:
-            text = '';
-        }
-        return Text(
-          text,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        );
-      },
-    ),
-  ),
-  topTitles: AxisTitles(
-    sideTitles: SideTitles(showTitles: false),
-  ),
-  rightTitles: AxisTitles(
-    sideTitles: SideTitles(showTitles: false),
-  ),
-),
-
-  borderData: FlBorderData(show: false),
-  gridData: FlGridData(show: true),
-)
-
+                      return BarChartGroupData(
+                        x: int.parse(month.split('-')[1]), // Use the month number as x-axis value
+                        barRods: [
+                          BarChartRodData(
+                            toY: count.toDouble(),
+                            color: Colors.blue,
+                            width: 16,
+                            borderRadius: const BorderRadius.all(Radius.circular(4)),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text(
+                                value.toInt().toString(),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            String text;
+                            switch (value.toInt()) {
+                              case 1:
+                                text = 'Jan';
+                                break;
+                              case 2:
+                                text = 'Feb';
+                                break;
+                              case 3:
+                                text = 'Mar';
+                                break;
+                              case 4:
+                                text = 'Apr';
+                                break;
+                              case 5:
+                                text = 'May';
+                                break;
+                              case 6:
+                                text = 'Jun';
+                                break;
+                              case 7:
+                                text = 'Jul';
+                                break;
+                              case 8:
+                                text = 'Aug';
+                                break;
+                              case 9:
+                                text = 'Sep';
+                                break;
+                              case 10:
+                                text = 'Oct';
+                                break;
+                              case 11:
+                                text = 'Nov';
+                                break;
+                              case 12:
+                                text = 'Dec';
+                                break;
+                              default:
+                                text = '';
+                            }
+                            return Text(
+                              text,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      topTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    gridData: FlGridData(show: true),
                   ),
                 ),
+              ),
+            ),
+          ),
+
     );
   }
 }
