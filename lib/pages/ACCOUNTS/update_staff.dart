@@ -510,7 +510,6 @@ print("Allocated StatesSSSSSSSSSSSSSSSSSSSSSSSSSSS: $allocated_states");
 }
 
 Future<void> updateStaffImage(
-    String staffId,
     File? image1,
     File? image2,
     BuildContext scaffoldContext,
@@ -1046,10 +1045,7 @@ Future<void> updateStaffImage(
                         ),
 
 
-
- SizedBox(
-                                  height: 10,
-                                ),        
+       
                                  SizedBox(height: 10),
                         Text('Warehouse',
                             style: TextStyle(
@@ -1470,6 +1466,9 @@ SizedBox(height: 8,),
 
                   RegisterUserData(context);
                   // Handle Submit action with updated dates and image
+
+                  updateStaffImage( selectedImage,
+                                          selectedSignatureImage, context);
                 },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(

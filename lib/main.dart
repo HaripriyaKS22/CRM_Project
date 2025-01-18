@@ -13,7 +13,7 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(beposoftmain());
+  runApp(const beposoftmain());
 }
 
 class beposoftmain extends StatefulWidget {
@@ -25,6 +25,8 @@ class beposoftmain extends StatefulWidget {
 
 class _beposoftmainState extends State<beposoftmain> {
   bool tok = false;
+  bool tokenn = true;
+  var department;
 
   @override
   void initState() {
@@ -37,83 +39,100 @@ class _beposoftmainState extends State<beposoftmain> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+
   Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
- Future<void> storeUserData(String token) async {
+
+  Future<void> storeUserData(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
   }
 
-bool tokenn=true;
-  var department;
   void check() async {
     final token = await gettokenFromPrefs();
-    final dep= await getdepFromPrefs();
-    print("depppppppppp$dep");
-    try {
-          final jwt = JWT.decode(token!);
-          var dep = jwt.payload['dep'];
-          print("Decoded Token Payload: ${jwt.payload}");
-          print("User ID: $dep");
+    final dep = await getdepFromPrefs();
 
-        } catch (e) {
-          print("Token decode error: $e");
-        }
-    print("$token");
+    try {
+      if (token != null) {
+        final jwt = JWT.decode(token);
+        var dep = jwt.payload['dep'];
+        print("Decoded Token Payload: ${jwt.payload}");
+        print("User ID: $dep");
+      } else {
+        tokenn = false;
+      }
+    } catch (e) {
+      print("Token decode error: $e");
+      tokenn = false;
+    }
+
     setState(() {
-      department=dep;
+      department = dep;
       tok = token != null;
-      print(tok);
+    });
+
+    if (!tokenn) {
+      navigateToLogin();
+    }
+  }
+
+  Future<void> getbank() async {
+    final token = await gettokenFromPrefs();
+    try {
+      final response = await http.get(
+        Uri.parse('$api/api/banks/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print("mainnnnnnnnnnnnnnnnnnnnnnn:${response.body}");
+      final parsed = jsonDecode(response.body);
+      print('mssssssssssggggggggggggggggg${parsed['message']}');
+
+      if (parsed['message'] == "Token has expired" || parsed['message'] == "Invalid token") {
+        tokenn = false;
+        print("token$tokenn");
+        navigateToLogin();
+      }
+    } catch (e) {
+      print("error:$e");
+      tokenn = false;
+      navigateToLogin();
+    }
+  }
+
+  void navigateToLogin() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => login()),
+      );
     });
   }
-Future<void> getbank() async{
-  final token=await gettokenFromPrefs();
-  try{
-    final response= await http.get(Uri.parse('$api/api/banks/'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    }
-    );
-    List<Map<String, dynamic>> banklist = [];
-print("mainnnnnnnnnnnnnnnnnnnnnnn:${response.body}");
-final parsed = jsonDecode(response.body);
-print('mssssssssssggggggggggggggggg${parsed['message']}');
-if(parsed['message']=="Token has expired"){
-  tokenn=false;
-
-}
-     
-
-  }
-  catch(e){
-    print("error:$e");
-  }
-}
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      
-      home:tok
+      home: tokenn
           ? department == "BDM"
-              ? bdm_dashbord()  // Navigate to IT Dashboard if department is "it"
-
+              ? bdm_dashbord()
               : department == "warehouse"
-                  ? WarehouseDashboard()  // Navigate to Warehouse Dashboard if department is "warehouse"
+                  ? WarehouseDashboard()
                   : department == "BDO"
-                  ? bdo_dashbord() 
-                  : department == "Admin"
-                  ? admin_dashboard()
-                  : department == "Accounts / Accounting "
-                  ? admin_dashboard()
-                   : department == "IT"
-                  ? admin_dashboard()
-                  : dashboard()   // Else, navigate to the normal Dashboard
-          : login(), 
+                      ? bdo_dashbord()
+                      : department == "Admin"
+                          ? admin_dashboard()
+                          : department == "Accounts / Accounting "
+                              ? admin_dashboard()
+                              : department == "IT"
+                                  ? admin_dashboard()
+                                  : dashboard()
+          : login(),
     );
   }
 }
