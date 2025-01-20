@@ -582,7 +582,7 @@ class _add_staffState extends State<add_staff> {
         'gender': selectgender,
         'marital_status': selectmarital,
         'employment_status': employment_status.text,
-        'APPROVAL_CHOICE': approvalstatus,
+        'approval_status': approvalstatus,
         'family': _selectedFamily.isNotEmpty ? _selectedFamily[0] : null,
       };
 

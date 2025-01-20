@@ -70,12 +70,10 @@ class _beposoftmainState extends State<beposoftmain> {
 
     setState(() {
       department = dep;
+      print("department$department");
       tok = token != null;
     });
 
-    if (!tokenn) {
-      navigateToLogin();
-    }
   }
 
   Future<void> getbank() async {
@@ -96,23 +94,16 @@ class _beposoftmainState extends State<beposoftmain> {
       if (parsed['message'] == "Token has expired" || parsed['message'] == "Invalid token") {
         tokenn = false;
         print("token$tokenn");
-        navigateToLogin();
       }
+      // setState(() {
+      //   department=parsed['department'];
+      // });
     } catch (e) {
       print("error:$e");
       tokenn = false;
-      navigateToLogin();
     }
   }
 
-  void navigateToLogin() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => login()),
-      );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

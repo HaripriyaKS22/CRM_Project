@@ -86,9 +86,12 @@ List<Map<String, dynamic>> filteredProducts = [];
     List<Map<String, dynamic>> variant= [];
     int? selectedFamilyId;
       int? selectedCompanyId;
+   int? selectedwarehouseId; // Variable to store the selected department's ID
+  String? selectedwarehouseName;
 
   List<Map<String, dynamic>> cartdata = [];
   var Discount;
+    List<Map<String, dynamic>> Warehouses = [];
 
     int? selectedbankId;
     String selectedstaff='';
@@ -126,8 +129,39 @@ double total=0.0;
      
       getbank();
       getcompany();
+      getwarehouse();
      await fetchCartData();
   }
+Future<void> getwarehouse() async {
+  final token = await gettokenFromPrefs();
+    try {
+      final response = await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+      List<Map<String, dynamic>> warehouselist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in parsed) {
+          warehouselist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'location': productData['location']
+          });
+        }
+        setState(() {
+          Warehouses = warehouselist;
+          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+        });
+      }
+    } catch (e) {
+      print("error:$e");
+    }
+  }
+
 
  void ordercreate(
     
@@ -154,7 +188,9 @@ print('$api/api/order/create/');
           'paymet_status':selectpaystatus,
           'total_amount':tot,
           'bank':selectedbankId,
-          'payment_method':selectpaymethod,    
+          'payment_method':selectpaymethod, 
+          'warehouses':selectedwarehouseId,
+          'status':'Order Request by Warehouse'
         }),
       );
 
@@ -1079,6 +1115,45 @@ void showInvoiceDialog(BuildContext context,  double total) {
     ],
   ),
 ),
+
+
+  SizedBox(height: 10),
+
+
+                             Padding(
+                               padding: const EdgeInsets.only(right: 10),
+                               child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: DropdownButton<int>(
+                                      isExpanded: true,
+                                      value: selectedwarehouseId,
+                                      hint: Text('Select a Warehouse'),
+                                      underline:
+                                          SizedBox(), // Remove the default underline
+                                      onChanged: (int? newValue) {
+                                        setState(() {
+                                          selectedwarehouseId = newValue;
+                                          selectedwarehouseName =
+                                              Warehouses.firstWhere((element) =>
+                                                  element['id'] ==
+                                                  newValue)['name'];
+                                        });
+                                      },
+                                      items:
+                                          Warehouses.map<DropdownMenuItem<int>>(
+                                              (Warehouses) {
+                                        return DropdownMenuItem<int>(
+                                          value: Warehouses['id'],
+                                          child: Text(Warehouses['name']),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                             ),
 
                                                 SizedBox(height: 5,),
 

@@ -81,6 +81,7 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+  
   Future<void> fetchOrderData() async {
     try {
       final token = await getTokenFromPrefs();

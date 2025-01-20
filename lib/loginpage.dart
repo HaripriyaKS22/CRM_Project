@@ -34,12 +34,16 @@ class _loginState extends State<login> {
   
   
 
-  Future<void> storeUserData(String token,String department,String username) async {
+  Future<void> storeUserData(String token,String department,String username,String wharehouse) async {
     print("username$username");
+    print("BBBBBBBBBBBBBBBBBBBBwharehouse$wharehouse");
+    print(department);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
         await prefs.setString('department', department);
                 await prefs.setString('username', username);
+                                await prefs.setString('wharehouse', wharehouse);
+
   }
 void login(String email, String password, BuildContext context) async {
   print("eeeeeeeeeeeeeeeeeeeeeeeeee$email");
@@ -56,18 +60,16 @@ void login(String email, String password, BuildContext context) async {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
 
-
       print("RRRRRRRRRRRRRRDDDDDDDDDDDDDDDDDDDDDDDDDDDD$responseData");
       print(status);
 
       if (status == 'success') {
         var token = responseData['token'];
         var active = responseData['active'];
-                var name = responseData['name'];
-
-
-        print(token);
-        print("DDDDDDDEEEEEEPPPPPPPPPPPPPAAAAARRRRRRRTTTTTTMEEEEENNTTTT===========$active");
+        var name = responseData['name'];
+        var wharehouse = responseData['warehouse_id'] ?? 0; // Default to 0 if null
+        print("name$name");
+        print("wharehouse$wharehouse");
 
         // Decode the token and store the ID in SharedPreferences
         try {
@@ -79,110 +81,44 @@ void login(String email, String password, BuildContext context) async {
           // Save ID in SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setInt('user_id', id); // Store user ID
-          await storeUserData(token,active,name); // Store token as needed
+          await storeUserData(token, active, name, wharehouse); // Store token as needed
 
         } catch (e) {
           print("Token decode error: $e");
         }
 
+        // Handle navigation based on active role
         if (active == 'IT') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('Successfully logged in.'),
-            ),
-          );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => dashboard()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => dashboard()));
+        } else if (active == 'warehouse') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => WarehouseDashboard()));
+        } else if (active == 'BDO') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => bdo_dashbord()));
+        } else if (active == 'COO') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => admin_dashboard()));
+        } else if (active == 'BDM') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => bdm_dashbord()));
+        } else if (active == 'Accounts / Accounting') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => dashboard()));
         }
-
-        if (active == 'warehouse') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('Successfully logged in.'),
-            ),
-          );
-          Navigator.push(context,
-            MaterialPageRoute(builder: (context) => WarehouseDashboard()),
-          );
-        }
-        if (active == 'BDO') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('Successfully logged in.'),
-            ),
-          );
-          Navigator.push(context,
-            MaterialPageRoute(builder: (context) => bdo_dashbord()),
-          );
-        }
-        if (active == 'COO') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('Successfully logged in.'),
-            ),
-          );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => admin_dashboard()),
-          );
-        } 
         
-         if (active == 'BDM')
-         
-          {
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('Successfully logged in.'),
-            ),
-          );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => bdm_dashbord()),
-          );
-
-        } 
-        if (active == 'Accounts / Accounting') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('Successfully logged in.'),
-            ),
-          );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => dashboard()),
-          );
-        } 
-      } 
-      
-      else {
+        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Login failed.'),
-          ),
+          SnackBar(backgroundColor: Colors.green, content: Text('Successfully logged in.')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text('Login failed.')),
         );
       }
     }
   } catch (e) {
     print("Error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text('An error occurred. Please try again.'),
-      ),
+      SnackBar(backgroundColor: Colors.red, content: Text('An error occurred. Please try again.')),
     );
   }
 }
-
 
   @override
   Widget build(BuildContext context) {

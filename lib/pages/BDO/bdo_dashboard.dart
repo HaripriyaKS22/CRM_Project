@@ -390,28 +390,20 @@ Future<void> getcustomer() async {
     });
   }
 
- void logout() async {
+ void logout(BuildContext context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove('userId');
   await prefs.remove('token');
-
-  // Show the SnackBar
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('Logged out successfully'),
-      duration: Duration(seconds: 2),
-    ),
-  );
-
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
-
-  // Navigate to the HomePage after the snackbar is shown
+  await prefs.remove('username');
+  await prefs.remove('department');
+  await prefs.remove('warehouse');
+  await Future.delayed(Duration(milliseconds: 100));
   Navigator.pushReplacement(
     context,
     MaterialPageRoute(builder: (context) => login()),
   );
 }
+
 
   drower d = drower();
 
@@ -509,7 +501,7 @@ Future<void> getcustomer() async {
                 leading: Icon(Icons.exit_to_app),
                 title: Text('Logout'),
                 onTap: () {
-                  logout();
+                  logout(context);
                 },
               ),
             ],

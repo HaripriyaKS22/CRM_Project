@@ -336,6 +336,8 @@ Future<void> RegisterUserData(BuildContext scaffoldContext) async {
       'gender': gender,
       'marital_status': maritalStatus,
       'employment_status': employment_status.text,
+              'warehouse_id': selectedwarehouseId.toString(),
+
       'approval_status': approvalStatus,
       'family': selectedFamilyName != null
           ? familyList.firstWhere((element) => element['name'] == selectedFamilyName, orElse: () => {})['id']

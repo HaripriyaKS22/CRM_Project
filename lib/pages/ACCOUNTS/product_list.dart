@@ -88,6 +88,12 @@ class _Product_ListState extends State<Product_List> {
     return prefs.getString('token');
   }
 
+
+   Future<String?> getwarwhouseFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('warehouse').toString();
+  }
+
   Future<void> getFamily() async {
     try {
       final token = await getTokenFromPrefs();

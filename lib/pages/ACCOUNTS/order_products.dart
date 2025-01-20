@@ -55,6 +55,10 @@ class _order_productsState extends State<order_products> {
   List<bool> _checkboxValues = [];
   List<Map<String, dynamic>> filteredProducts = [];
   List<Map<String, dynamic>> variant= [];
+  int? selectedwarehouseId; // Variable to store the selected department's ID
+    String? selectedwarehouseName;
+
+  List<Map<String, dynamic>> Warehouses = [];
 
   TextEditingController searchController =TextEditingController(); // Search controller
 
@@ -62,9 +66,15 @@ class _order_productsState extends State<order_products> {
   void initState() {
     super.initState();
     initdata();
+    getwarehouse();
   }
 
   Future<void> initdata() async {
+    final dep = await getdepFromPrefs();
+    print("dep$dep");
+    final warehouse =await getwarehouseFromPrefs();
+    print("warehouseinitdataaaaaa$warehouse");
+
     await fetchProductList();
     setState(() {
       filteredProducts = products;
@@ -95,6 +105,47 @@ Future<void> _getAndShowVariants(int productId) async {
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
+  }
+  Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
+  
+  Future<String?> getwarehouseFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('warehouse');
+  }
+  Future<void> getwarehouse() async {
+    final token = await getTokenFromPrefs();
+    
+
+    try {
+      final response =
+          await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+      List<Map<String, dynamic>> warehouselist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in parsed) {
+          warehouselist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'location': productData['location']
+          });
+        }
+        setState(() {
+          Warehouses = warehouselist;
+          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+        });
+      }
+    } catch (e) {
+      print("error:$e");
+    }
   }
 
   
@@ -196,8 +247,15 @@ Future<void> _getAndShowVariants(int productId) async {
 //     print("Error: $error");
 //   }
 // }
- Future<void> fetchProductList() async {
+var warehouse;
+var dep;
+
+Future<void> fetchProductList() async {
   final token = await getTokenFromPrefs();
+ print("tokennnnnnnnnnnnnnnnnnnnnnnnnnnnnn$token");
+ print("warehouseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee$warehouse");
+dep= await getdepFromPrefs();
+ 
 
   try {
     final response = await http.get(
@@ -207,7 +265,8 @@ Future<void> _getAndShowVariants(int productId) async {
         'Authorization': 'Bearer $token',
       },
     );
-
+print("Response${response.body}");
+print("Response${response.statusCode}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -243,6 +302,66 @@ Future<void> _getAndShowVariants(int productId) async {
 
       setState(() {
         products = productList;
+      });
+    }
+  } catch (error) {
+    print("Error: $error");
+  }
+}
+
+ Future<void> fetchProductListid(int warehouse) async {
+  final token = await getTokenFromPrefs();
+ print("tokennnnnnnnnnnnnnnnnnnnnnnnnnnnnn$token");
+ print("warehouseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee$warehouse");
+dep= await getdepFromPrefs();
+ 
+
+  try {
+    final response = await http.get(
+      Uri.parse("$api/api/warehouse/products/$warehouse/"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+print("Response${response.body}");
+print("Response${response.statusCode}");
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
+      List<Map<String, dynamic>> productList = [];
+
+      print("Products Responsehhhhhhhhhhhhhhhhhhhhhhhhh: ${response.body}");
+
+      for (var productData in productsData) {
+        // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
+        List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
+            (famItem) => famItem['id'] == id,
+            orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
+
+        // Add the product data to the list
+        productList.add({
+          'id': productData['id'],
+          'variantIDs':productData['variantIDs'],
+          'name': productData['name'],
+          'hsn_code': productData['hsn_code'],
+          'type': productData['type'],
+          'unit': productData['unit'],
+          'purchase_rate': productData['purchase_rate'],
+          'tax': productData['tax'],
+          'exclude_price': productData['exclude_price'],
+          'selling_price': productData['selling_price'],
+          'stock': productData['stock'],
+          'created_user': productData['created_user'],
+          'family': familyNames, // Add family names here
+          'image': productData['image'], // Main product image
+          // Don't process single_products or variant_products
+        });
+      }
+
+      setState(() {
+        products = productList;
+        filteredProducts=products;
       });
     }
   } catch (error) {
@@ -382,7 +501,7 @@ Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
  }
 }
 
-Future<void> addtocart2(BuildContext scaffoldContext,mainid,varid,quantity) async{
+Future<void> addtocart2(BuildContext scaffoldContext,mainid,quantity) async{
     final token = await getTokenFromPrefs();
  try{
    final response= await http.post(Uri.parse('$api/api/cart/product/'),
@@ -393,7 +512,6 @@ Future<void> addtocart2(BuildContext scaffoldContext,mainid,varid,quantity) asyn
   body:jsonEncode(
     {
      'product':mainid,
-     'variant':varid,
      'quantity':quantity
     }
   )
@@ -839,7 +957,7 @@ void showSizeDialog3(BuildContext context, mainid, stock) {
                           print("Quantity: $quantity");
                       
                           // Call add to cart function
-                          addtocart2(context, mainid, varid,quantity);
+                          addtocart2(context, mainid,quantity);
                       
                           // Close the dialog after adding to cart
                           Navigator.of(context).pop();
@@ -862,10 +980,7 @@ void showSizeDialog3(BuildContext context, mainid, stock) {
     },
   );
 }
-Future<String?> getdepFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('department');
-  }
+
 List<Map<String, dynamic>> extractSizeList(List<dynamic> sizes) {
   return sizes.map((size) {
     return {
@@ -959,202 +1074,51 @@ else {
        
       ),
     
-        //  drawer: Drawer(
-        //   child: ListView(
-        //     padding: EdgeInsets.zero,
-        //     children: <Widget>[
-        //       DrawerHeader(
-        //           decoration: BoxDecoration(
-        //             color: Colors.grey[200],
-        //           ),
-        //           child: Row(
-        //             mainAxisAlignment: MainAxisAlignment.center,
-        //             children: [
-        //               Image.asset(
-        //                 "lib/assets/logo.png",
-        //                 width: 150, // Change width to desired size
-        //                 height: 150, // Change height to desired size
-        //                 fit: BoxFit
-        //                     .contain, // Use BoxFit.contain to maintain aspect ratio
-        //               ),
-        //             ],
-        //           )),
-        //       ListTile(
-        //         leading: Icon(Icons.dashboard),
-        //         title: Text('Dashboard'),
-        //         onTap: () {
-        //           Navigator.push(context,
-        //               MaterialPageRoute(builder: (context) => dashboard()));
-        //         },
-        //       ),
-             
-        //       ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('Company'),
-        //         onTap: () {
-        //           Navigator.push(context,
-        //               MaterialPageRoute(builder: (context) => add_company()));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //       ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('Departments'),
-        //         onTap: () {
-        //           Navigator.push(
-        //               context,
-        //               MaterialPageRoute(
-        //                   builder: (context) => add_department()));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //       ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('Supervisors'),
-        //         onTap: () {
-        //           Navigator.push(
-        //               context,
-        //               MaterialPageRoute(
-        //                   builder: (context) => add_supervisor()));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //       ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('Family'),
-        //         onTap: () {
-        //           Navigator.push(context,
-        //               MaterialPageRoute(builder: (context) => add_family()));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //       ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('Bank'),
-        //         onTap: () {
-        //           Navigator.push(context,
-        //               MaterialPageRoute(builder: (context) => add_bank()));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //       ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('States'),
-        //         onTap: () {
-        //           Navigator.push(context,
-        //               MaterialPageRoute(builder: (context) => add_state()));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //       ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('Attributes'),
-        //         onTap: () {
-        //           Navigator.push(context,
-        //               MaterialPageRoute(builder: (context) => add_attribute()));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //       ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('Services'),
-        //         onTap: () {
-        //           Navigator.push(
-        //               context,
-        //               MaterialPageRoute(
-        //                   builder: (context) => CourierServices()));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //        ListTile(
-        //         leading: Icon(Icons.person),
-        //         title: Text('Delivery Notes'),
-        //         onTap: () {
-        //           Navigator.push(
-        //               context,
-        //               MaterialPageRoute(
-        //                   builder: (context) => WarehouseOrderView(status: null,)));
-        //           // Navigate to the Settings page or perform any other action
-        //         },
-        //       ),
-        //       Divider(),
-        //       _buildDropdownTile(context, 'Reports', [
-        //         'Sales Report',
-        //         'Credit Sales Report',
-        //         'COD Sales Report',
-        //         'Statewise Sales Report',
-        //         'Expence Report',
-        //         'Delivery Report',
-        //         'Product Sale Report',
-        //         'Stock Report',
-        //         'Damaged Stock'
-        //       ]),
-        //       _buildDropdownTile(context, 'Customers', [
-        //         'Add Customer',
-        //         'Customers',
-        //       ]),
-        //       _buildDropdownTile(context, 'Staff', [
-        //         'Add Staff',
-        //         'Staff',
-        //       ]),
-        //       _buildDropdownTile(context, 'Credit Note', [
-        //         'Add Credit Note',
-        //         'Credit Note List',
-        //       ]),
-        //       _buildDropdownTile(context, 'Proforma Invoice', [
-        //         'New Proforma Invoice',
-        //         'Proforma Invoice List',
-        //       ]),
-        //       _buildDropdownTile(context, 'Delivery Note',
-        //           ['Delivery Note List', 'Daily Goods Movement']),
-        //       _buildDropdownTile(
-        //           context, 'Orders', ['New Orders', 'Orders List']),
-        //       Divider(),
-        //       Text("Others"),
-        //       Divider(),
-        //       _buildDropdownTile(context, 'Product', [
-        //         'Product List',
-        //         'Product Add',
-        //         'Stock',
-        //       ]),
-        //       _buildDropdownTile(context, 'Expence', [
-        //         'Add Expence',
-        //         'Expence List',
-        //       ]),
-        //       _buildDropdownTile(
-        //           context, 'GRV', ['Create New GRV', 'GRVs List']),
-        //       _buildDropdownTile(context, 'Banking Module',
-        //           ['Add Bank ', 'List', 'Other Transfer']),
-        //       Divider(),
-        //       ListTile(
-        //         leading: Icon(Icons.settings),
-        //         title: Text('Methods'),
-        //         onTap: () {
-        //           Navigator.push(context,
-        //               MaterialPageRoute(builder: (context) => Methods()));
-        //         },
-        //       ),
-        //       ListTile(
-        //         leading: Icon(Icons.chat),
-        //         title: Text('Chat'),
-        //         onTap: () {
-        //           Navigator.pop(context); // Close the drawer
-        //         },
-        //       ),
-        //       Divider(),
-        //       ListTile(
-        //         leading: Icon(Icons.exit_to_app),
-        //         title: Text('Logout'),
-        //         onTap: () {
-        //           logout();
-        //         },
-        //       ),
-        //     ],
-        //   ),
-        // ),
+      
      body: Container(
        child: Column(
          children: [
+
+          if(dep=='COO'||dep=='Admin')
+
+
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: DropdownButton<int>(
+                                      isExpanded: true,
+                                      value: selectedwarehouseId,
+                                      hint: Text('Select a Warehouse'),
+                                      underline:
+                                          SizedBox(), // Remove the default underline
+                                      onChanged: (int? newValue) {
+                                        setState(() {
+                                          selectedwarehouseId = newValue;
+                                          selectedwarehouseName =
+                                              Warehouses.firstWhere((element) =>
+                                                  element['id'] ==
+                                                  newValue)['name'];
+                                          fetchProductListid(newValue!);
+                                        });
+
+
+                                      },
+                                      items:
+                                          Warehouses.map<DropdownMenuItem<int>>(
+                                              (Warehouses) {
+                                        return DropdownMenuItem<int>(
+                                          value: Warehouses['id'],
+                                          child: Text(Warehouses['name']),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+          ),
 Padding(
   padding: const EdgeInsets.all(8.0),
   child: TextField(
@@ -1275,7 +1239,7 @@ Padding(
     print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
     showSizeDialog3(
       context,
-      product['mainid'],
+      product['id'],
       product['stock'],
       );
   }

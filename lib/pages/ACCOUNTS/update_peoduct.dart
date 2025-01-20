@@ -80,7 +80,8 @@ class _update_productState extends State<update_product> {
   List<int> _selectedFamily = [];
     String? selectedManagerName;
   int? selectedManagerId;
-
+   int? selectedwarehouseId; // Variable to store the selected department's ID
+  String? selectedwarehouseName;
   double prate = 0.00;
   double tax = 0.00;
   double spricetax = 0.00;
@@ -104,18 +105,51 @@ class _update_productState extends State<update_product> {
   List<bool> _checkboxValues = [];
   List<Map<String, dynamic>> variantProducts = [];
   List<Map<String, dynamic>> singleProducts = [];
+      List<Map<String, dynamic>> Warehouses = [];
+
   @override
   void initState() {
     super.initState();
     getfamily();
     getmanagers();
     getvariant();
+    getwarehouse();
   }
 
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+Future<void> getwarehouse() async {
+  final token = await gettokenFromPrefs();
+    try {
+      final response = await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+      List<Map<String, dynamic>> warehouselist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        for (var productData in parsed) {
+          warehouselist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'location': productData['location']
+          });
+        }
+        setState(() {
+          Warehouses = warehouselist;
+          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+        });
+      }
+    } catch (e) {
+      print("error:$e");
+    }
+  }
+
 
   var image;
   final ImagePicker _picker = ImagePicker();
@@ -274,6 +308,7 @@ Future<void> addProduct(BuildContext scaffoldContext) async {
       'color': color.text,
       'size': size.text,
       'selling_price': sellingprice.text,
+      'warehouse': selectedwarehouseId,
 
 
     };
@@ -824,6 +859,47 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                                 ],
                               ),
                             ),
+
+
+                             SizedBox(height: 10),
+
+
+                             Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    border: Border.all(color: Colors.grey),
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: DropdownButton<int>(
+                                    isExpanded: true,
+                                    value: selectedwarehouseId,
+                                    hint: Text('Select a Warehouse'),
+                                    underline:
+                                        SizedBox(), // Remove the default underline
+                                    onChanged: (int? newValue) {
+                                      setState(() {
+                                        selectedwarehouseId = newValue;
+                                        selectedwarehouseName =
+                                            Warehouses.firstWhere((element) =>
+                                                element['id'] ==
+                                                newValue)['name'];
+                                      });
+                                    },
+                                    items:
+                                        Warehouses.map<DropdownMenuItem<int>>(
+                                            (Warehouses) {
+                                      return DropdownMenuItem<int>(
+                                        value: Warehouses['id'],
+                                        child: Text(Warehouses['name']),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+
+
 
                             SizedBox(height: 10),
                             Text("Family",
