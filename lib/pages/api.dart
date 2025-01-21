@@ -1,1 +1,1 @@
-var api="https://garlic-nearest-morocco-surprised.trycloudflare.com";
+var api="https://johnson-hoped-folk-earlier.trycloudflare.com";

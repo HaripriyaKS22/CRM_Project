@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_request_list.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart';
 
@@ -20,12 +21,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class WarehouseDashboard extends StatefulWidget {
+class WarehouseAdmin extends StatefulWidget {
   @override
-  State<WarehouseDashboard> createState() => _WarehouseDashboardState();
+  State<WarehouseAdmin> createState() => _WarehouseAdminState();
 }
 
-class _WarehouseDashboardState extends State<WarehouseDashboard> {
+class _WarehouseAdminState extends State<WarehouseAdmin> {
   List<String> statusOptions = ["pending", "approved", "rejected"];
   List<Map<String, dynamic>> grvlist = [];
   List<Map<String, dynamic>> proforma = [];
@@ -415,11 +416,12 @@ int packed=0;
                 title: Text('Dashboard'),
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => WarehouseDashboard()));
+                      MaterialPageRoute(builder: (context) => WarehouseAdmin()));
                 },
               ),
              
               Divider(),
+             
               
               _buildDropdownTile(context, 'Delivery Note',
                   ['Delivery Note List', 'Daily Goods Movement']),
@@ -427,7 +429,13 @@ int packed=0;
              
               _buildDropdownTile(
                   context, 'GRV', ['Create New GRV', 'GRVs List']),
-            
+            ListTile(
+                leading: Icon(Icons.chat),
+                title: Text('Orders'),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Warehouse_Order_Request(status: null,)));
+                },
+              ),
               Divider(),
              
               ListTile(

@@ -76,7 +76,7 @@ Future<void> initdata() async {
    warehouse = await getwarehouseFromPrefs();
   print("Warehouse ID (init data): ${warehouse ?? "Not found"}");
 
-  if(warehouse==0){
+  if(warehouse=="0"){
     print("Warehouse ID is 0, fetching all products");
    await  fetchProductList();
     setState(() {
@@ -319,6 +319,7 @@ print("Response${response.statusCode}");
 
       setState(() {
         products = productList;
+        filteredProducts=products;
       });
     }
   } catch (error) {
@@ -497,10 +498,10 @@ Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
    print("ressss${response.statusCode}");
 
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
              backgroundColor: Colors.green,
-            content: Text('Bank added Successfully.'),
+            content: Text(' added Successfully.'),
           ),
         );
         // Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
@@ -534,7 +535,7 @@ Future<void> addtocart2(BuildContext scaffoldContext,mainid,quantity) async{
   )
   );
    print("Response: ${response.body}");
-   print("ressss${response.statusCode}");
+   print("ressss===${response.statusCode}");
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -557,180 +558,7 @@ Future<void> addtocart2(BuildContext scaffoldContext,mainid,quantity) async{
   print("error:$e");
  }
 }
-Future<void> addtocart3(BuildContext scaffoldContext,mainid,quantity) async{
-    final token = await getTokenFromPrefs();
- try{
-   final response= await http.post(Uri.parse('$api/api/cart/product/'),
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  },
-  body:jsonEncode(
-    {
-     'product':mainid,
-     'quantity':quantity
-    }
-  )
-  );
-   print("Response: ${response.body}");
-   print("ressss${response.statusCode}");
-
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-             backgroundColor: Colors.green,
-            content: Text('Bank added Successfully.'),
-          ),
-        );
-        // Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding Bank failed.'),
-          ),
-        );
-      }
- }
- catch(e){
-  print("error:$e");
- }
-}
-// void showSizeDialog(BuildContext context, List<String> colors, List<Map<String, dynamic>> sizes, mainid, varid) {
-//   showDialog(
-//     context: context,
-//     barrierDismissible: true,
-//     builder: (BuildContext context) {
-//       String selectedColor = '';
-//       String selectedSize = '';
-//       int? selectedSizeId;
-//       int? selectedStock; // Variable to store the selected stock
-//       TextEditingController quantityController = TextEditingController(); // Controller for quantity input
-
-//       return StatefulBuilder(
-//         builder: (BuildContext context, StateSetter setState) {
-//           return Dialog(
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(20),
-//             ),
-//             child: Padding(
-//               padding: EdgeInsets.all(20),
-//               child: SingleChildScrollView( // Make the content scrollable if needed
-//                 child: Column(
-//                   mainAxisSize: MainAxisSize.min,
-//                   crossAxisAlignment: CrossAxisAlignment.center,
-//                   children: [
-//                     if (selectedStock != null) // Show stock info only if a size is selected
-//                       Container(
-//                         child: Padding(
-//                           padding: const EdgeInsets.only(bottom: 10),
-//                           child: Text(
-//                             'Available Stock: $selectedStock',
-//                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-//                           ),
-//                         ),
-//                       ),
-//                     Wrap(
-//                       spacing: 10,
-//                       children: colors.map((color) {
-//                         return ChoiceChip(
-//                           label: Text(color),
-//                           selected: selectedColor == color,
-//                           onSelected: (bool selected) {
-//                             setState(() {
-//                               selectedColor = selected ? color : '';
-//                             });
-//                           },
-//                           selectedColor: Colors.green,
-//                         );
-//                       }).toList(),
-//                     ),
-//                     SizedBox(height: 10),
-//                     Wrap(
-//                       spacing: 5,
-//                       children: sizes.map((sizeMap) {
-//                         String sizeAttribute = sizeMap['attribute'];
-//                         int sizeId = sizeMap['id'];
-//                         int stock = sizeMap['stock'];
-
-//                         return ChoiceChip(
-//                           label: Text(sizeAttribute),
-//                           selected: selectedSize == sizeAttribute,
-//                           onSelected: (bool selected) {
-//                             setState(() {
-//                               if (selected) {
-//                                 selectedSize = sizeAttribute;
-//                                 selectedSizeId = sizeId;
-//                                 selectedStock = stock; // Update stock based on selected size
-//                                 quantityController.clear(); // Clear quantity input when selecting a new size
-//                               } else {
-//                                 selectedSize = '';
-//                                 selectedSizeId = null;
-//                                 selectedStock = null;
-//                               }
-//                             });
-//                           },
-//                           selectedColor:const Color.fromARGB(223, 229, 230, 231),
-//                         );
-//                       }).toList(),
-//                     ),
-//                     SizedBox(height: 10),
-//                     if (selectedSize.isNotEmpty) // Show quantity input field only if a size is selected
-//                      Padding(
-//                        padding: const EdgeInsets.only(bottom: 8),
-//                        child: SizedBox(
-//                          width: 300, // Set the desired width here
-//                          height: 40,
-//                          child: TextField(
-//                            controller: quantityController,
-//                            keyboardType: TextInputType.number,
-//                            decoration: InputDecoration(
-//                              labelText: 'Enter Quantity',
-//                              border: OutlineInputBorder(
-//                                borderRadius: BorderRadius.circular(10),
-//                              ),
-//                            ),
-//                          ),
-//                        ),
-//                      ),
-
-//                     SizedBox(
-//                       height: 50,
-//                       width: 300,
-//                       child: ElevatedButton(
-//                         onPressed: () {
-//                           // Get the entered quantity value
-//                           int quantity = int.tryParse(quantityController.text) ?? 1;
-                      
-//                           // Add logic for adding to cart, using selectedSizeId and quantity
-//                           print("Selected Size ID: $selectedSizeId");
-//                           print("Quantity: $quantity");
-                      
-//                           // Call add to cart function
-//                           addtocart(context, mainid, varid, selectedSizeId, quantity);
-                      
-//                           // Close the dialog after adding to cart
-//                           Navigator.of(context).pop();
-//                         },
-//                         child: Text("ADD TO CART", style: TextStyle(color: Colors.white)),
-//                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: Colors.blue,
-//                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-//                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           );
-//         },
-//       );
-//     },
-//   );
-// }
-
+// 
 
 void showSizeDialog2(BuildContext context, List variants) {
   // Create a ValueNotifier to track the selected product
@@ -1096,7 +924,7 @@ else {
        child: Column(
          children: [
 
-          if(dep=='COO'||dep=='Admin')
+          if(dep=='COO'||dep=='Admin'||dep=='Accounts')
 
 
           Padding(
@@ -1175,167 +1003,172 @@ Padding(
 
 
      Expanded(
-  child: ListView.builder(
-    itemCount: filteredProducts.length,
-    itemBuilder: (context, index) {
-      final product = filteredProducts[index];
-      print('producttttttttttt$product');
-      final isExpanded = expandedProducts[product['id']] ?? false;
-
-      return Padding(
-        padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              height: 90,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: ListTile(
-                leading: product['image'] != null && product['image'].isNotEmpty
-                    ? Image.network(
-                        '${product['image']}',
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                      )
-                    : Icon(Icons.image_not_supported),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${product['name']}",
-                      style: TextStyle(fontSize: 14),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+  child: RefreshIndicator(
+    onRefresh: () {
+      return fetchProductList();
+    },
+    child: ListView.builder(
+      itemCount: filteredProducts.length,
+      itemBuilder: (context, index) {
+        final product = filteredProducts[index];
+        print('producttttttttttt$product');
+        final isExpanded = expandedProducts[product['id']] ?? false;
+    
+        return Padding(
+          padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                height: 90,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
                     ),
-                    if (product['color'] != null && product['color'].isNotEmpty) // Display color if it exists
-                      Text(
-                        "Color: ${product['color']}",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      
                   ],
                 ),
-                trailing: ElevatedButton.icon(
-                onPressed: () {
-  if (product['is_vaiant'] == true) {
-    print("Product sizes data: ${product['sizes']}");
-    // Ensure colors are non-null before passing to extractStringList
-    List<String> colors = extractStringList(product['colors'] ?? [], 'color_name');
-    List<Map<String, dynamic>> sizes = extractSizeList(product['sizes'] ?? []);
-    print("Extracted sizes: $sizes");
-    // showSizeDialog(
-    //   context,
-    //   colors,
-    //   sizes,
-    //   product['mainid'],
-    //   product['id'],
-    // );
-  }
-  else if(product['type'] == 'variant'){
-        print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
-
-    showSizeDialog2(
-      context,
-      product['variantIDs'] );
-
-  }
-  else if(product['type']=='single'){
-    print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
-    showSizeDialog3(
-      context,
-      product['id'],
-      product['stock'],
-      );
-  }
-
-},
-
-                  icon: Icon(
-                    product['type'] == 'single' ? Icons.add : Icons.view_agenda,
-                    size: 14,
-                    color: Colors.white,
+                child: ListTile(
+                  leading: product['image'] != null && product['image'].isNotEmpty
+                      ? Image.network(
+                          '${product['image']}',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                        )
+                      : Icon(Icons.image_not_supported),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${product['name']}",
+                        style: TextStyle(fontSize: 14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (product['color'] != null && product['color'].isNotEmpty) // Display color if it exists
+                        Text(
+                          "Color: ${product['color']}",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        
+                    ],
                   ),
-                  label: Text(
-                    product['type'] == 'single' ? "Add" : "View",
-                    style: TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: product['type'] == 'single' || product['is_vaiant'] == false ? Colors.green : Colors.blue,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    minimumSize: const Size(60, 24),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                  trailing: ElevatedButton.icon(
+                  onPressed: () {
+    if (product['is_vaiant'] == true) {
+      print("Product sizes data: ${product['sizes']}");
+      // Ensure colors are non-null before passing to extractStringList
+      List<String> colors = extractStringList(product['colors'] ?? [], 'color_name');
+      List<Map<String, dynamic>> sizes = extractSizeList(product['sizes'] ?? []);
+      print("Extracted sizes: $sizes");
+      // showSizeDialog(
+      //   context,
+      //   colors,
+      //   sizes,
+      //   product['mainid'],
+      //   product['id'],
+      // );
+    }
+    else if(product['type'] == 'variant'){
+          print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
+    
+      showSizeDialog2(
+        context,
+        product['variantIDs'] );
+    
+    }
+    else if(product['type']=='single'){
+      print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
+      showSizeDialog3(
+        context,
+        product['id'],
+        product['stock'],
+        );
+    }
+    
+    },
+    
+                    icon: Icon(
+                      product['type'] == 'single' ? Icons.add : Icons.view_agenda,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      product['type'] == 'single' ? "Add" : "View",
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: product['type'] == 'single' || product['is_vaiant'] == false ? Colors.green : Colors.blue,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(60, 24),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            // Display variant list if expanded
-            if (isExpanded && product['variant_products'] != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 10, right: 10),
-                child: Column(
-                  children: product['variant_products'].map<Widget>((variantProduct) {
-                    return Container(
-                      height: 70,
-                      margin: const EdgeInsets.only(bottom: 6),
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          if (variantProduct['image'] != null && variantProduct['image'].isNotEmpty)
-                            Image.network(
-                              variantProduct['image'],
-                              width: 65,
-                              height: 65,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                            )
-                          else
-                            Icon(Icons.image_not_supported),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              "${variantProduct['name']} - ${variantProduct['color']} - Stock: ${variantProduct['stock']}",
-                              style: TextStyle(fontSize: 12),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+              // Display variant list if expanded
+              if (isExpanded && product['variant_products'] != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 10, right: 10),
+                  child: Column(
+                    children: product['variant_products'].map<Widget>((variantProduct) {
+                      return Container(
+                        height: 70,
+                        margin: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            if (variantProduct['image'] != null && variantProduct['image'].isNotEmpty)
+                              Image.network(
+                                variantProduct['image'],
+                                width: 65,
+                                height: 65,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                              )
+                            else
+                              Icon(Icons.image_not_supported),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                "${variantProduct['name']} - ${variantProduct['color']} - Stock: ${variantProduct['stock']}",
+                                style: TextStyle(fontSize: 12),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-          ],
-        ),
-      );
-    },
+            ],
+          ),
+        );
+      },
+    ),
   ),
 ),
 

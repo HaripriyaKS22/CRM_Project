@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +123,9 @@ class _beposoftmainState extends State<beposoftmain> {
                               ? admin_dashboard()
                               : department == "IT"
                                   ? admin_dashboard()
-                                  : dashboard()
+                                  : department == "warehouse admin"
+                                    ? WarehouseAdmin()
+                                    : dashboard()
           : login(),
     );
   }

@@ -319,7 +319,6 @@ Future<void> RegisterUserData(BuildContext scaffoldContext) async {
       'username': username.text,
       'email': email.text,
       'phone': phone.text,
-      'password': password.text,
       'alternate_number': alternate_number.text,
       'designation': designation.text,
       'grade': grade.text,
@@ -336,14 +335,16 @@ Future<void> RegisterUserData(BuildContext scaffoldContext) async {
       'gender': gender,
       'marital_status': maritalStatus,
       'employment_status': employment_status.text,
-              'warehouse_id': selectedwarehouseId.toString(),
+              'warehouse_id': selectedwarehouseId ?? null, // Use 0 if selectedwarehouseId is null
 
       'approval_status': approvalStatus,
       'family': selectedFamilyName != null
           ? familyList.firstWhere((element) => element['name'] == selectedFamilyName, orElse: () => {})['id']
           : null,
     };
-
+if (password.text.isNotEmpty) {
+  data['password'] = password.text;
+}
     // Convert data to JSON and set the request body
     request.body = jsonEncode(data);
 

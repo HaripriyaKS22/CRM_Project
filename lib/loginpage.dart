@@ -2,6 +2,7 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/registerationpage.dart';
 import 'package:flutter/material.dart';
@@ -120,6 +121,9 @@ void login(String email, String password, BuildContext context) async {
             break;
           case 'BDM':
             targetPage = bdm_dashbord();
+            break;
+          case 'warehouse admin':
+            targetPage = WarehouseAdmin();
             break;
           default:
             targetPage = dashboard();

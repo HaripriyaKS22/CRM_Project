@@ -1,20 +1,31 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
-import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
-import 'package:beposoft/pages/WAREHOUSE/warehouse_order_review.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_request.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 import 'package:pdf/pdf.dart';
 
@@ -23,15 +34,15 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 
-class WarehouseOrderView extends StatefulWidget {
-  final status;
-  WarehouseOrderView({super.key,required this.status});
+class Warehouse_Order_Request extends StatefulWidget {
+  var status ;
+  Warehouse_Order_Request({super.key,required this.status});
 
   @override
-  State<WarehouseOrderView> createState() => _WarehouseOrderViewState();
+  State<Warehouse_Order_Request> createState() => _Warehouse_Order_RequestState();
 }
 
-class _WarehouseOrderViewState extends State<WarehouseOrderView> {
+class _Warehouse_Order_RequestState extends State<Warehouse_Order_Request> {
   List<Map<String, dynamic>> orders = [];
   List<Map<String, dynamic>> filteredOrders = [];
   String searchQuery = '';
@@ -68,12 +79,19 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   Future<void> fetchOrderData() async {
     try {
       final token = await getTokenFromPrefs();
+                    final dep= await getdepFromPrefs();
+ final jwt = JWT.decode(token!);
+          var name = jwt.payload['name'];
+          print("Name: $name");
       var response = await http.get(
-        Uri.parse('$api/api/orders/'),
+        Uri.parse('$api/api/warehouse/orders/4/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -88,10 +106,7 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
         List<Map<String, dynamic>> orderList = [];
 
         for (var productData in productsData) {
-
-
-          if(widget.status==null){
-            // Parse the date
+          // Parse the date
           String rawOrderDate = productData['order_date'];
           String formattedOrderDate =
               rawOrderDate; // Fallback in case of parsing failure
@@ -105,36 +120,10 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
           } catch (e) {
             print("Error parsing date: $rawOrderDate - $e");
           }
+if(widget.status==null){
+if(productData['status']=="Order Request by Warehouse"){
 
-          // Parse warehouse_orders
-          List<Map<String, dynamic>> warehouseOrders = [];
-          if (productData['warehouse_orders'] != null) {
-            for (var warehouseOrder in productData['warehouse_orders']) {
-              warehouseOrders.add({
-                'id': warehouseOrder['id'],
-                'box': warehouseOrder['box'],
-                'weight': warehouseOrder['weight'],
-                'length': warehouseOrder['length'],
-                'breadth': warehouseOrder['breadth'],
-                'height': warehouseOrder['height'],
-                'total_weight': warehouseOrder['total_weight'],
-                'total_volume_weight': warehouseOrder['total_volume_weight'],
-                'image': warehouseOrder['image'],
-                'parcel_service': warehouseOrder['parcel_service'],
-                'tracking_id': warehouseOrder['tracking_id'],
-                'shipping_charge': warehouseOrder['shipping_charge'],
-                'status': warehouseOrder['status'],
-                'shipped_date': warehouseOrder['shipped_date'],
-                'order': warehouseOrder['order'],
-                'packed_by': warehouseOrder['packed_by'],
-                'customer': warehouseOrder['customer'],
-                'invoice': warehouseOrder['invoice'],
-                'family': warehouseOrder['family'],
-              });
-            }
-          }
-
-          orderList.add({
+             orderList.add({
             'id': productData['id'],
             'invoice': productData['invoice'],
             'manage_staff': productData['manage_staff'],
@@ -175,109 +164,72 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
             'status': productData['status'],
             'total_amount': productData['total_amount'],
             'order_date': formattedOrderDate, // Use the formatted string
-            'warehouse_orders':
-                warehouseOrders, // Include parsed warehouse orders
           });
-
-          }
-          else if(widget.status==productData['status']){
-
-             String rawOrderDate = productData['order_date'];
-          String formattedOrderDate =
-              rawOrderDate; // Fallback in case of parsing failure
-
-          try {
-            // Try to parse the date in 'yyyy-MM-dd' format
-            DateTime parsedOrderDate =
-                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
-            formattedOrderDate = DateFormat('yyyy-MM-dd')
-                .format(parsedOrderDate); // Convert to desired format
-          } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
-          }
-
-          // Parse warehouse_orders
-          List<Map<String, dynamic>> warehouseOrders = [];
-          if (productData['warehouse_orders'] != null) {
-            for (var warehouseOrder in productData['warehouse_orders']) {
-              warehouseOrders.add({
-                'id': warehouseOrder['id'],
-                'box': warehouseOrder['box'],
-                'weight': warehouseOrder['weight'],
-                'length': warehouseOrder['length'],
-                'breadth': warehouseOrder['breadth'],
-                'height': warehouseOrder['height'],
-                'total_weight': warehouseOrder['total_weight'],
-                'total_volume_weight': warehouseOrder['total_volume_weight'],
-                'image': warehouseOrder['image'],
-                'parcel_service': warehouseOrder['parcel_service'],
-                'tracking_id': warehouseOrder['tracking_id'],
-                'shipping_charge': warehouseOrder['shipping_charge'],
-                'status': warehouseOrder['status'],
-                'shipped_date': warehouseOrder['shipped_date'],
-                'order': warehouseOrder['order'],
-                'packed_by': warehouseOrder['packed_by'],
-                'customer': warehouseOrder['customer'],
-                'invoice': warehouseOrder['invoice'],
-                'family': warehouseOrder['family'],
-              });
-            }
-          }
-
-          orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-            'warehouse_orders':
-                warehouseOrders, // Include parsed warehouse orders
-          });
-
-
-          }
           
+}
         }
+        else if(widget.status==productData['status']){
+if(productData['status']=="Order Request by Warehouse"){
+
+
+
+          print("statttttttttttttttttttttttttt");
+               orderList.add({
+            'id': productData['id'],
+            'invoice': productData['invoice'],
+            'manage_staff': productData['manage_staff'],
+            'customer': {
+              'name': productData['customer']['name'],
+              'phone': productData['customer']['phone'],
+              'email': productData['customer']['email'],
+              'address': productData['customer']['address'],
+            },
+            'billing_address': {
+              'name': productData['billing_address']['name'],
+              'email': productData['billing_address']['email'],
+              'zipcode': productData['billing_address']['zipcode'],
+              'address': productData['billing_address']['address'],
+              'phone': productData['billing_address']['phone'],
+              'city': productData['billing_address']['city'],
+              'state': productData['billing_address']['state'],
+            },
+            'bank': {
+              'name': productData['bank']['name'],
+              'account_number': productData['bank']['account_number'],
+              'ifsc_code': productData['bank']['ifsc_code'],
+              'branch': productData['bank']['branch'],
+            },
+            'items': productData['items'] != null
+                ? productData['items'].map((item) {
+                    return {
+                      'id': item['id'],
+                      'name': item['name'],
+                      'quantity': item['quantity'],
+                      'price': item['price'],
+                      'tax': item['tax'],
+                      'discount': item['discount'],
+                      'images': item['images'],
+                    };
+                  }).toList()
+                : [], // Fallback to empty list
+            'status': productData['status'],
+            'total_amount': productData['total_amount'],
+            'order_date': formattedOrderDate, // Use the formatted string
+          });
+}
+          
+
+        }
+
+        
+        
+        }
+        
 
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
-          print("Warehouse Orders Example: ${orders[0]['warehouse_orders']}");
+          print("filterrrrrrrrrrrrrrrrrrrrrrrrrr$filteredOrders");
         });
       }
     } catch (error) {
@@ -370,6 +322,32 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
       _filterOrdersByDateRange();
     }
   }
+void logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
+  await prefs.remove('token');
+
+  // Use a post-frame callback to show the SnackBar after the current frame
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (ScaffoldMessenger.of(context).mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logged out successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  });
+
+  // Wait for the SnackBar to disappear before navigating
+  await Future.delayed(Duration(seconds: 2));
+
+  // Navigate to the HomePage after the snackbar is shown
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => login()),
+  );
+}
 
   Future<void> exportToExcel() async {
     var excel = Excel.createExcel();
@@ -584,18 +562,16 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
     await Printing.sharePdf(
         bytes: await pdf.save(), filename: 'order_list.pdf');
   }
-Future<String?> getdepFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('department');
-  } 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order List',
-            style: TextStyle(fontSize: 14, color: Colors.grey)),
-        centerTitle: true,
-         leading: IconButton(
+       title: Text(
+          "Order Request List",
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+        leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async{
                     final dep= await getdepFromPrefs();
@@ -610,12 +586,6 @@ else if(dep=="BDM" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else if(dep=="warehouse" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
 else if(dep=="warehouse admin" ){
@@ -678,11 +648,10 @@ else {
           ),
         ],
       ),
-     
+ 
       body: Column(
         children: [
           // Search Bar
-          SizedBox(height: 20,),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(
@@ -771,7 +740,7 @@ else {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        WarehouseOrderReview(id: order['id'])));
+                                        OrderRequest(id: order['id'])));
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(
@@ -797,7 +766,7 @@ else {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        '#${order['invoice']} /${order['customer']['name']}',
+                                        '#${order['invoice']}',
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
@@ -819,23 +788,39 @@ else {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Status:',
-                                            style: TextStyle(
-                                              fontSize: 13,
+                                      Text(
+                                        'Customer: ${order['customer']['name']}',
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                                                            SizedBox(height: 4.0),
+
+                                      Text(
+                                        'Staff: ${order['manage_staff']}',
+                                        style: TextStyle(
+                                            fontSize: 13,
                                             ),
-                                          ),
-                                          Spacer(),
-                                          Text(
-                                            ' ${order['status']}',
+                                      ),
+                                      
+                                       SizedBox(height: 4.0),
+                                       Row(
+                                         children: [
+                                           Text(
+                                            'Status: ',
                                             style: TextStyle(
                                                 fontSize: 13,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        ],
-                                      ),
+                                                ),
+                                                                                 ),
+                                            Text(
+                                            '${order['status']}',
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.blue
+                                                ),
+                                                                                 ),
+                                         ],
+                                       ),
                                       SizedBox(height: 8.0),
                                       Row(
                                         mainAxisAlignment:
@@ -844,8 +829,8 @@ else {
                                           Text(
                                             'Billing Amount:',
                                             style: TextStyle(
-                                              fontSize: 13,
-                                            ),
+                                                fontSize: 13,
+                                               ),
                                           ),
                                           Text(
                                             '\$${order['total_amount']}',
@@ -859,98 +844,6 @@ else {
                                     ],
                                   ),
                                 ),
-                                // Warehouse Details Section
-                                if (order['warehouse_orders'] != null &&
-                                    order['warehouse_orders'].isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0, vertical: 4.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Warehouse Details:',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue),
-                                        ),
-                                        SizedBox(height: 4.0),
-                                        ...order['warehouse_orders']
-                                            .map<Widget>((warehouse) {
-                                          print(
-                                              "====================$api${warehouse['image']}");
-
-                                          return Card(
-                                            color: const Color.fromARGB(
-                                                240, 255, 255, 255),
-                                            margin: EdgeInsets.symmetric(
-                                                vertical: 4.0),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Row(
-                                                // Changed to Row to place image and details side by side
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Image.network(
-                                                    "${warehouse['image']}",
-                                                    width: 80,
-                                                    height: 80,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (context,
-                                                        error, stackTrace) {
-                                                      return Icon(Icons
-                                                          .image_not_supported); // Fallback image or icon
-                                                    },
-                                                  ),
-
-                                                  SizedBox(
-                                                      width:
-                                                          10), // Spacer between image and text
-                                                  Expanded(
-                                                    child: Column(
-                                                      // Details in a vertical column
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Box: ${warehouse['box']}',
-                                                          style: TextStyle(
-                                                              fontSize: 13),
-                                                        ),
-                                                        Text(
-                                                          'Total Weight: ${warehouse['total_weight']}',
-                                                          style: TextStyle(
-                                                              fontSize: 13),
-                                                        ),
-                                                        Text(
-                                                          'Total Volume Weight: ${warehouse['total_volume_weight']}',
-                                                          style: TextStyle(
-                                                              fontSize: 13),
-                                                        ),
-                                                        
-                                                        Text(
-                                                          'Shipping Charge: \$${warehouse['shipping_charge']}',
-                                                          style: TextStyle(
-                                                              fontSize: 13,
-                                                              color:
-                                                                  Colors.green),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ],
-                                    ),
-                                  ),
                               ],
                             ),
                           ),
