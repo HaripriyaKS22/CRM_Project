@@ -60,8 +60,9 @@ class _Product_ListState extends State<Product_List> {
     getFamily();
     initdata();
   }
-
+var warehouse;
   Future<void> initdata() async {
+    
     await fetchProductList();
     setState(() {
       filteredProducts = products;

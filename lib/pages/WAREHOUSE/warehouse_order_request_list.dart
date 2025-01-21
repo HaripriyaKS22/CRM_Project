@@ -72,9 +72,22 @@ class _Warehouse_Order_RequestState extends State<Warehouse_Order_Request> {
   @override
   void initState() {
     super.initState();
-    fetchOrderData();
-  }
+    initdata();
+  
+  }var warehouse;
+  void initdata()async{
+     warehouse = await getwarehouseFromPrefs();
+  print("Warehouse ID (init data): ${warehouse ?? "Not found"}");
+    await fetchOrderData(warehouse);
 
+  }
+Future<String?> getwarehouseFromPrefs() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int? warehouseId = prefs.getInt('warehouse');
+  
+  // Check if warehouseId is null before converting to String
+  return warehouseId?.toString();
+}
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -83,15 +96,16 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-  Future<void> fetchOrderData() async {
+  Future<void> fetchOrderData(var warehouse) async {
     try {
       final token = await getTokenFromPrefs();
                     final dep= await getdepFromPrefs();
  final jwt = JWT.decode(token!);
           var name = jwt.payload['name'];
           print("Name: $name");
+          print('$api/api/warehouse/orders/$warehouse/');
       var response = await http.get(
-        Uri.parse('$api/api/warehouse/orders/4/'),
+        Uri.parse('$api/api/warehouse/orders/$warehouse/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
