@@ -68,18 +68,30 @@ class _order_productsState extends State<order_products> {
     initdata();
     getwarehouse();
   }
+var warehouse;
+Future<void> initdata() async {
+  final dep = await getdepFromPrefs();
+  print("Department: $dep");
 
-  Future<void> initdata() async {
-    final dep = await getdepFromPrefs();
-    print("dep$dep");
-    final warehouse =await getwarehouseFromPrefs();
-    print("warehouseinitdataaaaaa$warehouse");
+   warehouse = await getwarehouseFromPrefs();
+  print("Warehouse ID (init data): ${warehouse ?? "Not found"}");
 
-    await fetchProductList();
+  if(warehouse==0){
+   await  fetchProductList();
     setState(() {
-      filteredProducts = products;
-    });
+    filteredProducts = products;
+  });
   }
+  else{
+  await  fetchProductListid(warehouse);
+   setState(() {
+    filteredProducts = products;
+  });
+  }
+
+ 
+}
+
 
 Future<void> _getAndShowVariants(int productId) async {
     await getvariant(productId, "type"); // Call your existing getvariant function
@@ -111,10 +123,14 @@ Future<void> _getAndShowVariants(int productId) async {
     return prefs.getString('department');
   }
   
-  Future<String?> getwarehouseFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('warehouse');
-  }
+ Future<String?> getwarehouseFromPrefs() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int? warehouseId = prefs.getInt('warehouse');
+  
+  // Check if warehouseId is null before converting to String
+  return warehouseId?.toString();
+}
+
   Future<void> getwarehouse() async {
     final token = await getTokenFromPrefs();
     
@@ -247,7 +263,6 @@ Future<void> _getAndShowVariants(int productId) async {
 //     print("Error: $error");
 //   }
 // }
-var warehouse;
 var dep;
 
 Future<void> fetchProductList() async {

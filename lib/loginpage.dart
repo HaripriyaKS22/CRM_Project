@@ -34,74 +34,99 @@ class _loginState extends State<login> {
   
   
 
-  Future<void> storeUserData(String token,String department,String username,String wharehouse) async {
-    print("username$username");
-    print("BBBBBBBBBBBBBBBBBBBBwharehouse$wharehouse");
-    print(department);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
-        await prefs.setString('department', department);
-                await prefs.setString('username', username);
-                                await prefs.setString('wharehouse', wharehouse);
+ Future<void> storeUserData(String token, String department, String username, dynamic warehouse) async {
+  print("Username: $username");
+  print("Warehouse: $warehouse");
+  print("Department: $department");
 
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+  // Save the data into SharedPreferences
+  await prefs.setString('token', token);
+  await prefs.setString('department', department);
+  await prefs.setString('username', username);
+
+  // Handle warehouse based on its type
+  if (warehouse is int) {
+    await prefs.setInt('warehouse', warehouse);
+  } else if (warehouse is String) {
+    await prefs.setString('warehouse', warehouse);
+  } else {
+    print("Unexpected type for warehouse: ${warehouse.runtimeType}");
   }
+}
+
 void login(String email, String password, BuildContext context) async {
-  print("eeeeeeeeeeeeeeeeeeeeeeeeee$email");
-  print("PPPPPPPPPPPPPPPPPPPPPPPPPPPPP$password");
+  print("Email: $email");
+  print("Password: $password");
+
   try {
     var response = await http.post(
       Uri.parse(url),
       body: {"email": email, "password": password},
     );
 
-    print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.body}");
+    print("Response: ${response.body}");
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
 
-      print("RRRRRRRRRRRRRRDDDDDDDDDDDDDDDDDDDDDDDDDDDD$responseData");
-      print(status);
+      print("Response Data: $responseData");
+      print("Status: $status");
 
       if (status == 'success') {
         var token = responseData['token'];
         var active = responseData['active'];
         var name = responseData['name'];
-        var wharehouse = responseData['warehouse_id'] ?? 0; // Default to 0 if null
-        print("name$name");
-        print("wharehouse$wharehouse");
+        var warehouse = responseData['warehouse_id'] ?? 0; // Default to 0 if null
+        print("Name: $name");
+        print("Warehouse: $warehouse");
 
         // Decode the token and store the ID in SharedPreferences
         try {
           final jwt = JWT.decode(token);
-          var id = jwt.payload['id'];
+          var id = jwt.payload['id']; // Expected to be an int
           print("Decoded Token Payload: ${jwt.payload}");
           print("User ID: $id");
 
-          // Save ID in SharedPreferences
+          // Save data in SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('user_id', id); // Store user ID
-          await storeUserData(token, active, name, wharehouse); // Store token as needed
+          await prefs.setInt('user_id', id); // Store user ID as an int
+          await prefs.setString('user_token', token); // Store token
+          await prefs.setString('user_name', name); // Store user name
+          await prefs.setInt('warehouse_id', warehouse); // Store warehouse ID
+          await storeUserData(token, active, name, warehouse);
 
         } catch (e) {
           print("Token decode error: $e");
         }
 
         // Handle navigation based on active role
-        if (active == 'IT') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => dashboard()));
-        } else if (active == 'warehouse') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => WarehouseDashboard()));
-        } else if (active == 'BDO') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => bdo_dashbord()));
-        } else if (active == 'COO') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => admin_dashboard()));
-        } else if (active == 'BDM') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => bdm_dashbord()));
-        } else if (active == 'Accounts / Accounting') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => dashboard()));
+        Widget targetPage;
+        switch (active) {
+          case 'IT':
+          case 'Accounts / Accounting':
+            targetPage = dashboard();
+            break;
+          case 'warehouse':
+            targetPage = WarehouseDashboard();
+            break;
+          case 'BDO':
+            targetPage = bdo_dashbord();
+            break;
+          case 'COO':
+            targetPage = admin_dashboard();
+            break;
+          case 'BDM':
+            targetPage = bdm_dashbord();
+            break;
+          default:
+            targetPage = dashboard();
         }
-        
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) => targetPage));
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(backgroundColor: Colors.green, content: Text('Successfully logged in.')),
@@ -111,6 +136,10 @@ void login(String email, String password, BuildContext context) async {
           SnackBar(backgroundColor: Colors.red, content: Text('Login failed.')),
         );
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(backgroundColor: Colors.red, content: Text('An error occurred. Please try again.')),
+      );
     }
   } catch (e) {
     print("Error: $e");
