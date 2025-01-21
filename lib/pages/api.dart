@@ -1,1 +1,1 @@
-var api="https://understand-electric-kim-symposium.trycloudflare.com";
+var api="https://garlic-nearest-morocco-surprised.trycloudflare.com";

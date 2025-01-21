@@ -77,12 +77,14 @@ Future<void> initdata() async {
   print("Warehouse ID (init data): ${warehouse ?? "Not found"}");
 
   if(warehouse==0){
+    print("Warehouse ID is 0, fetching all products");
    await  fetchProductList();
     setState(() {
     filteredProducts = products;
   });
   }
   else{
+    print("Warehouse ID is not 0, fetching products for this warehouse");
   await  fetchProductListid(warehouse);
    setState(() {
     filteredProducts = products;
@@ -324,7 +326,7 @@ print("Response${response.statusCode}");
   }
 }
 
- Future<void> fetchProductListid(int warehouse) async {
+ Future<void> fetchProductListid(var warehouse) async {
   final token = await getTokenFromPrefs();
  print("tokennnnnnnnnnnnnnnnnnnnnnnnnnnnnn$token");
  print("warehouseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee$warehouse");
