@@ -120,7 +120,7 @@ Future<String?> getdepFromPrefs() async {
             print("Error parsing date: $rawOrderDate - $e");
           }
 if(widget.status==null){
-
+if(productData['status']!="Order Request by Warehouse"){
 
              orderList.add({
             'id': productData['id'],
@@ -165,9 +165,10 @@ if(widget.status==null){
             'order_date': formattedOrderDate, // Use the formatted string
           });
           
-         
+}
         }
         else if(widget.status==productData['status']){
+            if(productData['status']!="Order Request by Warehouse"){
 
           print("statttttttttttttttttttttttttt");
                orderList.add({
@@ -213,7 +214,7 @@ if(widget.status==null){
             'order_date': formattedOrderDate, // Use the formatted string
           });
           
-          
+            }
 
         }
 
