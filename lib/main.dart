@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/HR/hr_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
@@ -51,59 +52,80 @@ class _beposoftmainState extends State<beposoftmain> {
     await prefs.setString('token', token);
   }
 
-  void check() async {
-    final token = await gettokenFromPrefs();
-    final dep = await getdepFromPrefs();
+void check() async {
+  final token = await gettokenFromPrefs();
 
-    try {
-      if (token != null) {
-        final jwt = JWT.decode(token);
-        var dep = jwt.payload['dep'];
-        print("Decoded Token Payload: ${jwt.payload}");
-        print("User ID: $dep");
-      } else {
+  try {
+    if (token != null) {
+      final jwt = JWT.decode(token);
+      var dep = jwt.payload['dep'];
+      print("Decoded Token Payload: ${jwt.payload}");
+      print("User ID: $dep");
+      
+      setState(() {
+        department = dep;
+        tok = true; // Token is valid
+
+        print("Department: $department");
+      });
+    } else {
+      setState(() {
         tokenn = false;
-      }
-    } catch (e) {
-      print("Token decode error: $e");
-      tokenn = false;
+      });
+      navigateToLogin();
     }
-
+  } catch (e) {
+    print("Token decode error: $e");
     setState(() {
-      department = dep;
-      print("department$department");
-      tok = token != null;
-    });
-
-  }
-
-  Future<void> getbank() async {
-    final token = await gettokenFromPrefs();
-    try {
-      final response = await http.get(
-        Uri.parse('$api/api/banks/'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      print("mainnnnnnnnnnnnnnnnnnnnnnn:${response.body}");
-      final parsed = jsonDecode(response.body);
-      print('mssssssssssggggggggggggggggg${parsed['message']}');
-
-      if (parsed['message'] == "Token has expired" || parsed['message'] == "Invalid token") {
-        tokenn = false;
-        print("token$tokenn");
-      }
-      // setState(() {
-      //   department=parsed['department'];
-      // });
-    } catch (e) {
-      print("error:$e");
       tokenn = false;
-    }
+    });
+    navigateToLogin();
   }
+}
+
+Future<void> getbank() async {
+  final token = await gettokenFromPrefs();
+
+  try {
+    final response = await http.get(
+      Uri.parse('$api/api/banks/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print("Bank API Response: ${response.body}");
+    final parsed = jsonDecode(response.body);
+
+    if (parsed['message'] == "Token has expired" || parsed['message'] == "Invalid token") {
+      print("Token has expired or is invalid");
+      await clearToken();
+      setState(() {
+        tokenn = false;
+      });
+      navigateToLogin();
+    }
+  } catch (e) {
+    print("Error fetching data: $e");
+    setState(() {
+      tokenn = false;
+    });
+    navigateToLogin();
+  }
+}
+
+Future<void> clearToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('token');
+}
+
+void navigateToLogin() {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => login()),
+  );
+}
 
 
   @override
@@ -123,9 +145,11 @@ class _beposoftmainState extends State<beposoftmain> {
                               ? admin_dashboard()
                               : department == "IT"
                                   ? admin_dashboard()
-                                  : department == "warehouse admin"
-                                    ? WarehouseAdmin()
-                                    : dashboard()
+                                  : department == "HR"
+                                    ? HrDashboard()
+                                    : department == "warehouse admin"
+                                      ? WarehouseAdmin()
+                                      : dashboard()
           : login(),
     );
   }

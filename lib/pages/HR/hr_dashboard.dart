@@ -1,743 +1,270 @@
-
-
-
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
-import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/BDM/bdm_customer_list.dart';
-import 'package:beposoft/pages/BDM/bdm_order_list.dart';
-import 'package:beposoft/pages/BDM/bdm_order_request.dart';
-import 'package:beposoft/pages/BDM/bdm_proforma_invoice.dart';
-import 'package:beposoft/pages/BDO/bdo_order_list.dart';
+import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
+import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/profilepage.dart';
+import 'package:beposoft/pages/HR/attendance.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class hr_dashbord extends StatefulWidget {
-  const hr_dashbord({super.key});
+class HrDashboard extends StatefulWidget {
+  const HrDashboard({super.key});
 
   @override
-  State<hr_dashbord> createState() => _hr_dashbordState();
+  State<HrDashboard> createState() => _HrDashboardState();
 }
 
-class _hr_dashbordState extends State<hr_dashbord> {
-  
+class _HrDashboardState extends State<HrDashboard> {
+  String? username = '';
+  void initState() {
+    super.initState();
+    _getUsername(); // Get the username when the page loads
+  }
 
+  Future<String?> getusernameFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username');
+  }
+
+  // Retrieve the username from SharedPreferences
+  Future<void> _getUsername() async {
+    final name = await getusernameFromPrefs();
+    setState(() {
+      username = name ?? 'Guest'; // Default to 'Guest' if no username
+    });
+  }
+
+  Widget _buildDropdownTile(
+      BuildContext context, String title, List<String> options) {
+    return ExpansionTile(
+      title: Text(title),
+      children: options.map((option) {
+        return ListTile(
+          title: Text(option),
+          onTap: () {
+            Navigator.pop(context);
+            d.navigateToSelectedPage2(
+                context, option); // Navigate to selected page
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
+
+    // Show the SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Logged out successfully'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
+
+  drower d = drower();
   @override
   Widget build(BuildContext context) {
-     
     return Scaffold(
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
-
-        actions: [
-            IconButton(
-              icon: Image.asset('lib/assets/profile.png'),
-               
-              onPressed: () {
-                
-              },
-            ),
-          ],
-          
-          ),
+        title: Text('HR Dashboard',style: TextStyle(color: Colors.grey,fontSize: 12),),
+      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          
-          children: [
-            Container(
-              width: 10, // Customize the width here
-              child: DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 110, 110, 110),
-                  ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        "lib/assets/logo-white.png",
-                        width: 100, // Change width to desired size
-                        height: 100, // Change height to desired size
-                        fit: BoxFit
-                            .contain, // Use BoxFit.contain to maintain aspect ratio
-                      ),
-                      SizedBox(width: 70,),
-                      Text(
-                        'BepoSoft',
-                        style: TextStyle(
-                          color: Color.fromARGB(236, 255, 255, 255),
-                          fontSize: 20,
-                         
-                        ),
-                      ),
-                      
-                    ],
-                  )),
-            ),
+          children: <Widget>[
+            DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "lib/assets/logo.png",
+                      width: 150, // Change width to desired size
+                      height: 150, // Change height to desired size
+                      fit: BoxFit
+                          .contain, // Use BoxFit.contain to maintain aspect ratio
+                    ),
+                  ],
+                )),
             ListTile(
               leading: Icon(Icons.dashboard),
               title: Text('Dashboard'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>hr_dashbord()));
-
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => HrDashboard()));
+              },
+            ),
+            Divider(),
+            ListTile(
+              title: Text('Attendence Sheet'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AttendanceSheet()));
+              },
+            ),
+            ListTile(
+              title: Text('Add Staff'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => add_staff()));
               },
             ),
             
-
-              
-              
-              
-               ListTile(
-                leading: Icon(Icons.sports_basketball),
-                title: Text('Users'),
-              
-                onTap: () {
-                 
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Container(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ListTile(
-                              title: Text('User list'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                _navigateToSelectedPage(context, 'Option 3');
-                              },
-                            ),
-                            ListTile(
-                              title: Text('Attendance '),
-                              onTap: () {
-                                Navigator.pop(context);
-                                _navigateToSelectedPage(context, 'Option 4');
-                              },
-                            ),
-                          ],
+           
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.chat),
+              title: Text('Chat'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Logout'),
+              onTap: () {
+                logout();
+              },
+            ),
+          ],
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Profile Section
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditProfileScreen(),
                         ),
                       );
                     },
-                  );
-                },
-              ),
-
-              
-               ListTile(
-              leading: Icon(Icons.chat),
-              title: Text('Chats'),
-              onTap: () {},
-            ),  
-            ],
-          ),
-        ),
-        body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20, left: 50),
-                child: Text(
-                  "DASHBOARD",
-                  style: TextStyle(
-                    letterSpacing: 13.0,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+                    child: CircleAvatar(
+                      radius: 25,
+                      backgroundImage: AssetImage(
+                          'lib/assets/female.jpeg'), // Replace with your new image
+                    ),
                   ),
-                ),
+                  SizedBox(width: 16),
+                  Text(
+                    '$username',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 18,),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+              SizedBox(height: 10),
+
+              Expanded(
+                child: ListView(
                   children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 140,
-                        child: Card(
-                          elevation: 3,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                              color: const Color.fromARGB(255, 76, 175, 144)
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 13),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Text(
-                                      "Number of Bills ",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15,),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "0",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                        SizedBox(width: 85,),
-                                      
-                                      ],
-                                    ),  Row(
-                                      
-                                      children: [
-                                        SizedBox(width: 120,),
-                                        Image.asset(
-                                              "lib/assets/right.png",
-                                              width: 25,
-                                              height: 25,
-                                              fit: BoxFit.contain,
-                                            ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                    // Display the count of today's shipped orders in cards
+                    GestureDetector(
+                      onTap: () {
+                                  Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => AttendanceSheet()),
+                        );
+                      },
+                      child: _buildCard(
+                        Icons.calendar_today,
+                        'Attendance  ',
                       ),
                     ),
-                    Expanded(
-                      child: SizedBox(
-                        height: 140,
-                        child: Card(
-                          elevation: 3,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color.fromARGB(255, 228, 195, 3)
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 13),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Text(
-                                      "Waiting for approval",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15,),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "25/5",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                     
-                                      ],
-                                    ),
-                                    Row(
-                                      
-                                      children: [
-                                        SizedBox(width: 120,),
-                                        Image.asset(
-                                              "lib/assets/right.png",
-                                              width: 25,
-                                              height: 25,
-                                              fit: BoxFit.contain,
-                                            ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                    GestureDetector(
+                      onTap: () {
+                                  Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => add_staff()),
+                        );
+                      },
+                      child: _buildCard(
+                        Icons.person,
+                        'Staff',
                       ),
                     ),
                   ],
                 ),
               ),
-
-               Padding(
-                padding: const EdgeInsets.only(top: 18,),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 140,
-                        child: Card(
-                          elevation: 3,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                              color: Color.fromARGB(241, 192, 81, 88)
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 13),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Text(
-                                      "Todays Shipped orders",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10,),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "1",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      
-                                      children: [
-                                        SizedBox(width: 120,),
-                                        Image.asset(
-                                              "lib/assets/right.png",
-                                              width: 25,
-                                              height: 25,
-                                              fit: BoxFit.contain,
-                                            ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: SizedBox(
-                        height: 140,
-                        child: Card(
-                          elevation: 3,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.grey
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 13),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Text(
-                                      "Delivary Boxes",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15,),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "25/5",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                       
-                                      ],
-                                    ),
-                                    Row(
-                                      
-                                      children: [
-                                        SizedBox(width: 120,),
-                                        Image.asset(
-                                              "lib/assets/right.png",
-                                              width: 25,
-                                              height: 25,
-                                              fit: BoxFit.contain,
-                                            ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-               Padding(
-                padding: const EdgeInsets.only(top: 18,),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 140,
-                        child: Card(
-                          elevation: 3,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                               color: const Color.fromARGB(255, 76, 175, 144)
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 13),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Text(
-                                      "Customers",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15,),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "54",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                      
-                                      ],
-                                    ),
-                                    Row(
-                                      
-                                      children: [
-                                        SizedBox(width: 120,),
-                                        Image.asset(
-                                              "lib/assets/right.png",
-                                              width: 25,
-                                              height: 25,
-                                              fit: BoxFit.contain,
-                                            ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: SizedBox(
-                        height: 140,
-                        child: Card(
-                          elevation: 3,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                             color: Color.fromARGB(255, 0, 153, 241)
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 13),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Text(
-                                      "Proforma Invoice",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15,),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "0",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                      
-                                      ],
-                                    ),
-                                    Row(
-                                      
-                                      children: [
-                                        SizedBox(width: 120,),
-                                        Image.asset(
-                                              "lib/assets/right.png",
-                                              width: 25,
-                                              height: 25,
-                                              fit: BoxFit.contain,
-                                            ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-               Padding(
-                padding: const EdgeInsets.only(top: 18,),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 140,
-                        child: Card(
-                          elevation: 3,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color.fromARGB(255, 228, 195, 3)
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 13),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Text(
-                                      "Total Orders",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15,),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "0",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                       
-                                      
-                                      ],
-                                    ),
-                                    Row(
-                                      
-                                      children: [
-                                        SizedBox(width: 120,),
-                                        Image.asset(
-                                              "lib/assets/right.png",
-                                              width: 25,
-                                              height: 25,
-                                              fit: BoxFit.contain,
-                                            ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: SizedBox(
-                        height: 140,
-                        child: Card(
-                          elevation: 3,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.grey
-
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 13),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10,),
-                                    Text(
-                                      "GRV Created",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15,),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "25/5",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                       
-                                      ],
-                                    ),
-
-                                    Row(
-                                      
-                                      children: [
-                                        SizedBox(width: 120,),
-                                        Image.asset(
-                                              "lib/assets/right.png",
-                                              width: 25,
-                                              height: 25,
-                                              fit: BoxFit.contain,
-                                            ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
- 
-            
             ],
           ),
         ),
       ),
-
-      );
-    
-
+    );
   }
+}
 
-   void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_performa_invoice()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>credit_note_list()),
-        );
-        break;
-        case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_order_request()),
-        );
-        break;
-        case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bod_oredr_list(status: null,)),
-        );
-        break; 
-      default:
-        // Handle default case or unexpected options
-        break;
-    }
-  }
-
-
-   
+Widget _buildCard(IconData icon, String title, [int count = 0]) {
+  return Container(
+    height: 120.0, // Set a fixed height for each card
+    margin: EdgeInsets.symmetric(vertical: 8.0),
+    child: Card(
+      elevation: 4.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Stack(
+        children: [
+          Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              ListTile(
+                leading: Icon(icon, size: 40, color: Colors.blue),
+                title:
+                    Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+                onTap: () {
+                  // Handle item tap if needed
+                },
+              ),
+            ],
+          ),
+          if (count > 0)
+            Positioned(
+              top: 8.0,
+              right: 8.0,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Text(
+                  '$count',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
 }
