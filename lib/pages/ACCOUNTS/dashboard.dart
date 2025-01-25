@@ -527,6 +527,15 @@ int grv=0;
               ),
               ListTile(
                 leading: Icon(Icons.person),
+                title: Text('Warehouse'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_warehouse()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
                 title: Text('Services'),
                 onTap: () {
                   Navigator.push(
@@ -563,6 +572,7 @@ int grv=0;
                 'Add Customer',
                 'Customers',
               ]),
+             
               _buildDropdownTile(context, 'Staff', [
                 'Add Staff',
                 'Staff',

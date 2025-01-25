@@ -78,8 +78,9 @@ class _new_productState extends State<new_product> {
   bool checkbox2 = false;
   bool checkbox4 = false;
   List<int> _selectedFamily = [];
-   int? selectedwarehouseId; // Variable to store the selected department's ID
+  int? selectedwarehouseId; // Variable to store the selected department's ID
   String? selectedwarehouseName;
+  TextEditingController landingprice = TextEditingController();
 
   double prate = 0.00;
   double tax = 0.00;
@@ -97,18 +98,17 @@ class _new_productState extends State<new_product> {
   TextEditingController sellingprice = TextEditingController();
   TextEditingController excludedprice = TextEditingController();
   TextEditingController stock = TextEditingController();
-
+  TextEditingController retailprice = TextEditingController();
+double landingPriceValue = 0.0;
   List<Map<String, dynamic>> fam = [];
   List<bool> _checkboxValues = [];
-    List<Map<String, dynamic>> Warehouses = [];
-
+  List<Map<String, dynamic>> Warehouses = [];
 
   @override
   void initState() {
     super.initState();
     getfamily();
     getwarehouse();
-    
   }
 
   Future<String?> gettokenFromPrefs() async {
@@ -123,37 +123,37 @@ class _new_productState extends State<new_product> {
     if (pickedFile != null) {
       setState(() {
         image = File(pickedFile.path);
-        
       });
     }
   }
-  
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
+
   int imagePickerCount = 1; // To keep track of the number of image pickers
   // Function to pick an image from the gallery
   Future<void> pickImage() async {
@@ -163,8 +163,22 @@ void logout() async {
         image = File(pickedFile
             .path); // Store the selected image in the 'image' variable
       });
-      
     }
+  }
+
+  void calculateLandingPrice() {
+    double purchaseRate = double.tryParse(purchaserate.text) ?? 0.0;
+    double taxPercentage = tax; // From taxx TextField
+
+    // Calculate the tax amount
+    double taxAmount = (purchaseRate * taxPercentage) / 100;
+
+    // Calculate the landing price
+    double landingPrice = purchaseRate + taxAmount;
+
+    // Update the landing price TextField
+    landingprice.text =
+        landingPrice.toStringAsFixed(2); // Set to 2 decimal places
   }
 
   // Function to add a new image selection option
@@ -174,11 +188,21 @@ void logout() async {
     });
   }
 
+  void showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
 
- Future<void> getwarehouse() async {
-  final token = await gettokenFromPrefs();
+  Future<void> getwarehouse() async {
+    final token = await gettokenFromPrefs();
     try {
-      final response = await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
+      final response =
+          await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       });
@@ -205,158 +229,161 @@ void logout() async {
     }
   }
 
+  Future<void> addProduct(BuildContext scaffoldContext) async {
 
-Future<void> addProduct(BuildContext scaffoldContext) async {
-  final token = await gettokenFromPrefs();
+    final token = await gettokenFromPrefs();
+      print("==========>>>>>>>>.....${landingPriceValue}");
 
-  try {
-    // Create the request
-    var request = http.Request(
-      'POST',
-      Uri.parse("$api/api/add/product/"),
-    );
+    try {
+      // Create the request
+      var request = http.Request(
+        'POST',
+        Uri.parse("$api/api/add/product/"),
+      );
 
-    // Add headers
-    request.headers.addAll({
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json', // Specify content type as JSON
-    });
+      // Add headers
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json', // Specify content type as JSON
+      });
 
-    // Prepare the data to send in JSON format
-    Map<String, dynamic> data = {
-      'name': name.text,
-      'hsn_code': hsncode.text,
-      'groupID': groupID.text,
-      'type': selecttype,
-      'unit': selectunit,
-      'purchase_rate': purchaserate.text,
-      'tax': taxx.text,
-      'selling_price': sellingprice.text,
-      'warehouse': selectedwarehouseId,
+      // Prepare the data to send in JSON format
+      Map<String, dynamic> data = {
+        'name': name.text,
+        'hsn_code': hsncode.text,
+        'groupID': groupID.text,
+        'type': selecttype,
+        'unit': selectunit,
+        'purchase_rate': purchaserate.text,
+        'tax': taxx.text,
+        'landing_cost': landingPriceValue,
+        'selling_price': sellingprice.text,
+        'retail_price': retailprice.text,
+        'warehouse': selectedwarehouseId,
+      };
 
+      // Ensure _selectedFamily is populated correctly and send as a list of numbers
+      if (_selectedFamily != null && _selectedFamily.isNotEmpty) {
+        // Send family as a list of integers: [1, 2, 3]
+        data['family'] = _selectedFamily; // Directly send the list as is
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Please select a valid family.'),
+          ),
+        );
+        return;
+      }
 
-    };
+      // Convert data to JSON and set the request body
+      request.body = jsonEncode(data);
 
-    
+      // Send the request
+      var response = await request.send();
+      var responseData = await http.Response.fromStream(response);
 
-    // Ensure _selectedFamily is populated correctly and send as a list of numbers
-    if (_selectedFamily != null && _selectedFamily.isNotEmpty) {
-      // Send family as a list of integers: [1, 2, 3]
-      data['family'] = _selectedFamily; // Directly send the list as is
-    } else {
+      // Print the response status and body for debugging
+      print("Response status: ${responseData.statusCode}");
+      print("Response body: ${responseData.body}");
+
+      if (responseData.statusCode == 201) {
+        // Parse the response body
+        final Map<String, dynamic> responseBody = jsonDecode(responseData.body);
+
+        // Store the product ID in the global variable
+        globalProductId = responseBody['data']['id'].toString();
+
+        // Show success message
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Product added successfully.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    Product_List())); // Navigate to the new product page
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Something went wrong. Please try again later.'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          content: Text('Please select a valid family.'),
+          content: Text('Error: ${e.toString()}'),
         ),
       );
-      return;
     }
-
-    // Convert data to JSON and set the request body
-    request.body = jsonEncode(data);
-
-    // Send the request
-    var response = await request.send();
-    var responseData = await http.Response.fromStream(response);
-
-    // Print the response status and body for debugging
-    print("Response status: ${responseData.statusCode}");
-    print("Response body: ${responseData.body}");
-
-    if (responseData.statusCode == 201) {
-      // Parse the response body
-      final Map<String, dynamic> responseBody = jsonDecode(responseData.body);
-
-      // Store the product ID in the global variable
-      globalProductId = responseBody['data']['id'].toString();
-
-      // Show success message
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        
-        SnackBar(
-          
-          content: Text('Product added successfully.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Product_List())); // Navigate to the new product page
-    } else {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Something went wrong. Please try again later.'),
-        ),
-      );
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-      SnackBar(
-        content: Text('Error: ${e.toString()}'),
-      ),
-    );
   }
-}
 
-Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) async {
-  final token = await gettokenFromPrefs();
+  Future<void> updateProductImage(
+      BuildContext scaffoldContext, File newImage) async {
+    final token = await gettokenFromPrefs();
 
-  try {
-    var request = http.MultipartRequest(
-      'PUT',
-      Uri.parse("$api/api/product/update/$globalProductId/"), // Use the global product ID
-    );
+    try {
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse(
+            "$api/api/product/update/$globalProductId/"), // Use the global product ID
+      );
 
-    // Add headers
-    request.headers.addAll({
-      'Authorization': 'Bearer $token',
-    });
+      // Add headers
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+      });
 
-    // Check if new image is provided
-    if (newImage != null) {
-      // Add the image file to the request
-      request.files.add(await http.MultipartFile.fromPath('image', newImage.path));
-    } else {
+      // Check if new image is provided
+      if (newImage != null) {
+        // Add the image file to the request
+        request.files
+            .add(await http.MultipartFile.fromPath('image', newImage.path));
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Please select a valid image.'),
+          ),
+        );
+        return;
+      }
+
+      // Send the request
+      var response = await request.send();
+      var responseData = await http.Response.fromStream(response);
+
+      // Print the response status and body for debugging
+      print("Response status: ${responseData.statusCode}");
+      print("Response body: ${responseData.body}");
+
+      if (responseData.statusCode == 200) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Image updated successfully.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Image is not Updated'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          content: Text('Please select a valid image.'),
+          content: Text('Error: ${e.toString()}'),
         ),
       );
-      return;
     }
-
-    // Send the request
-    var response = await request.send();
-    var responseData = await http.Response.fromStream(response);
-
-    // Print the response status and body for debugging
-    print("Response status: ${responseData.statusCode}");
-    print("Response body: ${responseData.body}");
-
-    if (responseData.statusCode == 200) {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Image updated successfully.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Image is not Updated'),
-        ),
-      );
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-      SnackBar(
-        content: Text('Error: ${e.toString()}'),
-      ),
-    );
   }
-}
-  List<File> selectedImagesList =[]; // Single list to store all selected images
+
+  List<File> selectedImagesList =
+      []; // Single list to store all selected images
 
   Future<void> getfamily() async {
     try {
@@ -387,44 +414,45 @@ Future<void> updateProductImage(BuildContext scaffoldContext, File newImage) asy
           _checkboxValues = List<bool>.filled(fam.length, false);
         });
       }
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
-Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
-         leading: IconButton(
+        leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
-
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
         actions: [
@@ -434,7 +462,6 @@ else {
           ),
         ],
       ),
-   
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 30, left: 12, right: 12),
@@ -635,7 +662,6 @@ else {
                                         onChanged: (String? newValue) {
                                           setState(() {
                                             selecttype = newValue!;
-                                            
                                           });
                                         },
                                         items: type
@@ -661,49 +687,40 @@ else {
                               ),
                             ),
 
-
-
-
-
                             SizedBox(height: 10),
 
-
-                             Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    border: Border.all(color: Colors.grey),
-                                  ),
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                  child: DropdownButton<int>(
-                                    isExpanded: true,
-                                    value: selectedwarehouseId,
-                                    hint: Text('Select a Warehouse'),
-                                    underline:
-                                        SizedBox(), // Remove the default underline
-                                    onChanged: (int? newValue) {
-                                      setState(() {
-                                        selectedwarehouseId = newValue;
-                                        selectedwarehouseName =
-                                            Warehouses.firstWhere((element) =>
-                                                element['id'] ==
-                                                newValue)['name'];
-                                      });
-                                    },
-                                    items:
-                                        Warehouses.map<DropdownMenuItem<int>>(
-                                            (Warehouses) {
-                                      return DropdownMenuItem<int>(
-                                        value: Warehouses['id'],
-                                        child: Text(Warehouses['name']),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-
-
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: DropdownButton<int>(
+                                isExpanded: true,
+                                value: selectedwarehouseId,
+                                hint: Text('Select a Warehouse'),
+                                underline:
+                                    SizedBox(), // Remove the default underline
+                                onChanged: (int? newValue) {
+                                  setState(() {
+                                    selectedwarehouseId = newValue;
+                                    selectedwarehouseName =
+                                        Warehouses.firstWhere((element) =>
+                                            element['id'] == newValue)['name'];
+                                  });
+                                },
+                                items: Warehouses.map<DropdownMenuItem<int>>(
+                                    (Warehouses) {
+                                  return DropdownMenuItem<int>(
+                                    value: Warehouses['id'],
+                                    child: Text(Warehouses['name']),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
 
                             Text("Checkbox Family",
                                 style: TextStyle(
@@ -729,7 +746,6 @@ else {
                                               _selectedFamily
                                                   .remove(fam[index]['id']);
                                             }
-                                            
                                           });
                                         },
                                         controlAffinity:
@@ -769,7 +785,6 @@ else {
                                         onChanged: (String? newValue) {
                                           setState(() {
                                             selectunit = newValue!;
-                                            
                                           });
                                         },
                                         items: unit
@@ -877,43 +892,25 @@ else {
                               ),
                               child: TextField(
                                 controller: purchaserate,
-                                keyboardType: TextInputType
-                                    .number, // Ensures the keyboard shows numbers
+                                keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   prefixIcon: Icon(Icons.rate_review),
                                   border: InputBorder.none,
-                                  hintText:
-                                      'Enter purchase rate', // Added a hint text
+                                  hintText: 'Enter purchase rate',
                                 ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    // Recalculate landing price whenever purchase rate changes
+                                    calculateLandingPrice();
+                                  });
+                                },
                               ),
                             ),
 
                             SizedBox(
                               height: 10,
                             ),
-                            Text(
-                              "Selling Price (Excluding Tax) ",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            TextField(
-                              controller: sellingprice,
-                              decoration: InputDecoration(
-                                labelText: ' ',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
+
                             Text(
                               "Tax Amount (in %) ",
                               style: TextStyle(
@@ -952,6 +949,8 @@ else {
                                                   tax =
                                                       double.tryParse(value) ??
                                                           0.00;
+                                                  // Recalculate landing price when tax value changes
+                                                  calculateLandingPrice();
                                                 });
                                               },
                                             ),
@@ -963,8 +962,84 @@ else {
                                 ],
                               ),
                             ),
+
                             SizedBox(
                               height: 10,
+                            ),
+
+                            Text(
+                              "Landing Price ",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                              controller: landingprice,
+                              decoration: InputDecoration(
+                                labelText: ' ',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 8.0),
+                              ),
+                              enabled: false, // Make the field non-editable
+                            ),
+
+
+                            SizedBox(
+                              height: 10,
+                            ),
+
+                            Text(
+                              "Wholesale Rate",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                              controller: sellingprice,
+                              decoration: InputDecoration(
+                                labelText: ' ',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 8.0),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+
+                            Text(
+                              "Retail Rate",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                              controller: retailprice,
+                              decoration: InputDecoration(
+                                labelText: ' ',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 8.0),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
                             ),
 
                             TextFormField(
@@ -1140,10 +1215,41 @@ else {
                       // ),
                       SizedBox(width: 13),
                       ElevatedButton(
-                        onPressed: () async{
-                         await addProduct(context);
-updateProductImage(context, image);                          // add_family_list(context);
-                          // addOrUpdateProduct(context);
+                        onPressed: () async {
+                          // Parse the values
+                           landingPriceValue =
+                              double.tryParse(landingprice.text) ?? 0.0;
+                          double wholesaleRate =
+                              double.tryParse(sellingprice.text) ?? 0.0;
+                          double retailRate =
+                              double.tryParse(retailprice.text) ?? 0.0;
+ print("Landing Priceeeeee: $landingPriceValue");
+                          // Check if values are valid
+                          if (wholesaleRate < landingPriceValue) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    "Wholesale Rate cannot be less than Landing Price"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return; // Stop further execution if invalid
+                          }
+
+                          if (retailRate < landingPriceValue) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    "Retail Rate cannot be less than Landing Price"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return; // Stop further execution if invalid
+                          }
+
+                          // If validation passes, proceed with submission
+                          await addProduct(context);
+                          updateProductImage(context, image);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
@@ -1152,12 +1258,11 @@ updateProductImage(context, image);                          // add_family_list(
                           shape:
                               MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  10), // Set your desired border radius
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           fixedSize: MaterialStateProperty.all<Size>(
-                            Size(95, 15), // Set your desired width and heigh
+                            Size(95, 15),
                           ),
                         ),
                         child: Text("Submit",

@@ -70,6 +70,7 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
   }
 
   Future<void> fetchOrderData() async {
+    print('Fetching order data...');
     try {
       final token = await getTokenFromPrefs();
       var response = await http.get(

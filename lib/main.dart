@@ -58,7 +58,7 @@ void check() async {
   try {
     if (token != null) {
       final jwt = JWT.decode(token);
-      var dep = jwt.payload['dep'];
+      var dep = jwt.payload['active'];
       print("Decoded Token Payload: ${jwt.payload}");
       print("User ID: $dep");
       

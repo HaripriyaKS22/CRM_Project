@@ -37,15 +37,16 @@ class _View_CartState extends State<View_Cart> {
     super.initState();
     fetchCartData();
   }
-
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
+var dep;
   Future<void> fetchCartData() async {
     try {
       final token = await getTokenFromPrefs();
+      dep= await getdepFromPrefs();
+
       final response = await http.get(
         Uri.parse("$api/api/cart/products/"),
         headers: {
@@ -69,6 +70,7 @@ print("${response.statusCode}");
             'slug': cartData['slug'],
             'size': cartData['size'],
             'quantity': cartData['quantity'],
+            
             'price': cartData['price'],
             'note': cartData['note'] ?? '',
             'discount': cartData['discount'] ?? 0.0,
@@ -84,6 +86,54 @@ print("${response.statusCode}");
       }
     } catch (error) {
       print(error);
+    }
+  }
+ Future<void> updateprice(var price) async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.put(
+        Uri.parse('$api/api/orders/products/update-price/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+            'price':price,
+            
+          },
+        ),
+      );
+
+    
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile updated successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) =>add_family()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating profile'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -183,6 +233,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         TextEditingController(text: item['quantity']?.toString() ?? '');
     TextEditingController discountController =
         TextEditingController(text: item['discount']?.toString() ?? '');
+    TextEditingController price = TextEditingController(text: item['price']?.toString() ?? '');
 
     showDialog(
       context: context,
@@ -202,6 +253,11 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
               TextField(
                 controller: quantityController,
                 decoration: InputDecoration(labelText: 'Quantity'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: price,
+                decoration: InputDecoration(labelText: 'Edit Price'),
                 keyboardType: TextInputType.number,
               ),
               TextField(
@@ -230,8 +286,10 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
                 final description = descriptionController.text;
                 final quantity = int.tryParse(quantityController.text) ?? item['quantity'];
                 final discount = double.tryParse(discountController.text) ?? item['discount'];
+                final price = double.tryParse(discountController.text) ?? item['discount'];
 
                 updatecartdetails(item['id'], quantity, description, discount);
+                // updateprice(price);
                 Navigator.of(context).pop();
               },
               child: Text('Save'),

@@ -335,7 +335,7 @@ Future<void> RegisterUserData(BuildContext scaffoldContext) async {
       'gender': gender,
       'marital_status': maritalStatus,
       'employment_status': employment_status.text,
-              'warehouse_id': selectedwarehouseId ?? null, // Use 0 if selectedwarehouseId is null
+              'warehouse_id': selectedwarehouseId ?? "0", // Use 0 if selectedwarehouseId is null
 
       'approval_status': approvalStatus,
       'family': selectedFamilyName != null

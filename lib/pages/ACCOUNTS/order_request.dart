@@ -111,7 +111,11 @@ double total=0.0;
     initdata();
     
   }
+  var dep;
   void initdata() async{
+                   dep = await getdepFromPrefs();
+                   print( 'dep$dep');
+
     await getprofiledata();
     getfamily();
     selectedFamilyId=famid;
@@ -162,68 +166,99 @@ Future<void> getwarehouse() async {
     }
   }
 
+var warehouse;
 
  void ordercreate(
+  BuildContext scaffoldContext,
+) async {
+  print(
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW$selectpaystatus");
+
+  try {
+    final token = await gettokenFromPrefs();
+     warehouse = await getwarehouseFromPrefs();
+  print("Warehouse ID (init data): ${warehouse ?? "Not found"}");
+    print('$api/api/order/create/');
+
+    // Build the base body object
+    Map<String, dynamic> requestBody = {
+      'manage_staff': selectedstaffId,
+      'company': selectedCompanyId,
+      'customer': selectedCustomerId,
+      'billing_address': selectedAddressId,
+      'order_date':
+          "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
+      'family': selectedFamilyId,
+      'state': selectedstateId,
+      'paymet_status': selectpaystatus,
+      'total_amount': tot,
+      'bank': selectedbankId,
+      'payment_method': selectpaymethod,
     
-    BuildContext scaffoldContext,
-  ) async {
-    print("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW$selectpaystatus");
-    try {
-      final token = await gettokenFromPrefs();
-print('$api/api/order/create/');
-      var response = await http.post(
-        Uri.parse('$api/api/order/create/'),
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'manage_staff':selectedstaffId,
-          "company":selectedCompanyId,
-          "customer": selectedCustomerId,
-          'billing_address':selectedAddressId,  
-          'order_date': "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
-          "family": selectedFamilyId,
-          "state": selectedstateId,
-          'paymet_status':selectpaystatus,
-          'total_amount':tot,
-          'bank':selectedbankId,
-          'payment_method':selectpaymethod, 
-          'warehouses':selectedwarehouseId,
-          'status':'Order Request by Warehouse'
-        }),
-      );
+    };
 
-      print("Response: ${response.body}");
-print("${response.statusCode}");
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-                        backgroundColor: Colors.green,
+    // Conditionally add fields based on the value of dep
+    if (dep == 'Admin'||dep == 'COO' || dep == 'Accounts') {
+      print("BDOOOOOOOOOOOO||||BDMMMMMMMMMMMMMMM");
+      requestBody['warehouses'] = selectedwarehouseId;
+      requestBody['status'] = 'Order Request by Warehouse';
+    }
+    if(dep == 'BDO'||dep == 'BDM'){
 
-            content: Text('Order Created Successfully.'),
-          ),
-        );
-                Navigator.push(context, MaterialPageRoute(builder:(context)=>order_products()));
+            requestBody['warehouses'] = warehouse;
+            
+    }
 
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding address failed.'),
-          ),
-        );
-      }
-    } catch (e) {
-      print("errorrr:$e");
+
+    var response = await http.post(
+      Uri.parse('$api/api/order/create/'),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(requestBody),
+    );
+
+    print("Response: ${response.body}");
+    print("${response.statusCode}");
+
+    if (response.statusCode == 201) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          content: Text('Enter valid information'),
+          backgroundColor: Colors.green,
+          content: Text('Order Created Successfully.'),
+        ),
+      );
+      Navigator.push(
+        scaffoldContext,
+        MaterialPageRoute(builder: (context) => order_products()),
+      );
+    } else {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Adding address failed.'),
         ),
       );
     }
+  } catch (e) {
+    print("errorrr:$e");
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text('Enter valid information'),
+      ),
+    );
   }
+}
 
+
+Future<String?> getwarehouseFromPrefs() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int? warehouseId = prefs.getInt('warehouse');
+  
+  // Check if warehouseId is null before converting to String
+  return warehouseId?.toString();
+}
 
    void toggleExpansion(int productId) {
     setState(() {
@@ -376,7 +411,7 @@ Future<void> fetchCartData() async {
         'Content-Type': 'application/json',
       },
     );
-
+print("response.statusCode${response.statusCode}");
     print("Response Body carttttttttttttttt: ${response.body}");
 
     if (response.statusCode == 200) {
@@ -387,8 +422,9 @@ Future<void> fetchCartData() async {
       double total = 0.0; // Initialize total here
 
       for (var cartData in cartsData) {
-        String imageUrl = cartData['image'];
-        
+        // Safely handle the null value for image
+        String imageUrl = cartData['image'] ?? 'default_image_url'; // Provide a default value or a placeholder URL
+
         cartList.add({
           'id': cartData['id'],
           'name': cartData['name'],
@@ -403,27 +439,30 @@ Future<void> fetchCartData() async {
 
       setState(() {
         cartdata = cartList;
-print("cartdataaaaaaaaaaaaaaaaaaaaaaaaaaa$cartdata");
+        print("cartdataaaaaaaaaaaaaaaaaaaaaaaaaaa$cartdata");
+
         // Calculate total
         for (var item in cartdata) {
           final discountPerQuantity = item['discount'] ?? 0.0;
           final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
-final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
+          final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
           final totalItemPrice = quantity * price;
           final totalDiscount = quantity * discountPerQuantity;
           total += totalItemPrice - totalDiscount;
         }
       });
-print("totaaaaaaaaaaaaaaaaallllll$total");
+
+      print("totaaaaaaaaaaaaaaaaallllll$total");
       // Call the function to show total in a dialog box
 
     } else {
       throw Exception('Failed to load cart data');
     }
   } catch (error) {
-    print(error); // Consider adding error handling in the UI
+    print("Error fetching cart data: $error"); // Consider adding error handling in the UI
   }
 }
+
 var tot;
 void showTotalDialog(BuildContext context) {
 double total=0.0;
@@ -487,13 +526,13 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
                               Text("0.0"),
                             ],
                           ),
-                          Row(
-                            children: [
-                              Text("Total Cart Discount:"),
-                              Spacer(),
-                              Text("0.0"),
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     Text("Total Cart Discount:"),
+                          //     Spacer(),
+                          //     Text("0.0"),
+                          //   ],
+                          // ),
           
               
           Divider(),
@@ -1016,6 +1055,10 @@ void showInvoiceDialog(BuildContext context,  double total) {
     },
   );
 }
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   @override
   Widget build(BuildContext context) {
       double screenWidth = MediaQuery.of(context).size.width;
@@ -1119,7 +1162,7 @@ void showInvoiceDialog(BuildContext context,  double total) {
 
   SizedBox(height: 10),
 
-
+                           if(dep=="Admin"||dep=="COO"||dep=="Accounts")
                              Padding(
                                padding: const EdgeInsets.only(right: 10),
                                child: Container(

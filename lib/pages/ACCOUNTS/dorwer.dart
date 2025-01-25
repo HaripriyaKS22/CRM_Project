@@ -6,6 +6,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
 import 'package:beposoft/pages/ACCOUNTS/bank_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/codsales_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
@@ -65,6 +66,12 @@ class drower{
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => customer_list()),
+        );
+        break;
+      case 'Add Warehouse':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => add_warehouse()),
         );
         break;
       case 'Add Staff':
