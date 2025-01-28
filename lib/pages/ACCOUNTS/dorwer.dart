@@ -18,6 +18,7 @@ import 'package:beposoft/pages/ACCOUNTS/delivery_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/delivery_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/expence_reeport.dart';
 import 'package:beposoft/pages/ACCOUNTS/expense_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/finance_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
@@ -244,10 +245,17 @@ class drower{
         );
         break;
          
-        case 'Damaged Stock':
+      case 'Damaged Stock':
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) =>DamagedStockReport()),
+        );
+        break;
+
+      case 'Finance Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>FinancialReport()),
         );
         break;
       case 'Create New GRV':

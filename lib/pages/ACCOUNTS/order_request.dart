@@ -204,10 +204,8 @@ var warehouse;
       requestBody['status'] = 'Order Request by Warehouse';
     }
     if(dep == 'BDO'||dep == 'BDM'){
-
             requestBody['warehouses'] = warehouse;
-            
-    }
+            }
 
 
     var response = await http.post(

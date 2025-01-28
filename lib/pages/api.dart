@@ -1,1 +1,1 @@
-var api="https://tv-milan-orders-prime.trycloudflare.com";
+var api="https://recipe-wool-hiking-palestine.trycloudflare.com";
