@@ -121,6 +121,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
 
   final List<String> statuses = [
    'Packing under Progress',
+   'Ready To Ship',
     'Packed',
     'Shipped',
     
@@ -361,7 +362,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
       request.fields['breadth'] =
           breadth.text.toString(); // Ensure breadth is a string
       request.fields['parcel_service'] =
-          service.text; // Assuming service.text is already a string
+         selectedserviceId.toString(); // Ensure selectedserviceId is not null
       request.fields['tracking_id'] =
           transactionid.text; // Assuming transactionid.text is already a string
       // request.fields['shipping_charge'] =

@@ -21,6 +21,8 @@ class OrderReview extends StatefulWidget {
 class _OrderReviewState extends State<OrderReview> {
   Drawer d = Drawer();
   var ord;
+  List<Map<String, dynamic>> warehouse = [];
+
   List<Map<String, dynamic>> items = [];
   List<Map<String, dynamic>> bank = [];
   String? selectedBank;
@@ -33,71 +35,59 @@ class _OrderReviewState extends State<OrderReview> {
   TextEditingController receivedDateController = TextEditingController();
   String? selectedStatus;
   final TextEditingController noteController = TextEditingController();
+  TextEditingController actualweightController = TextEditingController();
+  TextEditingController postofficeamountController = TextEditingController();
+  TextEditingController shippingchargeController = TextEditingController();
 
- List<String> statuses = [];
+  List<String> statuses = [];
   @override
   void initState() {
     super.initState();
     initData();
     getbank();
-    print("iddddddddddddddddddddddddddddddddssssssssssssssssssssssssss${widget.id}");
+    print(
+        "iddddddddddddddddddddddddddddddddssssssssssssssssssssssssss${widget.id}");
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
 
   Future<void> initData() async {
     await fetchOrderItems();
-        final dep= await getdepFromPrefs();
-        if(dep=="BDM"){
-statuses = [
-    'Invoice Approved', 
-    'Invoice Rejectd',
-
-  ];
-
-        }
-        else if(dep=="Accounts / Accounting"){
-
-          statuses = [
-            'Shipped',
-    'Waiting For Confirmation', 
-    'Invoice Rejectd',
-  ];
-
-
-        }
-        else if(dep=="Admin"){
-
-           statuses = [
-    'To Print', 
-    'Invoice Rejectd',
-  ];
-        }
-        else if(dep=="warehouse"){
-          statuses = [
-    'Packing under progress', 
-    'Packing',
-    'Ready to ship'
-    'Invoice Rejectd',
-  ];
-
-        }
-        else{
-
-            statuses = [
-              
-              'Invoice Approved',
-              'Waiting For Confirmation',
-              'To Print',
-              'Packing under progress', 
-              'Packed',
-              'Ready to ship',
-              'Shipped',
-              'Invoice Rejectd',
-  ];
-
-        }
-
-  
+    final dep = await getdepFromPrefs();
+    if (dep == "BDM") {
+      statuses = [
+        'Invoice Approved',
+        'Invoice Rejectd',
+      ];
+    } else if (dep == "Accounts / Accounting") {
+      statuses = [
+        'Shipped',
+        'Waiting For Confirmation',
+        'Invoice Rejectd',
+      ];
+    } else if (dep == "Admin") {
+      statuses = [
+        'To Print',
+        'Invoice Rejectd',
+      ];
+    } else if (dep == "warehouse") {
+      statuses = [
+        'Packing under progress',
+        'Packing',
+        'Ready to ship'
+            'Invoice Rejectd',
+      ];
+    } else {
+      statuses = [
+        'Invoice Approved',
+        'Waiting For Confirmation',
+        'To Print',
+        'Packing under progress',
+        'Packed',
+        'Ready to ship',
+        'Shipped',
+        'Invoice Rejectd',
+      ];
+    }
   }
 
   bool showAllProducts = false;
@@ -105,10 +95,94 @@ statuses = [
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
- Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
+  void _showShippingChargeDialog(BuildContext context, var warehouseId) {
+    final shippingController = TextEditingController();
+    final actualWeightController = TextEditingController();
+    final postOfficeAmountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Details'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Shipping Charge
+                TextField(
+                  controller: shippingController,
+                  decoration: InputDecoration(
+                    labelText: 'Shipping Charge',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                SizedBox(height: 10),
+                // Actual Weight
+                TextField(
+                  controller: actualWeightController,
+                  decoration: InputDecoration(
+                    labelText: 'Actual Weight',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                SizedBox(height: 10),
+                // Post Office Amount
+                TextField(
+                  controller: postOfficeAmountController,
+                  decoration: InputDecoration(
+                    labelText: 'Post Office Amount',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (shippingController.text.isNotEmpty &&
+                    actualWeightController.text.isNotEmpty &&
+                    postOfficeAmountController.text.isNotEmpty) {
+                  updateactualweight(
+                    warehouseId, // Pass the ID
+                    double.parse(shippingController.text), // Shipping Charge
+                    double.parse(actualWeightController.text), // Actual Weight
+                    double.parse(
+                        postOfficeAmountController.text), // Post Office Amount
+                  );
+                  Navigator.of(context).pop();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please fill out all fields.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // final List<String> statuses = [
   //   'Pending',
   //   'Approved',
@@ -150,7 +224,6 @@ statuses = [
     try {
       final token = await getTokenFromPrefs();
 
-    
       String formattedTime = DateFormat("HH:mm").format(DateTime.now());
 
       print(formattedTime);
@@ -197,6 +270,60 @@ statuses = [
     }
   }
 
+  Future<void> updateactualweight(
+    var warehouseId,
+    double shippingController,
+    double actualWeight,
+    double postOfficeAmount,
+  ) async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      print(
+          '------------------>>>>>>>>>>>>>>>>$api/api/warehouse/detail/$warehouseId/');
+
+      var response = await http.put(
+        Uri.parse('$api/api/warehouse/detail/$warehouseId/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+            'shipping_charge': shippingController,
+            'actual_weight': actualWeight,
+            'parcel_amount': postOfficeAmount,
+          },
+        ),
+      );
+
+      print("Response: ${response.body}");
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Shipping charge updated successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update shipping charge'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating shipping charge'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      print("Error: $error");
+    }
+  }
+
   List<Map<String, dynamic>> company = [];
 
   Future<void> getcompany(id) async {
@@ -240,114 +367,113 @@ statuses = [
     }
   }
 
-void showAddDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return AlertDialog(
-            title: Text('Receipt Against Invoice Generate'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Received Date field with default today's date
-                  TextField(
-                    readOnly: true,
-                    controller: receivedDateController,
-                    decoration: InputDecoration(
-                      labelText: 'Received Date',
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.calendar_today),
-                        onPressed: () => _selectDate(context),
+  void showAddDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text('Receipt Against Invoice Generate'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Received Date field with default today's date
+                    TextField(
+                      readOnly: true,
+                      controller: receivedDateController,
+                      decoration: InputDecoration(
+                        labelText: 'Received Date',
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () => _selectDate(context),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 10), // Add spacing between fields
-                  TextField(
-                    controller: amountController,
-                    decoration: InputDecoration(labelText: 'Amount'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-  value: selectedBank,
-  items: bank
-      .map((bankItem) => DropdownMenuItem<String>(
-            value: bankItem['id'].toString(),
-            child: Text(bankItem['name']),
-          ))
-      .toList(),
-  onChanged: (value) {
-    setState(() {
-      selectedBank = value;
-    });
-  },
-  decoration: InputDecoration(
-    labelText: 'Bank',
-    contentPadding: EdgeInsets.symmetric(
-      vertical: 12.0,
-      horizontal: 10.0,
-    ),
-    border: OutlineInputBorder(),
-    isDense: true, // Makes the dropdown compact
-  ),
-  isExpanded: true, // Ensures the dropdown text fits properly
-),
-
-
-                  SizedBox(height: 10),
-                  TextField(
-                    controller: transactionIdController,
-                    decoration: InputDecoration(
-                      labelText: 'Transaction ID',
-                      prefixIcon: Icon(Icons.receipt),
+                    SizedBox(height: 10), // Add spacing between fields
+                    TextField(
+                      controller: amountController,
+                      decoration: InputDecoration(labelText: 'Amount'),
+                      keyboardType: TextInputType.number,
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  TextField(
-                    readOnly: true, // Make this field non-editable
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.person),
-                      hintText:
-                          createdBy ?? 'Loading...', // Display the creator's name
-                      border: OutlineInputBorder(),
+                    SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      value: selectedBank,
+                      items: bank
+                          .map((bankItem) => DropdownMenuItem<String>(
+                                value: bankItem['id'].toString(),
+                                child: Text(bankItem['name']),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedBank = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Bank',
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 10.0,
+                        ),
+                        border: OutlineInputBorder(),
+                        isDense: true, // Makes the dropdown compact
+                      ),
+                      isExpanded:
+                          true, // Ensures the dropdown text fits properly
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  TextField(
-                    controller: remarkController,
-                    decoration: InputDecoration(
-                      labelText: 'Remark',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                child: Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle save action here
-                  AddReceipt(context);
-                },
-                child: Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
 
+                    SizedBox(height: 10),
+                    TextField(
+                      controller: transactionIdController,
+                      decoration: InputDecoration(
+                        labelText: 'Transaction ID',
+                        prefixIcon: Icon(Icons.receipt),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    TextField(
+                      readOnly: true, // Make this field non-editable
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.person),
+                        hintText: createdBy ??
+                            'Loading...', // Display the creator's name
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    TextField(
+                      controller: remarkController,
+                      decoration: InputDecoration(
+                        labelText: 'Remark',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Handle save action here
+                    AddReceipt(context);
+                  },
+                  child: Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   TableRow _buildTableRow(String label, String value) {
     return TableRow(
@@ -379,60 +505,57 @@ void showAddDialog(BuildContext context) {
   }
 
   Future<void> updateaddress() async {
-    if(noteController!=null && selectedAddressId!=null){
+    if (noteController != null && selectedAddressId != null) {
       try {
-      final token = await gettoken();
+        final token = await gettoken();
 
-      var response = await http.put(
-        Uri.parse('$api/api/shipping/${widget.id}/order/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(
-          {
-            'billing_address': selectedAddressId,
-            'note': noteController.text,
+        var response = await http.put(
+          Uri.parse('$api/api/shipping/${widget.id}/order/'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
           },
-        ),
-      );
-
-      print(response.body);
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.green,
-            content: Text('Address updated successfully'),
-            duration: Duration(seconds: 2),
+          body: jsonEncode(
+            {
+              'billing_address': selectedAddressId,
+              'note': noteController.text,
+            },
           ),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => OrderReview(id: widget.id)),
-        );
-      } else {
+
+        print(response.body);
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Address updated successfully'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id)),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('Failed to update Address'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (error) {
+        print(error);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Failed to update Address'),
+            content: Text('Error updating profile'),
             duration: Duration(seconds: 2),
           ),
         );
       }
-    } catch (error) {
-      print(error);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating profile'),
-          duration: Duration(seconds: 2),
-        ),
-      );
     }
-
-    }
-
-    
   }
 
   List<Map<String, dynamic>> addres = [];
@@ -565,116 +688,131 @@ void showAddDialog(BuildContext context) {
   bool flag = false;
 
   double totalDiscount = 0.0; // Define at the class level
-Future<void> fetchOrderItems() async {
-  try {
-    print('$api/api/order/${widget.id}/items/');
-    final token = await getTokenFromPrefs();
-    final jwt = JWT.decode(token!);
-    var name = jwt.payload['name'];
-    setState(() {
-      createdBy = name;
-    });
-    print("Decoded Token Payload: ${jwt.payload}");
-    print("User ID: $createdBy");
-    print('reviewswwwwwwwwwwwww$api/api/order/${widget.id}/items/');
-
-    var response = await http.get(
-      Uri.parse('$api/api/order/${widget.id}/items/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    print("productttttttttttttttttssssssssssss${response.body}");
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      ord = parsed['order'];
-      print("Orderrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr: $ord");
-      List<dynamic> itemsData = parsed['items'];
-      getaddress(ord['customer']['id']);
-
-      List<Map<String, dynamic>> orderList = [];
-      double calculatedNetAmount = 0.0;
-      double calculatedTotalTax = 0.0;
-      double calculatedPayableAmount = 0.0;
-      double calculatedTotalDiscount = 0.0;
-
-      // Process each item and calculate totals
-      for (var item in itemsData) {
-        // Safely retrieve values, defaulting to 0 or fallback values if null
-        double excludePrice = (item['exclude_price'] ?? 0).toDouble();
-        double actualPrice = (item['actual_price'] ?? excludePrice).toDouble();
-        double discount = (item['discount'] ?? 0).toDouble();
-        int quantity = int.tryParse(item['quantity']?.toString() ?? '1') ?? 1;
-
-        orderList.add({
-          'id': item['id'],
-          'name': item['name'],
-          'quantity': quantity,
-          'rate': item['rate'],
-          'tax': item['tax'],
-          'discount': discount,
-          'actual_price': actualPrice,
-          'exclude_price': excludePrice,
-          'images': item['image'],
-        });
-
-        // Add the exclude_price to net amount
-        calculatedNetAmount += excludePrice;
-
-        // Calculate and add the tax amount for each product
-        double taxAmountForItem = actualPrice - excludePrice;
-        calculatedTotalTax += taxAmountForItem;
-
-        // Add discount amount for each product
-        calculatedTotalDiscount += discount * quantity;
-
-        // Calculate payable amount after subtracting discount
-        double payableForItem = (actualPrice - discount) * quantity;
-        calculatedPayableAmount += payableForItem;
-      }
-
-      // Calculate the sum of payment receipts
-      double paymentReceiptsSum = 0.0;
-      for (var receipt in parsed['order']['recived_payment']) {
-        paymentReceiptsSum +=
-            double.tryParse(receipt['amount'].toString()) ?? 0.0;
-        print("paymentReceiptsSum:$paymentReceiptsSum");
-      }
-
-      // Calculate remaining amount after comparing with calculatedPayableAmount
-      double remainingAmount = 0.0;
-      if (paymentReceiptsSum > calculatedPayableAmount) {
-        remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
-        flag = true;
-      } else {
-        remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
-        flag = false;
-      }
-
+  Future<void> fetchOrderItems() async {
+    try {
+      print('$api/api/order/${widget.id}/items/');
+      final token = await getTokenFromPrefs();
+      final jwt = JWT.decode(token!);
+      var name = jwt.payload['name'];
       setState(() {
-        items = orderList;
-        netAmountBeforeTax = calculatedNetAmount;
-        totalTaxAmount = calculatedTotalTax;
-        payableAmount = calculatedPayableAmount;
-        totalDiscount = calculatedTotalDiscount;
-        Balance = remainingAmount;
-        print("Net Amount Before Tax: $netAmountBeforeTax");
-        print("Total Tax Amount: $totalTaxAmount");
-        print("Payable Amount: $payableAmount");
-        print("Total Discount: $totalDiscount");
-        print("Payment Receipts Sum: $paymentReceiptsSum");
-        print("Remaining Amount: $remainingAmount");
+        createdBy = name;
       });
-    } else {
-      print("Failed to fetch data. Status Code: ${response.statusCode}");
-    }
-  } catch (error) {
-    print("Error: $error");
-  }
-}
+      print("Decoded Token Payload: ${jwt.payload}");
+      print("User ID: $createdBy");
+      print('$api/api/order/${widget.id}/items/');
+      var response = await http.get(
+        Uri.parse('$api/api/order/${widget.id}/items/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print("productttttttttttttttttssssssssssss${response.body}");
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        ord = parsed['order'];
+        print("Orderrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr: $ord");
+        List<dynamic> itemsData = parsed['items'];
+        List<dynamic> warehouseData =
+            parsed['order']['warehouse']; // Extract warehouse data
 
+        print("========>>>PPPPPPP$warehouseData");
+        getaddress(ord['customer']['id']);
+
+        List<Map<String, dynamic>> orderList = [];
+        List<Map<String, dynamic>> warehouseList = [];
+        double calculatedNetAmount = 0.0;
+        double calculatedTotalTax = 0.0;
+        double calculatedPayableAmount = 0.0;
+        double calculatedTotalDiscount = 0.0;
+
+        // Process each item and calculate totals
+        for (var item in itemsData) {
+          orderList.add({
+            'id': item['id'],
+            'name': item['name'],
+            'quantity': item['quantity'],
+            'rate': item['rate'],
+            'tax': item['tax'],
+            'discount': item['discount'],
+            'actual_price': item['actual_price'],
+            'exclude_price': item['exclude_price'],
+            'images': item['image'],
+          });
+
+          double excludePrice = (item['exclude_price'] ?? 0).toDouble();
+          double actualPrice = (item['actual_price'] ?? 0).toDouble();
+          double discount = (item['discount'] ?? 0).toDouble();
+          final quantity = int.tryParse(item['quantity'].toString()) ?? 1;
+
+          calculatedNetAmount += excludePrice;
+
+          double taxAmountForItem = actualPrice - excludePrice;
+          calculatedTotalTax += taxAmountForItem;
+
+          calculatedTotalDiscount += discount * quantity;
+
+          double payableForItem = (actualPrice - discount) * quantity;
+          calculatedPayableAmount += payableForItem;
+        }
+
+        // Process each warehouse item
+        for (var warehouse in warehouseData) {
+          warehouseList.add({
+            'id': warehouse['id'],
+            'box': warehouse['box'],
+            'weight': warehouse['weight'],
+            'length': warehouse['length'],
+            'breadth': warehouse['breadth'],
+            'height': warehouse['height'],
+            'image': warehouse['image'],
+            'parcel_service': warehouse['parcel_service'],
+            'tracking_id': warehouse['tracking_id'],
+            'shipping_charge': warehouse['shipping_charge'],
+            'status': warehouse['status'],
+            'shipped_date': warehouse['shipped_date'],
+          });
+        }
+
+        double paymentReceiptsSum = 0.0;
+        for (var receipt in parsed['order']['recived_payment']) {
+          paymentReceiptsSum +=
+              double.tryParse(receipt['amount'].toString()) ?? 0.0;
+          print("paymentReceiptsSum:$paymentReceiptsSum");
+        }
+
+        double remainingAmount = 0.0;
+        if (paymentReceiptsSum > calculatedPayableAmount) {
+          remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
+          flag = true;
+        } else {
+          remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
+          flag = false;
+        }
+
+        setState(() {
+          items = orderList;
+          warehouse = warehouseList; // Store warehouse data in state
+          netAmountBeforeTax = calculatedNetAmount;
+          totalTaxAmount = calculatedTotalTax;
+          payableAmount = calculatedPayableAmount;
+          totalDiscount = calculatedTotalDiscount;
+          Balance = remainingAmount;
+          print("Net Amount Before Tax: $netAmountBeforeTax");
+          print("Total Tax Amount: $totalTaxAmount");
+          print("Payable Amount: $payableAmount");
+          print("Total Discount: $totalDiscount");
+          print("Payment Receipts Sum: $paymentReceiptsSum");
+          print("Remaining Amount: $remainingAmount");
+          print("oooo====================$warehouse");
+        });
+      } else {
+        print("Failed to fetch data. Status Code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
 
   Future<void> removeproduct(int Id) async {
     final token = await getTokenFromPrefs();
@@ -1131,10 +1269,9 @@ Future<void> fetchOrderItems() async {
 
                   // Display each item in the visibleItems list within a card
                   for (var item in visibleItems)
-                 
                     GestureDetector(
                       onTap: () {
-                         print(item);
+                        print(item);
                         showPopupDialog(context, item);
                       },
                       child: Card(
@@ -1156,8 +1293,7 @@ Future<void> fetchOrderItems() async {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
-                                    image: NetworkImage(
-                                        '${item["images"]}'),
+                                    image: NetworkImage('${item["images"]}'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -1176,7 +1312,7 @@ Future<void> fetchOrderItems() async {
                                     ),
                                     SizedBox(height: 4),
                                     Text(
-                                      'Quantity: ${item["quantity"]}, Rate: ${item["actual_price"]}',
+                                      'Quantity: ${item["quantity"]}, Rate: ${item["rate"]}',
                                       style: TextStyle(
                                           fontSize: 12, color: Colors.grey),
                                     ),
@@ -1598,7 +1734,7 @@ Future<void> fetchOrderItems() async {
                                     fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                 flag == true
+                                Balance == payableAmount || flag == true
                                     ? 'Payment Completed'
                                     : '\$${Balance.toStringAsFixed(2)}',
                                 style: TextStyle(color: Colors.green),
@@ -1794,28 +1930,30 @@ Future<void> fetchOrderItems() async {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15.0),
-                          topRight: Radius.circular(15.0),
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            topRight: Radius.circular(15.0),
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Update Informations',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Update Informations',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                      SizedBox(
+                        height: 10,
                       ),
-                    ),
-                    SizedBox(height: 10,),
                       DropdownButtonFormField<String>(
                         value: selectedStatus,
                         hint: Text('Select Status'),
@@ -1853,7 +1991,7 @@ Future<void> fetchOrderItems() async {
                             children: [
                               SizedBox(width: 20),
                               Container(
-                                width: 320,
+                                width: 260,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
@@ -1917,6 +2055,35 @@ Future<void> fetchOrderItems() async {
                         ),
                       ),
                       SizedBox(height: 16.0),
+                      //  TextField(
+                      //   controller: actualweightController,
+
+                      //   decoration: InputDecoration(
+                      //     border: OutlineInputBorder(),
+                      //     labelText: 'Add Actual Weight',
+                      //   ),
+                      // ),
+
+                      // SizedBox(height: 16.0),
+
+                      //  TextField(
+                      //   controller: postofficeamountController,
+
+                      //   decoration: InputDecoration(
+                      //     border: OutlineInputBorder(),
+                      //     labelText: 'Add Post Office Amount',
+                      //   ),
+                      // ),
+                      // SizedBox(height: 16.0),
+
+                      TextField(
+                        controller: shippingchargeController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Add Shipping Charge',
+                        ),
+                      ),
+                      SizedBox(height: 16.0),
                       TextField(
                         controller: noteController,
                         maxLines: 3,
@@ -1926,6 +2093,7 @@ Future<void> fetchOrderItems() async {
                         ),
                       ),
                       SizedBox(height: 16.0),
+
                       ElevatedButton(
                         onPressed: () {
                           updateaddress();
@@ -1947,6 +2115,263 @@ Future<void> fetchOrderItems() async {
                     ],
                   ),
                 ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'BOX Details',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  ord == null || ord['warehouse'] == null
+                      ? Center(
+                          child: Text(
+                            'No BOX Details Available',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        )
+                      : Column(
+                          children: ord['warehouse'].map<Widget>((order) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  _showShippingChargeDialog(
+                                      context, order['id']);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(12.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        spreadRadius: 2,
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2), // Shadow position
+                                      ),
+                                    ],
+                                    border:
+                                        Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Image and Box Details
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 80,
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              color: Colors.grey[200],
+                                            ),
+                                            child: order['image'] != null
+                                                ? Image.network(
+                                                    '$api${order['image']}',
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                          size: 40,
+                                                          color: Colors.grey);
+                                                    },
+                                                  )
+                                                : Icon(
+                                                    Icons.image_not_supported,
+                                                    size: 40,
+                                                    color: Colors.grey),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              ' ${order['box'] ?? 'N/A'}',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          // Delete Button
+                                          GestureDetector(
+                                            onTap: () {
+                                              // Call your delete function here
+                                              //deleteWarehouseOrder(order['id']);
+                                            },
+                                            child: Image.asset(
+                                              "lib/assets/close.png",
+                                              height: 15,
+                                              width: 15,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Divider(),
+                                      SizedBox(height: 12),
+
+                                      // Shipping Charge
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Shipping Charge:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['shipping_charge'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Actual Weight:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['actual_weight'] != null
+                                                ? '${order['actual_weight']} kg'
+                                                : 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Parcel Amount:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['parcel_amount'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+
+                                      // Parcel Service
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Parcel Service:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['parcel_service'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+
+                                      // Tracking ID
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Tracking ID:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['tracking_id']?.toString() ??
+                                                'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+
+                                      // Status
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Status:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['status'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+
+                                      // Shipped Date
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Shipped Date:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['shipped_date'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                ],
               ),
             ),
             SizedBox(height: 30),

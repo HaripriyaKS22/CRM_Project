@@ -32,7 +32,6 @@ class _Delivery_ReportState extends State<Delivery_Report> {
   DateTime? startDate;
   DateTime? endDate;
 
-
   @override
   void initState() {
     super.initState();
@@ -43,9 +42,10 @@ class _Delivery_ReportState extends State<Delivery_Report> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-    drower d = drower();
 
- Widget _buildDropdownTile(
+  drower d = drower();
+
+  Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
     return ExpansionTile(
       title: Text(title),
@@ -61,6 +61,7 @@ class _Delivery_ReportState extends State<Delivery_Report> {
       }).toList(),
     );
   }
+
   Future<void> getGoodsDetails() async {
     try {
       final token = await getTokenFromPrefs();
@@ -83,6 +84,8 @@ class _Delivery_ReportState extends State<Delivery_Report> {
               'total_boxes': data['total_boxes'],
               'total_volume_weight': data['total_volume_weight'],
               'total_shipping_charge': data['total_shipping_charge'],
+              'total_actual_weight': data['total_actual_weight'],
+              'total_parcel_amount': data['total_parcel_amount'],
             };
           }).toList();
           filteredOrders = goods;
@@ -116,32 +119,34 @@ class _Delivery_ReportState extends State<Delivery_Report> {
       _filterOrdersByDateRange();
     }
   }
- void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
+
   void _filterOrdersByDateRange() {
     if (startDate != null && endDate != null) {
       setState(() {
@@ -240,10 +245,12 @@ class _Delivery_ReportState extends State<Delivery_Report> {
       ),
     );
   }
-Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
   @override
   Widget build(BuildContext context) {
     final totals = calculateTotals();
@@ -251,35 +258,36 @@ Future<String?> getdepFromPrefs() async {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-          title: Text(
+        title: Text(
           "Delivery Report",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
-
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
         actions: [
@@ -289,7 +297,6 @@ else {
           ),
         ],
       ),
- 
       body: Column(
         children: [
           Expanded(
@@ -325,6 +332,10 @@ else {
                             '${order['total_volume_weight']} kg'),
                         _buildRow('Shipping Charge:',
                             '₹${order['total_shipping_charge']}'),
+                              _buildRow('Total Actual Weight:',
+                            '${order['total_actual_weight']} kg'),
+                              _buildRow('Total Parcel Amount:',
+                            '₹${order['total_parcel_amount']}'),
                         SizedBox(height: 10),
                         Align(
                           alignment: Alignment.centerRight,
@@ -337,7 +348,6 @@ else {
                                           DeliveryReportDatewise(
                                               date: order['shipped_date'])));
                               // Handle button press
-                            
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue, // Button color
@@ -399,4 +409,3 @@ else {
     );
   }
 }
-
