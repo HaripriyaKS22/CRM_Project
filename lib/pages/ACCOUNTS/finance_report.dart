@@ -26,10 +26,17 @@ class _FinancialReportState extends State<FinancialReport> {
     super.initState();
     getFinancialReport();
   }
+    double totalAdjustedOpeningBalance = 0.0;
+      double totalClosingBalance = 0.0;
+      double totalTodayPayments = 0.0;
+      double totalTodayBanksAmount = 0.0;
 
 Future<void> getFinancialReport() async {
   final token = await getTokenFromPrefs();
-
+ totalAdjustedOpeningBalance = 0.0;
+  totalClosingBalance = 0.0;
+  totalTodayPayments = 0.0;
+  totalTodayBanksAmount = 0.0;
   try {
     final response = await http.get(
       Uri.parse('$api/api/finance-report/'),
@@ -46,8 +53,7 @@ Future<void> getFinancialReport() async {
       final currentDate = DateTime.now();
 
       List<Map<String, dynamic>> financeList = [];
-      double totalBanksToday = 0.0;
-
+  
       for (var bankData in parsed['data'] ?? []) {
         String bankName = bankData['name'] ?? 'Unknown Bank';
 
@@ -62,14 +68,14 @@ Future<void> getFinancialReport() async {
                   receivedAt.isBefore(currentDate) &&
                   receivedAt.day != currentDate.day;
             })
-            .fold<double>(
-                0.0,
-                (sum, payment) =>
-                    sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0)) ??
+            .fold<double>(0.0, (sum, payment) {
+              return sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0);
+            }) ??
             0.0;
 
         // Adjusted opening balance
         double adjustedOpeningBalance = openBalance + totalPaymentsBeforeDate;
+        totalAdjustedOpeningBalance += adjustedOpeningBalance;
 
         // Calculate today's payments
         double todayPayments = (bankData['payments'] as List<dynamic>?)
@@ -80,36 +86,49 @@ Future<void> getFinancialReport() async {
                   receivedAt.month == currentDate.month &&
                   receivedAt.day == currentDate.day;
             })
-            .fold<double>(
-                0.0,
-                (sum, payment) =>
-                    sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0)) ??
+            .fold<double>(0.0, (sum, payment) {
+              return sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0);
+            }) ??
             0.0;
 
-        // Handle `banks` if it contains IDs instead of objects
-        List<dynamic> banks = bankData['banks'] ?? [];
-        double totalBankExpenses = 0.0;
-        double todayBanksAmount = 0.0;
+        totalTodayPayments += todayPayments;
 
-        // Add today's bank expenses to the total
-        totalBanksToday += todayBanksAmount;
+        // Handle `banks` for today's expenses
+        List<dynamic> banks = bankData['banks'] ?? [];
+        double todayBanksAmount = banks
+            .where((bank) {
+              final expenseDate = DateTime.tryParse(bank['expense_date'] ?? '');
+              return expenseDate != null &&
+                  expenseDate.year == currentDate.year &&
+                  expenseDate.month == currentDate.month &&
+                  expenseDate.day == currentDate.day;
+            })
+            .fold<double>(0.0, (sum, bank) {
+              return sum + (double.tryParse(bank['amount'] ?? '') ?? 0.0);
+            });
+
+        totalTodayBanksAmount += todayBanksAmount;
 
         // Calculate closing balance
         double closingBalance =
             adjustedOpeningBalance + todayPayments - todayBanksAmount;
+        totalClosingBalance += closingBalance;
 
         // Add to finance list
         financeList.add({
           'Bank Name': bankName,
           'Opening Balance': adjustedOpeningBalance.toStringAsFixed(2),
           'Closing Balance': closingBalance.toStringAsFixed(2),
-          'credit': todayPayments.toStringAsFixed(2),
-          'debit': todayBanksAmount.toStringAsFixed(2),
+          'Credit': todayPayments.toStringAsFixed(2),
+          'Debit': todayBanksAmount.toStringAsFixed(2),
         });
       }
 
-      // Log today's total bank expenses
-      print("Today's Total Banks Amount: ${totalBanksToday.toStringAsFixed(2)}");
+      // Log totals
+      print("Total Adjusted Opening Balance: ${totalAdjustedOpeningBalance.toStringAsFixed(2)}");
+      print("Total Closing Balance: ${totalClosingBalance.toStringAsFixed(2)}");
+      print("Total Today's Payments: ${totalTodayPayments.toStringAsFixed(2)}");
+      print("Total Today's Bank Expenses: ${totalTodayBanksAmount.toStringAsFixed(2)}");
 
       // Update state to reflect the finance list in UI
       setState(() {
@@ -155,7 +174,10 @@ getFinancialReport2();
 
 Future<void> getFinancialReport2() async {
   final token = await getTokenFromPrefs();
-
+ totalAdjustedOpeningBalance = 0.0;
+  totalClosingBalance = 0.0;
+  totalTodayPayments = 0.0;
+  totalTodayBanksAmount = 0.0;
   try {
     final response = await http.get(
       Uri.parse('$api/api/finance-report/'),
@@ -169,9 +191,11 @@ Future<void> getFinancialReport2() async {
       final parsed = jsonDecode(response.body);
       List<Map<String, dynamic>> financeList = [];
 
-      // Ensure startDate is set
-      if (startDate == null) {
-        print("Start date is not selected");
+     
+
+      // Ensure startDate and endDate are set
+      if (startDate == null || endDate == null) {
+        print("Start date or End date is not selected");
         return;
       }
 
@@ -181,43 +205,113 @@ Future<void> getFinancialReport2() async {
         // Base opening balance
         double openBalance = (bankData['open_balance'] as num?)?.toDouble() ?? 0.0;
 
-        // Calculate total payments until startDate
-        double totalPaymentsUntilStartDate = (bankData['payments'] as List<dynamic>?)
+        // Calculate total payments before startDate
+        double totalPaymentsBeforeStartDate = (bankData['payments'] as List<dynamic>?)
             ?.where((payment) {
               final receivedAt = DateTime.tryParse(payment['received_at'] ?? '');
-              return receivedAt != null && !receivedAt.isAfter(startDate!);
+              return receivedAt != null && receivedAt.isBefore(startDate!);
             })
             .fold<double>(
                 0.0,
                 (sum, payment) =>
-                    sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0)) ??
+                    sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0)) ?? 
             0.0;
 
-        // Calculate total bank expenses until startDate
-        double totalExpensesUntilStartDate = (bankData['banks'] as List<dynamic>?)
+        // Calculate total expenses before startDate
+        double totalExpensesBeforeStartDate = (bankData['banks'] as List<dynamic>?)
             ?.where((expense) {
               final expenseDate = DateTime.tryParse(expense['expense_date'] ?? '');
-              return expenseDate != null && !expenseDate.isAfter(startDate!);
+              return expenseDate != null && expenseDate.isBefore(startDate!);
             })
             .fold<double>(
                 0.0,
                 (sum, expense) =>
-                    sum + (double.tryParse(expense['amount'] ?? '') ?? 0.0)) ??
+                    sum + (double.tryParse(expense['amount'] ?? '') ?? 0.0)) ?? 
             0.0;
 
         // Adjusted opening balance
-        double adjustedOpeningBalance =
-            openBalance + totalPaymentsUntilStartDate - totalExpensesUntilStartDate;
+        double adjustedOpeningBalance = openBalance + totalPaymentsBeforeStartDate - totalExpensesBeforeStartDate;
+
+        // Calculate total payments until endDate
+        double totalPaymentsUntilEndDate = (bankData['payments'] as List<dynamic>?)
+            ?.where((payment) {
+              final receivedAt = DateTime.tryParse(payment['received_at'] ?? '');
+              return receivedAt != null && !receivedAt.isAfter(endDate!);
+            })
+            .fold<double>(
+                0.0,
+                (sum, payment) =>
+                    sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0)) ?? 
+            0.0;
+
+        // Calculate total expenses until endDate
+        double totalExpensesUntilEndDate = (bankData['banks'] as List<dynamic>?)
+            ?.where((expense) {
+              final expenseDate = DateTime.tryParse(expense['expense_date'] ?? '');
+              return expenseDate != null && !expenseDate.isAfter(endDate!);
+            })
+            .fold<double>(
+                0.0,
+                (sum, expense) =>
+                    sum + (double.tryParse(expense['amount'] ?? '') ?? 0.0)) ?? 
+            0.0;
+
+        // Calculate payments between startDate and endDate
+        double totalPaymentsBetween = (bankData['payments'] as List<dynamic>?)
+            ?.where((payment) {
+              final receivedAt = DateTime.tryParse(payment['received_at'] ?? '');
+              return receivedAt != null &&
+                  !receivedAt.isBefore(startDate!) &&
+                  !receivedAt.isAfter(endDate!);
+            })
+            .fold<double>(
+                0.0,
+                (sum, payment) =>
+                    sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0)) ?? 
+            0.0;
+
+        // Calculate expenses between startDate and endDate
+        double totalExpensesBetween = (bankData['banks'] as List<dynamic>?)
+            ?.where((expense) {
+              final expenseDate = DateTime.tryParse(expense['expense_date'] ?? '');
+              return expenseDate != null &&
+                  !expenseDate.isBefore(startDate!) &&
+                  !expenseDate.isAfter(endDate!);
+            })
+            .fold<double>(
+                0.0,
+                (sum, expense) =>
+                    sum + (double.tryParse(expense['amount'] ?? '') ?? 0.0)) ?? 
+            0.0;
+
+        // Calculate closing balance
+        double closingBalance =
+            openBalance + totalPaymentsUntilEndDate - totalExpensesUntilEndDate;
+
+        // Update totals
+        totalAdjustedOpeningBalance += adjustedOpeningBalance;
+        totalClosingBalance += closingBalance;
+        totalTodayPayments += totalPaymentsBetween;
+        totalTodayBanksAmount += totalExpensesBetween;
 
         // Add the calculated data to the finance list
         financeList.add({
           'Bank Name': bankName,
-          'Opening Balance': adjustedOpeningBalance.toStringAsFixed(2),
-          'Payments Until Start Date': totalPaymentsUntilStartDate.toStringAsFixed(2),
-          'Expenses Until Start Date': totalExpensesUntilStartDate.toStringAsFixed(2),
           'Base Opening Balance': openBalance.toStringAsFixed(2),
+          'Opening Balance': adjustedOpeningBalance.toStringAsFixed(2),
+          'Credit Until End Date': totalPaymentsUntilEndDate.toStringAsFixed(2),
+          'Debit Until End Date': totalExpensesUntilEndDate.toStringAsFixed(2),
+          'credit': totalPaymentsBetween.toStringAsFixed(2),
+          'debit': totalExpensesBetween.toStringAsFixed(2),
+          'Closing Balance': closingBalance.toStringAsFixed(2),
         });
       }
+
+      // Print totals
+      print('Total Adjusted Opening Balance: $totalAdjustedOpeningBalance');
+      print('Total Closing Balance: $totalClosingBalance');
+      print('Total Payments Between: $totalTodayPayments');
+      print('Total Expenses Between: $totalTodayBanksAmount');
 
       // Update the state with the calculated finance list
       setState(() {
@@ -286,9 +380,12 @@ else {
 
 
     ),
-    body: Finance.isEmpty
-        ? const Center(child: CircularProgressIndicator()) // Show loader while data is being fetched
-        : ListView.builder(
+   body: Finance.isEmpty
+    ? const Center(child: CircularProgressIndicator()) // Show loader while data is being fetched
+    : Stack(
+        children: [
+          ListView.builder(
+            padding: const EdgeInsets.only(bottom: 160), // Add padding to avoid overlapping
             itemCount: Finance.length,
             itemBuilder: (context, index) {
               final item = Finance[index]; // Current bank data
@@ -318,12 +415,11 @@ else {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            '\u{20B9}${item['Opening Balance']}',
+                            '\u{20B9}${item['Opening Balance'] }',
                             style: const TextStyle(fontSize: 14),
                           ),
                         ],
                       ),
-                      
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -332,9 +428,10 @@ else {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            '\u{20B9}${item['credit']}',
-                            style: const TextStyle(fontSize: 14, color: Colors.blue),
-                          ),
+  '\u{20B9}${item['credit'] ?? '0.0'}',
+  style: const TextStyle(fontSize: 14, color: Colors.blue),
+),
+
                         ],
                       ),
                       Row(
@@ -345,7 +442,7 @@ else {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            '\u{20B9}${item['debit']}',
+                            '\u{20B9}${item['debit']  ?? '0.0'}',
                             style: const TextStyle(fontSize: 14, color: Colors.red),
                           ),
                         ],
@@ -359,7 +456,7 @@ else {
                           ),
                           Text(
                             '\u{20B9}${item['Closing Balance']}',
-                            style: const TextStyle(fontSize: 14,color: Colors.green),
+                            style: const TextStyle(fontSize: 14, color: Colors.green),
                           ),
                         ],
                       ),
@@ -369,7 +466,107 @@ else {
               );
             },
           ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Material(
+              elevation: 12,
+              color: const Color.fromARGB(255, 12, 80, 163),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  color: Color.fromARGB(255, 12, 80, 163),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Total Report Summary',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Divider(
+                      color: Colors.white.withOpacity(0.5),
+                      thickness: 1,
+                      indent: 0,
+                      endIndent: 0,
+                    ),
+                    _buildRowWithTwoColumns('Total Opening Blance:', totalAdjustedOpeningBalance,
+                        'Total Closing Balance:', totalClosingBalance),
+                    _buildRowWithTwoColumns('Credits', totalTodayPayments,
+                        'Debit', totalTodayBanksAmount),
+                   
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+
   );
 }
-
+ Widget _buildRowWithTwoColumns(
+      String label1, dynamic value1, String label2, dynamic value2) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label1,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  value1.toString(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label2,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  value2.toString(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

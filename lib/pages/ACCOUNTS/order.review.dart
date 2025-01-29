@@ -1853,7 +1853,7 @@ Future<void> fetchOrderItems() async {
                             children: [
                               SizedBox(width: 20),
                               Container(
-                                width: 260,
+                                width: 320,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
