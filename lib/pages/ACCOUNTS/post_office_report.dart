@@ -82,44 +82,12 @@ class _PostofficeReportState extends State<PostofficeReport> {
                     (parcelData[parcelService]!['total_parcel_amount'] ?? 0) +
                         parcelAmount;
 
-                warehouseList.add({
-                  'id': warehouse['id'],
-                  'box': warehouse['box'],
-                  'weight': warehouse['weight'],
-                  'length': warehouse['length'],
-                  'breadth': warehouse['breadth'],
-                  'height': warehouse['height'],
-                  'image': warehouse['image'],
-                  'parcel_service': parcelService,
-                  'tracking_id': warehouse['tracking_id'],
-                  'shipping_charge': warehouse['shipping_charge'],
-                  'status': warehouse['status'],
-                  'shipped_date': warehouse['shipped_date'],
-                  'packed_by': warehouse['packed_by'],
-                  'customer': warehouse['customer'],
-                  'invoice': warehouse['invoice'],
-                  'actual_weight': actualWeight,
-                  'parcel_amount': parcelAmount,
-                  'postoffice_date': postofficeDate,
-                });
+
               }
             }
           }
 
-          if (warehouseList.isNotEmpty) {
-            orderlist.add({
-              'id': orderData['id'],
-              'manage_staff': orderData['manage_staff'],
-              'customer': orderData['customer']['name'],
-              'invoice': orderData['invoice'],
-              'total_amount': orderData['total_amount'],
-              'payment_status': orderData['payment_status'],
-              'status': orderData['status'],
-              'order_date': orderData['order_date'],
-              'shipping_mode': orderData['shipping_mode'],
-              'warehouses': warehouseList,
-            });
-          }
+        
         }
 
         Map<String, double> parcelAverages = {};
@@ -154,9 +122,99 @@ class _PostofficeReportState extends State<PostofficeReport> {
         startDate = picked.start;
         endDate = picked.end;
       });
-      // _filterOrdersByDateRange();
+      fetchorders2();
     }
   }
+
+
+Future<void> fetchorders2() async {
+  final token = await getTokenFromPrefs();
+  try {
+    final response = await http.get(
+      Uri.parse('$api/api/orders/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print("API Response: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      print("API Response: $parsed");
+
+      List<Map<String, dynamic>> orderlist = [];
+      parcelData.clear();
+
+      for (var orderData in parsed) {
+        List<Map<String, dynamic>> warehouseList = [];
+
+        if (orderData['warehouse'] != null) {
+          for (var warehouse in orderData['warehouse']) {
+            String parcelService = warehouse['parcel_service'] ?? ""; // Default to empty string if null
+            String? postofficeDate = warehouse['postoffice_date'];
+            String? shippedDateStr = warehouse['shipped_date'];
+            DateTime? shippedDate;
+
+            // Parse the shipped_date to DateTime
+            if (shippedDateStr != null && shippedDateStr.isNotEmpty) {
+              shippedDate = DateTime.parse(shippedDateStr);
+            }
+
+            print("Checking warehouse ID ${warehouse['id']} - shipped_date: $shippedDate");
+
+            // Check if the shipped_date is within the selected date range
+            if (shippedDate != null &&
+                shippedDate.isAfter(startDate!) &&
+                shippedDate.isBefore(endDate!)) {
+              double actualWeight = double.tryParse(warehouse['actual_weight'].toString()) ?? 0.0;
+              double parcelAmount = double.tryParse(warehouse['parcel_amount'].toString()) ?? 0.0;
+
+              if (!parcelData.containsKey(parcelService)) {
+                parcelData[parcelService] = {
+                  'total_actual_weight': 0.0,
+                  'total_parcel_amount': 0.0,
+                };
+              }
+
+              parcelData[parcelService]!['total_actual_weight'] =
+                  (parcelData[parcelService]!['total_actual_weight'] ?? 0) + actualWeight;
+              parcelData[parcelService]!['total_parcel_amount'] =
+                  (parcelData[parcelService]!['total_parcel_amount'] ?? 0) + parcelAmount;
+
+           
+            }
+          }
+        }
+
+      }
+
+      Map<String, double> parcelAverages = {};
+    
+      setState(() {
+
+        parcelData.forEach((parcelService, data) {
+        double totalActualWeight = data['total_actual_weight'] ?? 0.0;
+        double totalParcelAmount = data['total_parcel_amount'] ?? 1.0;
+        double average = totalActualWeight / totalParcelAmount;
+        parcelAverages[parcelService] = average;
+      });
+
+        orders = orderlist;
+        print("Processed Orders: $orders");
+        print("Parcel Averages: $parcelAverages");
+      });
+    }
+  } catch (e) {
+    print("Error fetching orders: $e");
+  }
+}
+
+
+
+
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
