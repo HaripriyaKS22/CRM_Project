@@ -567,7 +567,8 @@ int grv=0;
                 'Product Sale Report',
                 'Stock Report',
                 'Damaged Stock',
-                'Finance Report'
+                'Finance Report',
+                'Actual Delivery Report',
               ]),
               _buildDropdownTile(context, 'Customers', [
                 'Add Customer',

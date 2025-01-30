@@ -198,13 +198,14 @@ var warehouse;
     };
 
     // Conditionally add fields based on the value of dep
-    if (dep == 'Admin'||dep == 'COO' || dep == 'Accounts') {
+    if (selectedmode == 'request') {
       print("BDOOOOOOOOOOOO||||BDMMMMMMMMMMMMMMM");
       requestBody['warehouses'] = selectedwarehouseId;
       requestBody['status'] = 'Order Request by Warehouse';
     }
-    if(dep == 'BDO'||dep == 'BDM'){
+    if(selectedmode == 'invoice'){
             requestBody['warehouses'] = warehouse;
+      requestBody['status'] = 'Invoice Created';
             }
 
 
@@ -976,7 +977,11 @@ List<Map<String, dynamic>> sta = [];
     super.dispose();
   }
    List<String>  paystatus = ["Payed",'COD','credit'];
+      List<String>  mode = ["request",'invoice','warehouse to warehouse'];
+
   String selectpaystatus="COD";
+    String selectedmode="invoice";
+
    List<String>  paymethod = ['Razorpay',"Credit Card",'Debit Card','Net Bankng','PayPal','Cash on Delivery','Bank Transfer'];
   String selectpaymethod="Razorpay";
 
@@ -1116,8 +1121,61 @@ Future<String?> getdepFromPrefs() async {
                           children: [
                             SizedBox(height: 15,),
 
+                            if(dep=="Admin"||dep=="COO"||dep=="Accounts")
 
+                              Text("Order Mode",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+
+                              SizedBox(height:5,),
                             
+                            if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectedmode,
+                                        underline: Container(), // Removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectedmode = newValue!;
+                                            print(selectedmode);
+                                          });
+                                        },
+                                        items: mode.map<DropdownMenuItem<String>>((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: TextStyle(
+                                                fontSize: 12
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(left: 140),
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons.arrow_drop_down),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            ),
+
+
+
+
+                      SizedBox(height: 5),     
               
                      Text("Company ",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height:5,),
@@ -1161,6 +1219,7 @@ Future<String?> getdepFromPrefs() async {
   SizedBox(height: 10),
 
                            if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+                           if(selectedmode=="request")
                              Padding(
                                padding: const EdgeInsets.only(right: 10),
                                child: Container(
@@ -1196,7 +1255,7 @@ Future<String?> getdepFromPrefs() async {
                                   ),
                              ),
 
-                                                SizedBox(height: 5,),
+                                               
 
                      Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height: 5,),

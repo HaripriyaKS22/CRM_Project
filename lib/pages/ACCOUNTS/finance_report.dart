@@ -72,9 +72,18 @@ Future<void> getFinancialReport() async {
               return sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0);
             }) ??
             0.0;
-
+double totalBankExpensesBeforeDate = (bankData['banks'] as List<dynamic>?)
+    ?.where((bank) {
+      final expenseDate = DateTime.tryParse(bank['expense_date'] ?? '');
+      return expenseDate != null &&
+          expenseDate.isBefore(currentDate) &&
+          expenseDate.day != currentDate.day;
+    })
+    .fold<double>(0.0, (sum, bank) {
+      return sum + (double.tryParse(bank['amount'] ?? '') ?? 0.0);
+    }) ?? 0.0;
         // Adjusted opening balance
-        double adjustedOpeningBalance = openBalance + totalPaymentsBeforeDate;
+        double adjustedOpeningBalance = openBalance + totalPaymentsBeforeDate-totalBankExpensesBeforeDate;
         totalAdjustedOpeningBalance += adjustedOpeningBalance;
 
         // Calculate today's payments

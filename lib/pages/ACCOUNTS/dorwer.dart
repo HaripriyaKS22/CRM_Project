@@ -29,6 +29,7 @@ import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_products.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/post_office_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
@@ -256,6 +257,12 @@ class drower{
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) =>FinancialReport()),
+        );
+        break;
+      case 'Actual Delivery Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>PostofficeReport()),
         );
         break;
       case 'Create New GRV':
