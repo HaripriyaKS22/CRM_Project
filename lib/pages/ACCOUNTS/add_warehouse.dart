@@ -60,6 +60,7 @@ class _add_warehouseState extends State<add_warehouse> {
 
   TextEditingController name = TextEditingController();
   TextEditingController location = TextEditingController();
+  TextEditingController address = TextEditingController();
 
   List<Map<String, dynamic>> Warehouses = [];
 
@@ -87,6 +88,7 @@ class _add_warehouseState extends State<add_warehouse> {
           body: jsonEncode({
             'name': name.text,
             'location': location.text,
+            'address': address.text
           }));
       print("Response: ${response.body}");
       print("ressss${response.statusCode}");
@@ -116,7 +118,8 @@ class _add_warehouseState extends State<add_warehouse> {
   Future<void> getwarehouse() async {
     final token = await gettoken();
     try {
-      final response = await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
+      final response =
+          await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       });
@@ -130,7 +133,8 @@ class _add_warehouseState extends State<add_warehouse> {
           warehouselist.add({
             'id': productData['id'],
             'name': productData['name'],
-            'location': productData['location']
+            'location': productData['location'],
+            'address': productData['address'] ?? '',
           });
         }
         setState(() {
@@ -334,6 +338,37 @@ class _add_warehouseState extends State<add_warehouse> {
                         SizedBox(
                           height: 10,
                         ),
+                        Text(
+                          "Address",
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Container(
+                            child: TextField(
+                              controller: address,
+                              decoration: InputDecoration(
+                                labelText: 'Address',
+                                labelStyle: TextStyle(
+                                  fontSize: 12.0, // Set your desired font size
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 8.0), // Set vertical padding
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -400,10 +435,13 @@ class _add_warehouseState extends State<add_warehouse> {
                   border: TableBorder.all(
                       color: Color.fromARGB(255, 214, 213, 213)),
                   columnWidths: {
-        0: FixedColumnWidth(30.0), // Fixed width for the first column (No.)
-        1: FlexColumnWidth(3), // Increased Flex width for the second column (Warehouse Name)
-        2: FixedColumnWidth(50.0), // Fixed width for the third column (Location)
-      },
+                    0: FixedColumnWidth(
+                        30.0), // Fixed width for the first column (No.)
+                    1: FlexColumnWidth(
+                        3), // Increased Flex width for the second column (Warehouse Name)
+                    2: FixedColumnWidth(
+                        50.0), // Fixed width for the third column (Location)
+                  },
                   children: [
                     const TableRow(
                       decoration: BoxDecoration(
@@ -428,10 +466,19 @@ class _add_warehouseState extends State<add_warehouse> {
                                 color: Colors.white),
                           ),
                         ),
-                         Padding(
+                        Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text(
                             "Location",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            "Address",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
@@ -465,13 +512,17 @@ class _add_warehouseState extends State<add_warehouse> {
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
+                            child: Text(Warehouses[i]['address']),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            update_warehouse(id: Warehouses[i]['id'])));
+                                        builder: (context) => update_warehouse(
+                                            id: Warehouses[i]['id'])));
                               },
                               child: Image.asset(
                                 "lib/assets/edit.jpg",

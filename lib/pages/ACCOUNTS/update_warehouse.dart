@@ -54,6 +54,8 @@ class _update_warehouseState extends State<update_warehouse> {
 
   TextEditingController warehouse = TextEditingController();
     TextEditingController location = TextEditingController();
+        TextEditingController address = TextEditingController();
+
 
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -76,14 +78,17 @@ class _update_warehouseState extends State<update_warehouse> {
         print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
         for (var productData in parsed) {
           warehouselist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-            'location': productData['location']
+            'id': productData['id']?? '',
+            'name': productData['name']?? '',
+            'location': productData['location']?? '',
+            'address':productData['address']?? ''
           });
 
           if (widget.id == productData['id']) {
             warehouse.text = productData['name'] ?? '';
             location.text = productData['location'] ?? '';
+            address.text = productData['address'] ?? '';
+
 
             ;
           }
@@ -112,6 +117,7 @@ class _update_warehouseState extends State<update_warehouse> {
           {
             'name': warehouse.text,
             'location': location.text,
+            'address':address.text
           },
         ),
       );
@@ -316,6 +322,26 @@ class _update_warehouseState extends State<update_warehouse> {
                                 ),
                               ),
 
+                               SizedBox(height: 10),
+                              Container(
+                                width: constraints.maxWidth * 0.9,
+                                child: TextField(
+                                  controller: address,
+                                  decoration: InputDecoration(
+                                    hintText: address.text.isNotEmpty
+                                        ? address.text
+                                        : 'Enter Address',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding:
+                                        EdgeInsets.symmetric(vertical: 8.0),
+                                  ),
+                                ),
+                              ),
+
                               SizedBox(height: 10),
                               ElevatedButton(
                                 onPressed: () {
@@ -401,6 +427,13 @@ class _update_warehouseState extends State<update_warehouse> {
                                   style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                                 ),
                               ),
+                               Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Address",
+                                  style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                ),
+                              ),
                               Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: Text(
@@ -424,6 +457,10 @@ class _update_warehouseState extends State<update_warehouse> {
                                   Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(Warehouses[i]['location']),
+                                ),
+                                  Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(Warehouses[i]['address']),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),

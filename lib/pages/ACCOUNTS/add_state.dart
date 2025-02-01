@@ -56,6 +56,8 @@ var url = "$api/api/add/department/";
 
 
   TextEditingController state = TextEditingController();
+    TextEditingController province = TextEditingController();
+
 Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -103,7 +105,7 @@ var departments;
     }
   }
   
-  void addstate(String state, BuildContext context) async {
+  void addstate(String state, String province, BuildContext context) async {
     print("eeeeeeeeeeeeeeeeeeeeeeeeee$state");
 
           final token = await gettokenFromPrefs();
@@ -115,7 +117,11 @@ var departments;
           'Authorization': 'Bearer $token',
           
         },
-        body: {"name": state},
+        body: {
+          "name": state,
+          "province": province,
+          
+          },
       );
 
       print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
@@ -354,10 +360,33 @@ else {
             ),
           ),
           SizedBox(height: 15),
+
+            Text(
+            "Province",
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 10),
+          Container(
+            width: constraints.maxWidth * 0.9,
+            child: TextField(
+              controller: province,
+              decoration: InputDecoration(
+                labelText: 'Province',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+              ),
+            ),
+          ),
           ElevatedButton(
             onPressed: () {
               setState(() {
-                addstate(state.text, context);
+                addstate(state.text,province.text, context);
               });
             },
             style: ButtonStyle(

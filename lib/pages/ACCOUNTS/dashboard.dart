@@ -3,8 +3,10 @@ import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/order_bulk_upload.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/uploadbulkorders.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart';
 
@@ -454,6 +456,24 @@ int grv=0;
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => add_company()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Bulk Upload Orders'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UploadBulkProducts()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+                ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Bulk Upload'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => OrderBulkUpload()));
                   // Navigate to the Settings page or perform any other action
                 },
               ),
