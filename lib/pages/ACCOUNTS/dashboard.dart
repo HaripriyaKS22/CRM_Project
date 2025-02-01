@@ -3,7 +3,6 @@ import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/order_bulk_upload.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/uploadbulkorders.dart';
