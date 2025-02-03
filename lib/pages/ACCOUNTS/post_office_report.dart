@@ -44,7 +44,6 @@ class _PostofficeReportState extends State<PostofficeReport> {
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        print("API Response: $parsed");
 
         List<Map<String, dynamic>> orderlist = [];
         parcelData.clear();

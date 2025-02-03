@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+
 
 class OrderReview extends StatefulWidget {
   final id;
@@ -994,16 +996,38 @@ class _OrderReviewState extends State<OrderReview> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            ord != null
-                                ? ord['invoice'] ?? 'Invoice Number'
-                                : 'Loading...',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: const Color.fromARGB(255, 0, 0, 0),
-                            ),
-                          ),
+                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Text(
+      ord != null
+          ? ord['invoice'] ?? 'Invoice Number'
+          : 'Loading...',
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: const Color.fromARGB(255, 0, 0, 0),
+      ),
+    ),
+    IconButton(
+          onPressed: () async {
+            final url = 'https://sig-goes-rhythm-wrong.trycloudflare.com/invoice/50/';
+            if (await canLaunchUrl(Uri.parse(url))) {
+              await launchUrl(Uri.parse(url));
+            } else {
+              // Handle the case where the URL can't be launched
+              print('Could not launch $url');
+            }
+          },
+          icon: Icon(
+            Icons.download, // Icon style
+            color: Colors.blue, // Icon color
+            size: 24, // Icon size
+          ),
+        ),
+  ],
+),
+
                           Text(
                             ord != null
                                 ? ord['company']['name'] ?? 'Company'

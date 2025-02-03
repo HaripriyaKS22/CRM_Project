@@ -359,7 +359,7 @@ else {
               ),
             ),
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 5),
 
             Text(
             "Province",
@@ -383,6 +383,7 @@ else {
               ),
             ),
           ),
+          SizedBox(height: 5,),
           ElevatedButton(
             onPressed: () {
               setState(() {
