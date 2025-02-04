@@ -1010,21 +1010,20 @@ class _OrderReviewState extends State<OrderReview> {
       ),
     ),
     IconButton(
-          onPressed: () async {
-            final url = 'https://sig-goes-rhythm-wrong.trycloudflare.com/invoice/50/';
-            if (await canLaunchUrl(Uri.parse(url))) {
-              await launchUrl(Uri.parse(url));
-            } else {
-              // Handle the case where the URL can't be launched
-              print('Could not launch $url');
-            }
-          },
-          icon: Icon(
-            Icons.download, // Icon style
-            color: Colors.blue, // Icon color
-            size: 24, // Icon size
-          ),
-        ),
+      onPressed: () async {
+        final Uri url = Uri.parse('$api/invoice/${ord['id']}/');
+
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          // Handle error case
+          debugPrint('Could not launch $url');
+        }
+      },
+      icon: Icon(
+        Icons.download,
+        color: Colors.blue,
+        size: 24,
+      ),
+    ),
   ],
 ),
 

@@ -1,1 +1,1 @@
-var api="https://sig-goes-rhythm-wrong.trycloudflare.com";
+var api="https://inbox-archived-sick-associate.trycloudflare.com";
