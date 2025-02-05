@@ -44,28 +44,30 @@ class _PostofficeReportState extends State<PostofficeReport> {
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-
         List<Map<String, dynamic>> orderlist = [];
         parcelData.clear();
 
         for (var orderData in parsed) {
-          List<Map<String, dynamic>> warehouseList = [];
-
           if (orderData['warehouse'] != null) {
             for (var warehouse in orderData['warehouse']) {
               String? parcelService = warehouse['parcel_service'];
               String? postofficeDate = warehouse['postoffice_date'];
 
-              print("Checking warehouse ID ${warehouse['id']} - postoffice_date: $postofficeDate");
+              // Convert selectedDate to String format for comparison
+              String selectedDateString = selectedDate != null
+                  ? DateFormat('yyyy-MM-dd').format(selectedDate!)
+                  : todayDate;
 
               if (parcelService != null &&
                   parcelService.isNotEmpty &&
                   postofficeDate != null &&
-                  postofficeDate == todayDate) {
+                  postofficeDate == selectedDateString) {
                 double actualWeight =
-                    double.tryParse(warehouse['actual_weight'].toString()) ?? 0.0;
+                    double.tryParse(warehouse['actual_weight'].toString()) ??
+                        0.0;
                 double parcelAmount =
-                    double.tryParse(warehouse['parcel_amount'].toString()) ?? 0.0;
+                    double.tryParse(warehouse['parcel_amount'].toString()) ??
+                        0.0;
 
                 if (!parcelData.containsKey(parcelService)) {
                   parcelData[parcelService] = {
@@ -80,34 +82,37 @@ class _PostofficeReportState extends State<PostofficeReport> {
                 parcelData[parcelService]!['total_parcel_amount'] =
                     (parcelData[parcelService]!['total_parcel_amount'] ?? 0) +
                         parcelAmount;
-
-
               }
             }
           }
-
-        
         }
-
-        Map<String, double> parcelAverages = {};
-        parcelData.forEach((parcelService, data) {
-          double totalActualWeight = data['total_actual_weight'] ?? 0.0;
-          double totalParcelAmount = data['total_parcel_amount'] ?? 1.0;
-          double average = totalActualWeight / totalParcelAmount;
-          parcelAverages[parcelService] = average;
-        });
 
         setState(() {
           orders = orderlist;
-          print("Processed Orders: $orders");
-          print("Parcel Averages: $parcelAverages");
         });
       }
     } catch (e) {
       print("Error fetching orders: $e");
     }
   }
- Future<void> _selectDateRange(BuildContext context) async {
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+      fetchorders(); // Fetch orders based on the selected date
+    }
+  }
+
+  Future<void> _selectDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
@@ -125,109 +130,113 @@ class _PostofficeReportState extends State<PostofficeReport> {
     }
   }
 
+  Future<void> fetchorders2() async {
+    print("asdfghjkl");
+    final token = await getTokenFromPrefs();
+    try {
+      final response = await http.get(
+        Uri.parse('$api/api/orders/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-Future<void> fetchorders2() async {
-  print("asdfghjkl");
-  final token = await getTokenFromPrefs();
-  try {
-    final response = await http.get(
-      Uri.parse('$api/api/orders/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+      print("API Response: ${response.body}");
 
-    print("API Response: ${response.body}");
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        print("API Response: $parsed");
 
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      print("API Response: $parsed");
+        List<Map<String, dynamic>> orderlist = [];
+        parcelData.clear();
 
-      List<Map<String, dynamic>> orderlist = [];
-      parcelData.clear();
+        for (var orderData in parsed) {
+          List<Map<String, dynamic>> warehouseList = [];
 
-      for (var orderData in parsed) {
-        List<Map<String, dynamic>> warehouseList = [];
+          if (orderData['warehouse'] != null) {
+            for (var warehouse in orderData['warehouse']) {
+              String parcelService = warehouse['parcel_service'] ??
+                  ""; // Default to empty string if null
+              String? postofficeDate = warehouse['postoffice_date'];
+              String? shippedDateStr = warehouse['shipped_date'];
+              DateTime? shippedDate;
 
-        if (orderData['warehouse'] != null) {
-          for (var warehouse in orderData['warehouse']) {
-            String parcelService = warehouse['parcel_service'] ?? ""; // Default to empty string if null
-            String? postofficeDate = warehouse['postoffice_date'];
-            String? shippedDateStr = warehouse['shipped_date'];
-            DateTime? shippedDate;
-
-            // Parse the shipped_date to DateTime
-            if (shippedDateStr != null && shippedDateStr.isNotEmpty) {
-              shippedDate = DateTime.parse(shippedDateStr);
-            }
-
-            print("Checking warehouse ID ${warehouse['id']} - shipped_date: $shippedDate");
-
-            // Check if the shipped_date is within the selected date range
-            if (shippedDate != null &&
-                shippedDate.isAfter(startDate!) &&
-                shippedDate.isBefore(endDate!)) {
-              double actualWeight = double.tryParse(warehouse['actual_weight'].toString()) ?? 0.0;
-              double parcelAmount = double.tryParse(warehouse['parcel_amount'].toString()) ?? 0.0;
-
-              if (!parcelData.containsKey(parcelService)) {
-                parcelData[parcelService] = {
-                  'total_actual_weight': 0.0,
-                  'total_parcel_amount': 0.0,
-                };
+              // Parse the shipped_date to DateTime
+              if (shippedDateStr != null && shippedDateStr.isNotEmpty) {
+                shippedDate = DateTime.parse(shippedDateStr);
               }
 
-              parcelData[parcelService]!['total_actual_weight'] =
-                  (parcelData[parcelService]!['total_actual_weight'] ?? 0) + actualWeight;
-              parcelData[parcelService]!['total_parcel_amount'] =
-                  (parcelData[parcelService]!['total_parcel_amount'] ?? 0) + parcelAmount;
+              print(
+                  "Checking warehouse ID ${warehouse['id']} - shipped_date: $shippedDate");
 
-           
+              // Check if the shipped_date is within the selected date range
+              if (shippedDate != null &&
+                  shippedDate.isAfter(startDate!) &&
+                  shippedDate.isBefore(endDate!)) {
+                double actualWeight =
+                    double.tryParse(warehouse['actual_weight'].toString()) ??
+                        0.0;
+                double parcelAmount =
+                    double.tryParse(warehouse['parcel_amount'].toString()) ??
+                        0.0;
+
+                if (!parcelData.containsKey(parcelService)) {
+                  parcelData[parcelService] = {
+                    'total_actual_weight': 0.0,
+                    'total_parcel_amount': 0.0,
+                  };
+                }
+
+                parcelData[parcelService]!['total_actual_weight'] =
+                    (parcelData[parcelService]!['total_actual_weight'] ?? 0) +
+                        actualWeight;
+                parcelData[parcelService]!['total_parcel_amount'] =
+                    (parcelData[parcelService]!['total_parcel_amount'] ?? 0) +
+                        parcelAmount;
+              }
             }
           }
         }
 
+        Map<String, double> parcelAverages = {};
+
+        setState(() {
+          parcelData.forEach((parcelService, data) {
+            double totalActualWeight = data['total_actual_weight'] ?? 0.0;
+            double totalParcelAmount = data['total_parcel_amount'] ?? 1.0;
+            double average = totalActualWeight / totalParcelAmount;
+            parcelAverages[parcelService] = average;
+          });
+
+          orders = orderlist;
+          print("Processed Orders: $orders");
+          print("Parcel Averages: $parcelAverages");
+        });
       }
-
-      Map<String, double> parcelAverages = {};
-    
-      setState(() {
-
-        parcelData.forEach((parcelService, data) {
-        double totalActualWeight = data['total_actual_weight'] ?? 0.0;
-        double totalParcelAmount = data['total_parcel_amount'] ?? 1.0;
-        double average = totalActualWeight / totalParcelAmount;
-        parcelAverages[parcelService] = average;
-      });
-
-        orders = orderlist;
-        print("Processed Orders: $orders");
-        print("Parcel Averages: $parcelAverages");
-      });
+    } catch (e) {
+      print("Error fetching orders: $e");
     }
-  } catch (e) {
-    print("Error fetching orders: $e");
   }
-}
 
-
-
-
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Post Office Report",style: TextStyle(color: Colors.grey,fontSize: 14),),
-            actions: [
-         
+        title: Text(
+          "Post Office Report",
+          style: TextStyle(color: Colors.grey, fontSize: 14),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () => _selectDate(context), // Single date selection
+          ),
           IconButton(
             icon: Icon(Icons.date_range),
-            onPressed: () => _selectDateRange(context),
+            onPressed: () => _selectDateRange(context), // Date range selection
           ),
         ],
-
       ),
       body: parcelData.isEmpty
           ? Center(
@@ -247,9 +256,12 @@ Future<void> fetchorders2() async {
               itemCount: parcelData.length,
               itemBuilder: (context, index) {
                 String parcelService = parcelData.keys.elementAt(index);
-                double totalWeight = parcelData[parcelService]!['total_actual_weight'] ?? 0.0;
-                double totalAmount = parcelData[parcelService]!['total_parcel_amount'] ?? 0.0;
-                double average = totalAmount > 0 ? totalWeight / totalAmount : 0.0;
+                double totalWeight =
+                    parcelData[parcelService]!['total_actual_weight'] ?? 0.0;
+                double totalAmount =
+                    parcelData[parcelService]!['total_parcel_amount'] ?? 0.0;
+                double average =
+                    totalAmount > 0 ? totalWeight / totalAmount : 0.0;
 
                 return Card(
                   margin: EdgeInsets.all(10),
@@ -262,7 +274,10 @@ Future<void> fetchorders2() async {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       gradient: LinearGradient(
-                        colors: [const Color.fromARGB(255, 58, 143, 183), const Color.fromARGB(255, 64, 170, 251)],
+                        colors: [
+                          const Color.fromARGB(255, 58, 143, 183),
+                          const Color.fromARGB(255, 64, 170, 251)
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -272,7 +287,8 @@ Future<void> fetchorders2() async {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.local_shipping, color: Colors.white, size: 28),
+                            Icon(Icons.local_shipping,
+                                color: Colors.white, size: 28),
                             SizedBox(width: 10),
                             Text(
                               parcelService.toUpperCase(),
@@ -310,7 +326,8 @@ Future<void> fetchorders2() async {
           ),
           Text(
             value,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ],
       ),
