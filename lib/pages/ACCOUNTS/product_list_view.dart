@@ -121,7 +121,7 @@ class _Productlist_viewState extends State<Productlist_view> {
               orElse: () => null);
 
           if (productDetails == null) {
-            print("Product with id ${widget.id} not found.");
+            
           } else {
             // Set values for text fields
             name.text = productDetails!['name'] ?? '';
@@ -149,14 +149,14 @@ class _Productlist_viewState extends State<Productlist_view> {
               }
             });
 
-            print("Product details: $productDetails");
+            
           }
         });
       } else {
-        print("Product details not displayed");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -172,7 +172,7 @@ class _Productlist_viewState extends State<Productlist_view> {
         },
       );
 
-      print("AAAAAAAAAAAAAA==================================${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -195,7 +195,7 @@ class _Productlist_viewState extends State<Productlist_view> {
         await fetchProductDetails();
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -215,8 +215,7 @@ class _Productlist_viewState extends State<Productlist_view> {
         },
       );
 
-      print(
-          "QQQQQQQQQQQQQ1WWWWWWWWWWWWWWWWWWWWWWWW$api/api/product/update/${widget.id}/");
+   
 
       if (response.statusCode == 200) {
         // Product successfully deleted
@@ -336,15 +335,15 @@ class _Productlist_viewState extends State<Productlist_view> {
           filename: imageFile.path.split('/').last,
         );
 
-        print("multiiiiiiiiiiiiiiiiiiiiiiiii${multipartFile.filename}");
+        
         request.files.add(multipartFile);
       }
 
       // Send the request
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
-      print(response.statusCode);
-      print("imggggggggggggggggggggggggggggggggggggg${responseData.body}");
+      
+      
 
       if (responseData.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -392,7 +391,7 @@ class _Productlist_viewState extends State<Productlist_view> {
         );
       }
     } catch (e) {
-      print(e);
+      
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Enter valid information'),
@@ -430,14 +429,14 @@ class _Productlist_viewState extends State<Productlist_view> {
 
         setState(() {
           productImages = productImagesList; // No error now
-          print("Fetched Images: $productImages");
+          
           isLoading = false;
         });
       } else {
         throw Exception('Failed to fetch products');
       }
     } catch (error) {
-      print('Error fetching product: $error');
+      
       setState(() {
         isLoading = false;
       });
@@ -506,7 +505,7 @@ class _Productlist_viewState extends State<Productlist_view> {
     );
 
     if (response.statusCode == 200) {
-      print("Attribute added successfully: ${response.body}");
+      
 
       var newAttribute = jsonDecode(response.body);
 
@@ -521,10 +520,10 @@ class _Productlist_viewState extends State<Productlist_view> {
 
 
     } else {
-      print("Failed to add attribute: ${response.body}");
+      
     }
   } catch (error) {
-    print("Error adding attribute: $error");
+    
   }
 }
 
@@ -552,11 +551,11 @@ class _Productlist_viewState extends State<Productlist_view> {
 
         setState(() {
           attribute = attributelist; 
-          print("Updated attributes: $attribute");
+          
         });
       }
     } catch (error) {
-      print("Error fetching attributes: $error");
+      
     }
   }
 Future<void> deleteattribute(int attributeId) async {
@@ -614,7 +613,7 @@ void removeProduct(int index) {
       // Check if the index is valid before trying to remove
       attribute.removeAt(index);
     } else {
-      print("Error: Index out of range. Tried to remove at index: $index, but list length is ${attribute.length}");
+      
     }
   });
 }
@@ -1097,8 +1096,8 @@ void logout() async {
               );
               selectedAttributeName = selectedAttr['name'];
               selectedAttributeId = selectedAttr['id'];
-              print("Selected Attribute Name: $selectedAttributeName");
-              print("Selected Attribute ID: $selectedAttributeId");
+              
+              
             });
           },
           buttonStyleData: const ButtonStyleData(
@@ -1236,7 +1235,7 @@ void logout() async {
                                               _selectedFamily
                                                   .remove(fam[index]['id']);
                                             }
-                                            print(_selectedFamily);
+                                            
                                           });
                                         },
                                         controlAffinity:

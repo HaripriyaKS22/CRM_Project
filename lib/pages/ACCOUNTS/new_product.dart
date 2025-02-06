@@ -211,7 +211,7 @@ double landingPriceValue = 0.0;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in parsed) {
           warehouselist.add({
             'id': productData['id'],
@@ -221,18 +221,18 @@ double landingPriceValue = 0.0;
         }
         setState(() {
           Warehouses = warehouselist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
   Future<void> addProduct(BuildContext scaffoldContext) async {
 
     final token = await gettokenFromPrefs();
-      print("==========>>>>>>>>.....${landingPriceValue}");
+      
 
     try {
       // Create the request
@@ -283,8 +283,8 @@ double landingPriceValue = 0.0;
       var responseData = await http.Response.fromStream(response);
 
       // Print the response status and body for debugging
-      print("Response status: ${responseData.statusCode}");
-      print("Response body: ${responseData.body}");
+      
+      
 
       if (responseData.statusCode == 201) {
         // Parse the response body
@@ -356,8 +356,8 @@ double landingPriceValue = 0.0;
       var responseData = await http.Response.fromStream(response);
 
       // Print the response status and body for debugging
-      print("Response status: ${responseData.statusCode}");
-      print("Response body: ${responseData.body}");
+      
+      
 
       if (responseData.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -1223,7 +1223,7 @@ double landingPriceValue = 0.0;
                               double.tryParse(sellingprice.text) ?? 0.0;
                           double retailRate =
                               double.tryParse(retailprice.text) ?? 0.0;
- print("Landing Priceeeeee: $landingPriceValue");
+ 
                           // Check if values are valid
                           if (wholesaleRate < landingPriceValue) {
                             ScaffoldMessenger.of(context).showSnackBar(

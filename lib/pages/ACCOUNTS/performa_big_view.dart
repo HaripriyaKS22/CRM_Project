@@ -47,7 +47,7 @@ class _PerformaInvoice_BigView_ListState
     fetchperformalistData();
     getstate();
 
-    print(widget.invoice);
+    
   }
 
   Widget _buildDropdownTile(
@@ -357,7 +357,7 @@ class _PerformaInvoice_BigView_ListState
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -372,7 +372,7 @@ class _PerformaInvoice_BigView_ListState
 // Fetch performa list data and map state ID to state name
   Future<void> fetchperformalistData() async {
     try {
-      print("$api/api/perfoma/${widget.invoice}/invoice/");
+      
       final token = await getTokenFromPrefs();
       final response = await http.get(
         Uri.parse('$api/api/perfoma/${widget.invoice}/invoice/'),
@@ -381,7 +381,7 @@ class _PerformaInvoice_BigView_ListState
           'Content-Type': 'application/json',
         },
       );
-      print(response.body);
+      
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
@@ -425,10 +425,10 @@ class _PerformaInvoice_BigView_ListState
           orders = performaInvoiceList;
         });
       } else {
-        print("Error fetching data: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -464,7 +464,7 @@ class _PerformaInvoice_BigView_ListState
                     itemBuilder: (context, index) {
                       final order = orders[index];
                       final items = order['perfoma_items'] as List<dynamic>;
-                      print("Items: $items");
+                      
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Card(

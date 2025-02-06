@@ -107,7 +107,7 @@ var warehouse;
         },
       );
 
-      print("Family Data Response: ${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -127,7 +127,7 @@ var warehouse;
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 void logout() async {
@@ -174,7 +174,7 @@ void logout() async {
       var productsData = parsed['data'];
       List<Map<String, dynamic>> productList = [];
 
-      print("Products Responsehhhhhhhhhhhhhhhhhhhhhhhhh: ${response.body}");
+      
 
       for (var productData in productsData) {
         // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
@@ -206,7 +206,7 @@ void logout() async {
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 Future<String?> getdepFromPrefs() async {

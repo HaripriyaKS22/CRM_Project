@@ -103,15 +103,14 @@ class _staff_listState extends State<staff_list> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "getstaffffffffffffffffffffff${response.body}");
+   
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "$api${productData['image']}";
           stafflist.add({
@@ -127,11 +126,11 @@ class _staff_listState extends State<staff_list> {
           sta = stafflist;
                     filteredProducts = List.from(sta); // Show all customers initially
 
-          print("55555555555555555555555555555555$sta");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

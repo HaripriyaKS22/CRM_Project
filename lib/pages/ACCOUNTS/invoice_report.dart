@@ -26,7 +26,7 @@ class _Invoice_ReportState extends State<Invoice_Report> {
   void initState() {
     super.initState();
     fetchinvoicereport();
-    print("===========================>>>>>>>>${widget.date}");
+    
   }
 
   Future<String?> getTokenFromPrefs() async {
@@ -72,7 +72,7 @@ class _Invoice_ReportState extends State<Invoice_Report> {
         },
       );
 
-      print("09=------------------------${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);

@@ -67,15 +67,14 @@ Future<void> getstaff() async {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+  
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           stafflist.add({
@@ -85,16 +84,16 @@ Future<void> getstaff() async {
         }
         setState(() {
           sta = stafflist;
-          print("sataffffffffffff$sta");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
 void _filterOrdersBySingleDate() {
-  print(selectedDate);
+  
     if (selectedDate != null) {
       setState(() {
         filterdata = filterdata.where((order) {
@@ -242,7 +241,7 @@ void _filterOrdersBySingleDate() {
   setState(() {
     // Ensure salesReportList is not null
     if (salesReportList == null || salesReportList.isEmpty) {
-      print("salesReportList == null || salesReportList.isEmpty");
+      
       filterdata = [];
       return;
     }
@@ -321,7 +320,7 @@ void _filterOrdersBySingleDate() {
                 _updateTotals();
 
   });
-  print("filterdatafilterdata:$filterdata");
+  
 }
 
 var staff;
@@ -338,11 +337,11 @@ var staff;
       },
     );
 
-    print("Response: ${response.body}");
+    
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var salesData = parsed['sales_report'];
-      print("salesData: $salesData");
+      
 
       List<Map<String, dynamic>> salesReportDataList = [];
       List<String> approvedStatuses = [
@@ -394,7 +393,7 @@ var staff;
       setState(() {
         salesReportList = salesReportDataList;
         filterdata = salesReportDataList;
-        print("Sales Report List: $salesReportList");
+        
         _updateTotals();
       });
     } else {
@@ -685,7 +684,7 @@ else {
       onChanged: (newValue) {
         setState(() {
           selectedstaff = newValue;
-          print(selectedstaff);
+          
         });
         _filterDataByStaff(selectedstaff!);
       },

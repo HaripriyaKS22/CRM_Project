@@ -116,21 +116,21 @@ Future<void> _getAndShowVariants(int productId) async {
 //       var productsData = parsed['data'];
 //       List<Map<String, dynamic>> productList = [];
 
-//       print("Products Responseeeeeeeeeeeeeeeeeeeeeeeeeee: ${response.body}");
+//       
 
 //       for (var productData in productsData) {
 //         List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
 //             (famItem) => famItem['id'] == id,
 //             orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
 //         var imgurl = '$api/${productData['image']}';
-// print("imggggggggg$imgurl");
+// 
 //         // Check if the product type is 'variant'
 //         if (productData['type'] == "variant") {
-//                       print("nameeeeeeeeeeeeeeeeeeeeeeee====${productData['name']}");
+//                       
 
 
 //           for (var variant in productData['variant_products']) {
-//             print("nameeeeeeeeeeeeeeeeeeeeeeee${variant['name']}");
+//             
 
 //             if (variant['is_variant'] == true && variant['sizes'] != null) {
 
@@ -189,12 +189,12 @@ Future<void> _getAndShowVariants(int productId) async {
 
 //       setState(() {
 //         products = productList;
-//         print("Products: $products");
+//         
 //         filteredProducts = products;
 //       });
 //     }
 //   } catch (error) {
-//     print("Error: $error");
+//     
 //   }
 // }
  Future<void> fetchProductList() async {
@@ -214,7 +214,7 @@ Future<void> _getAndShowVariants(int productId) async {
       var productsData = parsed['data'];
       List<Map<String, dynamic>> productList = [];
 
-      print("Products Responsehhhhhhhhhhhhhhhhhhhhhhhhh: ${response.body}");
+      
 
       for (var productData in productsData) {
         // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
@@ -247,7 +247,7 @@ Future<void> _getAndShowVariants(int productId) async {
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -279,7 +279,7 @@ void logout() async {
 }
 
 Future<void> getvariant(int id, var type) async {
-  print("id: $id");
+  
   try {
     final token = await getTokenFromPrefs();
     List<Map<String, dynamic>> productList = [];
@@ -291,12 +291,12 @@ Future<void> getvariant(int id, var type) async {
         'Content-Type': 'application/json',
       },
     );
-    print("Response: ${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['products'];
-      print("Variants: $productsData");
+      
 
       for (var product in productsData) {
         if (product['is_variant'] == false) {
@@ -333,13 +333,13 @@ Future<void> getvariant(int id, var type) async {
       
       setState(() {
         variant = productList;
-        print("Variants List: $variant");
+        
       });
 
-      print("Fetched Products: $productList");
+      
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -358,8 +358,8 @@ Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
     }
   )
   );
-   print("Response: ${response.body}");
-   print("ressss${response.statusCode}");
+   
+   
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -379,7 +379,7 @@ Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
       }
  }
  catch(e){
-  print("error:$e");
+  
  }
 }
 
@@ -399,8 +399,8 @@ Future<void> addtocart2(BuildContext scaffoldContext,mainid,varid,quantity) asyn
     }
   )
   );
-   print("Response: ${response.body}");
-   print("ressss${response.statusCode}");
+   
+   
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -420,7 +420,7 @@ Future<void> addtocart2(BuildContext scaffoldContext,mainid,varid,quantity) asyn
       }
  }
  catch(e){
-  print("error:$e");
+  
  }
 }
 Future<void> addtocart3(BuildContext scaffoldContext,mainid,quantity) async{
@@ -438,8 +438,8 @@ Future<void> addtocart3(BuildContext scaffoldContext,mainid,quantity) async{
     }
   )
   );
-   print("Response: ${response.body}");
-   print("ressss${response.statusCode}");
+   
+   
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -459,7 +459,7 @@ Future<void> addtocart3(BuildContext scaffoldContext,mainid,quantity) async{
       }
  }
  catch(e){
-  print("error:$e");
+  
  }
 }
 // void showSizeDialog(BuildContext context, List<String> colors, List<Map<String, dynamic>> sizes, mainid, varid) {
@@ -569,8 +569,8 @@ Future<void> addtocart3(BuildContext scaffoldContext,mainid,quantity) async{
 //                           int quantity = int.tryParse(quantityController.text) ?? 1;
                       
 //                           // Add logic for adding to cart, using selectedSizeId and quantity
-//                           print("Selected Size ID: $selectedSizeId");
-//                           print("Quantity: $quantity");
+//                           
+//                           
                       
 //                           // Call add to cart function
 //                           addtocart(context, mainid, varid, selectedSizeId, quantity);
@@ -744,8 +744,8 @@ void showSizeDialog2(BuildContext context, List variants) {
                       }
 
                       // Call add to cart function
-                      print("Selected Product ID: ${selectedProduct['id']}");
-                      print("Quantity: $quantity");
+                      
+                      
 
                       // Example add-to-cart function
                       addtocart(context, selectedProduct['id'], quantity);
@@ -836,8 +836,8 @@ void showSizeDialog3(BuildContext context, mainid, stock) {
                           int quantity = int.tryParse(quantityController.text) ?? 1;
                       
                           // Add logic for adding to cart, using selectedSizeId and quantity
-                          print("Selected Size ID: $selectedSizeId");
-                          print("Quantity: $quantity");
+                          
+                          
                       
                           // Call add to cart function
                           addtocart2(context, mainid, varid,quantity);
@@ -1198,7 +1198,7 @@ Padding(
     itemCount: filteredProducts.length,
     itemBuilder: (context, index) {
       final product = filteredProducts[index];
-      print('producttttttttttt$product');
+      
       final isExpanded = expandedProducts[product['id']] ?? false;
 
       return Padding(
@@ -1250,11 +1250,11 @@ Padding(
                 trailing: ElevatedButton.icon(
                 onPressed: () {
   if (product['is_vaiant'] == true) {
-    print("Product sizes data: ${product['sizes']}");
+    
     // Ensure colors are non-null before passing to extractStringList
     List<String> colors = extractStringList(product['colors'] ?? [], 'color_name');
     List<Map<String, dynamic>> sizes = extractSizeList(product['sizes'] ?? []);
-    print("Extracted sizes: $sizes");
+    
     // showSizeDialog(
     //   context,
     //   colors,
@@ -1264,7 +1264,7 @@ Padding(
     // );
   }
   else if(product['type'] == 'variant'){
-        print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
+        
 
     showSizeDialog2(
       context,
@@ -1272,7 +1272,7 @@ Padding(
 
   }
   else if(product['type']=='single'){
-    print("typeeeeeeeeeeeeeeeeeeeeeeeee${product['type']}");
+    
     showSizeDialog3(
       context,
       product['mainid'],

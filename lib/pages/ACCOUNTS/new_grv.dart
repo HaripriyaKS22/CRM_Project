@@ -108,10 +108,10 @@ class _NewGrvState extends State<NewGrv> {
           orders = orderList;
         });
       } else {
-        print("Failed to fetch orders: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error fetching orders: $error");
+      
     }
   }
 
@@ -125,7 +125,7 @@ class _NewGrvState extends State<NewGrv> {
           'Authorization': 'Bearer $token',
         },
       );
-print("order item ${response.body}");
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         if (parsed['items'] != null && (parsed['items'] as List).isNotEmpty) {
@@ -145,23 +145,23 @@ print("order item ${response.body}");
             orderItems = productItems;
             hasItems = true; // If items are found
           });
-          print("Order items fetched successfully.  $orderItems");
+          
         } else {
           setState(() {
             orderItems = [];
             hasItems = false; // No items found
           });
-          print("No items found for the order.");
+          
         }
       } else {
-        print("Failed to fetch order items: ${response.statusCode}");
+        
         setState(() {
           orderItems = [];
           hasItems = false;
         });
       }
     } catch (error) {
-      print("Error fetching order items: $error");
+      
       setState(() {
         hasItems = false;
       });
@@ -214,7 +214,7 @@ print("order item ${response.body}");
   }
 
   void PostGRV() async {
-    print("hbchsbc");
+    
     final token = await getTokenFromPrefs();
     try {
       for (var item in orderItems) {
@@ -233,7 +233,7 @@ print("order item ${response.body}");
           }),
         );
 
-        print("GRV Response: ${response.statusCode}");
+        
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -252,7 +252,7 @@ print("order item ${response.body}");
         }
       }
     } catch (e) {
-      print("Error: $e");
+      
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: Colors.red,
         content: Text('An error occurred. Please try again.'),

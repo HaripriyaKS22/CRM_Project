@@ -45,7 +45,7 @@ class _RegisterState extends State<Register> {
         }),
       );
 
-      print("----------====================================${response.body}");
+      
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

@@ -60,8 +60,7 @@ class _Expense_UpdateState extends State<Expense_Update> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        print(
-            "Formatted Dateeeeeeeeeeeeeeeee: ${formatDate(selectedDate)}"); // This prints the formatted date
+     
       });
     }
   }
@@ -131,7 +130,7 @@ class _Expense_UpdateState extends State<Expense_Update> {
       }
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -163,7 +162,7 @@ class _Expense_UpdateState extends State<Expense_Update> {
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -193,7 +192,7 @@ class _Expense_UpdateState extends State<Expense_Update> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -225,7 +224,7 @@ class _Expense_UpdateState extends State<Expense_Update> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 Future<void> updatexpense() async {
@@ -234,11 +233,11 @@ Future<void> updatexpense() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString('username'); 
 
-    print("--------------$prefs");
-    print("============>>>>$username");
+    
+    
 
     if (username == null) {
-      print("No user found in shared preferences.");
+      
       return;
     }
 
@@ -263,8 +262,8 @@ Future<void> updatexpense() async {
       }),
     );
 
-    print("===============${response.body}");
-    print("===============${response.statusCode}");
+    
+    
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -287,7 +286,7 @@ Future<void> updatexpense() async {
       );
     }
   } catch (error) {
-    print("==================$error");
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating expense'),
@@ -419,7 +418,7 @@ Future<void> updatexpense() async {
           onChanged: (String? newValue) {
             setState(() {
               selectcompanyId = newValue!;
-              print("Selected Company ID: $selectcompanyId");
+              
             });
           },
           items: company.map<DropdownMenuItem<String>>((companyData) {
@@ -538,8 +537,7 @@ GestureDetector(
                                     onChanged: (String? newValue) {
                                       setState(() {
                                         selectpaybyId = newValue!;
-                                        print(
-                                            "Selected Paid By ID: $selectpaybyId");
+                                      
                                       });
                                     },
                                     items: sta.map<DropdownMenuItem<String>>(
@@ -588,8 +586,7 @@ GestureDetector(
                                     onChanged: (String? newValue) {
                                       setState(() {
                                         selectbankId = newValue!;
-                                        print(
-                                            "Selected Bank ID: $selectbankId");
+                                     
                                       });
                                     },
                                     items: bank.map<DropdownMenuItem<String>>(

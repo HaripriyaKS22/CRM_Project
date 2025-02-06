@@ -667,7 +667,7 @@ class _Form1State extends State<Form1> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selecttype = newValue!;
-                                  print(selecttype);
+                                  
                                 });
                               },
                               items: purchasetype.map<DropdownMenuItem<String>>((String value) {
@@ -980,7 +980,7 @@ Container(
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectaddby = newValue!;
-                                  print(selectaddby);
+                                  
                                 });
                               },
                               items: addedby.map<DropdownMenuItem<String>>((String value) {
@@ -1365,7 +1365,7 @@ class _Form2State extends State<Form2> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectmasktime = newValue!;
-                                  print(selectmasktime);
+                                  
                                 });
                               },
                               items: masktime.map<DropdownMenuItem<String>>((String value) {
@@ -1613,7 +1613,7 @@ Container(
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectsection = newValue!;
-                                  print(selectsection);
+                                  
                                 });
                               },
                               items: section.map<DropdownMenuItem<String>>((String value) {
@@ -1665,7 +1665,7 @@ Container(
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectservices = newValue!;
-                                  print(selectservices);
+                                  
                                 });
                               },
                               items: services.map<DropdownMenuItem<String>>((String value) {
@@ -2119,7 +2119,7 @@ Container(
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectuser = newValue!;
-                                  print(selectuser);
+                                  
                                 });
                               },
                               items: user.map<DropdownMenuItem<String>>((String value) {
@@ -2414,7 +2414,7 @@ Container(
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectuser = newValue!;
-                                  print(selectuser);
+                                  
                                 });
                               },
                               items: user.map<DropdownMenuItem<String>>((String value) {
@@ -2627,7 +2627,7 @@ class _Form5State extends State<Form5> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectedtype = newValue!;
-                                  print(selectedtype);
+                                  
                                 });
                               },
                               items: type.map<DropdownMenuItem<String>>((String value) {
@@ -2831,7 +2831,7 @@ class _Form6State extends State<Form6> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectservices = newValue!;
-                                  print(selectservices);
+                                  
                                 });
                               },
                               items: services.map<DropdownMenuItem<String>>((String value) {
@@ -3058,7 +3058,7 @@ class _Form7State extends State<Form7> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectstatus = newValue!;
-                                  print(selectstatus);
+                                  
                                 });
                               },
                               items: status.map<DropdownMenuItem<String>>((String value) {
@@ -3149,7 +3149,7 @@ SizedBox(height: 10,),
        GestureDetector(
         onTap: () {
          _selectDate(context);
-          print('Icon pressed');
+          
         },
         child: Icon(Icons.date_range),
       ),

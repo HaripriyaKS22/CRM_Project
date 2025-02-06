@@ -41,8 +41,7 @@ class _UpdateaddressState extends State<Updateaddress> {
     getstates();
     super.initState();
 
-    print(
-        "AAAAAAAAAADDDDDDDDDDDDRREEEEEEERSSSSSSSSSSSSSIIIIIIIIIIDDIDDDDD${widget.addressid}");
+   
   }
 
   TextEditingController customer = TextEditingController();
@@ -105,11 +104,11 @@ class _UpdateaddressState extends State<Updateaddress> {
 
           setState(() {}); // Refresh the UI
         } else {
-          print("Address with ID ${widget.addressid} not found");
+          
         }
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -124,8 +123,7 @@ class _UpdateaddressState extends State<Updateaddress> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================statesssssss${response.body}");
+     
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -134,10 +132,10 @@ class _UpdateaddressState extends State<Updateaddress> {
         for (var state in statesData) {
           stateMap[state['id']] = state['name']; // Populate the state map
         }
-        print("Mapped State Data: $stateMap");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -440,10 +438,7 @@ void logout() async {
                                               selectstate = newValue!['name'];
                                               selectedStateId = newValue[
                                                   'id']; // Store the selected state's ID
-                                              print(
-                                                  'Selected State Name: $selectstate');
-                                              print(
-                                                  'Selected State ID: $selectedStateId');
+                                           
                                             });
                                           }
                                         : null,

@@ -70,8 +70,7 @@ Future<void> getcustomer() async {
         },
       );
 
-      print(
-          "Customer data: ${response.body}");
+    
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -98,7 +97,7 @@ Future<void> getcustomer() async {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   Future<void> fetchOrderData() async {
@@ -112,7 +111,7 @@ Future<void> getcustomer() async {
         },
       );
 
-      print("ordersssssssssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -129,7 +128,7 @@ Future<void> getcustomer() async {
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
+            
           }
 
           orderList.add({
@@ -194,18 +193,18 @@ Future<void> getcustomer() async {
         }).toList();
 
         // Get the length of today's shipped orders
-        print("Number of today's shipped orders: ${shippedOrdersToday.length}");
+        
 
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
           shippedOrders =
               shippedOrdersToday; // Set filtered today's shipped orders
-          print("Today's shipped orders: $shippedOrders");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -317,12 +316,12 @@ Future<void> getcustomer() async {
           proforma = performaInvoiceList;
         });
         int proformalistcount = proforma.length;
-        print('GRV proforma count: $proformalistcount');
+        
       } else {
-        print("Error fetching data: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -376,7 +375,7 @@ int grv=0;
 
         // Get the count of grvlist
         int grvListCount = grvlist.length;
-        print('GRV List count: $grvListCount');
+        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -399,7 +398,7 @@ int grv=0;
   Future<void> _getUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
           final name = await getusernameFromPrefs();
-          print("nammeeeeeeeeeeeee$name");
+          
 
     setState(() {
       username = name ??

@@ -367,7 +367,7 @@ class _delivery_listState extends State<delivery_list> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectstatus = newValue!;
-                                  print(selectstatus);
+                                  
                                 });
                               },
                               items: status.map<DropdownMenuItem<String>>((String value) {
@@ -420,7 +420,7 @@ class _delivery_listState extends State<delivery_list> {
        GestureDetector(
         onTap: () {
          _selectDate(context);
-          print('Icon pressed');
+          
         },
         child: Icon(Icons.date_range),
       ),

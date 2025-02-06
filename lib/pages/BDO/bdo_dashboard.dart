@@ -72,8 +72,7 @@ Future<void> getcustomer() async {
         },
       );
 
-      print(
-          "Customer data: ${response.body}");
+   
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -100,7 +99,7 @@ Future<void> getcustomer() async {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
  Future<void> fetchOrderData() async {
@@ -114,7 +113,7 @@ Future<void> getcustomer() async {
       },
     );
 
-    print("ordersssssssssssss${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -129,7 +128,7 @@ Future<void> getcustomer() async {
           DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
           formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate); // Convert to desired format
         } catch (e) {
-          print("Error parsing date: $rawOrderDate - $e");
+          
         }
 
         // Add to orderList if status is "Shipped" or "To print"
@@ -189,12 +188,12 @@ Future<void> getcustomer() async {
 
       setState(() {
         orders = orderList;
-        print("lenghttttttttttttttt${orders.length}");
+        
         filteredOrders = orderList;
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -307,12 +306,12 @@ Future<void> getcustomer() async {
           proforma = performaInvoiceList;
         });
         int proformalistcount = proforma.length;
-        print('GRV proforma count: $proformalistcount');
+        
       } else {
-        print("Error fetching data: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -359,7 +358,7 @@ Future<void> getcustomer() async {
 
         // Get the count of grvlist
         int grvListCount = grvlist.length;
-        print('GRV List count: $grvListCount');
+        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

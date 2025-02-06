@@ -46,7 +46,7 @@ class _update_courierState extends State<update_courier> {
   void initState() {
     super.initState();
     getcourierservices();
-    print("YOOOOOOOOOOOOOO${widget.id}");
+    
   }
 
   var url = "$api/api/add/department/";
@@ -74,7 +74,6 @@ class _update_courierState extends State<update_courier> {
       },
     );
 
-    print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
     
     // Ensure the response is in the expected format
     if (response.statusCode == 200) {
@@ -106,7 +105,7 @@ class _update_courierState extends State<update_courier> {
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -116,7 +115,7 @@ class _update_courierState extends State<update_courier> {
       final token = await gettokenFromPrefs();
 
       var response = await http.put(
-        Uri.parse('$api/api/courier/service/${widget.id}/edit/'),
+        Uri.parse('$api/api/parcal/${widget.id}/service/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -124,10 +123,12 @@ class _update_courierState extends State<update_courier> {
         body: jsonEncode(
           {
             'name': courier.text,
+            'label': label.text,
           },
         ),
       );
-
+    print(response.body);
+print(response.statusCode);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -451,8 +452,7 @@ void logout() async {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     update_courier(
-                                                        id: courierdata[i]
-                                                            ['id'])));
+                                                        id: widget.id)));
                                       },
                                       child: Image.asset(
                                         "lib/assets/edit.jpg",

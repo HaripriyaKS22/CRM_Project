@@ -114,9 +114,9 @@ if (size != null && size.isNotEmpty) {
       _controllers = List.generate(size.length, (index) {
         return TextEditingController(text: size[index]['stock'].toString());
       });
-      print("Controllers initialized with ${_controllers.length} items.");
+      
     } else {
-      print("The size list is null or empty.");
+      
     }
   }
 
@@ -144,7 +144,7 @@ if (size != null && size.isNotEmpty) {
         },
       );
 
-      print("ressssssssssssssssssssssssssssssssssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -159,11 +159,11 @@ if (size != null && size.isNotEmpty) {
 
         setState(() {
           attribute = attributelist;
-          print("Updated attributes: $attribute");
+          
         });
       }
     } catch (error) {
-      print("Error fetching attributes: $error");
+      
     }
   }
 
@@ -185,7 +185,7 @@ Future<void> pickImagemain() async {
     if (pickedFile != null) {
       setState(() {
         image=File(pickedFile.path);
-        print("iiiiiiiiiiiiiiiiiiiiiiiii$image");
+        
       });
     }
   }
@@ -208,7 +208,7 @@ Future<void> pickImagemain() async {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("===============================hariii${response.body}");
+        
 
         // Iterate through the fetched data and only include values with the correct attribute ID
         for (var valueData in parsed) {
@@ -224,13 +224,13 @@ Future<void> pickImagemain() async {
         // Update the state with the fetched values
         setState(() {
           valuess = valuesList;
-          print("Values for attribute $attributeId: $valuess");
+          
         });
       } else {
         throw Exception("Failed to load values for attribute $attributeId");
       }
     } catch (error) {
-      print("Error fetching values: $error");
+      
     }
   }
 
@@ -254,20 +254,20 @@ Future<void> pickImagemain() async {
           'Content-Type': 'application/json',
         },
       );
-      print("==============0000000000000000000000000${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
 
         setState(() {
           name.text = productsData['name'] ?? '';
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 Future<void> updatestock(int id,var stock,var size) async {
@@ -289,8 +289,8 @@ Future<void> updatestock(int id,var stock,var size) async {
         ),
       );
 
-    print("resss:${response.body}");
-    print("resss:${response.statusCode}");
+    
+    
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -331,7 +331,7 @@ Future<void> updatestock(int id,var stock,var size) async {
           'Content-Type': 'application/json',
         },
       );
-      print("Response%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%: ${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -354,16 +354,16 @@ Future<void> updatestock(int id,var stock,var size) async {
           // }
         });
 
-        print("Fetched Products: $productsData");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
      Future<void> get_product_values() async {
     try {
       final token = await gettokenFromPrefs();
-      print('$api/api/variant/product/${widget.id}/size/view/');
+      
       var response = await http.get(
         Uri.parse('$api/api/variant/product/${widget.id}/size/view/'),
         headers: {
@@ -371,12 +371,12 @@ Future<void> updatestock(int id,var stock,var size) async {
           'Content-Type': 'application/json',
         },
       );
-      print("proooooooooooooosizeeeeeeeeeeeeeeeeeeeeeeeee${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
-        print(productsData);
+        
         List<Map<String, dynamic>> sizes = [];
         for (var productData in productsData) {
           sizes.add(
@@ -397,18 +397,18 @@ Future<void> updatestock(int id,var stock,var size) async {
           _isLoading = false; // Data has been fetched
         });
 
-        print("sizesssssssssss: $size");
+        
       } else {
         setState(() {
           _isLoading = false; // Stop loading if there's an error
         });
-        print("Failed to fetch data. Status code: ${response.statusCode}");
+        
       }
     } catch (error) {
       setState(() {
         _isLoading = false; // Stop loading on error
       });
-      print("Error: $error");
+      
     }
   }
 
@@ -424,12 +424,12 @@ Future<void> get_product_images() async {
           'Content-Type': 'application/json',
         },
       );
-      print("prooooooooooooooimggggggggggggggggg${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['images'];
-print(productsData);
+
 List<Map<String, dynamic>> images=[];
 for(var productData in productsData){
 var imgurl="$api/${productData['image']}";
@@ -446,10 +446,10 @@ images.add(
          img=images;
         });
 
-        print("imgggggggggsssssssssss: $img");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
  Future<void> deleteimage(int Id) async {
@@ -462,8 +462,8 @@ images.add(
           'Authorization': 'Bearer $token',
         },
       );
-      print("responseeee${response.body}");
-    print(response.statusCode);
+      
+    
     if(response.statusCode == 204){
          ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -507,7 +507,7 @@ images.add(
       "Content-Type": "multipart/form-data",
       'Authorization': 'Bearer $token',
     });
-print(widget.id);
+
     request.fields['product'] = widget.id.toString(); // Convert to string
 
     for (File imageFile in selectedImagesList) {
@@ -520,7 +520,7 @@ print(widget.id);
         filename: imageFile.path.split('/').last,
       );
 
-      print("multiiiiiiiiiiiiiiiiiiiiiiiii${multipartFile.filename}");
+      
       request.files.add(multipartFile);
     }
 
@@ -528,7 +528,7 @@ print(widget.id);
     var response = await request.send();
     var responseData = await http.Response.fromStream(response);
 
-    print("responseData.bodyyyyyyyyyyyyyyyyyyyyy${responseData.body}");
+    
 
     if (responseData.statusCode == 201) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -572,7 +572,7 @@ print(widget.id);
       );
     }
   } catch (e) {
-    print("errorrrrrrrrrrrrrrrrrrrrrrrrrrr$e");
+    
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
         content: Text('Enter valid information'),
@@ -586,14 +586,14 @@ print(widget.id);
 void addsizes(BuildContext scaffoldContext) async {
   try {
     final token = await gettokenFromPrefs();
-    print("Selected Values: $selectedValues");
+    
 
     // Prepare the data for sending
     Map<String, dynamic> productData = {
       "size": selectedValues, // Ensure selectedValues is a list
     };
 
-    print("Product Data: $productData");
+    
 
     // Adjust the data structure if needed, e.g., if the backend needs 'size' as a list
     var response = await http.put(
@@ -607,7 +607,7 @@ void addsizes(BuildContext scaffoldContext) async {
       }),
     );
 
-    print("Response: ${response.body}");
+    
 
     if (response.statusCode == 200) { // Successful update
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -626,7 +626,7 @@ void addsizes(BuildContext scaffoldContext) async {
       );
     }
   } catch (e) {
-    print("Error: $e");
+    
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
         content: Text('Enter valid information'),
@@ -665,7 +665,7 @@ void addsizes(BuildContext scaffoldContext) async {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 void logout() async {
@@ -1027,7 +1027,7 @@ void logout() async {
                                         onChanged: (String? newValue) {
                                           setState(() {
                                             selecttype = newValue!;
-                                            print(selecttype);
+                                            
                                           });
                                         },
                                         items: type
@@ -1219,7 +1219,7 @@ void logout() async {
                         onPressed: () {
                           setState(() {
                             flag = !flag;
-                            print(flag);
+                            
                           });
                         },
                         style: ButtonStyle(
@@ -1304,10 +1304,7 @@ void logout() async {
                                 );
                                 selectedAttributeName = selectedAttr['name'];
                                 selectedAttributeId = selectedAttr['id'];
-                                print(
-                                    "Selected Attribute Name: $selectedAttributeName");
-                                print(
-                                    "Selected Attribute ID: $selectedAttributeId");
+                             
 
                                 getvalues(selectedAttributeId!);
                               });
@@ -1407,7 +1404,7 @@ void logout() async {
                                     selectedValues.add(
                                         value!); // Add value if not selected
                                   }
-                                  print("Selected Values: $selectedValues");
+                                  
                                 });
                               },
                               buttonStyleData: const ButtonStyleData(
@@ -1432,8 +1429,7 @@ void logout() async {
                               onDeleted: () {
                                 setState(() {
                                   selectedValues.remove(value);
-                                  print(
-                                      "Updated Selected Values: $selectedValues");
+                               
                                 });
                               },
                             );

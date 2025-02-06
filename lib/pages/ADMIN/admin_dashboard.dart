@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
+import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/uploadbulkorders.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart';
 
@@ -61,7 +64,7 @@ int confirm=0;
         },
       );
 
-      print("ordersssssssssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -78,7 +81,7 @@ int confirm=0;
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
+            
           }
 
           orderList.add({
@@ -143,18 +146,18 @@ int confirm=0;
         }).toList();
 
         // Get the length of today's shipped orders
-        print("Number of today's shipped orders: ${shippedOrdersToday.length}");
+        
 
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
           shippedOrders =
               shippedOrdersToday; // Set filtered today's shipped orders
-          print("Today's shipped orders: $shippedOrders");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -266,12 +269,12 @@ int confirm=0;
           proforma = performaInvoiceList;
         });
         int proformalistcount = proforma.length;
-        print('GRV proforma count: $proformalistcount');
+        
       } else {
-        print("Error fetching data: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -321,7 +324,7 @@ int grv=0;
 
         // Get the count of grvlist
         int grvListCount = grvlist.length;
-        print('GRV List count: $grvListCount');
+        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -442,10 +445,10 @@ int grv=0;
                 title: Text('Dashboard'),
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => admin_dashboard()));
+                      MaterialPageRoute(builder: (context) => Graph()));
                 },
               ),
-              
+             
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Company'),
@@ -455,6 +458,24 @@ int grv=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Bulk Upload Orders'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UploadBulkProducts()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              //   ListTile(
+              //   leading: Icon(Icons.person),
+              //   title: Text('Bulk Upload'),
+              //   onTap: () {
+              //     Navigator.push(context,
+              //         MaterialPageRoute(builder: (context) => OrderBulkUpload()));
+              //     // Navigate to the Settings page or perform any other action
+              //   },
+              // ),
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Departments'),
@@ -504,6 +525,16 @@ int grv=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
+
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Warehouse'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_warehouse()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Attributes'),
@@ -513,6 +544,7 @@ int grv=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
+             
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Services'),
@@ -524,17 +556,17 @@ int grv=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
-               ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Delivery Notes'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => WarehouseOrderView(status: null,)));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
+              //  ListTile(
+              //   leading: Icon(Icons.person),
+              //   title: Text('Delivery Notes'),
+              //   onTap: () {
+              //     Navigator.push( 
+              //         context,
+              //         MaterialPageRoute(
+              //             builder: (context) => WarehouseOrderView(status: null,)));
+              //     // Navigate to the Settings page or perform any other action
+              //   },
+              // ),
               Divider(),
               _buildDropdownTile(context, 'Reports', [
                 'Sales Report',
@@ -545,20 +577,23 @@ int grv=0;
                 'Delivery Report',
                 'Product Sale Report',
                 'Stock Report',
-                'Damaged Stock'
+                'Damaged Stock',
+                'Finance Report',
+                'Actual Delivery Report',
               ]),
               _buildDropdownTile(context, 'Customers', [
                 'Add Customer',
                 'Customers',
               ]),
+             
               _buildDropdownTile(context, 'Staff', [
                 'Add Staff',
                 'Staff',
               ]),
-              _buildDropdownTile(context, 'Credit Note', [
-                'Add Credit Note',
-                'Credit Note List',
-              ]),
+              // _buildDropdownTile(context, 'Credit Note', [
+              //   'Add Credit Note',
+              //   'Credit Note List',
+              // ]),
               _buildDropdownTile(context, 'Proforma Invoice', [
                 'New Proforma Invoice',
                 'Proforma Invoice List',
@@ -570,7 +605,7 @@ int grv=0;
               Divider(),
               Text("Others"),
               Divider(),
-              _buildDropdownTile(context, 'Product', [
+              _buildDropdownTile(context, 'Purchase', [
                 'Product List',
                 'Product Add',
                 'Stock',

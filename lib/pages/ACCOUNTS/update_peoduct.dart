@@ -139,7 +139,7 @@ class _update_productState extends State<update_product> {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in parsed) {
           warehouselist.add({
             'id': productData['id'],
@@ -149,11 +149,11 @@ class _update_productState extends State<update_product> {
         }
         setState(() {
           Warehouses = warehouselist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -233,7 +233,7 @@ class _update_productState extends State<update_product> {
   Future<void> getvariant() async {
     try {
       final token = await gettokenFromPrefs();
-      print('urlllllllllllllllllll$api/api/products/${widget.id}/variants/');
+      
       var response = await http.get(
         Uri.parse('$api/api/products/${widget.id}/variants/'),
         headers: {
@@ -241,7 +241,7 @@ class _update_productState extends State<update_product> {
           'Content-Type': 'application/json',
         },
       );
-      print("haiiiiiiiiiiiiiiiiiiiiiiiiiiii: ${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -256,7 +256,7 @@ class _update_productState extends State<update_product> {
             // Handle response based on widget.type
             if (widget.type == 'single') {
               singleProducts = [productData]; // Single prduct as a list
-              print("Single P: ${singleProducts}");
+              
               if (singleProducts.isNotEmpty) {
                 name.text = singleProducts[0]['name']?.toString() ?? '';
                 hsncode.text = singleProducts[0]['hsn_code']?.toString() ?? '';
@@ -274,10 +274,7 @@ class _update_productState extends State<update_product> {
                     singleProducts[0]['retail_price']?.toString() ?? '';
                 fami = singleProducts[0]['family'];
 
-                print(
-                    "Single Product Name:eeeeeeeeeeeeeeeeee$fami EEEEEEEEEEEEEEE ${singleProducts[0]['name']}");
-                print(
-                    "Single Product landingggggggggg ${singleProducts[0]['landing_price']}");
+            
               }
             } else if (widget.type == 'variant') {
               variantProducts = List<Map<String, dynamic>>.from(
@@ -300,23 +297,22 @@ class _update_productState extends State<update_product> {
                 retailprice.text =
                     singleProducts[0]['retail_price']?.toString() ?? '';
                 fami = singleProducts[0]['family'];
-                print(
-                    "Single Product Name:eeeeeeeeeeeeeeeeee$fami EEEEEEEEEEEEEEE ${singleProducts[0]['name']}");
+            
 
-                print("Variant Product Name: ${variantProducts[0]['name']}");
+                
               }
             }
           });
 
-          print("Fetched Variants: $variantIDs");
+          
         } else {
-          print("Error: Variant IDs is not a list");
+          
         }
       } else {
-        print("Error: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -374,8 +370,8 @@ class _update_productState extends State<update_product> {
       var responseData = await http.Response.fromStream(response);
 
       // Print the response status and body for debugging
-      print("Response status: ${responseData.statusCode}");
-      print("Response body: ${responseData.body}");
+      
+      
       var res = responseData.body;
 
       if (responseData.statusCode == 200) {
@@ -446,8 +442,8 @@ class _update_productState extends State<update_product> {
       var responseData = await http.Response.fromStream(response);
 
       // Print the response status and body for debugging
-      print("Response status: ${responseData.statusCode}");
-      print("Response body: ${responseData.body}");
+      
+      
 
       if (responseData.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -478,8 +474,7 @@ class _update_productState extends State<update_product> {
     try {
       final token = await gettokenFromPrefs();
 
-      print(
-          '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
+     
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
         headers: {
@@ -487,15 +482,14 @@ class _update_productState extends State<update_product> {
           'Content-Type': 'application/json',
         },
       );
-      print("staffffffffffffffffffffffffffffff${response.body}");
+      
       List<Map<String, dynamic>> managerlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
+      
         for (var productData in productsData) {
           managerlist.add({
             'id': productData['id'],
@@ -505,11 +499,11 @@ class _update_productState extends State<update_product> {
         setState(() {
           manager = managerlist;
 
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT$manager");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -556,7 +550,7 @@ class _update_productState extends State<update_product> {
         });
       }
     } catch (error) {
-      print('Error fetching families: $error');
+      
     }
   }
 
@@ -743,10 +737,7 @@ class _update_productState extends State<update_product> {
                                                       newValue!['name'];
                                                   selectedManagerId =
                                                       newValue['id'];
-                                                  print(
-                                                      'Selected Manager Name: $selectedManagerName');
-                                                  print(
-                                                      'Selected Manager ID: $selectedManagerId');
+                                               
                                                 });
                                               }
                                             : null,
@@ -1446,7 +1437,7 @@ class _update_productState extends State<update_product> {
                               double.tryParse(sellingprice.text) ?? 0.0;
                           double retailRate =
                               double.tryParse(retailprice.text) ?? 0.0;
-                          print("Landing Priceeeeee: $landingPriceValue");
+                          
                           // Check if values are valid
                           if (wholesaleRate < landingPriceValue) {
                             ScaffoldMessenger.of(context).showSnackBar(

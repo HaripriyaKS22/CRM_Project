@@ -54,8 +54,8 @@ var dep;
           'Content-Type': 'application/json',
         },
       );
-print("${response.statusCode}");
-      print("API Responseeeeeeeeeeeeeeeeeeeeeeeeeee: ${response.body}");
+
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -79,13 +79,13 @@ print("${response.statusCode}");
         }
         setState(() {
           cartdata = cartList;
-          print("cartdateeeeeeeeeeeeeeeeeeeeeee$cartdata");
+          
         });
       } else {
         throw Exception('Failed to load cart data');
       }
     } catch (error) {
-      print(error);
+      
     }
   }
  Future<void> updateprice(var price) async {
@@ -167,7 +167,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         }),
       );
 
-      print("Response from update: ${response.body}");
+      
 
       if (response.statusCode == 200) {
         fetchCartData();
@@ -181,7 +181,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         throw Exception('Failed to update cart item');
       }
     } catch (error) {
-      print(error);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update cart item'),
@@ -216,7 +216,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         throw Exception('Failed to delete cart ID: $id');
       }
     } catch (error) {
-      print(error);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to delete item from cart'),
@@ -383,11 +383,11 @@ Future<String?> getdepFromPrefs() async {
                              final discountPerQuantity = item['discount'] ?? 0.0;
                             final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
 final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
-                              print("quantity:::::::::::::::::::::$quantity");
-                              print("price:::::::::::::::::::::$price");
+                              
+                              
                              final totalItemPrice = quantity * price;
                            
-                             print("totalItemPrice:::::::::::::::::::::$totalItemPrice");
+                             
                            final totalDiscount = quantity * discountPerQuantity;
                              final discountedTotalPrice = totalItemPrice - totalDiscount;
 

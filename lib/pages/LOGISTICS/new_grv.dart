@@ -667,7 +667,7 @@ class _log_new_grvState extends State<log_new_grv> {
         setState(() {
           // Retain the case of the selected item while performing case-insensitive comparison
           selectedValue = items.firstWhere((item) => item.toLowerCase() == value!.toLowerCase(), orElse: () => "null");
-          print(selectedValue);
+          
         });
       },
       buttonStyleData: const ButtonStyleData(

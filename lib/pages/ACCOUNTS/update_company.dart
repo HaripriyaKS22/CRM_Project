@@ -57,20 +57,26 @@ class _update_companyState extends State<update_company> {
   var departments;
   List<Map<String, dynamic>> company = [];
 
- Future<void> getcompany() async {
+Future<void> getcompany() async {
   try {
     final token = await gettokenFromPrefs();
 
     var response = await http.get(
-      Uri.parse('$api/api/company/getadd/'),
+      Uri.parse('$api/api/company/data/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
     );
 
+  
+
     if (response.statusCode == 200) {
-      final productsData = jsonDecode(response.body);
+      // Decode the JSON response
+      final responseData = jsonDecode(response.body);
+
+      // Access the `data` field which is a list
+      List<dynamic> productsData = responseData['data'];
 
       List<Map<String, dynamic>> companylist = [];
 
@@ -89,6 +95,7 @@ class _update_companyState extends State<update_company> {
           'prefix': productData['prefix'],
         });
 
+        // Populate the form if the current product matches the widget ID
         if (widget.id == productData['id']) {
           setState(() {
             name.text = productData['name'] ?? '';
@@ -105,6 +112,7 @@ class _update_companyState extends State<update_company> {
         }
       }
 
+      // Update the state with the company list
       setState(() {
         company = companylist;
       });
@@ -112,7 +120,6 @@ class _update_companyState extends State<update_company> {
       throw Exception('Failed to fetch company data');
     }
   } catch (error) {
-    print("Error: $error");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,
@@ -173,7 +180,7 @@ class _update_companyState extends State<update_company> {
         );
       }
     } catch (e) {
-      print("Error: $e");
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -192,7 +199,7 @@ class _update_companyState extends State<update_company> {
 //           'Authorization': '$token',
 //         },
 //       );
-//     print(response.statusCode);
+//     
 //     if(response.statusCode == 200){
 //          ScaffoldMessenger.of(context).showSnackBar(
 //         SnackBar(
@@ -639,11 +646,11 @@ void logout() async {
                                     padding: const EdgeInsets.all(8.0),
                                     child: GestureDetector(
                                       onTap: () {
-                                        Navigator.push(
+                                      Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    update_department(
+                                                    update_company(
                                                         id: company[i]['id'])));
                                       },
                                       child: Image.asset(

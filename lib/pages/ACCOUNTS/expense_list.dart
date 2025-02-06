@@ -88,20 +88,20 @@ List<Map<String, dynamic>> originalExpensedata = [];
           final normalizedOrderDate = _normalizeDate(orderDate);
           final normalizedSelectedDate = _normalizeDate(selectedDate!);
 
-          print("Comparing orderDate: $normalizedOrderDate with selectedDate: $normalizedSelectedDate");
+          
 
           return normalizedOrderDate == normalizedSelectedDate;
         }).toList();
       });
 
-      print(expensedata);
+      
     }
   }
 
    void _filterOrdersByDateRange() {
-  print("Filtering orders by date range...");
-  print("Start Date: $startDate");
-  print("End Date: $endDate");
+  
+  
+  
 
   if (startDate != null && endDate != null) {
     setState(() {
@@ -120,7 +120,7 @@ List<Map<String, dynamic>> originalExpensedata = [];
           return orderDate.isAfter(startDate!.subtract(Duration(days: 1))) &&
               orderDate.isBefore(endDate!.add(Duration(days: 1)));
         } catch (e) {
-          print("Error parsing date: ${order['expense_date']} - $e");
+          
           return false; // Exclude items with invalid dates
         }
       }).toList();
@@ -157,7 +157,7 @@ List<Map<String, dynamic>> originalExpensedata = [];
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        print("selectedDate$selectedDate");
+        
       });
       _filterOrdersBySingleDate();
     }
@@ -207,7 +207,7 @@ Future<void> _selectDateRange(BuildContext context) async {
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -239,7 +239,7 @@ Future<void> _selectDateRange(BuildContext context) async {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -272,12 +272,12 @@ Future<void> _selectDateRange(BuildContext context) async {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
   Future<void> getexpenselist() async {
-  print("Fetching expense list...");
+  
   try {
     final token = await gettokenFromPrefs();
 
@@ -289,7 +289,7 @@ Future<void> _selectDateRange(BuildContext context) async {
       },
     );
     List<Map<String, dynamic>> expenselist = [];
-    print("Response body: ${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -315,10 +315,10 @@ Future<void> _selectDateRange(BuildContext context) async {
         originalExpensedata = List.from(expenselist); // Update the backup here
       });
     } else {
-      print("Failed to fetch expense list. Status code: ${response.statusCode}");
+      
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 Future<String?> getdepFromPrefs() async {

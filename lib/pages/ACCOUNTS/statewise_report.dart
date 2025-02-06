@@ -114,9 +114,9 @@ List<Map<String, dynamic>> sta = [];
 
   // Method to filter expenses by single date
 void _filterOrdersByDateRange() {
-  print("Start Date: $startDate");
-  print("End Date: $endDate");
-  print("Expense Data: $expensedata");
+  
+  
+  
 
   if (startDate != null && endDate != null) {
     setState(() {
@@ -137,7 +137,7 @@ void _filterOrdersByDateRange() {
                 return (orderDate.isAtSameMomentAs(startDate!) || orderDate.isAfter(startDate!)) &&
                        (orderDate.isAtSameMomentAs(endDate!) || orderDate.isBefore(endDate!));
               } catch (e) {
-                print('Error parsing date: $orderDateString');
+                
                 return false;
               }
             }).toList();
@@ -152,7 +152,7 @@ void _filterOrdersByDateRange() {
           })
           .toList(); // Ensure final result is a List<Map<String, dynamic>>
 
-      print("Filtered Data: $filteredData");
+      
 
       // Aggregate totals based on the filtered data
       List<Map<String, dynamic>> aggregatedData = [];
@@ -201,7 +201,7 @@ void _filterOrdersByDateRange() {
               returnedAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
               break;
             default:
-              print('Unhandled status: $status');
+              
               break;
           }
         }
@@ -225,21 +225,21 @@ void _filterOrdersByDateRange() {
 
       // Update the state with the aggregated data
       filteredData = aggregatedData;
-      print("Processed Data: $filteredData");
+      
     });
   }
 }
 void _filterOrdersByStaffId() {
-  print("Selected Staff ID: $selectedstaffId");
-  print("Expense Data: $expensedata");
+  
+  
 
   if (selectedstaffId != null) {
     setState(() {
-      print("=== DEBUG: Start Filtering ===");
+      
 
       // Debug: Check all orders for each state
       expensedata.forEach((stateData) {
-        print("State: ${stateData['name']}, Orders: ${stateData['orders']}");
+        
       });
 
       // Filter states containing orders with the selected staff ID
@@ -248,7 +248,7 @@ void _filterOrdersByStaffId() {
             List<dynamic> orders = stateData['orders'] ?? [];
             // Check if any order matches the selected staff ID
             bool hasMatchingOrders = orders.any((order) {
-              print("Checking Order: $order");
+              
               return order['staffID'].toString() == selectedstaffId.toString();
             });
             return hasMatchingOrders;
@@ -261,7 +261,7 @@ void _filterOrdersByStaffId() {
                 .where((order) => order['staffID'].toString() == selectedstaffId.toString())
                 .toList();
 
-            print("Filtered Orders for State '${stateData['name']}': $filteredOrders");
+            
 
             // Initialize counters for order statuses
             int totalOrdersCount = 0;
@@ -285,7 +285,7 @@ void _filterOrdersByStaffId() {
               totalAmount += (order['total_amount'] as num?)?.toDouble() ?? 0.0;
 
               String status = order['status']?.toString() ?? '';
-              print("Order Status: $status");
+              
               switch (status) {
                 case 'Completed':
                   completedOrdersCount++;
@@ -324,8 +324,8 @@ void _filterOrdersByStaffId() {
           })
           .toList();
 
-      print("=== DEBUG: Filtered Data ===");
-      print("Processed Data: $filteredData");
+      
+      
     });
   }
 }
@@ -343,15 +343,14 @@ void _filterOrdersByStaffId() {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+     
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           stafflist.add({
@@ -361,11 +360,11 @@ void _filterOrdersByStaffId() {
         }
         setState(() {
           sta = stafflist;
-          print("sataffffffffffff$sta");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -382,17 +381,17 @@ Future<void> getstatewisereport() async {
         'Content-Type': 'application/json',
       },
     );
-
+print(response.body);
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
       // Debugging the API response
-      print("API Response: $parsed");
+      
 
       if (parsed is Map && parsed.containsKey('data')) {
         final List<dynamic> statewiseData = parsed['data'];
         List<Map<String, dynamic>> statewiselist = [];
-        print("statewiseData:::::::::::::$statewiseData");
+        
 
         for (var stateData in statewiseData) {
           int totalOrdersCount = 0;
@@ -413,7 +412,7 @@ Future<void> getstatewisereport() async {
           // Process orders for the current state
           List<dynamic> orders = stateData['orders'] ?? [];
           List<Map<String, dynamic>> processedOrders = []; // For storing transformed orders
-          print('orderssssssssssssssssssssss$orders');
+          
 
           for (var order in orders) {
             List<dynamic> waitingOrders = order['waiting_orders'] ?? [];
@@ -480,18 +479,18 @@ Future<void> getstatewisereport() async {
         setState(() {
           expensedata = statewiselist;
           filteredData = statewiselist;
-                    print("Processed Data=============================: ${filteredData}");
+                    
 
-          print("Processed Data=============================: ${filteredData[5]}");
+          
         });
       } else {
-        print("Unexpected data structure: ${parsed.runtimeType}");
+        
       }
     } else {
-      print("Failed to fetch data: ${response.statusCode}");
+      
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -617,7 +616,7 @@ else {
                                     onChanged: (int? newValue) {
                                       setState(() {
                                         selectedstaffId = newValue!;
-                                        print(selectedstaffId);
+                                        
                                         _filterOrdersByStaffId();
                                       });
                                     },

@@ -78,13 +78,12 @@ class _CourierServicesState extends State<CourierServices> {
           'Authorization': 'Bearer $token',
         },
         body: {"name": courier,
-        "label":label
+        "label":label.text
         
         },
       );
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.body}");
+      
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
@@ -99,7 +98,6 @@ class _CourierServicesState extends State<CourierServices> {
         );
       }
     } catch (e) {
-      print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -148,7 +146,7 @@ void logout() async {
       },
     );
 
-    print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+    
     
     // Ensure the response is in the expected format
     if (response.statusCode == 200) {
@@ -172,7 +170,7 @@ void logout() async {
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 Future<String?> getdepFromPrefs() async {
@@ -325,7 +323,7 @@ else {
                             ElevatedButton(
                               onPressed: () {
                                  setState(() {
-                                    addcourierservices(courier.text, context);
+                                    addcourierservices(courier.text,context);
                                   });
                               },
                               style: ButtonStyle(

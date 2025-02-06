@@ -107,7 +107,7 @@ Future<void> getwarehouse() async {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in parsed) {
           warehouselist.add({
             'id': productData['id'],
@@ -117,11 +117,11 @@ Future<void> getwarehouse() async {
         }
         setState(() {
           Warehouses = warehouselist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
   Future<void> getstate() async {
@@ -135,15 +135,14 @@ Future<void> getwarehouse() async {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+     
       List<Map<String, dynamic>> statelist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           statelist.add({
@@ -153,11 +152,11 @@ Future<void> getwarehouse() async {
         }
         setState(() {
           stat = statelist;
-          print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDtttttttt$stat");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -187,7 +186,7 @@ Future<void> getwarehouse() async {
         }
         setState(() {
           dep = departmentlist;
-          print("dep$dep");
+          
         });
       }
     } catch (error) {}
@@ -250,11 +249,11 @@ Future<void> getwarehouse() async {
 
         setState(() {
           familyList = familyData;
-          print("fammmm$familyData");
+          
         });
       }
     } catch (error) {
-      print("Error fetching family data: $error");
+      
     }
   }
 
@@ -353,8 +352,8 @@ if (password.text.isNotEmpty) {
     var responseData = await http.Response.fromStream(response);
 
     // Debugging output
-    print("Response status: ${responseData.statusCode}");
-    print("Response body: ${responseData.body}");
+    
+    
 
     if (responseData.statusCode == 200) {
       // Parse the response body
@@ -377,7 +376,7 @@ if (password.text.isNotEmpty) {
         MaterialPageRoute(builder: (context) => staff_list()), // Replace with your staff list page
       );
     } else {
-      print('Unexpected response: ${responseData.body}');
+      
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -386,7 +385,7 @@ if (password.text.isNotEmpty) {
       );
     }
   } catch (e) {
-    print('Error: $e');
+    
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
         content: Text('Error: ${e.toString()}'),
@@ -458,8 +457,8 @@ Future<void> getstaff() async {
             selectedSignatureImage = staffData['signatur_up'] != null
               ? File(staffData['signatur_up'])
               : null;
-              print("Selected Signature Image: $selectedSignatureImage");
-              print("Selected Image: $selectedImage");
+              
+              
           
 
           // Initialize date variables from API data
@@ -486,14 +485,14 @@ Future<void> getstaff() async {
           selectedmanagerepName =
               staffData['supervisor_name']?.toString() ?? '';
 
-          print("Selected Family Name: $selectedFamilyName");
-          print("Selected Department Name: $selecteddepName");
+          
+          
 
           // Fetch allocated_states and map to state names
           if (staffData['allocated_states'] != null) {
             allocated_states =
                 List<int>.from(staffData['allocated_states']); // Ensure it's a list of integers
-print("Allocated StatesSSSSSSSSSSSSSSSSSSSSSSSSSSS: $allocated_states");
+
             allocatedStateNames = allocated_states
                 .map((stateId) => stat.firstWhere(
                       (element) => element['id'] == stateId,
@@ -501,14 +500,14 @@ print("Allocated StatesSSSSSSSSSSSSSSSSSSSSSSSSSSS: $allocated_states");
                     )['name'] as String) // Explicitly cast to String
                 .toList();
 
-            print("Allocated States: $allocatedStateNames");
+            
           }
         }
       }
       setState(() {});
     }
   } catch (error) {
-    print("Error fetching staff details: $error");
+    
   }
 }
 
@@ -518,7 +517,7 @@ Future<void> updateStaffImage(
     BuildContext scaffoldContext,
   ) async {
     final token = await gettokenFromPrefs();
-    print("============$staffId");
+    
     try {
       var request = http.MultipartRequest(
         'PUT',
@@ -542,8 +541,8 @@ Future<void> updateStaffImage(
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print("Response statusttttttttt: ${response.statusCode}");
-      print("Response bodyttttttttttttt: ${response.body}");
+      
+      
       // Handle response based on status code
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -574,7 +573,7 @@ Future<void> updateStaffImage(
       if (result != null) {
         setState(() {
           selectedSignatureImage = File(result.files.single.path!);
-          print("selectedSignatureImage: $selectedSignatureImage");
+          
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("image1 selected successfully."),
@@ -1149,7 +1148,7 @@ Future<void> updateStaffImage(
                   // Add the selected state to allocatedStateNames
                   if (!allocatedStateNames.contains(newValue['name'])) {
                     allocatedStateNames.add(newValue['name']);
-                    print("Allocated States: $allocatedStateNames");
+                    
 
                       allocated_states = allocatedStateNames
                 .map((stateId) => stat.firstWhere(
@@ -1159,7 +1158,7 @@ Future<void> updateStaffImage(
                 .toList();
 
 
-                print("Allocated States: $allocated_states");
+                
                   }
                 });
               }
@@ -1181,7 +1180,7 @@ Future<void> updateStaffImage(
               setState(() {
                 // Remove the state from allocatedStateNames
                 allocatedStateNames.remove(stateName);
-                print("Allocated States: $allocatedStateNames");
+                
                  allocated_states = allocatedStateNames
                 .map((stateId) => stat.firstWhere(
                       (element) => element['name'] == stateId,
@@ -1190,7 +1189,7 @@ Future<void> updateStaffImage(
                 .toList();
 
 
-                print("Allocated States: $allocated_states");
+                
               });
             },
             deleteIcon: Icon(Icons.close,color: Colors.red,),

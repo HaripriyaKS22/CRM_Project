@@ -59,7 +59,7 @@ int packed=0;
       },
     );
 
-    print("ordersssssssssssss${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -74,10 +74,10 @@ int packed=0;
           DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
           formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate); // Convert to desired format
         } catch (e) {
-          print("Error parsing date: $rawOrderDate - $e");
+          
         }
 
-        // Add to orderList if status is "Shipped" or "To print"
+        // Add to orderList if status is "Shipped" or "To "
        
           orderList.add({
             'id': productData['id'],
@@ -134,12 +134,12 @@ int packed=0;
 
       setState(() {
         orders = orderList;
-        print("lenghttttttttttttttt${orders.length}");
+        
         filteredOrders = orderList;
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -252,12 +252,12 @@ int packed=0;
           proforma = performaInvoiceList;
         });
         int proformalistcount = proforma.length;
-        print('GRV proforma count: $proformalistcount');
+        
       } else {
-        print("Error fetching data: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -304,7 +304,7 @@ int packed=0;
 
         // Get the count of grvlist
         int grvListCount = grvlist.length;
-        print('GRV List count: $grvListCount');
+        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

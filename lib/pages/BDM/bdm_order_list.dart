@@ -101,18 +101,18 @@ Future<void> getprofiledata() async {
           'Content-Type': 'application/json',
         },
       );
-print("==============0000000000000000000000000${response.body}");
+
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
 
         setState(() {
          
           family = productsData['family'].toString() ?? '';
-          print("uuuuuuuuuuuuuuuuuuuuuuuuuuuuy$family");
+          
 
 
              var matchingFamily = fam.firstWhere(
@@ -122,14 +122,14 @@ print("==============0000000000000000000000000${response.body}");
 
         // Store the matching family name
         familyName = matchingFamily['name'];
-        print("Matching Family Name: $familyName");
+        
         
         });
     fetchOrderData();
 
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   Future<void> getfamily() async {
@@ -158,13 +158,13 @@ print("==============0000000000000000000000000${response.body}");
 
         setState(() {
           fam = familylist;
-          print("Familyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy$fam");
+          
 
         
         });
       }
     } catch (error) {
-      print("Error fetching family data: $error");
+      
     }
   }
 
@@ -174,7 +174,7 @@ print("==============0000000000000000000000000${response.body}");
                     final dep= await getdepFromPrefs();
  final jwt = JWT.decode(token!);
           var name = jwt.payload['name'];
-          print("Name: $name");
+          
       var response = await http.get(
         Uri.parse('$api/api/orders/'),
         headers: {
@@ -183,7 +183,7 @@ print("==============0000000000000000000000000${response.body}");
         },
       );
 
-      print("ordersssssssssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -203,9 +203,9 @@ print("==============0000000000000000000000000${response.body}");
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
+            
           }
-print('$familyName==${productData['family']}');
+
           if(familyName==productData['family']){
 
 if(widget.status==null){
@@ -314,11 +314,11 @@ if(widget.status==null){
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
-          print("filterrrrrrrrrrrrrrrrrrrrrrrrrr$filteredOrders");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

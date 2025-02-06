@@ -47,8 +47,7 @@ class _OrderReviewState extends State<OrderReview> {
     super.initState();
     initData();
     getbank();
-    print(
-        "iddddddddddddddddddddddddddddddddssssssssssssssssssssssssss${widget.id}");
+  
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
 
@@ -228,8 +227,8 @@ class _OrderReviewState extends State<OrderReview> {
 
       String formattedTime = DateFormat("HH:mm").format(DateTime.now());
 
-      print(formattedTime);
-      print('$api/api/order/status/update/${widget.id}/');
+      
+      
 
       var response = await http.put(
         Uri.parse('$api/api/order/status/update/${widget.id}/'),
@@ -246,7 +245,7 @@ class _OrderReviewState extends State<OrderReview> {
         ),
       );
 
-      print("rrrrrrrrrrrrrrrrrrrrrrr${response.body}");
+      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -281,8 +280,7 @@ class _OrderReviewState extends State<OrderReview> {
     try {
       final token = await getTokenFromPrefs();
 
-      print(
-          '------------------>>>>>>>>>>>>>>>>$api/api/warehouse/detail/$warehouseId/');
+   
 
       var response = await http.put(
         Uri.parse('$api/api/warehouse/detail/$warehouseId/'),
@@ -299,7 +297,7 @@ class _OrderReviewState extends State<OrderReview> {
         ),
       );
 
-      print("Response: ${response.body}");
+      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -322,7 +320,7 @@ class _OrderReviewState extends State<OrderReview> {
           duration: Duration(seconds: 2),
         ),
       );
-      print("Error: $error");
+      
     }
   }
 
@@ -339,15 +337,14 @@ class _OrderReviewState extends State<OrderReview> {
           'Content-Type': 'application/json',
         },
       );
-      print("compppppppppppppppppppppp${response.body}");
-      print(response.statusCode);
+      
+      
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
         final productsData = jsonDecode(response.body);
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+     
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           companylist.add({
@@ -365,7 +362,7 @@ class _OrderReviewState extends State<OrderReview> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -525,7 +522,7 @@ class _OrderReviewState extends State<OrderReview> {
           ),
         );
 
-        print(response.body);
+        
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -549,7 +546,7 @@ class _OrderReviewState extends State<OrderReview> {
           );
         }
       } catch (error) {
-        print(error);
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating profile'),
@@ -565,7 +562,7 @@ class _OrderReviewState extends State<OrderReview> {
   Future<void> getaddress(var id) async {
     try {
       final token = await gettoken();
-      print('urlllllllllllllllll$api/api/add/customer/address/$id/');
+      
       var response = await http.get(
         Uri.parse('$api/api/add/customer/address/$id/'),
         headers: {
@@ -573,14 +570,14 @@ class _OrderReviewState extends State<OrderReview> {
           'Content-Type': 'application/json',
         },
       );
-      print("addresres${response.body}");
+      
       List<Map<String, dynamic>> addresslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("addreseeeeeeeeeeeee$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           addresslist.add({
@@ -597,11 +594,11 @@ class _OrderReviewState extends State<OrderReview> {
         }
         setState(() {
           addres = addresslist;
-          print("addres$addres");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -618,7 +615,7 @@ class _OrderReviewState extends State<OrderReview> {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -629,11 +626,11 @@ class _OrderReviewState extends State<OrderReview> {
         }
         setState(() {
           bank = banklist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -658,8 +655,8 @@ class _OrderReviewState extends State<OrderReview> {
                 'created_by': createdBy,
                 'remark': remarkController.text
               }));
-      print("Responsettttttttttttttttttttttttttttt: ${response.body}");
-      print("resssst${response.statusCode}");
+      
+      
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -683,7 +680,7 @@ class _OrderReviewState extends State<OrderReview> {
         );
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -692,16 +689,16 @@ class _OrderReviewState extends State<OrderReview> {
   double totalDiscount = 0.0; // Define at the class level
   Future<void> fetchOrderItems() async {
     try {
-      print('$api/api/order/${widget.id}/items/');
+      
       final token = await getTokenFromPrefs();
       final jwt = JWT.decode(token!);
       var name = jwt.payload['name'];
       setState(() {
         createdBy = name;
       });
-      print("Decoded Token Payload: ${jwt.payload}");
-      print("User ID: $createdBy");
-      print('$api/api/order/${widget.id}/items/');
+      
+      
+      
       var response = await http.get(
         Uri.parse('$api/api/order/${widget.id}/items/'),
         headers: {
@@ -709,16 +706,16 @@ class _OrderReviewState extends State<OrderReview> {
           'Content-Type': 'application/json',
         },
       );
-      print("productttttttttttttttttssssssssssss${response.body}");
+      
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         ord = parsed['order'];
-        print("Orderrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr: $ord");
+        
         List<dynamic> itemsData = parsed['items'];
         List<dynamic> warehouseData =
             parsed['order']['warehouse']; // Extract warehouse data
 
-        print("========>>>PPPPPPP$warehouseData");
+        
         getaddress(ord['customer']['id']);
 
         List<Map<String, dynamic>> orderList = [];
@@ -780,7 +777,7 @@ class _OrderReviewState extends State<OrderReview> {
         for (var receipt in parsed['order']['recived_payment']) {
           paymentReceiptsSum +=
               double.tryParse(receipt['amount'].toString()) ?? 0.0;
-          print("paymentReceiptsSum:$paymentReceiptsSum");
+          
         }
 
         double remainingAmount = 0.0;
@@ -800,19 +797,19 @@ class _OrderReviewState extends State<OrderReview> {
           payableAmount = calculatedPayableAmount;
           totalDiscount = calculatedTotalDiscount;
           Balance = remainingAmount;
-          print("Net Amount Before Tax: $netAmountBeforeTax");
-          print("Total Tax Amount: $totalTaxAmount");
-          print("Payable Amount: $payableAmount");
-          print("Total Discount: $totalDiscount");
-          print("Payment Receipts Sum: $paymentReceiptsSum");
-          print("Remaining Amount: $remainingAmount");
-          print("oooo====================$warehouse");
+          
+          
+          
+          
+          
+          
+          
         });
       } else {
-        print("Failed to fetch data. Status Code: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -826,7 +823,7 @@ class _OrderReviewState extends State<OrderReview> {
           'Authorization': 'Bearer $token',
         },
       );
-      print(response.statusCode);
+      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -928,7 +925,7 @@ class _OrderReviewState extends State<OrderReview> {
         }),
       );
 
-      print("Response from update: ${response.body}");
+      
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -943,7 +940,7 @@ class _OrderReviewState extends State<OrderReview> {
         throw Exception('Failed to update cart item');
       }
     } catch (error) {
-      print(error);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update cart item'),
@@ -1015,7 +1012,6 @@ class _OrderReviewState extends State<OrderReview> {
 
         if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
           // Handle error case
-          debugPrint('Could not launch $url');
         }
       },
       icon: Icon(
@@ -1294,7 +1290,7 @@ class _OrderReviewState extends State<OrderReview> {
                   for (var item in visibleItems)
                     GestureDetector(
                       onTap: () {
-                        print(item);
+                        
                         showPopupDialog(context, item);
                       },
                       child: Card(
@@ -2036,7 +2032,7 @@ class _OrderReviewState extends State<OrderReview> {
                                     onChanged: (int? newValue) {
                                       setState(() {
                                         selectedAddressId = newValue!;
-                                        print(selectedAddressId);
+                                        
                                       });
                                     },
                                     items: addres

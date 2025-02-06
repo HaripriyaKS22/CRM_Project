@@ -38,7 +38,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
     super.initState();
     initData();
     getbank();
-    print("iddddddddddddddddddddddddddddddddssssssssssssssssssssssssss${widget.id}");
+    
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
 
@@ -96,8 +96,8 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
     
       String formattedTime = DateFormat("HH:mm").format(DateTime.now());
 
-      print(formattedTime);
-      print('$api/api/order/status/update/${widget.id}/');
+      
+      
 
       var response = await http.put(
         Uri.parse('$api/api/order/status/update/${widget.id}/'),
@@ -114,7 +114,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         ),
       );
 
-      print("rrrrrrrrrrrrrrrrrrrrrrr${response.body}");
+      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -153,15 +153,14 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
           'Content-Type': 'application/json',
         },
       );
-      print("compppppppppppppppppppppp${response.body}");
-      print(response.statusCode);
+      
+      
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
         final productsData = jsonDecode(response.body);
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+    
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           companylist.add({
@@ -179,7 +178,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -315,7 +314,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         ),
       );
 
-      print(response.body);
+      
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -339,7 +338,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         );
       }
     } catch (error) {
-      print(error);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error updating profile'),
@@ -354,7 +353,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
   Future<void> getaddress(var id) async {
     try {
       final token = await gettoken();
-      print('urlllllllllllllllll$api/api/add/customer/address/$id/');
+      
       var response = await http.get(
         Uri.parse('$api/api/add/customer/address/$id/'),
         headers: {
@@ -362,14 +361,14 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
           'Content-Type': 'application/json',
         },
       );
-      print("addresres${response.body}");
+      
       List<Map<String, dynamic>> addresslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("addreseeeeeeeeeeeee$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           addresslist.add({
@@ -386,11 +385,11 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         }
         setState(() {
           addres = addresslist;
-          print("addres$addres");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -407,7 +406,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -418,11 +417,11 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         }
         setState(() {
           bank = banklist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -447,8 +446,8 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
                 'created_by': createdBy,
                 'remark': remarkController.text
               }));
-      print("Responsettttttttttttttttttttttttttttt: ${response.body}");
-      print("resssst${response.statusCode}");
+      
+      
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -472,7 +471,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         );
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -481,15 +480,15 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
   double totalDiscount = 0.0; // Define at the class level
   Future<void> fetchOrderItems() async {
     try {
-      print('$api/api/order/${widget.id}/items/');
+      
       final token = await getTokenFromPrefs();
       final jwt = JWT.decode(token!);
       var name = jwt.payload['name'];
       setState(() {
         createdBy = name;
       });
-      print("Decoded Token Payload: ${jwt.payload}");
-      print("User ID: $createdBy");
+      
+      
       var response = await http.get(
         Uri.parse('$api/api/order/${widget.id}/items/'),
         headers: {
@@ -550,7 +549,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         for (var receipt in parsed['order']['payment_receipts']) {
           paymentReceiptsSum +=
               double.tryParse(receipt['amount'].toString()) ?? 0.0;
-          print("paymentReceiptsSum:$paymentReceiptsSum");
+          
         }
 
         // Calculate remaining amount after comparing with calculatedPayableAmount
@@ -571,18 +570,18 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
           payableAmount = calculatedPayableAmount;
           totalDiscount = calculatedTotalDiscount;
           Balance = remainingAmount;
-          print("Net Amount Before Tax: $netAmountBeforeTax");
-          print("Total Tax Amount: $totalTaxAmount");
-          print("Payable Amount: $payableAmount");
-          print("Total Discount: $totalDiscount");
-          print("Payment Receipts Sum: $paymentReceiptsSum");
-          print("Remaining Amount: $remainingAmount");
+          
+          
+          
+          
+          
+          
         });
       } else {
-        print("Failed to fetch data. Status Code: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -596,7 +595,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
           'Authorization': 'Bearer $token',
         },
       );
-      print(response.statusCode);
+      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -698,7 +697,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         }),
       );
 
-      print("Response from update: ${response.body}");
+      
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -713,7 +712,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
         throw Exception('Failed to update cart item');
       }
     } catch (error) {
-      print(error);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update cart item'),
@@ -1760,7 +1759,7 @@ class _admin_OrderReviewState extends State<admin_OrderReview> {
                                     onChanged: (int? newValue) {
                                       setState(() {
                                         selectedAddressId = newValue!;
-                                        print(selectedAddressId);
+                                        
                                       });
                                     },
                                     items: addres

@@ -34,8 +34,7 @@ class _View_AddressState extends State<View_Address> {
     getaddress();
     super.initState();
 
-    print(
-        "GGGGGGGGGGGGEEEEEEEEEEEEEEEEEEETTTTTTTTTTTTTTTTTTTTT${widget.customerid}");
+   
   }
 
   List<Map<String, dynamic>> customeraddress = [];
@@ -58,9 +57,7 @@ class _View_AddressState extends State<View_Address> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================statesssssss${response.body}");
-
+    
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var statesData = parsed['data'];
@@ -68,10 +65,10 @@ class _View_AddressState extends State<View_Address> {
         for (var state in statesData) {
           stateMap[state['id']] = state['name']; // Populate the state map
         }
-        print("Mapped State Data: $stateMap");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -86,9 +83,8 @@ class _View_AddressState extends State<View_Address> {
           'Content-Type': 'application/json',
         },
       );
-      print('$api/api/cutomers/${widget.customerid}/');
-      print(
-          "=============================================addressss${response.body}");
+      
+    
 
       List<Map<String, dynamic>> addresslist = [];
 
@@ -112,11 +108,11 @@ class _View_AddressState extends State<View_Address> {
 
         setState(() {
           customeraddress = addresslist;
-          print("Updated Address Data: $customeraddress");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -132,9 +128,9 @@ class _View_AddressState extends State<View_Address> {
         },
       );
 
-      print('Request URL: $api/api/delete/cutomer/address/$addressId/');
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      
+      
+      
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,12 +142,12 @@ class _View_AddressState extends State<View_Address> {
         // Update the address list after deletion
         getaddress();
       } else {
-        print('Failed to delete address. Status code: ${response.statusCode}');
-        print('Response Body: ${response.body}');
+        
+        
         throw Exception('Failed to delete address with ID: $addressId');
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

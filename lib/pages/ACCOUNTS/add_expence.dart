@@ -82,7 +82,7 @@ class _expenceState extends State<expence> {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -93,11 +93,11 @@ class _expenceState extends State<expence> {
         }
         setState(() {
           bank = banklist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -114,15 +114,14 @@ class _expenceState extends State<expence> {
           'Content-Type': 'application/json',
         },
       );
-      print("compppppppppppppppppppppp${response.body}");
-      print(response.statusCode);
+      
+      
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
         final productsData = jsonDecode(response.body);
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+   
         for (var productData in productsData) {
           companylist.add({
             'id': productData['id'],
@@ -134,7 +133,7 @@ class _expenceState extends State<expence> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -150,15 +149,14 @@ class _expenceState extends State<expence> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+  
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           stafflist.add({
@@ -169,28 +167,28 @@ class _expenceState extends State<expence> {
         }
         setState(() {
           sta = stafflist;
-          print("55555555555555555555555555555555$sta");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
 
 void addexpense() async {
-  print("nbvcbdjbc");
+  
   final token = await gettokenFromPrefs();
 
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString('username'); 
 
-    print("--------------$prefs");
-    print("============>>>>$username");
+    
+    
 
     if (username == null) {
-      print("No user found in shared preferences.");
+      
       return;
     }
 
@@ -212,8 +210,8 @@ void addexpense() async {
       },
     );
 
-    print("Response status: ${response.statusCode}");
-    print("Response body: ${response.body}");
+    
+    
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
@@ -236,7 +234,7 @@ void addexpense() async {
       );
     }
   } catch (e) {
-    print("Error: $e");
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,
@@ -289,7 +287,6 @@ Future<void> _selectDate(BuildContext context) async {
   if (picked != null && picked != selectedDate) {
     setState(() {
       selectedDate = picked;
-      print("Formatted Date: ${formatDate(selectedDate)}"); // This prints the formatted date
     });
   }
 }
@@ -453,7 +450,7 @@ else {
                     onChanged: (String? newValue) {
                       setState(() {
                         selectcompanyId = newValue!;
-                        print("Selected Company ID: $selectcompanyId");
+                        
                       });
                     },
                     items: company.map<DropdownMenuItem<String>>(
@@ -573,7 +570,7 @@ else {
                               GestureDetector(
                                 onTap: () {
                                   _selectDate(context);
-                                  print('Icon pressed');
+                                  
                                 },
                                 child: Icon(Icons.date_range),
                               ),
@@ -617,7 +614,7 @@ else {
                     onChanged: (String? newValue) {
                       setState(() {
                         selectpaybyId = newValue!;
-                        print("Selected Paid By ID: $selectpaybyId");
+                        
                       });
                     },
                     items: sta.map<DropdownMenuItem<String>>((staffData) {
@@ -657,7 +654,7 @@ else {
                       onChanged: (String? newValue) {
                         setState(() {
                           selectbankId = newValue!;
-                          print("Selected Bank ID: $selectbankId");
+                          
                         });
                       },
                       items: bank.map<DropdownMenuItem<String>>((bankData) {

@@ -75,7 +75,7 @@ Future<void> _initData() async {
          tok = await functions.gettokenFromPrefs(); 
          id= await functions.getidFromPrefs();
 selectedManagerId=id;
-        print("initttttttttttttttttttttttttttt$selectedManagerId");
+        
          getmanagers();
         getstates();
   }
@@ -117,7 +117,7 @@ selectedManagerId=id;
         }),
       );
 
-      print("----------====================================${response.body}");
+      
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -177,8 +177,8 @@ void logout() async {
 
   Future<void> getmanagers() async {
     try {
-     print("tokkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$tok");
-print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
+     
+
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
         headers: {
@@ -186,16 +186,14 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "staffffffffffffffffffffffffffffff${response.body}");
+   
       List<Map<String, dynamic>> managerlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
+       
         for (var productData in productsData) {
           managerlist.add({
             'id': productData['id'],
@@ -205,11 +203,11 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
         setState(() {
           manager = managerlist;
 
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT$manager");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -223,16 +221,13 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================statesssssss${response.body}");
+   
       List<Map<String, dynamic>> stateslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiistatess$parsed");
         for (var productData in productsData) {
           stateslist.add({
             'id': productData['id'],
@@ -242,11 +237,11 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
         setState(() {
           statess = stateslist;
 
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTstatesss$statess");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -461,8 +456,8 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
               setState(() {
                 selectedManagerName = newValue!['name'];
                 selectedManagerId = newValue['id'];
-                print('Selected Manager Name: $selectedManagerName');
-                print('Selected Manager ID: $selectedManagerId');
+                
+                
               });
             }
           : null,
@@ -765,8 +760,8 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
                 setState(() {
                   selectstate = newValue!['name'];
                   selectedStateId = newValue['id']; // Store the selected state's ID
-                  print('Selected State Name: $selectstate');
-                  print('Selected State ID: $selectedStateId');
+                  
+                  
                 });
               }
             : null,

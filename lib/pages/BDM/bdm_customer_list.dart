@@ -110,18 +110,18 @@ String familyName='';
           'Content-Type': 'application/json',
         },
       );
-print("==============0000000000000000000000000${response.body}");
+
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
 
         setState(() {
          
           family = productsData['family'].toString() ?? '';
-          print("uuuuuuuuuuuuuuuuuuuuuuuuuuuuy$family");
+          
 
 
              var matchingFamily = fam.firstWhere(
@@ -131,13 +131,13 @@ print("==============0000000000000000000000000${response.body}");
 
         // Store the matching family name
         familyName = matchingFamily['name'];
-        print("Matching Family Name: $familyName");
+        
         
         });
 getcustomer();
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   Future<void> getfamily() async {
@@ -166,13 +166,13 @@ getcustomer();
 
         setState(() {
           fam = familylist;
-          print("Familyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy$fam");
+          
 
         
         });
       }
     } catch (error) {
-      print("Error fetching family data: $error");
+      
     }
   }
 
@@ -184,8 +184,8 @@ getcustomer();
 
       final jwt = JWT.decode(token!);
           var name = jwt.payload['name'];
-          print("Name: $name");
-          print("Decoded Token Payload: ${jwt.payload}");
+          
+          
       var response = await http.get(
         Uri.parse('$api/api/customers/'),
         headers: {
@@ -194,8 +194,6 @@ getcustomer();
         },
       );
 
-      print(
-          "Customer dataaaaaaaaaaaaaaaaaaaaa: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -203,7 +201,7 @@ getcustomer();
         List<Map<String, dynamic>> managerlist = [];
 
         for (var productData in productsData) {
-          print("$family==${productData['family']}");
+          
            if(family==productData['family']){
           
              managerlist.add({
@@ -225,7 +223,7 @@ getcustomer();
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

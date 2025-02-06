@@ -46,7 +46,7 @@ Future<void> getFinancialReport() async {
       },
     );
 
-    print("response.body${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -134,19 +134,19 @@ double totalBankExpensesBeforeDate = (bankData['banks'] as List<dynamic>?)
       }
 
       // Log totals
-      print("Total Adjusted Opening Balance: ${totalAdjustedOpeningBalance.toStringAsFixed(2)}");
-      print("Total Closing Balance: ${totalClosingBalance.toStringAsFixed(2)}");
-      print("Total Today's Payments: ${totalTodayPayments.toStringAsFixed(2)}");
-      print("Total Today's Bank Expenses: ${totalTodayBanksAmount.toStringAsFixed(2)}");
+      
+      
+      
+      
 
       // Update state to reflect the finance list in UI
       setState(() {
         Finance = financeList;
-        print("Filtered Finance Data: $Finance");
+        
       });
     }
   } catch (e) {
-    print("Error: $e");
+    
   }
 }
 
@@ -204,7 +204,7 @@ Future<void> getFinancialReport2() async {
 
       // Ensure startDate and endDate are set
       if (startDate == null || endDate == null) {
-        print("Start date or End date is not selected");
+        
         return;
       }
 
@@ -317,21 +317,21 @@ Future<void> getFinancialReport2() async {
       }
 
       // Print totals
-      print('Total Adjusted Opening Balance: $totalAdjustedOpeningBalance');
-      print('Total Closing Balance: $totalClosingBalance');
-      print('Total Payments Between: $totalTodayPayments');
-      print('Total Expenses Between: $totalTodayBanksAmount');
+      
+      
+      
+      
 
       // Update the state with the calculated finance list
       setState(() {
         Finance = financeList;
-        print("Filtered Finance Data: $Finance");
+        
       });
     } else {
-      print("Failed to fetch data. Status code: ${response.statusCode}");
+      
     }
   } catch (e) {
-    print("Error: $e");
+    
   }
 }
 

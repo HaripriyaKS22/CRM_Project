@@ -262,7 +262,7 @@ else {
                             onChanged: (value) {
                               setState(() {
                                 selectedValue = items.firstWhere((item) => item.toLowerCase() == value!.toLowerCase(), orElse: () => "null");
-                                print(selectedValue);
+                                
                               });
                             },
                           ),
@@ -313,7 +313,7 @@ else {
                           
                         });
                       
-                       print("======================$incrementedValue");
+                       
                        
                       },
                       style: ButtonStyle(
@@ -355,7 +355,7 @@ else {
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: incrementedValue,
                 itemBuilder: (context, index) {
-                  print(incrementedValue);
+                  
                   return  MyCard(count: incrementedValue);
                   
                 },
@@ -714,7 +714,7 @@ class _MyCardState extends State<MyCard> {
                           onChanged: (value) {
                             setState(() {
                               selectedValue = items.firstWhere((item) => item.toLowerCase() == value!.toLowerCase(), orElse: () => "null");
-                              print(selectedValue);
+                              
                             });
                           },
                           buttonStyleData: const ButtonStyleData(
@@ -806,7 +806,7 @@ class _MyCardState extends State<MyCard> {
                           onChanged: (value) {
                             setState(() {
                               selectedValue = items.firstWhere((item) => item.toLowerCase() == value!.toLowerCase(), orElse: () => "null");
-                              print(selectedValue);
+                              
                             });
                           },
                           buttonStyleData: const ButtonStyleData(

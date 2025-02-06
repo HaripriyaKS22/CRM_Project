@@ -63,7 +63,7 @@ int confirm=0;
         },
       );
 
-      print("ordersssssssssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -80,7 +80,7 @@ int confirm=0;
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
+            
           }
 
           orderList.add({
@@ -145,18 +145,18 @@ int confirm=0;
         }).toList();
 
         // Get the length of today's shipped orders
-        print("Number of today's shipped orders: ${shippedOrdersToday.length}");
+        
 
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
           shippedOrders =
               shippedOrdersToday; // Set filtered today's shipped orders
-          print("Today's shipped orders: $shippedOrders");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -268,12 +268,12 @@ int confirm=0;
           proforma = performaInvoiceList;
         });
         int proformalistcount = proforma.length;
-        print('GRV proforma count: $proformalistcount');
+        
       } else {
-        print("Error fetching data: ${response.statusCode}");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -323,7 +323,7 @@ int grv=0;
 
         // Get the count of grvlist
         int grvListCount = grvlist.length;
-        print('GRV List count: $grvListCount');
+        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -543,15 +543,7 @@ int grv=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Warehouse'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_warehouse()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
+             
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Services'),

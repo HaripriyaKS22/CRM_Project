@@ -100,8 +100,8 @@ Future<void> Addbank(BuildContext scaffoldContext,) async{
     }
   )
   );
-   print("Response: ${response.body}");
-   print("ressss${response.statusCode}");
+   
+   
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -121,7 +121,7 @@ Future<void> Addbank(BuildContext scaffoldContext,) async{
       }
  }
  catch(e){
-  print("error:$e");
+  
  }
 }
 
@@ -140,7 +140,7 @@ Future<void> getbank() async{
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -153,7 +153,7 @@ Future<void> getbank() async{
         }
         setState(() {
           bank = banklist;
-                  print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+                  
 
           
         });
@@ -161,7 +161,7 @@ Future<void> getbank() async{
 
   }
   catch(e){
-    print("error:$e");
+    
   }
 }
 

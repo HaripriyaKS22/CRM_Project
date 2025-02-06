@@ -56,8 +56,8 @@ class _CustomerLedgerState extends State<CustomerLedger> {
       fetchCustomerLedgerDetails();
     });
 
-    print(widget.customerName);
-    print(widget.customerid);
+    
+    
   }
 
   Future<String?> getTokenFromPrefs() async {
@@ -101,7 +101,7 @@ class _CustomerLedgerState extends State<CustomerLedger> {
         'Content-Type': 'application/json',
       },
     );
-    print("Response: ${response.body}");
+    
 
     if (response.statusCode == 200) {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
@@ -114,13 +114,13 @@ class _CustomerLedgerState extends State<CustomerLedger> {
                   'name': company['name'],
                 })
             .toList();
-            print("companyList:$companyList");
+            
       });
     } else {
-      print("Failed to load companies: ${response.statusCode}");
+      
     }
   } catch (error) {
-    print("Error fetching companies: $error");
+    
   }
 }
 
@@ -153,7 +153,7 @@ Future<void> fetchCustomerLedgerDetails() async {
         'Content-Type': 'application/json',
       },
     );
-    print("Response: ${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -163,7 +163,7 @@ Future<void> fetchCustomerLedgerDetails() async {
       double debitSum = 0.0;
       double creditSum = 0.0;
 
-      print("Fetched Data from API: $data");
+      
 
       for (var entry in data) {
         double? debitAmount = entry['total_amount'];
@@ -194,8 +194,6 @@ Future<void> fetchCustomerLedgerDetails() async {
           double creditAmount = double.parse(receipt['amount']);
           creditSum += creditAmount;
 
-          print(
-              "Adding Credit Entry: Date: ${receipt['received_at']}, Invoice: ${entry['invoice']}/$companyName, Amount: $creditAmount");
 
           entries.add({
             'date': receipt['received_at'],
@@ -216,13 +214,13 @@ Future<void> fetchCustomerLedgerDetails() async {
         totalCredit = creditSum;
       });
 
-      print("Final ledgerEntries: $ledgerEntries");
-      print("Final filteredEntries: $filteredEntries");
+      
+      
     } else {
-      print("Failed to fetch ledger details: ${response.statusCode}");
+      
     }
   } catch (error) {
-    print("Error fetching ledger data: $error");
+    
   }
 }
 
@@ -742,7 +740,7 @@ Future<pw.Document> createInvoice() async {
           //   label: Text("Generate PDF"),
           //   onPressed: () async {
           //     // Print to check filtered entries before generating PDF
-          //     print("Filtered Entries before PDF generation: $filteredEntries");
+          //     
           //     downloadInvoice();
           //   },
           //   style: ElevatedButton.styleFrom(

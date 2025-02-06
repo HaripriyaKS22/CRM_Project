@@ -1075,7 +1075,7 @@ class _Form1State extends State<Form1> {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selectgender = newValue!;
-                                      print(selectgender);
+                                      
                                     });
                                   },
                                   items: gender.map<DropdownMenuItem<String>>(
@@ -1136,7 +1136,7 @@ class _Form1State extends State<Form1> {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selectstatus = newValue!;
-                                      print(selectstatus);
+                                      
                                     });
                                   },
                                   items: status.map<DropdownMenuItem<String>>(
@@ -2379,7 +2379,7 @@ class _Form4State extends State<Form4> {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selecttype = newValue!;
-                                      print(selecttype);
+                                      
                                     });
                                   },
                                   items: type.map<DropdownMenuItem<String>>(
@@ -2440,7 +2440,7 @@ class _Form4State extends State<Form4> {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selectday = newValue!;
-                                      print(selectday);
+                                      
                                     });
                                   },
                                   items: day.map<DropdownMenuItem<String>>(

@@ -71,15 +71,14 @@ class _add_departmentState extends State<add_department> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+   
       List<Map<String, dynamic>> departmentlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           departmentlist.add({
@@ -92,13 +91,13 @@ class _add_departmentState extends State<add_department> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
   void adddepartment(String department, BuildContext context) async {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$department");
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$url");
+    
+    
 
     final token = await gettokenFromPrefs();
 
@@ -106,12 +105,12 @@ class _add_departmentState extends State<add_department> {
       var response = await http.post(
         Uri.parse(url),
         headers: {
-          'Authorization': '$token',
+          'Authorization': 'Bearer $token',
         },
         body: {"name": department},
       );
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
+      
 
       if (response.statusCode == 201) {
         var responseData = jsonDecode(response.body);
@@ -126,7 +125,7 @@ class _add_departmentState extends State<add_department> {
         );
       }
     } catch (e) {
-      print("Error: $e");
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -173,7 +172,7 @@ class _add_departmentState extends State<add_department> {
 //           'Authorization': '$token',
 //         },
 //       );
-//     print(response.statusCode);
+//     
 //     if(response.statusCode == 200){
 //          ScaffoldMessenger.of(context).showSnackBar(
 //         SnackBar(

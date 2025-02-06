@@ -28,7 +28,7 @@ List<Map<String, dynamic>> customer = [];
   void initState() {
     super.initState();
     initdata();
-    print("===========================>>>>>>>>${widget.date}");
+    
   }
 
 void initdata() async{
@@ -55,15 +55,14 @@ var sta;
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+  
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           stafflist.add({
@@ -75,11 +74,11 @@ var sta;
        
         setState(() {
           staff = stafflist;
-          print("sataffffffffffff$staff");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
  Future<void> getcustomer() async {
@@ -93,16 +92,14 @@ var sta;
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================hoiii${response.body}");
+  
       List<Map<String, dynamic>> managerlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
+    
         for (var productData in productsData) {
           managerlist.add({
             'id': productData['id'],
@@ -114,11 +111,11 @@ var sta;
         setState(() {
           customer = managerlist;
 
-          print("cutomerrrrrrrrrrrrrrrrr$customer");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -134,7 +131,7 @@ var sta;
       },
     );
 
-    print("09=------------------------${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);

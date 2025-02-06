@@ -238,7 +238,7 @@ class _performa_invoiceState extends State<performa_invoice> {
                                  onChanged: (String? newValue) {
                                    setState(() {
                                      selectcomp = newValue!;
-                                     print(selectcomp);
+                                     
                                    });
                                  },
                                  items: company.map<DropdownMenuItem<String>>((String value) {
@@ -288,7 +288,7 @@ class _performa_invoiceState extends State<performa_invoice> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectededu = newValue!;
-                                  print(selectededu);
+                                  
                                 });
                               },
                               items: categories.map<DropdownMenuItem<String>>((String value) {
@@ -338,7 +338,7 @@ class _performa_invoiceState extends State<performa_invoice> {
           context,
           MaterialPageRoute(builder: (context) => bdo_add_new_customer()));
             
-              print('Image tapped!');
+              
             },
             child: Image.asset(
               'lib/assets/addnew.png',
@@ -401,7 +401,7 @@ class _performa_invoiceState extends State<performa_invoice> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectbank = newValue!;
-                                  print(selectbank);
+                                  
                                 });
                               },
                               items: bank.map<DropdownMenuItem<String>>((String value) {
@@ -495,7 +495,7 @@ class _performa_invoiceState extends State<performa_invoice> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectmanager = newValue!;
-                                  print(selectmanager);
+                                  
                                 });
                               },
                               items: manager.map<DropdownMenuItem<String>>((String value) {
@@ -552,7 +552,7 @@ class _performa_invoiceState extends State<performa_invoice> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectaddress = newValue!;
-                                  print(selectaddress);
+                                  
                                 });
                               },
                               items: address.map<DropdownMenuItem<String>>((String value) {
@@ -604,7 +604,7 @@ class _performa_invoiceState extends State<performa_invoice> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectaddress = newValue!;
-                                  print(selectaddress);
+                                  
                                 });
                               },
                               items: address.map<DropdownMenuItem<String>>((String value) {
@@ -655,7 +655,7 @@ class _performa_invoiceState extends State<performa_invoice> {
        GestureDetector(
         onTap: () {
          _selectDate(context);
-          print('Icon pressed');
+          
         },
         child: Icon(Icons.date_range),
       ),

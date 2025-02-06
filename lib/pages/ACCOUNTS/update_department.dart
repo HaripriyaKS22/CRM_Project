@@ -73,14 +73,14 @@ var departments;
           'Content-Type': 'application/json',
         },
       );
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+        
         List<Map<String, dynamic>> departmentlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
  for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           departmentlist.add({
@@ -97,14 +97,14 @@ var departments;
         setState(() {
           dep = departmentlist;
           
-          print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+          
 
 
-          print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   

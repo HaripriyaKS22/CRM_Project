@@ -68,7 +68,7 @@ class _view_customerState extends State<view_customer> {
     getstates();
 
 
-    print("CCCCCCCCCCCCUUUUUSSSSSSSSSSIIIIIIIIIDDDDDDDDDD${widget.customerid}");
+    
   }
 void initdata()async{
   await getmanagers();
@@ -99,8 +99,8 @@ void initdata()async{
   String comment,
   BuildContext context,
 ) async {
-  print("Updating customer: $name");
-  print("API URL: $api/api/customer/update/${widget.customerid}/");
+  
+  
 
   final token = await gettokenFromPrefs();
 
@@ -126,9 +126,9 @@ void initdata()async{
       }),
     );
 
-    print("RRRRRRRRRRRRRRRRREEEEEEEEESSSSSSPPPPPPPPOOOOOONNNNNNNNNSSSE${response.body}");
+    
 
-    print("Response Status Code: ${response.statusCode}");
+    
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
@@ -148,7 +148,7 @@ void initdata()async{
       );
     }
   } catch (e) {
-    print("Error: $e");
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,
@@ -177,7 +177,7 @@ var statefetchid;
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-print("custoooooooooooooooooooooooooooo$productsData");
+
         for (var productData in productsData) {
           managerlist.add({
             'id': productData['id'],
@@ -218,14 +218,14 @@ print("custoooooooooooooooooooooooooooo$productsData");
           }
         }
 
-        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSLLLLLLLLLLLLLLLLLLLL$selectedManagerName");
+        
         getstates();
         setState(() {
           customer = managerlist;
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -257,7 +257,7 @@ print("custoooooooooooooooooooooooooooo$productsData");
           'name': productData['name'],
         });
       }
-print(managerlist);
+
 
       // Reorder the list to have the manager with managerfetchid first
       managerlist.sort((a, b) {
@@ -265,18 +265,18 @@ print(managerlist);
         if (b['id'] == managerfetchid) return 1;
         return 0;
       });
-print(managerlist);
+
 
       setState(() {
         manager = managerlist;
         selectedManagerName = managerlist[0]['name'];
         selectedManagerId = managerlist[0]['id'];
-        print("Selected Manager Name: $selectedManagerName");
-        print("Selected Manager ID: $selectedManagerId");
+        
+        
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -304,7 +304,7 @@ Future<void> getstates() async {
           'name': productData['name'],
         });
       }
-      print("Original stateslist: $stateslist");
+      
 
       // Convert statefetchid to match the type of id in stateslist
       final convertedStatefetchid = statefetchid is String
@@ -317,18 +317,18 @@ Future<void> getstates() async {
         if (b['id'] == convertedStatefetchid) return 1;
         return 0;
       });
-      print("Sorted stateslist: $stateslist");
+      
 
       setState(() {
         statess = stateslist;
         selectstate = stateslist[0]['name'];
         selectedStateId = stateslist[0]['id'];
-        print("Selected State Name: $selectstate");
-        print("Selected State ID: $selectedStateId");
+        
+        
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
@@ -529,10 +529,7 @@ Future<void> getstates() async {
                                                         newValue!['name'];
                                                     selectedManagerId =
                                                         newValue['id'];
-                                                    print(
-                                                        'Selected Manager Name: $selectedManagerName');
-                                                    print(
-                                                        'Selected Manager ID: $selectedManagerId');
+                                                   
                                                   });
                                                 }
                                               : null,

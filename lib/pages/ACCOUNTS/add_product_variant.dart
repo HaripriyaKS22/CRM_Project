@@ -145,7 +145,7 @@ class _add_product_variantState extends State<add_product_variant> {
                 DataCell(
                   ElevatedButton(
                     onPressed: () {
-                     print("dhfgjk");
+                     
                      Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product(id: product['id'],type:widget.type)));
                     },
                     style: ElevatedButton.styleFrom(
@@ -236,7 +236,7 @@ class _add_product_variantState extends State<add_product_variant> {
           ),
         ],
         rows: variantProducts.map((variant) {
-          print(variant);
+          
           return DataRow(
             cells: <DataCell>[
               DataCell(
@@ -340,9 +340,9 @@ class _add_product_variantState extends State<add_product_variant> {
     getprofiledata();
     getvariant();
     getattributes();
-    print(widget.type);
+    
 
-    print("PPPPPPPPROOOOOOOOOOOOOOIDDDDDD${widget.id}");
+    
   }
 
   @override
@@ -369,7 +369,7 @@ class _add_product_variantState extends State<add_product_variant> {
         },
       );
 
-      print("ressssssssssssssssssssssssssssssssssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -384,11 +384,11 @@ class _add_product_variantState extends State<add_product_variant> {
 
         setState(() {
           attribute = attributelist;
-          print("Updated attributes: $attribute");
+          
         });
       }
     } catch (error) {
-      print("Error fetching attributes: $error");
+      
     }
   }
 
@@ -436,7 +436,7 @@ class _add_product_variantState extends State<add_product_variant> {
           filename: imageFile.path.split('/').last,
         );
 
-        print("multiiiiiiiiiiiiiiiiiiiiiiiii${multipartFile.filename}");
+        
         request.files.add(multipartFile);
       }
 
@@ -444,7 +444,7 @@ class _add_product_variantState extends State<add_product_variant> {
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
 
-      print(responseData.body);
+      
 
       if (responseData.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -492,7 +492,7 @@ class _add_product_variantState extends State<add_product_variant> {
         );
       }
     } catch (e) {
-      print(e);
+      
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Enter valid information'),
@@ -519,7 +519,7 @@ class _add_product_variantState extends State<add_product_variant> {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("===============================hariii${response.body}");
+        
 
         // Iterate through the fetched data and only include values with the correct attribute ID
         for (var valueData in parsed) {
@@ -535,13 +535,13 @@ class _add_product_variantState extends State<add_product_variant> {
         // Update the state with the fetched values
         setState(() {
           valuess = valuesList;
-          print("Values for attribute $attributeId: $valuess");
+          
         });
       } else {
         throw Exception("Failed to load values for attribute $attributeId");
       }
     } catch (error) {
-      print("Error fetching values: $error");
+      
     }
   }
 
@@ -563,27 +563,27 @@ class _add_product_variantState extends State<add_product_variant> {
           'Content-Type': 'application/json',
         },
       );
-      print("==============0000000000000000000000000${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("profileeeeeee$parsed");
+        
 
         setState(() {
           name.text = productsData['name'] ?? '';
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
  Future<void> getvariant() async {
   try {
     final token = await gettokenFromPrefs();
-    print('urlllllllllllllllllll$api/api/products/${widget.id}/variants/');
+    
     var response = await http.get(
       Uri.parse('$api/api/products/${widget.id}/variants/'),
       headers: {
@@ -591,7 +591,7 @@ class _add_product_variantState extends State<add_product_variant> {
         'Content-Type': 'application/json',
       },
     );
-    print("haiiiiiiiiiiiiiiiiiiiiiiiiiiii: ${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -605,31 +605,31 @@ class _add_product_variantState extends State<add_product_variant> {
             singleProducts = [productData]; // Single product as a list
             if (singleProducts.isNotEmpty) {
               product.text = singleProducts[0]['name'] ?? '';
-              print("Single Product Name: ${singleProducts[0]['name']}");
+              
             }
           } else if (widget.type == 'variant') {
             variantProducts = List<Map<String, dynamic>>.from(variantIDs); // List of variants
             if (variantProducts.isNotEmpty) {
               product.text = variantProducts[0]['name'] ?? '';
-              print("Variant Product Name: ${variantProducts[0]['name']}");
+              
             }
           }
         });
 
-        print("Fetched Variants: $variantIDs");
+        
       } else {
-        print("Error: Variant IDs is not a list");
+        
       }
     } else {
-      print("Error: ${response.statusCode}");
+      
     }
   } catch (error) {
-    print("Error: $error");
+    
   }
 }
 
   void addvariant(BuildContext scaffoldContext) async {
-  print("Selected attributes to send: $attributesToSend");
+  
   try {
     final token = await gettokenFromPrefs();
 
@@ -650,7 +650,7 @@ class _add_product_variantState extends State<add_product_variant> {
       'attributes': attributesJson,   // Send attributes as a JSON string
     });
 
-    print("JSON String to send: $jsonString");
+    
 
     // Sending the request to the backend
     var response = await http.post(
@@ -663,8 +663,8 @@ class _add_product_variantState extends State<add_product_variant> {
     );
 
     // Debugging output
-    print("Response status code: ${response.statusCode}");
-    print("Response body: ${response.body}");
+    
+    
 
     if (response.statusCode == 201) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -727,7 +727,7 @@ class _add_product_variantState extends State<add_product_variant> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 void logout() async {
@@ -771,8 +771,8 @@ void logout() async {
         },
       );
 
-      print("Response status: ${response.statusCode}");
-            print("Response status: ${response.body}");
+      
+            
 
 
       if (response.statusCode == 200 || response.statusCode == 204) {
@@ -796,7 +796,7 @@ void logout() async {
         throw Exception('Failed to delete variant product with ID: $productId');
       }
     } catch (error) {
-      print("Error: $error");
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -1053,11 +1053,7 @@ Future<String?> getdepFromPrefs() async {
                                 );
                                 selectedAttributeName = selectedAttr['name'];
                                 selectedAttributeId = selectedAttr['id'];
-                                print(
-                                    "Selected Attribute Name: $selectedAttributeName");
-                                print(
-                                    "Selected Attribute ID: $selectedAttributeId");
-
+                             
                                 getvalues(selectedAttributeId!);
                               });
                             },
@@ -1155,7 +1151,7 @@ Future<String?> getdepFromPrefs() async {
                                     selectedValues.add(
                                         value!); // Add value if not selected
                                   }
-                                  print("Selected Values: $selectedValues");
+                                  
                                 });
                               },
                               buttonStyleData: const ButtonStyleData(
@@ -1180,8 +1176,7 @@ Future<String?> getdepFromPrefs() async {
                               onDeleted: () {
                                 setState(() {
                                   selectedValues.remove(value);
-                                  print(
-                                      "Updated Selected Values: $selectedValues");
+                             
                                 });
                               },
                             );
@@ -1217,7 +1212,7 @@ Future<String?> getdepFromPrefs() async {
               selectedAttributeName = null;
               selectedValues = [];
             });
-            print("Updated attributesToSend: $attributesToSend");
+            
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Please provide valid inputs')),

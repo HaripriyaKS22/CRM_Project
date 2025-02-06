@@ -92,7 +92,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
         });
       }
     } catch (e) {
-      print("Error fetching orders: $e");
+      
     }
   }
 
@@ -131,7 +131,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
   }
 
   Future<void> fetchorders2() async {
-    print("asdfghjkl");
+    
     final token = await getTokenFromPrefs();
     try {
       final response = await http.get(
@@ -142,11 +142,11 @@ class _PostofficeReportState extends State<PostofficeReport> {
         },
       );
 
-      print("API Response: ${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        print("API Response: $parsed");
+        
 
         List<Map<String, dynamic>> orderlist = [];
         parcelData.clear();
@@ -167,8 +167,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
                 shippedDate = DateTime.parse(shippedDateStr);
               }
 
-              print(
-                  "Checking warehouse ID ${warehouse['id']} - shipped_date: $shippedDate");
+            
 
               // Check if the shipped_date is within the selected date range
               if (shippedDate != null &&
@@ -210,12 +209,12 @@ class _PostofficeReportState extends State<PostofficeReport> {
           });
 
           orders = orderlist;
-          print("Processed Orders: $orders");
-          print("Parcel Averages: $parcelAverages");
+          
+          
         });
       }
     } catch (e) {
-      print("Error fetching orders: $e");
+      
     }
   }
 
@@ -246,71 +245,74 @@ class _PostofficeReportState extends State<PostofficeReport> {
                   Icon(Icons.error_outline, color: Colors.red, size: 50),
                   SizedBox(height: 10),
                   Text(
-                    "No data available for today",
+                    "data is Fetching....",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             )
-          : ListView.builder(
-              itemCount: parcelData.length,
-              itemBuilder: (context, index) {
-                String parcelService = parcelData.keys.elementAt(index);
-                double totalWeight =
-                    parcelData[parcelService]!['total_actual_weight'] ?? 0.0;
-                double totalAmount =
-                    parcelData[parcelService]!['total_parcel_amount'] ?? 0.0;
-                double average =
-                    totalAmount > 0 ? totalWeight / totalAmount : 0.0;
-
-                return Card(
-                  margin: EdgeInsets.all(10),
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.all(15),
-                    decoration: BoxDecoration(
+          : RefreshIndicator(
+            onRefresh: fetchorders,
+            child: ListView.builder(
+                itemCount: parcelData.length,
+                itemBuilder: (context, index) {
+                  String parcelService = parcelData.keys.elementAt(index);
+                  double totalWeight =
+                      parcelData[parcelService]!['total_actual_weight'] ?? 0.0;
+                  double totalAmount =
+                      parcelData[parcelService]!['total_parcel_amount'] ?? 0.0;
+                  double average =
+                      totalAmount > 0 ? totalWeight / totalAmount : 0.0;
+            
+                  return Card(
+                    margin: EdgeInsets.all(10),
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color.fromARGB(255, 58, 143, 183),
-                          const Color.fromARGB(255, 64, 170, 251)
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color.fromARGB(255, 58, 143, 183),
+                            const Color.fromARGB(255, 64, 170, 251)
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.local_shipping,
+                                  color: Colors.white, size: 28),
+                              SizedBox(width: 10),
+                              Text(
+                                parcelService.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Divider(color: Colors.white70),
+                          SizedBox(height: 10),
+                          _buildInfoRow("Total Actual Weight", "$totalWeight kg"),
+                          _buildInfoRow("Total Parcel Amount", "₹$totalAmount"),
+                          _buildInfoRow("Average", average.toStringAsFixed(2)),
                         ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.local_shipping,
-                                color: Colors.white, size: 28),
-                            SizedBox(width: 10),
-                            Text(
-                              parcelService.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Divider(color: Colors.white70),
-                        SizedBox(height: 10),
-                        _buildInfoRow("Total Actual Weight", "$totalWeight kg"),
-                        _buildInfoRow("Total Parcel Amount", "₹$totalAmount"),
-                        _buildInfoRow("Average", average.toStringAsFixed(2)),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+          ),
     );
   }
 

@@ -70,7 +70,7 @@ var departments;
           'Authorization': 'Bearer $token',
         },
       );
-    print(response.statusCode);
+    
     if(response.statusCode == 200){
          ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -108,14 +108,14 @@ var departments;
           'Content-Type': 'application/json',
         },
       );
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+        
         List<Map<String, dynamic>> familylist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
  for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           familylist.add({
@@ -131,14 +131,14 @@ var departments;
         }
         setState(() {
           fam = familylist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$familylist");
+                  
 
           
         });
         
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
    

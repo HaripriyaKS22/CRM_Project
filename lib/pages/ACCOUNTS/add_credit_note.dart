@@ -259,7 +259,7 @@ else {
                             onChanged: (String? newValue) {
                               setState(() {
                                 selectcomp = newValue!;
-                                print(selectcomp);
+                                
                               });
                             },
                             items: company.map<DropdownMenuItem<String>>((String value) {
@@ -328,7 +328,7 @@ else {
                           onChanged: (value) {
                             setState(() {
                               selectedValue = items.firstWhere((item) => item.toLowerCase() == value!.toLowerCase(), orElse: () => "null");
-                              print(selectedValue);
+                              
                             });
                           },
                           buttonStyleData: const ButtonStyleData(
@@ -453,7 +453,7 @@ else {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selectbank = newValue!;
-                                      print(selectbank);
+                                      
                                     });
                                   },
                                   items: bank.map<DropdownMenuItem<String>>((String value) {

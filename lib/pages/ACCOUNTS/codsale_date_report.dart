@@ -31,7 +31,7 @@ class _codsalereport_datewise_viewState
   @override
   void initState() {
     super.initState();
-    print(widget.date);
+    
     getcoddatewisedetails();
     getcustomer();
     getstaff();
@@ -65,7 +65,7 @@ class _codsalereport_datewise_viewState
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -98,7 +98,7 @@ class _codsalereport_datewise_viewState
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -135,7 +135,7 @@ class _codsalereport_datewise_viewState
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -268,7 +268,7 @@ else {
                             onPressed: () {
                               Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderReview(id:salesData['id'])));
                               // Add your view action here
-                              print("View button pressed for ${salesData['date']}");
+                              
                             },
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white, backgroundColor: Colors.blue,  // White text color

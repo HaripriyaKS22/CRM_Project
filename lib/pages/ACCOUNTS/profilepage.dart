@@ -69,13 +69,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           'Content-Type': 'application/json',
         },
       );
-print("==============0000000000000000000000000${response.body}");
+
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
 
         setState(() {
           imageUrl =
@@ -98,10 +98,10 @@ print("==============0000000000000000000000000${response.body}");
           termination_date = productsData['termination_date'] ?? '';
         });
 
-        print("IIIIIIIIIIIIMMMMMMMMMMMMMMMMMMMMMGGGGGGGGGGGGGGGGG$imageUrl");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 Future<String?> getdepFromPrefs() async {

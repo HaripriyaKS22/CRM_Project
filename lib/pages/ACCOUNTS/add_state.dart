@@ -76,14 +76,14 @@ var departments;
           'Content-Type': 'application/json',
         },
       );
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+        
         List<Map<String, dynamic>> statelist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
  for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           statelist.add({
@@ -95,18 +95,18 @@ var departments;
         }
         setState(() {
           stat = statelist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$stat");
+                  
 
           
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   
   void addstate(String state, String province, BuildContext context) async {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$state");
+    
 
           final token = await gettokenFromPrefs();
 
@@ -124,8 +124,8 @@ var departments;
           },
       );
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
-            print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.body}");
+      
+            
 
 
       if (response.statusCode == 201) {
@@ -140,7 +140,7 @@ var departments;
       );
       }
     } catch (e) {
-      print("Error: $e");
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -159,7 +159,7 @@ var departments;
           'Authorization': '$token',
         },
       );
-    print(response.statusCode);
+    
     if(response.statusCode == 200){
          ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

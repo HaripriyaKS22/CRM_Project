@@ -82,7 +82,7 @@ Future<String?> getdepFromPrefs() async {
   }
   void addattribute(String attributeName, BuildContext context) async {
     var attributeUpperCase = attributeName.toUpperCase();
-    print("Attribute being added: $attributeUpperCase");
+    
 
     final token = await gettokenFromPrefs();
 
@@ -117,11 +117,11 @@ Future<String?> getdepFromPrefs() async {
         }),
       );
 
-      print("Response Status Code: ${response.statusCode}");
+      
 
       if (response.statusCode == 201) {
         var responseData = jsonDecode(response.body);
-        print("Response Data: $responseData");
+        
 
         // Navigate or perform other actions upon successful response
         Navigator.push(
@@ -136,8 +136,7 @@ Future<String?> getdepFromPrefs() async {
           ),
         );
       } else {
-        print(
-            "Error: Failed to add attribute. Status code: ${response.statusCode}");
+      
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.red,
@@ -146,7 +145,7 @@ Future<String?> getdepFromPrefs() async {
         );
       }
     } catch (e) {
-      print("Error: $e");
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -182,7 +181,7 @@ Future<String?> getdepFromPrefs() async {
 
         setState(() {
           attributes = attributelist;
-          print("Attributes: $attributes");
+          
         });
 
         return attributelist; // Return the list of attributes
@@ -190,7 +189,7 @@ Future<String?> getdepFromPrefs() async {
         throw Exception("Failed to load attributes");
       }
     } catch (error) {
-      print("Error: $error");
+      
       return []; // Return an empty list in case of error
     }
   }
@@ -206,7 +205,7 @@ Future<String?> getdepFromPrefs() async {
         },
       );
 
-      print("Response status: ${response.statusCode}");
+      
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -225,7 +224,7 @@ Future<String?> getdepFromPrefs() async {
       }
     } catch (error) {
       // Handle any errors and show a failure message
-      print("Error: $error");
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -322,7 +321,7 @@ Future<void> addvalues(String value, int? attributeId) async {
       throw Exception("Failed to fetch existing values for attribute $attributeId");
     }
   } catch (error) {
-    print("Error adding attribute value: $error");
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('An error occurred. Please try again.'),
@@ -350,7 +349,7 @@ Future<void> addvalues(String value, int? attributeId) async {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("===============================h${response.body}");
+        
 
         // Iterate through the fetched data and only include values with the correct attribute ID
         for (var valueData in parsed) {
@@ -366,13 +365,13 @@ Future<void> addvalues(String value, int? attributeId) async {
         // Update the state with the fetched values
         setState(() {
           valuess = valuesList;
-          print("Values for attribute $attributeId: $valuess");
+          
         });
       } else {
         throw Exception("Failed to load values for attribute $attributeId");
       }
     } catch (error) {
-      print("Error fetching values: $error");
+      
     }
   }
 

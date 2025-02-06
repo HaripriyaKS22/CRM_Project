@@ -77,7 +77,7 @@ class _Warehouse_Order_RequestState extends State<Warehouse_Order_Request> {
   }var warehouse;
   void initdata()async{
      warehouse = await getwarehouseFromPrefs();
-  print("Warehouse ID (init data): ${warehouse ?? "Not found"}");
+  
     await fetchOrderData(warehouse);
 
   }
@@ -102,8 +102,8 @@ Future<String?> getdepFromPrefs() async {
                     final dep= await getdepFromPrefs();
  final jwt = JWT.decode(token!);
           var name = jwt.payload['name'];
-          print("Name: $name");
-          print('$api/api/warehouse/orders/$warehouse/');
+          
+          
       var response = await http.get(
         Uri.parse('$api/api/warehouse/orders/$warehouse/'),
         headers: {
@@ -112,7 +112,7 @@ Future<String?> getdepFromPrefs() async {
         },
       );
 
-      print("ordersrequestttttttttttttttttt${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -132,7 +132,7 @@ Future<String?> getdepFromPrefs() async {
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
+            
           }
 if(widget.status==null){
 if(productData['status']=="Order Request by Warehouse"){
@@ -187,7 +187,7 @@ if(productData['status']=="Order Request by Warehouse"){
 
 
 
-          print("statttttttttttttttttttttttttt");
+          
                orderList.add({
             'id': productData['id'],
             'invoice': productData['invoice'],
@@ -243,11 +243,11 @@ if(productData['status']=="Order Request by Warehouse"){
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
-          print("filterrrrrrrrrrrrrrrrrrrrrrrrrr$filteredOrders");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

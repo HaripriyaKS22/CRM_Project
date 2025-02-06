@@ -84,10 +84,10 @@ Future<String?> getdepFromPrefs() async {
     try {
       final token = await getTokenFromPrefs();
                     final dep= await getdepFromPrefs();
-                    print("dep 000000000000==============$dep");
+                    
  final jwt = JWT.decode(token!);
           var name = jwt.payload['name'];
-          print("Name: $name");
+          
       var response = await http.get(
         Uri.parse('$api/api/orders/'),
         headers: {
@@ -96,7 +96,7 @@ Future<String?> getdepFromPrefs() async {
         },
       );
 
-      print("ordersssssssssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -116,12 +116,12 @@ Future<String?> getdepFromPrefs() async {
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
+            
           }
 if(widget.status==null){
-print("nulllllllllllllllllllllllllllllll");
+
  if(dep=="BDO" || dep=="BDM"){
-  print("BDO BDMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
+  
           if(name==productData['manage_staff']){
              orderList.add({
             'id': productData['id'],
@@ -315,11 +315,11 @@ if(dep=="BDO" || dep=="BDM"){
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
-          print("filterrrrrrrrrrrrrrrrrrrrrrrrrr$filteredOrders");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

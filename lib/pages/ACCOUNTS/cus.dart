@@ -107,7 +107,7 @@ class _CustomerListState extends State<CustomerList> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

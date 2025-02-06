@@ -205,8 +205,8 @@ setState(() {
       },
     );
     List<Map<String, dynamic>> damagedstocklist = [];
-    print("respoooo${response.body}");
-    print(response.statusCode);
+    
+    
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -225,16 +225,16 @@ setState(() {
           'returnreason': productData['returnreason'] ?? 'No reason provided',
         });
       }
-      print("damagedstocklist$damagedstocklist");
+      
       setState(() {
         damagedstockdata = damagedstocklist;
         damageList = damagedstockdata;
         total();
       });
-      print('damagedstockdata$damagedstockdata');
+      
     }
   } catch (error) {
-    print('Error: $error');
+    
   }
 }
 Future<String?> getdepFromPrefs() async {

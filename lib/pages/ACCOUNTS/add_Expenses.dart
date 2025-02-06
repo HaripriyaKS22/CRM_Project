@@ -108,13 +108,13 @@ void logout() async {
     }
     );
     List<Map<String, dynamic>> banklist = [];
-        print("bankkkkkkkkkkkkkkkkkkkkkresssssss${response.body}");
+        
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("bankkkkkkkkkkkkkkkkkkkkkresssssss$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -127,7 +127,7 @@ void logout() async {
         }
         setState(() {
           bank = banklist;
-                  print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+                  
 
           
         });
@@ -135,7 +135,7 @@ void logout() async {
 
   }
   catch(e){
-    print("error:$e");
+    
   }
 }
 
@@ -155,15 +155,14 @@ List<Map<String, dynamic>> sta = [];
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+   
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           stafflist.add({
@@ -173,11 +172,11 @@ List<Map<String, dynamic>> sta = [];
         }
         setState(() {
           sta = stafflist;
-          print("sataffffffffffff$sta");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -188,7 +187,7 @@ List<Map<String, dynamic>> sta = [];
   // Format the time (e.g., HH:mm:ss)
   String formattedTime = DateFormat('HH:mm:ss').format(now);
 
-  print('Current Time: $formattedTime');
+  
 }
  Future<void> deletefamily(int Id) async {
     final token = await gettokenFromPrefs();
@@ -200,7 +199,7 @@ List<Map<String, dynamic>> sta = [];
           'Authorization': 'Bearer $token',
         },
       );
-    print(response.statusCode);
+    
     if(response.statusCode == 200){
          ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -275,15 +274,13 @@ List<Map<String, dynamic>> sta = [];
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "compppppppppppppppppppppp${response.body}");
-          print(response.statusCode);
+ 
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
         final Data = jsonDecode(response.body);
 final productsData=Data['data'];
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           companylist.add({
@@ -293,11 +290,11 @@ final productsData=Data['data'];
         }
         setState(() {
           company = companylist;
-          print("company::::::::::$company");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 DateTime selectedDate = DateTime.now();
@@ -312,7 +309,6 @@ DateTime selectedDate = DateTime.now();
   if (picked != null && picked != selectedDate) {
     setState(() {
       selectedDate = picked;
-      print("Formatted Date: ${formatDate(selectedDate)}"); // This prints the formatted date
     });
   }
 }
@@ -325,18 +321,18 @@ String formatDate(DateTime date) {
 
 
 void addexpense() async {
-  print("nbvcbdjbc");
+  
   final token = await gettokenFromPrefs();
 
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString('username'); 
 
-    print("--------------$prefs");
-    print("============>>>>$username");
+    
+    
 
     if (username == null) {
-      print("No user found in shared preferences.");
+      
       return;
     }
 
@@ -358,8 +354,8 @@ void addexpense() async {
       },
     );
 
-    print("Response status: ${response.statusCode}");
-    print("Response body: ${response.body}");
+    
+    
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
@@ -382,7 +378,7 @@ void addexpense() async {
       );
     }
   } catch (e) {
-    print("Error: $e");
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,
@@ -515,7 +511,7 @@ else {
             setState(() {
               selectedCompanyId = value;
             });
-            print("Selected Company ID: $selectedCompanyId");
+            
           },
         ),
       ),
@@ -627,7 +623,7 @@ else {
                               GestureDetector(
                                 onTap: () {
                                   _selectDate(context);
-                                  print('Icon pressed');
+                                  
                                 },
                                 child: Icon(Icons.date_range),
                               ),
@@ -680,7 +676,7 @@ else {
                                     onChanged: (int? newValue) {
                                       setState(() {
                                         selectedstaffId = newValue!;
-                                        print(selectedstaffId);
+                                        
                                       });
                                     },
                                     items: sta.map<DropdownMenuItem<int>>((staff) {
@@ -742,7 +738,7 @@ else {
                                         onChanged: (int? newValue) {
                                           setState(() {
                                             selectedbankId = newValue; // Store the selected family ID
-                                            print("$selectedbankId");
+                                            
                                           });
                                         },
                                         items: bank.map<DropdownMenuItem<int>>((bank) {

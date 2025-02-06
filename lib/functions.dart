@@ -8,7 +8,7 @@ class Functions {
 
    Future<String?> gettokenFromPrefs() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      print("functionnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn${prefs.getString('token')}");
+      
       return prefs.getString('token');
       
     }

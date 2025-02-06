@@ -73,15 +73,14 @@ class _update_stateState extends State<update_state> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+     
       List<Map<String, dynamic>> statelist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           statelist.add({
             'id': productData['id'],
@@ -99,11 +98,11 @@ class _update_stateState extends State<update_state> {
 
         setState(() {
           stat = statelist;
-          print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$stat");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -117,7 +116,7 @@ class _update_stateState extends State<update_state> {
           'Authorization': '$token',
         },
       );
-      print(response.statusCode);
+      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -160,7 +159,7 @@ class _update_stateState extends State<update_state> {
         ),
       );
 
-      print("=========M>>>>>>>>>>>${response.body}");
+      
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -252,13 +251,7 @@ class _update_stateState extends State<update_state> {
     return Scaffold(
         backgroundColor: Color.fromARGB(242, 255, 255, 255),
         appBar: AppBar(
-          title: Text(
-            'Update State',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-            ),
-          ),
+         
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
@@ -280,14 +273,7 @@ class _update_stateState extends State<update_state> {
                 child: Column(
                   children: [
                     SizedBox(height: 15),
-                    Text(
-                      "STATE",
-                      style: TextStyle(
-                        fontSize: 20,
-                        letterSpacing: 9.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                   
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 1),
                       child: Container(
@@ -387,10 +373,8 @@ class _update_stateState extends State<update_state> {
                                   });
                                 },
                                 style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 244, 66, 66),
-                                  ),
+                                  backgroundColor: MaterialStateProperty.all(Colors.blue),
+                                     
                                   shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
                                     RoundedRectangleBorder(

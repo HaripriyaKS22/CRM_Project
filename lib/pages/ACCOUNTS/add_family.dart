@@ -99,14 +99,14 @@ void logout() async {
           'Content-Type': 'application/json',
         },
       );
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+        
         List<Map<String, dynamic>> familylist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
  for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           familylist.add({
@@ -118,18 +118,18 @@ void logout() async {
         }
         setState(() {
           fam = familylist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$familylist");
+                  
 
           
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   
   void addfamily(String family, BuildContext context) async {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$family");
+    
 
           final token = await gettokenFromPrefs();
 
@@ -143,7 +143,7 @@ void logout() async {
         body: {"name": name.text},
       );
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
+      
 
       if (response.statusCode == 201) {
         var responseData = jsonDecode(response.body);
@@ -157,7 +157,7 @@ void logout() async {
       );
       }
     } catch (e) {
-      print("Error: $e");
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -174,7 +174,7 @@ void logout() async {
   // Format the time (e.g., HH:mm:ss)
   String formattedTime = DateFormat('HH:mm:ss').format(now);
 
-  print('Current Time: $formattedTime');
+  
 }
  Future<void> deletefamily(int Id) async {
     final token = await gettokenFromPrefs();
@@ -186,7 +186,7 @@ void logout() async {
           'Authorization': 'Bearer $token',
         },
       );
-    print(response.statusCode);
+    
     if(response.statusCode == 200){
          ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

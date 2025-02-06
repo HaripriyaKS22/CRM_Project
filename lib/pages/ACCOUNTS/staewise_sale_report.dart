@@ -108,9 +108,9 @@ double totalAmount = 0.0;
   }
 
 void _filterOrdersByDateRange() {
-  print("Start Date: $startDate");
-  print("End Date: $endDate");
-  print("exxxxxxxxxx$expensedata");
+  
+  
+  
 
   if (startDate != null && endDate != null) {
     setState(() {
@@ -141,15 +141,15 @@ void _filterOrdersByDateRange() {
 
         // Function to process orders based on their type
         void processOrders(List orders, String orderType) {
-          print("orderrrrrrrrrrrrrrrrrr$orders");
-          print("Statusssssssssssssss$orderType");
+          
+          
           for (var order in orders) {
             String? orderDateStr = order['order_date'];
-            print("$orderType order date: $orderDateStr");
+            
 
             // Check if order_date is valid
             if (orderDateStr == null || orderDateStr.isEmpty) {
-              print("Skipping $orderType order with null or empty date");
+              
               continue;
             }
 
@@ -158,19 +158,19 @@ void _filterOrdersByDateRange() {
               // Parse the order date string
               orderDate = DateFormat('yyyy-MM-dd').parse(orderDateStr); 
             } catch (e) {
-              print("Error parsing date for $orderType: $e");
+              
               continue;
             }
 
             // Debug print to check orderDate and the range
-            print("Parsed order date: $orderDate");
+            
 
             // Check if the order date is within the selected range, including exact start and end dates
             if ((orderDate.isAfter(startDate!.subtract(Duration(days: 1))) &&
                  orderDate.isBefore(endDate!.add(Duration(days: 1)))) ||
                  orderDate.isAtSameMomentAs(startDate!) ||
                  orderDate.isAtSameMomentAs(endDate!)) {
-              print("$orderType order is in range: $orderDate");
+              
 
               isOrderInRange = true;
 
@@ -189,7 +189,7 @@ void _filterOrdersByDateRange() {
                 filteredRejectedTotalAmount += order['total_amount'];
               }
             } else {
-              print("$orderType order is not in range: $orderDate");
+              
             }
           }
         }
@@ -222,8 +222,8 @@ void _filterOrdersByDateRange() {
 
 
           // Print the aggregated totals
-          print("Total Orders Count: $totalOrdersCount");
-          print("Total Amount: $totalAmount");
+          
+          
         }
 
         // Only include the stateData if any of its orders match the date range
@@ -245,12 +245,13 @@ Future<void> getstatewisereport() async {
         'Content-Type': 'application/json',
       },
     );
-
+print(response.body);
+print(response.statusCode);
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
       // Debugging the API response
-      print("API Response: $parsed");
+      
 
       // Assuming the data is under a specific key, adjust as per your API response
       if (parsed is Map && parsed.containsKey('data')) {
@@ -330,7 +331,7 @@ Future<void> getstatewisereport() async {
           int count = rejectedOrdersCount + returnedOrdersCount + cancelledOrdersCount + completedOrdersCount;
           double amount = rejectedOrdersTotalAmount + returnedOrdersTotalAmount + cancelledOrdersTotalAmount + completedOrdersTotalAmount;
 
-          print("$count, $amount");
+          
 
           // Add the processed data to the list
           statewiselist.add({
@@ -359,17 +360,18 @@ Future<void> getstatewisereport() async {
 
           expensedata = statewiselist;
           filteredData = statewiselist; // Initialize filteredData
-                    print("Total Orders Count: $filteredData");
+                    
 
         });
       } else {
-        print("Unexpected data structure: ${parsed.runtimeType}");
+        
       }
     } else {
-      print("Failed to fetch data: ${response.statusCode}");
+      
     }
   } catch (error) {
-    print("Error: $error");
+    print(error);
+    
   }
 }
  void _filterProducts(String query) {

@@ -227,7 +227,7 @@ else {
                                 setState(() {
                                   // Retain the case of the selected item while performing case-insensitive comparison
                                   selectedValue = items.firstWhere((item) => item.toLowerCase() == value!.toLowerCase(), orElse: () => "null");
-                                  print(selectedValue);
+                                  
                                 });
                               },
                               buttonStyleData: const ButtonStyleData(
@@ -299,7 +299,7 @@ else {
                                   GestureDetector(
                                     onTap: () {
                                       _selectDate(context);
-                                      print('Icon pressed');
+                                      
                                     },
                                     child: Icon(Icons.date_range),
                                   ),
@@ -368,7 +368,7 @@ else {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selectbank = newValue!;
-                                      print(selectbank);
+                                      
                                     });
                                   },
                                   items: bank.map<DropdownMenuItem<String>>((String value) {

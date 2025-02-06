@@ -416,7 +416,7 @@ class _Purchases_requestState extends State<Purchases_request> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selecttype = newValue!;
-                                  print(selecttype);
+                                  
                                 });
                               },
                               items: purchasetype.map<DropdownMenuItem<String>>((String value) {
@@ -513,7 +513,7 @@ SizedBox(height: 10,),
        GestureDetector(
         onTap: () {
          _selectDate(context);
-          print('Icon pressed');
+          
         },
         child: Icon(Icons.date_range),
       ),
@@ -580,7 +580,7 @@ SizedBox(height: 10,),
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectaddby = newValue!;
-                                  print(selectaddby);
+                                  
                                 });
                               },
                               items: addedby.map<DropdownMenuItem<String>>((String value) {

@@ -102,14 +102,14 @@ var departments;
           'Content-Type': 'application/json',
         },
       );
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+        
         List<Map<String, dynamic>> departmentlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
  for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           departmentlist.add({
@@ -121,13 +121,13 @@ var departments;
         }
         setState(() {
           dep = departmentlist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+                  
 
           
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   
@@ -143,14 +143,14 @@ var departments;
           'Content-Type': 'application/json',
         },
       );
-        print("=============================================${response.body}");
+        
         List<Map<String, dynamic>> managerlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
  for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           managerlist.add({
@@ -163,19 +163,19 @@ var departments;
         }
         setState(() {
           manager = managerlist;
-                  print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$dep");
+                  
 
           
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   
   void addsupervisor(String name, BuildContext context) async {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeee$name");
-        print("eeeeeeeeeeeeeeeeeeeeeeeeee$url");
+    
+        
 
           final token = await gettokenFromPrefs();
 
@@ -193,7 +193,7 @@ var departments;
         },
       );
 
-      print("RRRRRRRRRRRRRRRRRRRREEEEEEEEEEEESSSSSSS${response.statusCode}");
+      
 
       if (response.statusCode == 201) {
         var responseData = jsonDecode(response.body);
@@ -207,7 +207,7 @@ var departments;
       );
       }
     } catch (e) {
-      print("Error: $e");
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -226,7 +226,7 @@ var departments;
           'Authorization': ' Bearer $token',
         },
       );
-    print(response.statusCode);
+    
     if(response.statusCode == 200){
          ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

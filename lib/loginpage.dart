@@ -31,15 +31,15 @@ class _loginState extends State<login> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print(api);
+    
   }
   
   
 
  Future<void> storeUserData(String token, String department, String username, dynamic warehouse) async {
-  print("Username: $username");
-  print("Warehouse: $warehouse");
-  print("Department: $department");
+  
+  
+  
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   
@@ -54,13 +54,13 @@ class _loginState extends State<login> {
   } else if (warehouse is String) {
     await prefs.setString('warehouse', warehouse);
   } else {
-    print("Unexpected type for warehouse: ${warehouse.runtimeType}");
+    
   }
 }
 
 void login(String email, String password, BuildContext context) async {
-  print("Email: $email");
-  print("Password: $password");
+  
+  
 
   try {
     var response = await http.post(
@@ -68,29 +68,29 @@ void login(String email, String password, BuildContext context) async {
       body: {"email": email, "password": password},
     );
 
-    print("Response: ${response.body}");
+    
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
 
-      print("Response Data: $responseData");
-      print("Status: $status");
+      
+      
 
       if (status == 'success') {
         var token = responseData['token'];
         var active = responseData['active'];
         var name = responseData['name'];
         var warehouse = responseData['warehouse_id'] ?? 0; // Default to 0 if null
-        print("Name: $name");
-        print("Warehouse: $warehouse");
+        
+        
 
         // Decode the token and store the ID in SharedPreferences
         try {
           final jwt = JWT.decode(token);
           var id = jwt.payload['id']; // Expected to be an int
-          print("Decoded Token Payload: ${jwt.payload}");
-          print("User ID: $id");
+          
+          
 
           // Save data in SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -101,7 +101,7 @@ void login(String email, String password, BuildContext context) async {
           await storeUserData(token, active, name, warehouse);
 
         } catch (e) {
-          print("Token decode error: $e");
+          
         }
 
         // Handle navigation based on active role
@@ -150,7 +150,7 @@ void login(String email, String password, BuildContext context) async {
       );
     }
   } catch (e) {
-    print("Error: $e");
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(backgroundColor: Colors.red, content: Text('An error occurred. Please try again.')),
     );

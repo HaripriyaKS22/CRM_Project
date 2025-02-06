@@ -399,7 +399,7 @@ void logout() async {
                                   setState(() {
                                     // Retain the case of the selected item while performing case-insensitive comparison
                                     selectedValue = items.firstWhere((item) => item.toLowerCase() == value!.toLowerCase(), orElse: () => "null");
-                                    print(selectedValue);
+                                    
                                   });
                                 },
                                 buttonStyleData: const ButtonStyleData(
@@ -471,7 +471,7 @@ void logout() async {
                                     GestureDetector(
                                       onTap: () {
                                         _selectDate(context);
-                                        print('Icon pressed');
+                                        
                                       },
                                       child: Icon(Icons.date_range),
                                     ),

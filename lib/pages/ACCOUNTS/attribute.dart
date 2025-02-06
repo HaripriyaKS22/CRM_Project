@@ -19,11 +19,11 @@ class Attribute extends ChangeNotifier
  
 //  }
 //  int decrement(count){
-//   print("counter value in decr $count");
+//   
 //   var r2=count-1;
  
 
-//   print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr $r2");
+//   
 //   return r2;
 
  
@@ -36,7 +36,7 @@ class Attribute extends ChangeNotifier
   if(set1==1){
     
     counter=counter+1;
-    print(counter);
+    
 
   }
   else{

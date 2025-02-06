@@ -126,7 +126,7 @@ void logout() async {
     getcustomers();
       customer = TextEditingController(text: widget.name);
     super.initState();
-    print("CUUUUUUUUSSSSSSSSIDDr${widget.customerid}");
+    
   }
 
   Future<String?> gettokenFromPrefs() async {
@@ -145,16 +145,14 @@ void logout() async {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================CUSTOMERSSSSS${response.body}");
+    
       List<Map<String, dynamic>> customerlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiiCUSSSSSS$parsed");
+    
         for (var productData in productsData) {
           customerlist.add({
             'id': productData['id'],
@@ -164,15 +162,14 @@ void logout() async {
 
         setState(() {
           customers = customerlist;
-          print(
-              "CCCCCCCCCCCCCCCCCCCCCCCCCCUUUUUUUUUUUUUSSSSSSSSSSSSSSSSSSS$customers");
+      
 
           // After fetching customers, set the customer name and ID
           setCustomerName();
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -189,7 +186,7 @@ void logout() async {
       selectedCustomerId =
           selectedCustomer['id'].toString(); // Store the customer ID
 
-          print("AAAAAAAAAALLLLLLLLLLLLOOOOOOOOOOOOOOOOO$selectedCustomerId");
+          
     }
   }
 
@@ -204,16 +201,14 @@ void logout() async {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================statesssssss${response.body}");
+   
       List<Map<String, dynamic>> stateslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiistatess$parsed");
+      
         for (var productData in productsData) {
           stateslist.add({
             'id': productData['id'],
@@ -223,11 +218,11 @@ void logout() async {
         setState(() {
           statess = stateslist;
 
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTstatesss$statess");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -244,7 +239,7 @@ void logout() async {
   ) async {
     try {
       final token = await gettokenFromPrefs();
-print('$api/api/add/cutomer/address/${widget.customerid}/');
+
       var response = await http.post(
         
         Uri.parse('$api/api/add/customer/address/${widget.customerid}/'),
@@ -264,8 +259,8 @@ print('$api/api/add/cutomer/address/${widget.customerid}/');
           "email": email,
         }),
       );
-print(response.statusCode);
-      print("Response: ${response.body}");
+
+      
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -624,10 +619,7 @@ print(response.statusCode);
                                               selectstate = newValue!['name'];
                                               selectedStateId = newValue[
                                                   'id']; // Store the selected state's ID
-                                              print(
-                                                  'Selected State Name: $selectstate');
-                                              print(
-                                                  'Selected State ID: $selectedStateId');
+                                            
                                             });
                                           }
                                         : null,

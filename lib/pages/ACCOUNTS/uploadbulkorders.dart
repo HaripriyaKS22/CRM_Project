@@ -54,8 +54,8 @@ class _UploadBulkProductsState extends State<UploadBulkProducts> {
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print("Response: ${response.body}");
-      print("Status Code: ${response.statusCode}");
+      
+      
   
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -73,7 +73,7 @@ class _UploadBulkProductsState extends State<UploadBulkProducts> {
         );
       }
     } catch (e) {
-      print("Error: $e");
+      
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,

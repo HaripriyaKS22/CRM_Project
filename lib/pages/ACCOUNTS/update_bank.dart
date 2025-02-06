@@ -46,7 +46,7 @@ class _update_bankState extends State<update_bank> {
   void initState() {
     super.initState();
     getbank();
-    print(widget.id);
+    
   }
 
   var url = "$api/api/add/department/";
@@ -70,7 +70,7 @@ class _update_bankState extends State<update_bank> {
           'Authorization': 'Bearer $token',
         },
       );
-      print(response.statusCode);
+      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -110,7 +110,7 @@ class _update_bankState extends State<update_bank> {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -126,11 +126,11 @@ class _update_bankState extends State<update_bank> {
         }
         setState(() {
           banks = banklist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 

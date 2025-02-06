@@ -51,6 +51,9 @@ class _add_new_customerState extends State<add_new_customer> {
   String? selectstate;
   int? selectedStateId;
 
+  List<String> categories = ["Customer", "Warehouse"];
+String selectedCategory = "Customer"; // Default value
+
   TextEditingController gstno = TextEditingController();
   TextEditingController name = TextEditingController();
   TextEditingController phone = TextEditingController();
@@ -76,7 +79,7 @@ Future<void> _initData() async {
          tok = await functions.gettokenFromPrefs(); 
          id= await functions.getidFromPrefs();
 selectedManagerId=id;
-        print("initttttttttttttttttttttttttttt$selectedManagerId");
+        
          getmanagers();
         getstates();
   }
@@ -114,11 +117,12 @@ selectedManagerId=id;
           "address": address,
           "zip_code": zipcode,
           "city": city,
-          "comment": comment
+          "comment": comment,
+          "customer_status":selectedCategory
         }),
       );
 
-      print("----------====================================${response.body}");
+      
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -178,8 +182,8 @@ void logout() async {
 
   Future<void> getmanagers() async {
     try {
-     print("tokkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk$tok");
-print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
+     
+
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
         headers: {
@@ -187,16 +191,14 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "staffffffffffffffffffffffffffffff${response.body}");
+  
       List<Map<String, dynamic>> managerlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
+ 
         for (var productData in productsData) {
           managerlist.add({
             'id': productData['id'],
@@ -206,11 +208,11 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
         setState(() {
           manager = managerlist;
 
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT$manager");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -224,16 +226,14 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================statesssssss${response.body}");
+  
       List<Map<String, dynamic>> stateslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaiistatess$parsed");
+     
         for (var productData in productsData) {
           stateslist.add({
             'id': productData['id'],
@@ -243,11 +243,11 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
         setState(() {
           statess = stateslist;
 
-          print("WWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTstatesss$statess");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -269,7 +269,6 @@ print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!$api/api/staffs/');
     );
   }
 
-  List<String> categories = ["Joishya", 'Hanvi', 'nimitha', 'Hari'];
   String selectededu = "Hari";
   List<String> state = [
     "Kerala",
@@ -349,129 +348,166 @@ else {
                   ),
                 ),
                 SizedBox(height: 15),
-                SizedBox(
-                  height: 300,
-                  width: 340,
-                  child: Card(
-                    elevation: 4,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 236, 236, 236)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(13.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("GSTIN Number ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: gstno,
-                              decoration: InputDecoration(
-                                labelText: 'AAA00',
-                                prefixIcon: Icon(Icons.numbers),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Name of customer ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: name,
-                              decoration: InputDecoration(
-                                labelText: 'Name of customer',
-                                prefixIcon: Icon(Icons.person),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Technical manager",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            Container(
-                              width: 310,
-                              height: 49,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  SizedBox(width: 20),
-                                   Flexible(
-  child: InputDecorator(
-    decoration: InputDecoration(
-      border: InputBorder.none,
-      hintText: '',
-      contentPadding: EdgeInsets.symmetric(horizontal: 1),
-    ),
-    child: DropdownButton<Map<String, dynamic>>(
-      value: manager.isNotEmpty
-          ? manager.firstWhere(
-              (element) => element['id'] == selectedManagerId,
-              orElse: () => manager[0],
-            )
-          : null,
-      underline: Container(),
-      onChanged: manager.isNotEmpty
-          ? (Map<String, dynamic>? newValue) {
-              setState(() {
-                selectedManagerName = newValue!['name'];
-                selectedManagerId = newValue['id'];
-                print('Selected Manager Name: $selectedManagerName');
-                print('Selected Manager ID: $selectedManagerId');
-              });
-            }
-          : null,
-      items: manager.isNotEmpty
-          ? manager.map<DropdownMenuItem<Map<String, dynamic>>>(
-              (Map<String, dynamic> manager) {
-                return DropdownMenuItem<Map<String, dynamic>>(
-                  value: manager,
-                  child: Text(manager['name']),
-                );
-              },
-            ).toList()
-          : [
-              DropdownMenuItem(
-                child: Text('No managers available'),
-                value: null,
-              ),
-            ],
-      icon: Container(
-        alignment: Alignment.centerRight,
-        child: Icon(Icons.arrow_drop_down),
+               SizedBox(
+  height: 400, // Increased height to accommodate new dropdown
+  width: 340,
+  child: Card(
+    elevation: 4,
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(color: Color.fromARGB(255, 236, 236, 236)),
       ),
-    ),
-  ),
-)
-                                ],
-                              ),
-                            ),
-                          ],
+      child: Padding(
+        padding: const EdgeInsets.all(13.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // New Dropdown added here
+            Text(
+              "Select Type",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child:DropdownButton<String>(
+  value: categories.contains(selectedCategory) ? selectedCategory : null, // Ensure valid selection
+  isExpanded: true,
+  underline: SizedBox(),
+  onChanged: (String? newValue) {
+    setState(() {
+      selectedCategory = newValue!;
+    });
+  },
+  items: categories.map<DropdownMenuItem<String>>((String category) {
+    return DropdownMenuItem<String>(
+      value: category,
+      child: Text(category),
+    );
+  }).toList(),
+  icon: Icon(Icons.arrow_drop_down),
+),
+
+            ),
+
+            SizedBox(height: 15),
+
+            Text(
+              "GSTIN Number",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: gstno,
+              decoration: InputDecoration(
+                labelText: 'AAA00',
+                prefixIcon: Icon(Icons.numbers),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+              ),
+            ),
+
+            SizedBox(height: 10),
+
+            Text(
+              "Name of Customer",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: name,
+              decoration: InputDecoration(
+                labelText: 'Name of customer',
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+              ),
+            ),
+
+            SizedBox(height: 10),
+
+            Text(
+              "Technical Manager",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Container(
+              width: 310,
+              height: 49,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  SizedBox(width: 20),
+                  Flexible(
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                      ),
+                      child: DropdownButton<Map<String, dynamic>>(
+                        value: manager.isNotEmpty
+                            ? manager.firstWhere(
+                                (element) => element['id'] == selectedManagerId,
+                                orElse: () => manager[0],
+                              )
+                            : null,
+                        underline: Container(),
+                        onChanged: manager.isNotEmpty
+                            ? (Map<String, dynamic>? newValue) {
+                                setState(() {
+                                  selectedManagerName = newValue!['name'];
+                                  selectedManagerId = newValue['id'];
+                                });
+                              }
+                            : null,
+                        items: manager.isNotEmpty
+                            ? manager.map<DropdownMenuItem<Map<String, dynamic>>>(
+                                (Map<String, dynamic> manager) {
+                                  return DropdownMenuItem<Map<String, dynamic>>(
+                                    value: manager,
+                                    child: Text(manager['name']),
+                                  );
+                                },
+                              ).toList()
+                            : [
+                                DropdownMenuItem(
+                                  child: Text('No managers available'),
+                                  value: null,
+                                ),
+                              ],
+                        icon: Container(
+                          alignment: Alignment.centerRight,
+                          child: Icon(Icons.arrow_drop_down),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+),
+
 
                 SizedBox(height: 5),
                 // SizedBox(
@@ -740,8 +776,8 @@ else {
                 setState(() {
                   selectstate = newValue!['name'];
                   selectedStateId = newValue['id']; // Store the selected state's ID
-                  print('Selected State Name: $selectstate');
-                  print('Selected State ID: $selectedStateId');
+                  
+                  
                 });
               }
             : null,

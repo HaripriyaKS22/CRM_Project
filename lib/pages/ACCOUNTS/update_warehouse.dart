@@ -47,7 +47,7 @@ class _update_warehouseState extends State<update_warehouse> {
   void initState() {
     super.initState();
     getwarehouse();
-    print("idddddddddwwwwwwww${widget.id}");
+    
   }
 
   List<Map<String, dynamic>> Warehouses = [];
@@ -75,7 +75,7 @@ class _update_warehouseState extends State<update_warehouse> {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in parsed) {
           warehouselist.add({
             'id': productData['id']?? '',
@@ -95,11 +95,11 @@ class _update_warehouseState extends State<update_warehouse> {
         }
         setState(() {
           Warehouses = warehouselist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 

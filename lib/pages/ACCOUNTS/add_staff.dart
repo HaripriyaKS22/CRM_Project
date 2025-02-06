@@ -189,7 +189,7 @@ class _add_staffState extends State<add_staff> {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in parsed) {
           warehouselist.add({
             'id': productData['id'],
@@ -199,11 +199,11 @@ class _add_staffState extends State<add_staff> {
         }
         setState(() {
           Warehouses = warehouselist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -236,7 +236,7 @@ class _add_staffState extends State<add_staff> {
         });
       }
     } catch (error) {
-      print("Error fetching family data: $error");
+      
     }
   }
 
@@ -594,14 +594,14 @@ class _add_staffState extends State<add_staff> {
       var responseData = await http.Response.fromStream(response);
 
       // Print the response status and body for debugging
-      print("Response statussssssss: ${responseData.statusCode}");
-      print("Response bodyyyyyyyyyyy: ${responseData.body}");
+      
+      
 
       if (responseData.statusCode == 201) {
         // Parse the response body
         final Map<String, dynamic> responseJson = jsonDecode(responseData.body);
 
-        print("------------------------$responseJson");
+        
 
         // Store the product ID in the global variable
         staffId = responseJson['data']['id'].toString();
@@ -641,7 +641,7 @@ class _add_staffState extends State<add_staff> {
     BuildContext scaffoldContext,
   ) async {
     final token = await gettokenFromPrefs();
-    print("============$staffId");
+    
     try {
       var request = http.MultipartRequest(
         'PUT',
@@ -665,8 +665,8 @@ class _add_staffState extends State<add_staff> {
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print("Response statusttttttttt: ${response.statusCode}");
-      print("Response bodyttttttttttttt: ${response.body}");
+      
+      
       // Handle response based on status code
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

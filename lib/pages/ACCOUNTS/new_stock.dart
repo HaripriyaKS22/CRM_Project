@@ -472,7 +472,7 @@ void logout() async {
                                  onChanged: (String? newValue) {
                                    setState(() {
                                      selectproduct = newValue!;
-                                     print(selectproduct);
+                                     
                                    });
                                  },
                                  items: product.map<DropdownMenuItem<String>>((String value) {
@@ -534,7 +534,7 @@ void logout() async {
                               
                             });
                           
-                           print("======================$incrementedValue");
+                           
                            
                           },
                           style: ButtonStyle(

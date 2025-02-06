@@ -103,7 +103,7 @@ class _Performa_order_requestState extends State<Performa_order_request> {
     await getprofiledata();
     getfamily();
     selectedFamilyId = famid;
-    print("famiddd$selectedFamilyId");
+    
     getstaff();
     selectedstaffId = staffid;
     getcustomer();
@@ -134,15 +134,13 @@ class _Performa_order_requestState extends State<Performa_order_request> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "compppppppppppppppppppppp${response.body}");
-          print(response.statusCode);
+    
       List<Map<String, dynamic>> companylist = [];
 
       if (response.statusCode == 200) {
         final Data = jsonDecode(response.body);
 final productsData=Data['data'];
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$productsData");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           companylist.add({
@@ -152,21 +150,20 @@ final productsData=Data['data'];
         }
         setState(() {
           company = companylist;
-          print("company::::::::::$company");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   void performaordercreate(
     BuildContext scaffoldContext,
   ) async {
-    print(
-        "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW$selectpaystatus");
+ 
     try {
       final token = await gettokenFromPrefs();
-      print('$api/api/perfoma/invoice/create/');
+      
       var response = await http.post(
         Uri.parse('$api/api/perfoma/invoice/create/'),
         headers: {
@@ -188,10 +185,8 @@ final productsData=Data['data'];
           'payment_method': selectpaymethod,
         }),
       );
-print("statussscodeeeeeeeeeee${response.statusCode}");
-      print(
-          "Responsepppppppppppppppppppppppppppppppppppppppp: ${response.body}");
 
+    
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -210,7 +205,7 @@ print("statussscodeeeeeeeeeee${response.statusCode}");
         );
       }
     } catch (e) {
-      print("errorrr:$e");
+      
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Enter valid information'),
@@ -242,7 +237,7 @@ print("statussscodeeeeeeeeeee${response.statusCode}");
   DateTime selectedDate = DateTime.now();
 
   Future<void> _selectDate(BuildContext context) async {
-    print(selectedDate);
+    
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
@@ -252,7 +247,7 @@ print("statussscodeeeeeeeeeee${response.statusCode}");
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        print("dateeee$selectedDate");
+        
       });
     }
   }
@@ -270,13 +265,13 @@ print("statussscodeeeeeeeeeee${response.statusCode}");
         'Authorization': 'Bearer $token',
       });
       List<Map<String, dynamic>> banklist = [];
-      print("bankkkkkkkkkkkkkkkkkkkkkresssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("bankkkkkkkkkkkkkkkkkkkkkresssssss$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -287,29 +282,29 @@ print("statussscodeeeeeeeeeee${response.statusCode}");
         }
         setState(() {
           bank = banklist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$banklist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 //  void calculateTotalPrice() {
 // double total = 0.0;
-//   print("feffffwwwwwwwwwwwwwwwwwwww");
+//   
 //     for (var item in cartdata) {
 //       final discountPerQuantity = item['discount'] ?? 0.0;
 //       final quantity = item['quantity'] ?? 0;
 //       final price = item['price'] ?? 0.0;
 //       final totalItemPrice = quantity * price;
-//           print("totpriceeeeeeeeeeeeeeeeeeeeee$totalItemPrice");
+//           
 
 //       final totalDiscount = quantity * discountPerQuantity;
-//                 print("dispriceeeeeeeeeeeeeeeeeeeeee$totalDiscount");
+//                 
 
 //       total += totalItemPrice - totalDiscount;
 //     }
-//     print("priceeeeeeeeeeeeeeeeeeeeee$total");
+//     
 //   }
 
  Future<void> fetchCartData() async {
@@ -324,7 +319,7 @@ print("statussscodeeeeeeeeeee${response.statusCode}");
       },
     );
 
-    print("Response Body carttttttttttttttt: ${response.body}");
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -350,7 +345,7 @@ print("statussscodeeeeeeeeeee${response.statusCode}");
 
       setState(() {
         cartdata = cartList;
-print("cartdataaaaaaaaaaaaaaaaaaaaaaaaaaa$cartdata");
+
         // Calculate total
         for (var item in cartdata) {
           final discountPerQuantity = item['discount'] ?? 0.0;
@@ -361,14 +356,14 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           total += totalItemPrice - totalDiscount;
         }
       });
-print("totaaaaaaaaaaaaaaaaallllll$total");
+
       // Call the function to show total in a dialog box
 
     } else {
       throw Exception('Failed to load cart data');
     }
   } catch (error) {
-    print(error); // Consider adding error handling in the UI
+     // Consider adding error handling in the UI
   }
 }
 
@@ -382,16 +377,16 @@ print("totaaaaaaaaaaaaaaaaallllll$total");
       final discountPerQuantity = item['discount'] ?? 0.0;
       final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
 final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
- print("quantity:::::::::::::::::::::$quantity");
+ 
       totalItemPrice += quantity * price;
       totalDiscount += quantity * discountPerQuantity;
-      print("==================================$totalDiscount");
+      
       total = totalItemPrice - totalDiscount;
     }
     setState(() {
       tot = total;
     });
-    print(total);
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -487,7 +482,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         var productsData = parsed['data'];
         List<Map<String, dynamic>> productList = [];
 
-        print("Products Response: ${response.body}");
+        
 
         for (var productData in productsData) {
           List<String> familyNames = (productData['family'] as List<dynamic>?)
@@ -501,10 +496,10 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
 
           // Check if the product type is 'variant'
           if (productData['type'] == "variant") {
-            print("nameeeeeeeeeeeeeeeeeeeeeeee====${productData['name']}");
+            
 
             for (var variant in productData['variant_products']) {
-              print("nameeeeeeeeeeeeeeeeeeeeeeee${variant['name']}");
+              
               // Process each variant product
               productList.add({
                 'id': variant['id'],
@@ -540,17 +535,17 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
 
         setState(() {
           products = productList;
-          print("Products: $products");
+          
           filteredProducts = products;
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
   Future<void> getvariant(int id, var type) async {
-    print("iddddddddddddddddddd$id");
+    
     try {
       final token = await gettokenFromPrefs();
       List<Map<String, dynamic>> productList = [];
@@ -561,12 +556,12 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           'Content-Type': 'application/json',
         },
       );
-      print("Response: ${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['products'];
-        print("varianttttt:$productsData");
+        
 
         for (var product in productsData) {
           // Check if there is at least one image in 'variant_images'
@@ -584,13 +579,13 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         }
         setState(() {
           variant = productList;
-          print("variantss$variant");
+          
         });
 
-        print("Fetched Products : $productList");
+        
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -605,16 +600,14 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "=============================================hoiii${response.body}");
+   
       List<Map<String, dynamic>> managerlist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(
-            "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDDhaaaii$parsed");
+   
         for (var productData in productsData) {
           managerlist.add({
             'id': productData['id'],
@@ -626,11 +619,11 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         setState(() {
           customer = managerlist;
 
-          print("cutomerrrr$customer");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -647,14 +640,14 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           'Content-Type': 'application/json',
         },
       );
-      print("state${response.body}");
+      
       List<Map<String, dynamic>> statelist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("stateeeeeeeeeeeee$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           statelist.add({
@@ -664,11 +657,11 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         }
         setState(() {
           stat = statelist;
-          print("stateeeeeeee$stat");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -677,7 +670,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
   Future<void> getaddress(var id) async {
     try {
       final token = await gettokenFromPrefs();
-      print('urlllllllllllllllll$api/api/add/customer/address/$id/');
+      
       var response = await http.get(
         Uri.parse('$api/api/add/customer/address/$id/'),
         headers: {
@@ -685,14 +678,14 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           'Content-Type': 'application/json',
         },
       );
-      print("addresres${response.body}");
+      
       List<Map<String, dynamic>> addresslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("addreseeeeeeeeeeeee$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           addresslist.add({
@@ -709,11 +702,11 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         }
         setState(() {
           addres = addresslist;
-          print("addres$addres");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -743,11 +736,11 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
 
         setState(() {
           fam = familylist;
-          print("fammmmmmmmmmmmmm$fam");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
   //searchable dropdown
@@ -763,23 +756,23 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           'Content-Type': 'application/json',
         },
       );
-      print("==============0000000000000000000000000${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("profileeeeeee$productsData");
+        
 
         setState(() {
           famid = productsData['family'];
           staffid = productsData['id'];
 
-          print("fammmmmmmmmmmmmmid$famid");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -796,15 +789,14 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           'Content-Type': 'application/json',
         },
       );
-      print(
-          "RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD${response.body}");
+    
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           stafflist.add({
@@ -814,11 +806,11 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         }
         setState(() {
           sta = stafflist;
-          print("sataffffffffffff$sta");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -1050,7 +1042,7 @@ void logout() async {
             setState(() {
               selectedCompanyId = value;
             });
-            print("Selected Company ID: $selectedCompanyId");
+            
           },
         ),
       ),
@@ -1117,8 +1109,7 @@ void logout() async {
                                                   customer.firstWhere((item) =>
                                                       item['name'] ==
                                                       value)['id'];
-                                              print(
-                                                  "Selected Customer ID: $selectedCustomerId");
+                                         
                                             });
 
                                             getaddress(selectedCustomerId);
@@ -1315,7 +1306,7 @@ void logout() async {
                                           onChanged: (int? newValue) {
                                             setState(() {
                                               selectedstaffId = newValue!;
-                                              print(selectedstaffId);
+                                              
                                             });
                                           },
                                           items: sta.map<DropdownMenuItem<int>>(
@@ -1387,7 +1378,7 @@ void logout() async {
                                           onChanged: (int? newValue) {
                                             setState(() {
                                               selectedstateId = newValue!;
-                                              print(selectedstateId);
+                                              
                                             });
                                           },
                                           items: stat
@@ -1454,7 +1445,7 @@ void logout() async {
                                           onChanged: (int? newValue) {
                                             setState(() {
                                               selectedAddressId = newValue!;
-                                              print(selectedAddressId);
+                                              
                                             });
                                           },
                                           items: addres
@@ -1555,7 +1546,7 @@ void logout() async {
                                         GestureDetector(
                                           onTap: () {
                                             _selectDate(context);
-                                            print('Icon pressed');
+                                            
                                           },
                                           child: Container(
                                               padding: const EdgeInsets.only(
@@ -1641,7 +1632,7 @@ void logout() async {
                                     onChanged: (String? newValue) {
                                       setState(() {
                                         selectpaystatus = newValue!;
-                                        print(selectpaystatus);
+                                        
                                       });
                                     },
                                     items: paystatus
@@ -1718,7 +1709,7 @@ void logout() async {
                                                 setState(() {
                                                   selectedbankId =
                                                       newValue; // Store the selected family ID
-                                                  print("$selectedbankId");
+                                                  
                                                 });
                                               },
                                               items: bank
@@ -1773,7 +1764,7 @@ void logout() async {
                                     onChanged: (String? newValue) {
                                       setState(() {
                                         selectpaymethod = newValue!;
-                                        print(selectpaymethod);
+                                        
                                       });
                                     },
                                     items: paymethod
@@ -1805,8 +1796,7 @@ void logout() async {
                                 width: double.infinity,
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    print(
-                                        "shoooooooooooooooooooooooooooo$total");
+                                 
                                     showTotalDialog(context);
                                     // Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
                                   },

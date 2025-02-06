@@ -41,7 +41,7 @@ class _daily_goods_movementState extends State<daily_goods_movement> {
      
 
 //   Future<void> _selectDate(BuildContext context) async {
-//        print(selectedDate);
+//        
 //     final DateTime? picked = await showDatePicker(
 //       context: context,
 //       initialDate: selectedDate,
@@ -51,7 +51,7 @@ class _daily_goods_movementState extends State<daily_goods_movement> {
 //     if (picked != null && picked != selectedDate) {
 //       setState(() {
 //         selectedDate = picked;
-//         print("dateeee$selectedDate");
+//         
 //       });
 //     }
 //   }
@@ -89,7 +89,7 @@ class _daily_goods_movementState extends State<daily_goods_movement> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -152,7 +152,7 @@ class _daily_goods_movementState extends State<daily_goods_movement> {
   }
 
   void _filterOrdersByDateRange() {
-    print(startDate);
+    
   if (startDate != null && endDate != null) {
     setState(() {
       filteredOrders = goods.where((order) {
@@ -262,7 +262,7 @@ else {
           //   GestureDetector(
           //     onTap: () {
           //     _selectDate(context);
-          //       print('Icon pressed');
+          //       
           //     },
           //     child: Container(
           //       padding: const EdgeInsets.only(left: 55),

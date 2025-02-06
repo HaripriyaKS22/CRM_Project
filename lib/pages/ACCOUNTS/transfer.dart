@@ -326,7 +326,7 @@
 //                               onChanged: (String? newValue) {
 //                                 setState(() {
 //                                   selecttype = newValue!;
-//                                   print(selecttype);
+//                                   
 //                                 });
 //                               },
 //                               items: type.map<DropdownMenuItem<String>>((String value) {
@@ -374,7 +374,7 @@
 //        GestureDetector(
 //         onTap: () {
 //          _selectDate(context);
-//           print('Icon pressed');
+//           
 //         },
 //         child: Icon(Icons.date_range),
 //       ),
@@ -459,7 +459,7 @@
 //                               onChanged: (String? newValue) {
 //                                 setState(() {
 //                                   selectbank = newValue!;
-//                                   print(selectbank);
+//                                   
 //                                 });
 //                               },
 //                               items: bank.map<DropdownMenuItem<String>>((String value) {

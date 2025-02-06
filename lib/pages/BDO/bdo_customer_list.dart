@@ -97,8 +97,8 @@ Future<String?> getdepFromPrefs() async {
 
       final jwt = JWT.decode(token!);
           var name = jwt.payload['name'];
-          print("Name: $name");
-          print("Decoded Token Payload: ${jwt.payload}");
+          
+          
       var response = await http.get(
         Uri.parse('$api/api/customers/'),
         headers: {
@@ -107,8 +107,6 @@ Future<String?> getdepFromPrefs() async {
         },
       );
 
-      print(
-          "Customer dataaaaaaaaaaaaaaaaaaaaa: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -138,7 +136,7 @@ Future<String?> getdepFromPrefs() async {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

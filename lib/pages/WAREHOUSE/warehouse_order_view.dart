@@ -70,7 +70,7 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
   }
 
   Future<void> fetchOrderData() async {
-    print('Fetching order data...');
+    
     try {
       final token = await getTokenFromPrefs();
       var response = await http.get(
@@ -81,7 +81,7 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
         },
       );
 
-      print("ordersssssssssssss${response.body}");
+      
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -104,7 +104,7 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
+            
           }
 
           // Parse warehouse_orders
@@ -194,7 +194,7 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            print("Error parsing date: $rawOrderDate - $e");
+            
           }
 
           // Parse warehouse_orders
@@ -278,11 +278,11 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
-          print("Warehouse Orders Example: ${orders[0]['warehouse_orders']}");
+          
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 
@@ -880,9 +880,7 @@ else {
                                         SizedBox(height: 4.0),
                                         ...order['warehouse_orders']
                                             .map<Widget>((warehouse) {
-                                          print(
-                                              "====================$api${warehouse['image']}");
-
+                                      
                                           return Card(
                                             color: const Color.fromARGB(
                                                 240, 255, 255, 255),

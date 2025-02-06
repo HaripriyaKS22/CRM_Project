@@ -59,14 +59,14 @@ void check() async {
     if (token != null) {
       final jwt = JWT.decode(token);
       var dep = jwt.payload['active'];
-      print("Decoded Token Payload: ${jwt.payload}");
-      print("User ID: $dep");
+      
+      
       
       setState(() {
         department = dep;
         tok = true; // Token is valid
 
-        print("Department: $department");
+        
       });
     } else {
       setState(() {
@@ -75,7 +75,7 @@ void check() async {
       navigateToLogin();
     }
   } catch (e) {
-    print("Token decode error: $e");
+    
     setState(() {
       tokenn = false;
     });
@@ -95,11 +95,11 @@ Future<void> getbank() async {
       },
     );
 
-    print("Bank API Response: ${response.body}");
+    
     final parsed = jsonDecode(response.body);
 
     if (parsed['message'] == "Token has expired" || parsed['message'] == "Invalid token") {
-      print("Token has expired or is invalid");
+      
       await clearToken();
       setState(() {
         tokenn = false;
@@ -107,7 +107,7 @@ Future<void> getbank() async {
       navigateToLogin();
     }
   } catch (e) {
-    print("Error fetching data: $e");
+    
     setState(() {
       tokenn = false;
     });

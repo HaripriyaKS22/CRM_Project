@@ -90,8 +90,8 @@ class _add_warehouseState extends State<add_warehouse> {
             'location': location.text,
             'address': address.text
           }));
-      print("Response: ${response.body}");
-      print("ressss${response.statusCode}");
+      
+      
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -111,7 +111,7 @@ class _add_warehouseState extends State<add_warehouse> {
         );
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 
@@ -128,7 +128,7 @@ class _add_warehouseState extends State<add_warehouse> {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        print("RRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEDDDDDDDDDDDDDDDD$parsed");
+        
         for (var productData in parsed) {
           warehouselist.add({
             'id': productData['id'],
@@ -139,11 +139,11 @@ class _add_warehouseState extends State<add_warehouse> {
         }
         setState(() {
           Warehouses = warehouselist;
-          print("bbbbbbbbbbbbbbbbbbbbbbbbbbank$warehouselist");
+          
         });
       }
     } catch (e) {
-      print("error:$e");
+      
     }
   }
 

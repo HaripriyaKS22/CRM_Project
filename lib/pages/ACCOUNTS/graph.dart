@@ -40,7 +40,7 @@ Future<void> fetchOrderData() async {
     );
 
     if (response.statusCode == 200) {
-      print("API Response: ${response.body}");
+      
       final parsed = jsonDecode(response.body);
 
       // Ensure parsed data is a List<Map<String, dynamic>>
@@ -71,11 +71,11 @@ Future<void> fetchOrderData() async {
           monthlyOrderData[monthKey]!['count'] += 1;
           monthlyOrderData[monthKey]!['totalAmount'] += totalAmount;
         } catch (e) {
-          print("Error parsing date: $rawOrderDate - $e");
+          
         }
       }
 
-      print("Monthly Order Data: $monthlyOrderData");
+      
 
       // Update state with monthly order data
       setState(() {
@@ -85,13 +85,13 @@ Future<void> fetchOrderData() async {
         isLoading = false;
       });
     } else {
-      print("Failed to fetch orders. Status Code: ${response.statusCode}");
+      
       setState(() {
         isLoading = false;
       });
     }
   } catch (error) {
-    print("Error: $error");
+    
     setState(() {
       isLoading = false;
     });

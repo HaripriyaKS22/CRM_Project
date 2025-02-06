@@ -74,7 +74,7 @@ class _Sold_pro_reportState extends State<Sold_pro_report> {
         });
       }
     } catch (error) {
-      print("Error: $error");
+      
     }
   }
 

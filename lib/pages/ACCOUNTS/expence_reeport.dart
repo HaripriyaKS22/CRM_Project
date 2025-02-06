@@ -257,7 +257,7 @@ Future<void> getexpenselist() async {
       if (parsed['data'] != null && parsed['data'] is List) {
         final productsdata = parsed['data'];
         
-        print("Raw Data: $productsdata");
+        
 
         List<Map<String, dynamic>> expenselist = [];
         double total = 0.0;
@@ -281,7 +281,7 @@ Future<void> getexpenselist() async {
               'expense_date': productData['expense_date']?.toString() ?? '',
             });
           } catch (e) {
-            print("Error processing productData: $e");
+            
           }
         }
 
@@ -291,15 +291,15 @@ Future<void> getexpenselist() async {
           totalAmount = total;
         });
 
-        print("Final Expense List: $expenselist");
+        
       } else {
-        print("Error: 'data' field is missing or not a list.");
+        
       }
     } else {
-      print("Error: ${response.statusCode} ${response.body}");
+      
     }
   } catch (error) {
-    print('Error fetching expenses: $error');
+    
   }
 }
 

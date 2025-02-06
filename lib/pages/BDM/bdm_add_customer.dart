@@ -250,7 +250,7 @@ class _bdm_add_new_customerState extends State<bdm_add_new_customer> {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selectededu = newValue!;
-                                      print(selectededu);
+                                      
                                     });
                                   },
                                   items: categories
@@ -530,7 +530,7 @@ class _bdm_add_new_customerState extends State<bdm_add_new_customer> {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selectstate = newValue!;
-                                      print(selectstate);
+                                      
                                     });
                                   },
                                   items: state.map<DropdownMenuItem<String>>(
