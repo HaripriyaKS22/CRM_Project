@@ -168,7 +168,7 @@ void logout() async {
         'Authorization': 'Bearer $token',
       },
     );
-
+print(response.body);
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -181,8 +181,9 @@ void logout() async {
         List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
             (famItem) => famItem['id'] == id,
             orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
-
+var imageurl='${api}${productData['image']}';
         // Add the product data to the list
+        print('productData${ imageurl}');
         productList.add({
           'id': productData['id'],
           'name': productData['name'],
@@ -196,7 +197,7 @@ void logout() async {
           'stock': productData['stock'],
           'created_user': productData['created_user'],
           'family': familyNames, // Add family names here
-          'image': productData['image'], // Main product image
+          'image': imageurl, // Main product image
           // Don't process single_products or variant_products
         });
       }
@@ -206,6 +207,7 @@ void logout() async {
       });
     }
   } catch (error) {
+    print("error");
     
   }
 }

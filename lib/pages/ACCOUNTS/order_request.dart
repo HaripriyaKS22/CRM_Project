@@ -20,6 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+
 
 
 
@@ -83,6 +85,10 @@ List<Map<String, dynamic>> filteredProducts = [];
   String selectaddress="empty";
   List<Map<String, dynamic>> fam = [];
     List<Map<String, dynamic>> customer = [];
+        List<Map<String, dynamic>> warehousecusomer1= [];
+
+    List<Map<String, dynamic>> warehousecusomer2 = [];
+
     List<Map<String, dynamic>> variant= [];
     int? selectedFamilyId;
       int? selectedCompanyId;
@@ -144,7 +150,6 @@ Future<void> getwarehouse() async {
         'Authorization': 'Bearer $token',
       });
       List<Map<String, dynamic>> warehouselist = [];
-
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
@@ -160,6 +165,9 @@ Future<void> getwarehouse() async {
           Warehouses = warehouselist;
           
         });
+
+        print('WarehousesWarehouses$Warehouses');
+
       }
     } catch (e) {
       
@@ -216,7 +224,7 @@ var warehouse;
       },
       body: jsonEncode(requestBody),
     );
-
+print("requestBodyYYYYYYYYYYYYYYYYYYYYYYYYY${response.body}");
     
     
 
@@ -357,7 +365,7 @@ Future<void> getbank() async{
    
           
       List<Map<String, dynamic>> companylist = [];
-
+print("response.body${response.body}");
       if (response.statusCode == 200) {
         final Data = jsonDecode(response.body);
 final productsData=Data['data'];
@@ -684,43 +692,60 @@ var imgurl="$api/$firstImageUrl";
   }
 }
 
- Future<void> getcustomer() async {
-    try {
-      final token = await gettokenFromPrefs();
+Future<void> getcustomer() async {
+  try {
+    final dep = await getdepFromPrefs();
+    final token = await gettokenFromPrefs();
 
+    final jwt = JWT.decode(token!);
+    var name = jwt.payload['name'];
+    print("Name: $name");
+    print("Decoded Token Payload: ${jwt.payload}");
+
+    String? nextPageUrl = '$api/api/customers/';
+    List<Map<String, dynamic>> managerlist = [];
+
+    while (nextPageUrl != null) {
       var response = await http.get(
-        Uri.parse('$api/api/customers/'),
+        Uri.parse(nextPageUrl),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
-    
-      List<Map<String, dynamic>> managerlist = [];
+
+      print("Customer data response: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+        var productsData = parsed['results']['data'];
 
-      
+        List<Map<String, dynamic>> newCustomers = [];
+
         for (var productData in productsData) {
-          managerlist.add({
+          newCustomers.add({
             'id': productData['id'],
             'name': productData['name'],
             'created_at': productData['created_at'],
-            'manager':productData['manager']
           });
         }
-        setState(() {
-          customer = managerlist;
 
-          
+        // Append new data and update UI in each iteration
+        setState(() {
+          customer.addAll(newCustomers);
+          filteredProducts.addAll(newCustomers);
         });
+
+        // Update nextPageUrl to continue fetching next pages
+        nextPageUrl = parsed['next'];
+      } else {
+        throw Exception("Failed to load customer data");
       }
-    } catch (error) {
-      
     }
+  } catch (error) {
+    print("Error fetching customers: $error");
   }
+}
 List<Map<String, dynamic>> stat = [];
 
     Future<void> getstate() async {
@@ -1210,10 +1235,204 @@ Future<String?> getdepFromPrefs() async {
   ),
 ),
 
+  if(selectedmode=="warehouse to warehouse")
+  SizedBox(height: 5),
+    if(selectedmode=="warehouse to warehouse")
 
-  SizedBox(height: 10),
+     Text("TO",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height:5,),
 
                            if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+                           if(selectedmode=="warehouse to warehouse")
+                             Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Container(
+                                      child: DropdownButtonHideUnderline(
+                                        child: Container(
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(color: Colors.grey, width: 1.0),
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          child: DropdownButton2<String>(
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Select a warehouse',
+                                              style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                                            ),
+                                            items: customer
+                                                .map((item) => DropdownMenuItem<String>(
+                                value: item['name'], // Use the customer's name as the value
+                                child: Text(
+                                  item['name'],
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ))
+                                                .toList(),
+                                            value: selectedValue,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                // Update the selected value with the chosen customer's name
+                                                selectedValue = value;
+                                                // Find the corresponding customer ID
+                                                selectedCustomerId = customer
+                              .firstWhere((item) => item['name'] == value)['id'];
+                                                
+                                              });
+                            
+                                          getaddress(selectedCustomerId);
+                                            },
+                                            buttonStyleData: const ButtonStyleData(
+                                              padding: EdgeInsets.symmetric(horizontal: 16),
+                                              height: 40,
+                                            ),
+                                            dropdownStyleData: const DropdownStyleData(
+                                              maxHeight: 200,
+                                            ),
+                                            menuItemStyleData: const MenuItemStyleData(
+                                              height: 40,
+                                            ),
+                                            dropdownSearchData: DropdownSearchData(
+                                              searchController: textEditingController,
+                                              searchInnerWidgetHeight: 50,
+                                              searchInnerWidget: Container(
+                                                height: 50,
+                                                padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
+                                                child: TextFormField(
+                            expands: true,
+                            maxLines: null,
+                            controller: textEditingController,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              hintText: 'Search for a warehouse...',
+                              hintStyle: const TextStyle(fontSize: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                                                ),
+                                              ),
+                                              searchMatchFn: (item, searchValue) {
+                                                // Perform case-insensitive search
+                                                return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
+                                              },
+                                            ),
+                                            // Clear the search value when the menu is closed
+                                            onMenuStateChange: (isOpen) {
+                                              if (!isOpen) {
+                                                textEditingController.clear();
+                                              }
+                                            },
+                                            
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                          ),
+
+                          if(selectedmode=="warehouse to warehouse")
+                           SizedBox(height: 5),
+                        if(selectedmode=="warehouse to warehouse")
+
+                         Text("From",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height:5,),
+
+                           if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+                           if(selectedmode=="warehouse to warehouse")
+                             Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Container(
+                                      child: DropdownButtonHideUnderline(
+                                        child: Container(
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(color: Colors.grey, width: 1.0),
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          child: DropdownButton2<String>(
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Select a warehouse',
+                                              style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                                            ),
+                                            items: customer
+                                                .map((item) => DropdownMenuItem<String>(
+                                value: item['name'], // Use the customer's name as the value
+                                child: Text(
+                                  item['name'],
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ))
+                                                .toList(),
+                                            value: selectedValue,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                // Update the selected value with the chosen customer's name
+                                                selectedValue = value;
+                                                // Find the corresponding customer ID
+                                                selectedCustomerId = customer
+                              .firstWhere((item) => item['name'] == value)['id'];
+                                                
+                                              });
+                            
+                                          getaddress(selectedCustomerId);
+                                            },
+                                            buttonStyleData: const ButtonStyleData(
+                                              padding: EdgeInsets.symmetric(horizontal: 16),
+                                              height: 40,
+                                            ),
+                                            dropdownStyleData: const DropdownStyleData(
+                                              maxHeight: 200,
+                                            ),
+                                            menuItemStyleData: const MenuItemStyleData(
+                                              height: 40,
+                                            ),
+                                            dropdownSearchData: DropdownSearchData(
+                                              searchController: textEditingController,
+                                              searchInnerWidgetHeight: 50,
+                                              searchInnerWidget: Container(
+                                                height: 50,
+                                                padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
+                                                child: TextFormField(
+                            expands: true,
+                            maxLines: null,
+                            controller: textEditingController,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              hintText: 'Search for a warehouse...',
+                              hintStyle: const TextStyle(fontSize: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                                                ),
+                                              ),
+                                              searchMatchFn: (item, searchValue) {
+                                                // Perform case-insensitive search
+                                                return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
+                                              },
+                                            ),
+                                            // Clear the search value when the menu is closed
+                                            onMenuStateChange: (isOpen) {
+                                              if (!isOpen) {
+                                                textEditingController.clear();
+                                              }
+                                            },
+                                            
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                          ),
+
+
+                     if(dep=="Admin"||dep=="COO"||dep=="Accounts")
                            if(selectedmode=="request")
                              Padding(
                                padding: const EdgeInsets.only(right: 10),
@@ -1251,11 +1470,12 @@ Future<String?> getdepFromPrefs() async {
                              ),
 
                                                
-
+                    if(selectedmode=="request"||selectedmode=='invoice')
                      Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height: 5,),
               
-                          
+                       if(selectedmode=="request"||selectedmode=='invoice')
+    
                           Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: LayoutBuilder(

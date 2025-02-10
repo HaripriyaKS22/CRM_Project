@@ -82,157 +82,106 @@ Future<String?> getdepFromPrefs() async {
     return prefs.getString('department');
   }
   
-  Future<void> fetchOrderData() async {
-    try {
-      final token = await getTokenFromPrefs();
-                    final dep= await getdepFromPrefs();
- final jwt = JWT.decode(token!);
-          var name = jwt.payload['name'];
-          
+ Future<void> fetchOrderData() async {
+  try {
+    final token = await getTokenFromPrefs();
+    final dep = await getdepFromPrefs();
+    final jwt = JWT.decode(token!);
+    var name = jwt.payload['name'];
+
+    String? nextPageUrl = '$api/api/orders/';
+    List<Map<String, dynamic>> orderList = [];
+
+    while (nextPageUrl != null) {
       var response = await http.get(
-        Uri.parse('$api/api/orders/'),
+        Uri.parse(nextPageUrl),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
 
-      
-
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        var productsData = parsed;
-        List<Map<String, dynamic>> orderList = [];
+        var ordersData = parsed['results'];
 
-        for (var productData in productsData) {
-          // Parse the date
-          String rawOrderDate = productData['order_date'];
-          String formattedOrderDate =
-              rawOrderDate; // Fallback in case of parsing failure
+        List<Map<String, dynamic>> newOrders = [];
 
+        for (var orderData in ordersData) {
+          // Parse order date safely
+          String rawOrderDate = orderData['order_date'] ?? "";
+          String formattedOrderDate = rawOrderDate; // Default if parsing fails
           try {
-            // Try to parse the date in 'yyyy-MM-dd' format
             DateTime parsedOrderDate =
                 DateFormat('yyyy-MM-dd').parse(rawOrderDate);
-            formattedOrderDate = DateFormat('yyyy-MM-dd')
-                .format(parsedOrderDate); // Convert to desired format
-          } catch (e) {
-            
-          }
-if(widget.status==null){
-if(productData['status']!="Order Request by Warehouse"){
+            formattedOrderDate =
+                DateFormat('yyyy-MM-dd').format(parsedOrderDate);
+          } catch (e) {}
 
-             orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-          
-}
-        }
-        else if(widget.status==productData['status']){
-            if(productData['status']!="Order Request by Warehouse"){
-
-          
-               orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-          
+          if (widget.status == null || widget.status == orderData['status']) {
+            if (orderData['status'] != "Order Request by Warehouse") {
+              newOrders.add({
+                'id': orderData['id'],
+                'invoice': orderData['invoice'],
+                'manage_staff': orderData['manage_staff'],
+                'customer': {
+                  'name': orderData['customer']['name'],
+                  'phone': orderData['customer']['phone'],
+                  'email': orderData['customer']['email'],
+                  'address': orderData['customer']['address'],
+                },
+                'billing_address': {
+                  'name': orderData['billing_address']['name'],
+                  'email': orderData['billing_address']['email'],
+                  'zipcode': orderData['billing_address']['zipcode'],
+                  'address': orderData['billing_address']['address'],
+                  'phone': orderData['billing_address']['phone'],
+                  'city': orderData['billing_address']['city'],
+                  'state': orderData['billing_address']['state'],
+                },
+                'bank': {
+                  'name': orderData['bank']['name'],
+                  'account_number': orderData['bank']['account_number'],
+                  'ifsc_code': orderData['bank']['ifsc_code'],
+                  'branch': orderData['bank']['branch'],
+                },
+                'items': orderData['items'] != null
+                    ? orderData['items'].map((item) {
+                        return {
+                          'id': item['id'],
+                          'name': item['name'],
+                          'quantity': item['quantity'],
+                          'price': item['price'],
+                          'tax': item['tax'],
+                          'discount': item['discount'],
+                          'images': item['images'],
+                        };
+                      }).toList()
+                    : [], // Empty list fallback
+                'status': orderData['status'],
+                'total_amount': orderData['total_amount'],
+                'order_date': formattedOrderDate,
+              });
             }
-
+          }
         }
 
-        
-        
-        }
-        
-
+        // 🔹 Update UI after fetching each page
         setState(() {
-          orders = orderList;
-          filteredOrders = orderList;
-          
+          orders.addAll(newOrders);
+          filteredOrders.addAll(newOrders);
         });
+
+        // Fetch next page if available
+        nextPageUrl = parsed['next'];
+      } else {
+        throw Exception("Failed to load order data");
       }
-    } catch (error) {
-      
     }
+  } catch (error) {
+    print("Error fetching orders: $error");
   }
+}
 
   void _filterOrders(String query) {
     setState(() {

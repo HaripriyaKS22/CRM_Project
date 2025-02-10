@@ -687,131 +687,133 @@ class _OrderReviewState extends State<OrderReview> {
   bool flag = false;
 
   double totalDiscount = 0.0; // Define at the class level
-  Future<void> fetchOrderItems() async {
-    try {
-      
-      final token = await getTokenFromPrefs();
-      final jwt = JWT.decode(token!);
-      var name = jwt.payload['name'];
-      setState(() {
-        createdBy = name;
-      });
-      
-      
-      
-      var response = await http.get(
-        Uri.parse('$api/api/order/${widget.id}/items/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        ord = parsed['order'];
-        
-        List<dynamic> itemsData = parsed['items'];
-        List<dynamic> warehouseData =
-            parsed['order']['warehouse']; // Extract warehouse data
+ Future<void> fetchOrderItems() async {
+  try {
+    print('$api/api/order/${widget.id}/items/');
+    final token = await getTokenFromPrefs();
 
-        
-        getaddress(ord['customer']['id']);
-
-        List<Map<String, dynamic>> orderList = [];
-        List<Map<String, dynamic>> warehouseList = [];
-        double calculatedNetAmount = 0.0;
-        double calculatedTotalTax = 0.0;
-        double calculatedPayableAmount = 0.0;
-        double calculatedTotalDiscount = 0.0;
-
-        // Process each item and calculate totals
-        for (var item in itemsData) {
-          orderList.add({
-            'id': item['id'],
-            'name': item['name'],
-            'quantity': item['quantity'],
-            'rate': item['rate'],
-            'tax': item['tax'],
-            'discount': item['discount'],
-            'actual_price': item['actual_price'],
-            'exclude_price': item['exclude_price'],
-            'images': item['image'],
-          });
-
-          double excludePrice = (item['exclude_price'] ?? 0).toDouble();
-          double actualPrice = (item['actual_price'] ?? 0).toDouble();
-          double discount = (item['discount'] ?? 0).toDouble();
-          final quantity = int.tryParse(item['quantity'].toString()) ?? 1;
-
-          calculatedNetAmount += excludePrice;
-
-          double taxAmountForItem = actualPrice - excludePrice;
-          calculatedTotalTax += taxAmountForItem;
-
-          calculatedTotalDiscount += discount * quantity;
-
-          double payableForItem = (actualPrice - discount) * quantity;
-          calculatedPayableAmount += payableForItem;
-        }
-
-        // Process each warehouse item
-        for (var warehouse in warehouseData) {
-          warehouseList.add({
-            'id': warehouse['id'],
-            'box': warehouse['box'],
-            'weight': warehouse['weight'],
-            'length': warehouse['length'],
-            'breadth': warehouse['breadth'],
-            'height': warehouse['height'],
-            'image': warehouse['image'],
-            'parcel_service': warehouse['parcel_service'],
-            'tracking_id': warehouse['tracking_id'],
-            'shipping_charge': warehouse['shipping_charge'],
-            'status': warehouse['status'],
-            'shipped_date': warehouse['shipped_date'],
-          });
-        }
-
-        double paymentReceiptsSum = 0.0;
-        for (var receipt in parsed['order']['recived_payment']) {
-          paymentReceiptsSum +=
-              double.tryParse(receipt['amount'].toString()) ?? 0.0;
-          
-        }
-
-        double remainingAmount = 0.0;
-        if (paymentReceiptsSum > calculatedPayableAmount) {
-          remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
-          flag = true;
-        } else {
-          remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
-          flag = false;
-        }
-
-        setState(() {
-          items = orderList;
-          warehouse = warehouseList; // Store warehouse data in state
-          netAmountBeforeTax = calculatedNetAmount;
-          totalTaxAmount = calculatedTotalTax;
-          payableAmount = calculatedPayableAmount;
-          totalDiscount = calculatedTotalDiscount;
-          Balance = remainingAmount;
-          
-          
-          
-          
-          
-          
-          
-        });
-      } else {
-        
-      }
-    } catch (error) {
-      
+    if (token == null) {
+      print("Token is null. Cannot proceed.");
+      return;
     }
+
+    final jwt = JWT.decode(token);
+    var name = jwt.payload['name'] ?? 'Unknown'; // Provide a default value
+    setState(() {
+      createdBy = name;
+    });
+
+    print("Decoded Token Payload: ${jwt.payload}");
+    print("User ID: $createdBy");
+    print('$api/api/order/${widget.id}/items/');
+
+    var response = await http.get(
+      Uri.parse('$api/api/order/${widget.id}/items/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print("Response: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+
+      ord = parsed['order'] ?? {};
+      print("Order Data: $ord");
+
+      List<dynamic> itemsData = parsed['items'] ?? [];
+      List<dynamic> warehouseData = parsed['order']['warehouse'] ?? [];
+
+      print("Warehouse Data: $warehouseData");
+
+      getaddress(ord['customer']?['id']);
+
+      List<Map<String, dynamic>> orderList = [];
+      List<Map<String, dynamic>> warehouseList = [];
+      double calculatedNetAmount = 0.0;
+      double calculatedTotalTax = 0.0;
+      double calculatedPayableAmount = 0.0;
+      double calculatedTotalDiscount = 0.0;
+
+      // Process each item and calculate totals
+      for (var item in itemsData) {
+        orderList.add({
+          'id': item['id'],
+          'name': item['name'] ?? '',
+          'quantity': item['quantity'] ?? 0,
+          'rate': item['rate'] ?? 0.0,
+          'tax': item['tax'] ?? 0.0,
+          'discount': item['discount'] ?? 0.0,
+          'actual_price': item['actual_price'] ?? 0.0,
+          'exclude_price': item['exclude_price'] ?? 0.0,
+          'images': item['image'] ?? '',
+        });
+
+        double excludePrice = (item['exclude_price'] ?? 0).toDouble();
+        double actualPrice = (item['actual_price'] ?? 0).toDouble();
+        double discount = (item['discount'] ?? 0).toDouble();
+        final quantity = int.tryParse(item['quantity'].toString()) ?? 1;
+
+        calculatedNetAmount += excludePrice;
+        calculatedTotalTax += (actualPrice - excludePrice);
+        calculatedTotalDiscount += discount * quantity;
+        calculatedPayableAmount += (actualPrice - discount) * quantity;
+      }
+
+      // Process each warehouse item
+      for (var warehouse in warehouseData) {
+        warehouseList.add({
+          'id': warehouse['id'],
+          'box': warehouse['box'] ?? '',
+          'weight': warehouse['weight'] ?? '0',
+          'length': warehouse['length'] ?? '0',
+          'breadth': warehouse['breadth'] ?? '0',
+          'height': warehouse['height'] ?? '0',
+          'image': warehouse['image'] ?? '',
+          'parcel_service': warehouse['parcel_service'] ?? '',
+          'tracking_id': warehouse['tracking_id'] ?? '',
+          'shipping_charge': warehouse['shipping_charge'] ?? '0.0',
+          'status': warehouse['status'] ?? '',
+          'shipped_date': warehouse['shipped_date'] ?? '',
+          'actual_weight': warehouse['actual_weight'] ?? '0.0',
+          'parcel_amount': warehouse['parcel_amount'] ?? '0.0',
+          'postoffice_date': warehouse['postoffice_date'] ?? ''
+        });
+      }
+
+      double paymentReceiptsSum = 0.0;
+      for (var receipt in parsed['order']['recived_payment'] ?? []) {
+        paymentReceiptsSum += double.tryParse(receipt['amount'].toString()) ?? 0.0;
+        print("Payment Receipt Sum: $paymentReceiptsSum");
+      }
+
+      double remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
+      flag = paymentReceiptsSum > calculatedPayableAmount ? true : false;
+
+      setState(() {
+        items = orderList;
+        warehouse = warehouseList;
+        netAmountBeforeTax = calculatedNetAmount;
+        totalTaxAmount = calculatedTotalTax;
+        payableAmount = calculatedPayableAmount;
+        totalDiscount = calculatedTotalDiscount;
+        Balance = remainingAmount;
+      });
+
+      print("Net Amount Before Tax: $netAmountBeforeTax");
+      print("Total Tax Amount: $totalTaxAmount");
+      print("Payable Amount: $payableAmount");
+      print("Total Discount: $totalDiscount");
+      print("Remaining Amount: $remainingAmount");
+    } else {
+      print("Failed to fetch data. Status Code: ${response.statusCode}");
+    }
+  } catch (error) {
+    print("Error: $error");
   }
+}
 
   Future<void> removeproduct(int Id) async {
     final token = await getTokenFromPrefs();

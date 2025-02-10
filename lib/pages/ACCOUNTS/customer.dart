@@ -89,52 +89,60 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-  Future<void> getcustomer() async {
-    try {
-              final dep= await getdepFromPrefs();
+ Future<void> getcustomer() async {
+  try {
+    final dep = await getdepFromPrefs();
+    final token = await gettokenFromPrefs();
 
-      final token = await gettokenFromPrefs();
+    final jwt = JWT.decode(token!);
+    var name = jwt.payload['name'];
+    print("Name: $name");
+    print("Decoded Token Payload: ${jwt.payload}");
 
-      final jwt = JWT.decode(token!);
-          var name = jwt.payload['name'];
-          
-          
+    String? nextPageUrl = '$api/api/customers/';
+    List<Map<String, dynamic>> managerlist = [];
+
+    while (nextPageUrl != null) {
       var response = await http.get(
-        Uri.parse('$api/api/customers/'),
+        Uri.parse(nextPageUrl),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
-   
+
+      print("Customer data response: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-        List<Map<String, dynamic>> managerlist = [];
+        var productsData = parsed['results']['data'];
+
+        List<Map<String, dynamic>> newCustomers = [];
 
         for (var productData in productsData) {
-          
-          
-             managerlist.add({
+          newCustomers.add({
             'id': productData['id'],
             'name': productData['name'],
-            'created_at': productData['created_at']
+            'created_at': productData['created_at'],
           });
-          
-         
         }
 
+        // Append new data and update UI in each iteration
         setState(() {
-          customer = managerlist; // Update full customer list
-          filteredProducts = List.from(customer); // Show all customers initially
+          customer.addAll(newCustomers);
+          filteredProducts.addAll(newCustomers);
         });
-      }
-    } catch (error) {
-      
-    }
-  }
 
+        // Update nextPageUrl to continue fetching next pages
+        nextPageUrl = parsed['next'];
+      } else {
+        throw Exception("Failed to load customer data");
+      }
+    }
+  } catch (error) {
+    print("Error fetching customers: $error");
+  }
+}
   void _filterProducts(String query) {
     setState(() {
       if (query.isEmpty) {

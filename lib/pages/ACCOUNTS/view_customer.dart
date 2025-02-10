@@ -44,6 +44,9 @@ class _view_customerState extends State<view_customer> {
   List<Map<String, dynamic>> statess = [];
   List<Map<String, dynamic>> customer = [];
 
+  List<String> categories = ["customer", "warehouse"];
+String selectedCategory = "customer"; // Default value
+
   String? selectedManagerName;
   int? selectedManagerId;
   String? selectstate;
@@ -351,14 +354,6 @@ Future<void> getstates() async {
     );
   }
 
-  List<String> categories = ["Joishya", 'Hanvi', 'nimitha', 'Hari'];
-  String selectededu = "Hari";
-  List<String> state = [
-    "Kerala",
-    'Tamilnadu',
-    'Karnataka',
-    'Gujarat',
-  ];
   void logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove('userId');
@@ -446,6 +441,63 @@ Future<void> getstates() async {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+
+                               Text(
+              "Select Type",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child:DropdownButton<String>(
+  value: categories.contains(selectedCategory) ? selectedCategory : null, // Ensure valid selection
+  isExpanded: true,
+  underline: SizedBox(),
+  onChanged: (String? newValue) {
+    setState(() {
+      selectedCategory = newValue!;
+    });
+  },
+  items: categories.map<DropdownMenuItem<String>>((String category) {
+    return DropdownMenuItem<String>(
+      value: category,
+      child: Text(category),
+    );
+  }).toList(),
+  icon: Icon(Icons.arrow_drop_down),
+),
+
+            ),
+
+            SizedBox(height: 15),
+
+            Text(
+              "GSTIN Number",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: gstno,
+              decoration: InputDecoration(
+                labelText: 'AAA00',
+                prefixIcon: Icon(Icons.numbers),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+              ),
+            ),
+
+            SizedBox(height: 10),
+
+
+
                             Text("GSTIN Number ",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),

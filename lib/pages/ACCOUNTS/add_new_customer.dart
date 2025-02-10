@@ -51,8 +51,8 @@ class _add_new_customerState extends State<add_new_customer> {
   String? selectstate;
   int? selectedStateId;
 
-  List<String> categories = ["Customer", "Warehouse"];
-String selectedCategory = "Customer"; // Default value
+  List<String> categories = ["customer", "warehouse"];
+String selectedCategory = "customer"; // Default value
 
   TextEditingController gstno = TextEditingController();
   TextEditingController name = TextEditingController();
@@ -122,7 +122,8 @@ selectedManagerId=id;
         }),
       );
 
-      
+  print(response.body)   ;
+  print(response.statusCode) ;
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

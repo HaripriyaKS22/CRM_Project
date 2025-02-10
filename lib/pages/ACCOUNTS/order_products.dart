@@ -603,12 +603,21 @@ void showSizeDialog2(BuildContext context, List variants) {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Image.network(
-                                  selectedProduct['image'],
-                                  width: 50,
-                                  height: 50,
-                                  fit: BoxFit.cover,
-                                ),
+                                selectedProduct['image'] != null &&
+                                        selectedProduct['image'].isNotEmpty
+                                    ? Image.network(
+                                        selectedProduct['image'],
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Container(
+                                        width: 50,
+                                        height: 50,
+                                        color: Colors.grey[300],
+                                        child: Icon(Icons.image_not_supported,
+                                            color: Colors.grey),
+                                      ),
                                 SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
@@ -617,10 +626,12 @@ void showSizeDialog2(BuildContext context, List variants) {
                                       Text(
                                         selectedProduct['name'],
                                         style: TextStyle(
-                                            fontSize: 16, fontWeight: FontWeight.bold),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text("Stock: ${selectedProduct['stock']}"),
-                                      Text("Price: \$${selectedProduct['selling_price']}"),
+                                      Text(
+                                          "Price: \$${selectedProduct['selling_price']}"),
                                     ],
                                   ),
                                 ),
@@ -644,12 +655,20 @@ void showSizeDialog2(BuildContext context, List variants) {
                   itemBuilder: (context, index) {
                     var variant = variants[index];
                     return ListTile(
-                      leading: Image.network(
-                        variant['image'],
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      ),
+                      leading: variant['image'] != null && variant['image'].isNotEmpty
+                          ? Image.network(
+                              variant['image'],
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: 50,
+                              height: 50,
+                              color: Colors.grey[300],
+                              child: Icon(Icons.image_not_supported,
+                                  color: Colors.grey),
+                            ),
                       title: Text(variant['name']),
                       subtitle: Text("Stock: ${variant['stock']}"),
                       trailing: selectedProductNotifier.value == variant
@@ -706,10 +725,6 @@ void showSizeDialog2(BuildContext context, List variants) {
                       }
 
                       // Call add to cart function
-                      
-                      
-
-                      // Example add-to-cart function
                       addtocart(context, selectedProduct['id'], quantity);
 
                       // Close the dialog
@@ -719,7 +734,8 @@ void showSizeDialog2(BuildContext context, List variants) {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                 ),
@@ -731,6 +747,7 @@ void showSizeDialog2(BuildContext context, List variants) {
     },
   );
 }
+
 
 
 

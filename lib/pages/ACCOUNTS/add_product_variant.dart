@@ -661,7 +661,7 @@ class _add_product_variantState extends State<add_product_variant> {
       },
       body: jsonString,
     );
-
+print(response.body);
     // Debugging output
     
     
@@ -1207,7 +1207,7 @@ Future<String?> getdepFromPrefs() async {
                 'attribute': selectedAttributeName!,
                 'values': selectedValues,
               });
-
+print("attributesToSend$attributesToSend");
               // Reset input fields
               selectedAttributeName = null;
               selectedValues = [];

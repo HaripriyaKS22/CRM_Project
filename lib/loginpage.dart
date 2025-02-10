@@ -69,7 +69,7 @@ void login(String email, String password, BuildContext context) async {
     );
 
     
-
+print(response.body);
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
@@ -150,7 +150,7 @@ void login(String email, String password, BuildContext context) async {
       );
     }
   } catch (e) {
-    
+    print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeee$e');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(backgroundColor: Colors.red, content: Text('An error occurred. Please try again.')),
     );
