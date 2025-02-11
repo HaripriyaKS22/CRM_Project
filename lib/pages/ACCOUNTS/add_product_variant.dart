@@ -250,7 +250,7 @@ class _add_product_variantState extends State<add_product_variant> {
               DataCell(
                 variant['variant_images']?.isNotEmpty == true
                     ? Image.network(
-                        '${variant['image']}',
+                        '${api}${variant['image']}',
                         width: 50,
                         height: 40,
                         fit: BoxFit.cover,
@@ -592,7 +592,7 @@ class _add_product_variantState extends State<add_product_variant> {
       },
     );
     
-
+print(response.body);
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productData = parsed['products']; // Map of the product
@@ -609,6 +609,7 @@ class _add_product_variantState extends State<add_product_variant> {
             }
           } else if (widget.type == 'variant') {
             variantProducts = List<Map<String, dynamic>>.from(variantIDs); // List of variants
+            print("variantProducts$variantProducts");
             if (variantProducts.isNotEmpty) {
               product.text = variantProducts[0]['name'] ?? '';
               

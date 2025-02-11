@@ -284,7 +284,8 @@ double landingPriceValue = 0.0;
 
       // Print the response status and body for debugging
       
-      
+      print(responseData.statusCode);
+      print(responseData.body);
 
       if (responseData.statusCode == 201) {
         // Parse the response body

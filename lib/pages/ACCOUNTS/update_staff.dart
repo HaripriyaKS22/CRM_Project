@@ -117,6 +117,7 @@ Future<void> getwarehouse() async {
         }
         setState(() {
           Warehouses = warehouselist;
+          print(Warehouses);
           
         });
       }
@@ -259,6 +260,9 @@ Future<void> getwarehouse() async {
 
 
    File? selectedImage;
+      File? selectedImagee;
+      File? selectedSignatureImagee;
+
 
   void imageSelect() async {
     try {
@@ -451,15 +455,15 @@ Future<void> getstaff() async {
           join_date.text = staffData['join_date'] ?? '';
           confirmation_date.text = staffData['confirmation_date'] ?? '';
           termination_date.text = staffData['termination_date'] ?? '';
-          selectedImage=staffData['image'] != null
+          selectedImagee=staffData['image'] != null
               ? File(staffData['image'])
               : null;
-            selectedSignatureImage = staffData['signatur_up'] != null
+            selectedSignatureImagee = staffData['signatur_up'] != null
               ? File(staffData['signatur_up'])
               : null;
               
               
-          
+          selectedwarehouseId=staffData['warehouse_id'] ?? 0;
 
           // Initialize date variables from API data
           selectedDateOfBirth = staffData['date_of_birth'] != null
@@ -541,7 +545,7 @@ Future<void> updateStaffImage(
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      
+      print("image update response: ${response.body}");
       
       // Handle response based on status code
       if (response.statusCode == 200) {
@@ -589,8 +593,10 @@ Future<void> updateStaffImage(
   }
   // Function to remove the selected image
   void removeSignatureImage() {
+    print('remove image');
     setState(() {
       selectedSignatureImage = null;
+      
     });
   }
 
@@ -1263,19 +1269,30 @@ Text("Profile Image",
                                   height: 5,
                                 ),
 // If signature image is selected, show image with remove icon
-if (selectedImage != null)
-  Stack(
-    alignment: Alignment.topRight,
+Column(
     children: [
-      selectedImage!.path.startsWith('/')
-          ? Image.file(
+      if (selectedImage != null) 
+        Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Image.file(
               File(selectedImage!.path),
               width: 100,
               height: 100,
               fit: BoxFit.cover,
-            )
-          : Image.network(
-              selectedImage!.path,
+            ),
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: removeImage,
+            ),
+          ],
+        )
+      else if (selectedImagee != null)  // Ensure selectedImagee is also not null
+        Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Image.network(
+              '$api${selectedImagee!.path}',
               width: 100,
               height: 100,
               fit: BoxFit.cover,
@@ -1306,13 +1323,16 @@ if (selectedImage != null)
                 );
               },
             ),
-      IconButton(
-        icon: Icon(Icons.close, color: Colors.red),
-        onPressed: removeImage,
-      ),
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: removeImage,
+            ),
+          ],
+        )
+      else
+        Text("No Image Selected"), // Show a default text if both are null
     ],
   ),
-
 
 
 
@@ -1352,21 +1372,32 @@ if (selectedImage != null)
                           ),
                         ),
 
-                        // If signature image is selected, show image with remove icon
-                     // If signature image is selected, show image with remove icon
-if (selectedSignatureImage != null)
-  Stack(
-    alignment: Alignment.topRight,
+
+SizedBox(height: 5),
+Column(
     children: [
-      selectedSignatureImage!.path.startsWith('/')
-          ? Image.file(
+      if (selectedSignatureImage != null) 
+        Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Image.file(
               File(selectedSignatureImage!.path),
               width: 100,
               height: 100,
               fit: BoxFit.cover,
-            )
-          : Image.network(
-              selectedSignatureImage!.path,
+            ),
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: removeSignatureImage,
+            ),
+          ],
+        )
+      else if (selectedSignatureImagee != null)  // Ensure selectedImagee is also not null
+        Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Image.network(
+              '$api${selectedSignatureImagee!.path}',
               width: 100,
               height: 100,
               fit: BoxFit.cover,
@@ -1397,12 +1428,20 @@ if (selectedSignatureImage != null)
                 );
               },
             ),
-      IconButton(
-        icon: Icon(Icons.close, color: Colors.red),
-        onPressed: removeSignatureImage,
-      ),
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: removeSignatureImage,
+            ),
+          ],
+        )
+      else
+        Text("No Image Selected"), // Show a default text if both are null
     ],
   ),
+
+                        // If signature image is selected, show image with remove icon
+                     // If signature image is selected, show image with remove icon
+
 
 SizedBox(height: 8,),
  Container(
