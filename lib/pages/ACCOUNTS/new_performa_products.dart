@@ -56,6 +56,10 @@ class _CreatePerformaProduct_ListState extends State<CreatePerformaProduct_List>
   List<bool> _checkboxValues = [];
   List<Map<String, dynamic>> filteredProducts = [];
   List<Map<String, dynamic>> variant= [];
+  int? selectedwarehouseId; // Variable to store the selected department's ID
+    String? selectedwarehouseName;
+
+  List<Map<String, dynamic>> Warehouses = [];
 
   TextEditingController searchController =TextEditingController(); // Search controller
 
@@ -63,14 +67,34 @@ class _CreatePerformaProduct_ListState extends State<CreatePerformaProduct_List>
   void initState() {
     super.initState();
     initdata();
+    getwarehouse();
   }
+var warehouse;
+Future<void> initdata() async {
+  final dep = await getdepFromPrefs();
+  
 
-  Future<void> initdata() async {
-    await fetchProductList();
-    setState(() {
-      filteredProducts = products;
-    });
-  }
+   warehouse = await getwarehouseFromPrefs();
+  print('warehouse'+warehouse.toString());
+
+  // if(warehouse=="0"){
+    
+  //  await  fetchProductList();
+  //   setState(() {
+  //   filteredProducts = products;
+  // });
+  // }
+  
+    
+  await  fetchProductListid(warehouse);
+   setState(() {
+    filteredProducts = products;
+  });
+  
+
+ 
+}
+
 
 Future<void> _getAndShowVariants(int productId) async {
     await getvariant(productId, "type"); // Call your existing getvariant function
@@ -96,6 +120,51 @@ Future<void> _getAndShowVariants(int productId) async {
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
+  }
+  Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
+  
+ Future<String?> getwarehouseFromPrefs() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int? warehouseId = prefs.getInt('warehouse');
+  
+  // Check if warehouseId is null before converting to String
+  return warehouseId?.toString();
+}
+
+  Future<void> getwarehouse() async {
+    final token = await getTokenFromPrefs();
+    
+
+    try {
+      final response =
+          await http.get(Uri.parse('$api/api/warehouse/add/'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+      List<Map<String, dynamic>> warehouselist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        
+        for (var productData in parsed) {
+          warehouselist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'location': productData['location']
+          });
+        }
+        setState(() {
+          Warehouses = warehouselist;
+          
+        });
+      }
+    } catch (e) {
+      
+    }
   }
 
   
@@ -197,8 +266,14 @@ Future<void> _getAndShowVariants(int productId) async {
 //     
 //   }
 // }
- Future<void> fetchProductList() async {
+var dep;
+
+Future<void> fetchProductList() async {
   final token = await getTokenFromPrefs();
+ 
+ 
+dep= await getdepFromPrefs();
+ 
 
   try {
     final response = await http.get(
@@ -208,6 +283,7 @@ Future<void> _getAndShowVariants(int productId) async {
         'Authorization': 'Bearer $token',
       },
     );
+
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -244,6 +320,69 @@ Future<void> _getAndShowVariants(int productId) async {
 
       setState(() {
         products = productList;
+        print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
+        filteredProducts=products;
+      });
+    }
+  } catch (error) {
+    
+  }
+}
+
+ Future<void> fetchProductListid(var warehouse) async {
+  final token = await getTokenFromPrefs();
+ 
+ 
+dep= await getdepFromPrefs();
+ 
+print('depppppppppppppppppp$dep');
+  try {
+    final response = await http.get(
+      Uri.parse("$api/api/warehouse/products/$warehouse/"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
+      List<Map<String, dynamic>> productList = [];
+
+      
+
+      for (var productData in productsData) {
+        // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
+        List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
+            (famItem) => famItem['id'] == id,
+            orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
+
+        // Add the product data to the list
+        productList.add({
+          'id': productData['id'],
+          'variantIDs':productData['variantIDs'],
+          'name': productData['name'],
+          'hsn_code': productData['hsn_code'],
+          'type': productData['type'],
+          'unit': productData['unit'],
+          'purchase_rate': productData['purchase_rate'],
+          'tax': productData['tax'],
+          'exclude_price': productData['exclude_price'],
+          'selling_price': productData['selling_price'],
+          'stock': productData['stock'],
+          'created_user': productData['created_user'],
+          'family': familyNames, // Add family names here
+          'image': productData['image'], // Main product image
+          // Don't process single_products or variant_products
+        });
+      }
+
+      setState(() {
+        products = productList;
+        print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
+        filteredProducts=products;
       });
     }
   } catch (error) {
@@ -362,10 +501,10 @@ Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
    
 
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
              backgroundColor: Colors.green,
-            content: Text('Bank added Successfully.'),
+            content: Text(' added Successfully.'),
           ),
         );
         // Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
@@ -383,47 +522,7 @@ Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
  }
 }
 
-Future<void> addtocart2(BuildContext scaffoldContext,mainid,varid,quantity) async{
-    final token = await getTokenFromPrefs();
- try{
-   final response= await http.post(Uri.parse('$api/api/cart/product/'),
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  },
-  body:jsonEncode(
-    {
-     'product':mainid,
-     'variant':varid,
-     'quantity':quantity
-    }
-  )
-  );
-   
-   
-
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-             backgroundColor: Colors.green,
-            content: Text('Bank added Successfully.'),
-          ),
-        );
-        // Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding Bank failed.'),
-          ),
-        );
-      }
- }
- catch(e){
-  
- }
-}
-Future<void> addtocart3(BuildContext scaffoldContext,mainid,quantity) async{
+Future<void> addtocart2(BuildContext scaffoldContext,mainid,quantity) async{
     final token = await getTokenFromPrefs();
  try{
    final response= await http.post(Uri.parse('$api/api/cart/product/'),
@@ -462,141 +561,7 @@ Future<void> addtocart3(BuildContext scaffoldContext,mainid,quantity) async{
   
  }
 }
-// void showSizeDialog(BuildContext context, List<String> colors, List<Map<String, dynamic>> sizes, mainid, varid) {
-//   showDialog(
-//     context: context,
-//     barrierDismissible: true,
-//     builder: (BuildContext context) {
-//       String selectedColor = '';
-//       String selectedSize = '';
-//       int? selectedSizeId;
-//       int? selectedStock; // Variable to store the selected stock
-//       TextEditingController quantityController = TextEditingController(); // Controller for quantity input
-
-//       return StatefulBuilder(
-//         builder: (BuildContext context, StateSetter setState) {
-//           return Dialog(
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(20),
-//             ),
-//             child: Padding(
-//               padding: EdgeInsets.all(20),
-//               child: SingleChildScrollView( // Make the content scrollable if needed
-//                 child: Column(
-//                   mainAxisSize: MainAxisSize.min,
-//                   crossAxisAlignment: CrossAxisAlignment.center,
-//                   children: [
-//                     if (selectedStock != null) // Show stock info only if a size is selected
-//                       Container(
-//                         child: Padding(
-//                           padding: const EdgeInsets.only(bottom: 10),
-//                           child: Text(
-//                             'Available Stock: $selectedStock',
-//                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-//                           ),
-//                         ),
-//                       ),
-//                     Wrap(
-//                       spacing: 10,
-//                       children: colors.map((color) {
-//                         return ChoiceChip(
-//                           label: Text(color),
-//                           selected: selectedColor == color,
-//                           onSelected: (bool selected) {
-//                             setState(() {
-//                               selectedColor = selected ? color : '';
-//                             });
-//                           },
-//                           selectedColor: Colors.green,
-//                         );
-//                       }).toList(),
-//                     ),
-//                     SizedBox(height: 10),
-//                     Wrap(
-//                       spacing: 5,
-//                       children: sizes.map((sizeMap) {
-//                         String sizeAttribute = sizeMap['attribute'];
-//                         int sizeId = sizeMap['id'];
-//                         int stock = sizeMap['stock'];
-
-//                         return ChoiceChip(
-//                           label: Text(sizeAttribute),
-//                           selected: selectedSize == sizeAttribute,
-//                           onSelected: (bool selected) {
-//                             setState(() {
-//                               if (selected) {
-//                                 selectedSize = sizeAttribute;
-//                                 selectedSizeId = sizeId;
-//                                 selectedStock = stock; // Update stock based on selected size
-//                                 quantityController.clear(); // Clear quantity input when selecting a new size
-//                               } else {
-//                                 selectedSize = '';
-//                                 selectedSizeId = null;
-//                                 selectedStock = null;
-//                               }
-//                             });
-//                           },
-//                           selectedColor:const Color.fromARGB(223, 229, 230, 231),
-//                         );
-//                       }).toList(),
-//                     ),
-//                     SizedBox(height: 10),
-//                     if (selectedSize.isNotEmpty) // Show quantity input field only if a size is selected
-//                      Padding(
-//                        padding: const EdgeInsets.only(bottom: 8),
-//                        child: SizedBox(
-//                          width: 300, // Set the desired width here
-//                          height: 40,
-//                          child: TextField(
-//                            controller: quantityController,
-//                            keyboardType: TextInputType.number,
-//                            decoration: InputDecoration(
-//                              labelText: 'Enter Quantity',
-//                              border: OutlineInputBorder(
-//                                borderRadius: BorderRadius.circular(10),
-//                              ),
-//                            ),
-//                          ),
-//                        ),
-//                      ),
-
-//                     SizedBox(
-//                       height: 50,
-//                       width: 300,
-//                       child: ElevatedButton(
-//                         onPressed: () {
-//                           // Get the entered quantity value
-//                           int quantity = int.tryParse(quantityController.text) ?? 1;
-                      
-//                           // Add logic for adding to cart, using selectedSizeId and quantity
-//                           
-//                           
-                      
-//                           // Call add to cart function
-//                           addtocart(context, mainid, varid, selectedSizeId, quantity);
-                      
-//                           // Close the dialog after adding to cart
-//                           Navigator.of(context).pop();
-//                         },
-//                         child: Text("ADD TO CART", style: TextStyle(color: Colors.white)),
-//                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: Colors.blue,
-//                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-//                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           );
-//         },
-//       );
-//     },
-//   );
-// }
-
+// 
 
 void showSizeDialog2(BuildContext context, List variants) {
   // Create a ValueNotifier to track the selected product
@@ -630,6 +595,8 @@ void showSizeDialog2(BuildContext context, List variants) {
                   valueListenable: selectedProductNotifier,
                   builder: (context, selectedProduct, child) {
                     if (selectedProduct != null) {
+                                          print('urlllllllllllllllll$api${selectedProduct['image']}');
+
                       return Column(
                         children: [
                           Container(
@@ -641,12 +608,21 @@ void showSizeDialog2(BuildContext context, List variants) {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Image.network(
-                                  selectedProduct['image'],
-                                  width: 50,
-                                  height: 50,
-                                  fit: BoxFit.cover,
-                                ),
+                                selectedProduct['image'] != null &&
+                                        selectedProduct['image'].isNotEmpty
+                                    ? Image.network(
+                                        '$api${selectedProduct['image']}',
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Container(
+                                        width: 50,
+                                        height: 50,
+                                        color: Colors.grey[300],
+                                        child: Icon(Icons.image_not_supported,
+                                            color: Colors.grey),
+                                      ),
                                 SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
@@ -655,10 +631,12 @@ void showSizeDialog2(BuildContext context, List variants) {
                                       Text(
                                         selectedProduct['name'],
                                         style: TextStyle(
-                                            fontSize: 16, fontWeight: FontWeight.bold),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text("Stock: ${selectedProduct['stock']}"),
-                                      Text("Price: \$${selectedProduct['selling_price']}"),
+                                      Text(
+                                          "Price: \$${selectedProduct['selling_price']}"),
                                     ],
                                   ),
                                 ),
@@ -681,13 +659,22 @@ void showSizeDialog2(BuildContext context, List variants) {
                   itemCount: variants.length,
                   itemBuilder: (context, index) {
                     var variant = variants[index];
+                    print('variant${variant['image']}');
                     return ListTile(
-                      leading: Image.network(
-                        variant['image'],
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      ),
+                      leading: variant['image'] != null && variant['image'].isNotEmpty
+                          ? Image.network(
+                              '$api${variant['image']}',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: 50,
+                              height: 50,
+                              color: Colors.grey[300],
+                              child: Icon(Icons.image_not_supported,
+                                  color: Colors.grey),
+                            ),
                       title: Text(variant['name']),
                       subtitle: Text("Stock: ${variant['stock']}"),
                       trailing: selectedProductNotifier.value == variant
@@ -744,10 +731,6 @@ void showSizeDialog2(BuildContext context, List variants) {
                       }
 
                       // Call add to cart function
-                      
-                      
-
-                      // Example add-to-cart function
                       addtocart(context, selectedProduct['id'], quantity);
 
                       // Close the dialog
@@ -757,7 +740,8 @@ void showSizeDialog2(BuildContext context, List variants) {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                 ),
@@ -769,6 +753,7 @@ void showSizeDialog2(BuildContext context, List variants) {
     },
   );
 }
+
 
 
 
@@ -840,7 +825,7 @@ void showSizeDialog3(BuildContext context, mainid, stock) {
                           
                       
                           // Call add to cart function
-                          addtocart2(context, mainid, varid,quantity);
+                          addtocart2(context, mainid,quantity);
                       
                           // Close the dialog after adding to cart
                           Navigator.of(context).pop();
@@ -884,10 +869,7 @@ List<String> extractStringList(List<dynamic> list, String key) {
   }
   return [];
 }
-Future<String?> getdepFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('department');
-  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -897,7 +879,7 @@ Future<String?> getdepFromPrefs() async {
           "Product List",
           style: TextStyle(color: Colors.grey, fontSize: 14),
         ),
-         leading: IconButton(
+ leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async{
                     final dep= await getdepFromPrefs();
@@ -925,6 +907,7 @@ else {
           },
         ),
 
+        
           actions: [
           // Cart icon with badge
           Padding(
@@ -959,202 +942,51 @@ else {
        
       ),
     
-         drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        "lib/assets/logo.png",
-                        width: 150, // Change width to desired size
-                        height: 150, // Change height to desired size
-                        fit: BoxFit
-                            .contain, // Use BoxFit.contain to maintain aspect ratio
-                      ),
-                    ],
-                  )),
-              ListTile(
-                leading: Icon(Icons.dashboard),
-                title: Text('Dashboard'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => dashboard()));
-                },
-              ),
-             
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Company'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_company()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Departments'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => add_department()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Supervisors'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => add_supervisor()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Family'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_family()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Bank'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_bank()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('States'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_state()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Attributes'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => add_attribute()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Services'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CourierServices()));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-               ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Delivery Notes'),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => WarehouseOrderView(status: null,)));
-                  // Navigate to the Settings page or perform any other action
-                },
-              ),
-              Divider(),
-              _buildDropdownTile(context, 'Reports', [
-                'Sales Report',
-                'Credit Sales Report',
-                'COD Sales Report',
-                'Statewise Sales Report',
-                'Expence Report',
-                'Delivery Report',
-                'Product Sale Report',
-                'Stock Report',
-                'Damaged Stock'
-              ]),
-              _buildDropdownTile(context, 'Customers', [
-                'Add Customer',
-                'Customers',
-              ]),
-              _buildDropdownTile(context, 'Staff', [
-                'Add Staff',
-                'Staff',
-              ]),
-              _buildDropdownTile(context, 'Credit Note', [
-                'Add Credit Note',
-                'Credit Note List',
-              ]),
-              _buildDropdownTile(context, 'Proforma Invoice', [
-                'New Proforma Invoice',
-                'Proforma Invoice List',
-              ]),
-              _buildDropdownTile(context, 'Delivery Note',
-                  ['Delivery Note List', 'Daily Goods Movement']),
-              _buildDropdownTile(
-                  context, 'Orders', ['New Orders', 'Orders List']),
-              Divider(),
-              Text("Others"),
-              Divider(),
-              _buildDropdownTile(context, 'Product', [
-                'Product List',
-                'Product Add',
-                'Stock',
-              ]),
-              _buildDropdownTile(context, 'Expence', [
-                'Add Expence',
-                'Expence List',
-              ]),
-              _buildDropdownTile(
-                  context, 'GRV', ['Create New GRV', 'GRVs List']),
-              _buildDropdownTile(context, 'Banking Module',
-                  ['Add Bank ', 'List', 'Other Transfer']),
-              Divider(),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Methods'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Methods()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.chat),
-                title: Text('Chat'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(Icons.exit_to_app),
-                title: Text('Logout'),
-                onTap: () {
-                  logout();
-                },
-              ),
-            ],
-          ),
-        ),
+      
      body: Container(
        child: Column(
          children: [
+
+          if(dep=='COO'||dep=='ADMIN'||dep=='Accounts')
+
+
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: DropdownButton<int>(
+                                      isExpanded: true,
+                                      value: selectedwarehouseId,
+                                      hint: Text('Select a Warehouse'),
+                                      underline:
+                                          SizedBox(), // Remove the default underline
+                                      onChanged: (int? newValue) {
+                                        setState(() {
+                                          selectedwarehouseId = newValue;
+                                          selectedwarehouseName =
+                                              Warehouses.firstWhere((element) =>
+                                                  element['id'] ==
+                                                  newValue)['name'];
+                                          fetchProductListid(newValue!);
+                                        });
+
+
+                                      },
+                                      items:
+                                          Warehouses.map<DropdownMenuItem<int>>(
+                                              (Warehouses) {
+                                        return DropdownMenuItem<int>(
+                                          value: Warehouses['id'],
+                                          child: Text(Warehouses['name']),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+          ),
 Padding(
   padding: const EdgeInsets.all(8.0),
   child: TextField(
@@ -1194,167 +1026,173 @@ Padding(
 
 
      Expanded(
-  child: ListView.builder(
-    itemCount: filteredProducts.length,
-    itemBuilder: (context, index) {
-      final product = filteredProducts[index];
-      
-      final isExpanded = expandedProducts[product['id']] ?? false;
-
-      return Padding(
-        padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              height: 90,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: ListTile(
-                leading: product['image'] != null && product['image'].isNotEmpty
-                    ? Image.network(
-                        '${product['image']}',
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                      )
-                    : Icon(Icons.image_not_supported),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${product['name']}",
-                      style: TextStyle(fontSize: 14),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+  child: RefreshIndicator(
+    onRefresh: () {
+      return fetchProductList();
+    },
+    child: ListView.builder(
+      itemCount: filteredProducts.length,
+      itemBuilder: (context, index) {
+        final product = filteredProducts[index];
+        print('product${product['image']}');
+        print("===============================[[[[[[[[[==========$product");
+        final isExpanded = expandedProducts[product['id']] ?? false;
+    
+        return Padding(
+          padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                height: 90,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
                     ),
-                    if (product['color'] != null && product['color'].isNotEmpty) // Display color if it exists
-                      Text(
-                        "Color: ${product['color']}",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      
                   ],
                 ),
-                trailing: ElevatedButton.icon(
-                onPressed: () {
-  if (product['is_vaiant'] == true) {
-    
-    // Ensure colors are non-null before passing to extractStringList
-    List<String> colors = extractStringList(product['colors'] ?? [], 'color_name');
-    List<Map<String, dynamic>> sizes = extractSizeList(product['sizes'] ?? []);
-    
-    // showSizeDialog(
-    //   context,
-    //   colors,
-    //   sizes,
-    //   product['mainid'],
-    //   product['id'],
-    // );
-  }
-  else if(product['type'] == 'variant'){
-        
-
-    showSizeDialog2(
-      context,
-      product['variantIDs'] );
-
-  }
-  else if(product['type']=='single'){
-    
-    showSizeDialog3(
-      context,
-      product['mainid'],
-      product['stock'],
-      );
-  }
-
-},
-
-                  icon: Icon(
-                    product['type'] == 'single' ? Icons.add : Icons.view_agenda,
-                    size: 14,
-                    color: Colors.white,
+                child: ListTile(
+                  leading: product['image'] != null && product['image'].isNotEmpty
+                      ? Image.network(
+                          '$api${product['image']}',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                        )
+                      : Icon(Icons.image_not_supported),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${product['name']}",
+                        style: TextStyle(fontSize: 14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (product['color'] != null && product['color'].isNotEmpty) // Display color if it exists
+                        Text(
+                          "Color: ${product['color']}",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        
+                    ],
                   ),
-                  label: Text(
-                    product['type'] == 'single' ? "Add" : "View",
-                    style: TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: product['type'] == 'single' || product['is_vaiant'] == false ? Colors.green : Colors.blue,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    minimumSize: const Size(60, 24),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                  trailing: ElevatedButton.icon(
+                  onPressed: () {
+    if (product['is_vaiant'] == true) {
+      
+      // Ensure colors are non-null before passing to extractStringList
+      List<String> colors = extractStringList(product['colors'] ?? [], 'color_name');
+      List<Map<String, dynamic>> sizes = extractSizeList(product['sizes'] ?? []);
+      
+      // showSizeDialog(
+      //   context,
+      //   colors,
+      //   sizes,
+      //   product['mainid'],
+      //   product['id'],
+      // );
+    }
+    else if(product['type'] == 'variant'){
+          
+    
+      showSizeDialog2(
+        context,
+        product['variantIDs'] );
+    
+    }
+    else if(product['type']=='single'){
+      
+      showSizeDialog3(
+        context,
+        product['id'],
+        product['stock'],
+        );
+    }
+    
+    },
+    
+                    icon: Icon(
+                      product['type'] == 'single' ? Icons.add : Icons.view_agenda,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      product['type'] == 'single' ? "Add" : "View",
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: product['type'] == 'single' || product['is_vaiant'] == false ? Colors.green : Colors.blue,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(60, 24),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            // Display variant list if expanded
-            if (isExpanded && product['variant_products'] != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 10, right: 10),
-                child: Column(
-                  children: product['variant_products'].map<Widget>((variantProduct) {
-                    return Container(
-                      height: 70,
-                      margin: const EdgeInsets.only(bottom: 6),
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          if (variantProduct['image'] != null && variantProduct['image'].isNotEmpty)
-                            Image.network(
-                              variantProduct['image'],
-                              width: 65,
-                              height: 65,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                            )
-                          else
-                            Icon(Icons.image_not_supported),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              "${variantProduct['name']} - ${variantProduct['color']} - Stock: ${variantProduct['stock']}",
-                              style: TextStyle(fontSize: 12),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+              // Display variant list if expanded
+              if (isExpanded && product['variant_products'] != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 10, right: 10),
+                  child: Column(
+                    children: product['variant_products'].map<Widget>((variantProduct) {
+                      return Container(
+                        height: 70,
+                        margin: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            if (variantProduct['image'] != null && variantProduct['image'].isNotEmpty)
+                              Image.network(
+                                variantProduct['image'],
+                                width: 65,
+                                height: 65,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                              )
+                            else
+                              Icon(Icons.image_not_supported),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                "${variantProduct['name']} - ${variantProduct['color']} - Stock: ${variantProduct['stock']}",
+                                style: TextStyle(fontSize: 12),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-          ],
-        ),
-      );
-    },
+            ],
+          ),
+        );
+      },
+    ),
   ),
 ),
 

@@ -295,8 +295,8 @@ class _Invoice_ReportState extends State<Invoice_Report> {
               leading: Icon(Icons.person),
               title: Text('Customer'),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => customer_list()));
+                // Navigator.push(context,
+                //     MaterialPageRoute(builder: (context) => customer_list()));
               },
             ),
             Divider(),

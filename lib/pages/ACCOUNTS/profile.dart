@@ -444,10 +444,10 @@ void logout() async {
         );
         break;
       case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => customer_list()),
+        // );
         break;
       case 'Option 3':
         Navigator.push(

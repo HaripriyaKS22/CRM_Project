@@ -35,15 +35,77 @@ class _ProformaInvoiceListState extends State<ProformaInvoiceList> {
   @override
   void initState() {
     super.initState();
-    fetchOrderData();
+    initdata();
+  }
+
+  var dep;
+  void initdata() async {
+    dep = await getdepFromPrefs();
+
+    if (dep == "BDO" || dep == "BDM") {
+      fetchOrderData2();
+    } else {
+      fetchOrderData();
+    }
   }
 
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+Future<void> fetchOrderData2() async {
+    try {
+      final token = await getTokenFromPrefs();
 
+      final response = await http.get(
+        Uri.parse('$api/api/performa/invoice/staff/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        final data = parsed['data'] as List;
+
+        List<Map<String, dynamic>> performaInvoiceList = [];
+
+        for (var productData in data) {
+          performaInvoiceList.add({
+            'id': productData['id'],
+            'company': productData['company'],
+            'invoice': productData['invoice'],
+            'order_date': productData['order_date'],
+            'code_charge': productData['code_charge'],
+            'shipping_mode': productData['shipping_mode'] ?? 'N/A',
+            'shipping_charge': productData['shipping_charge'],
+            'payment_status': productData['payment_status'],
+            'status': productData['status'],
+            'total_amount': productData['total_amount'],
+            'note': productData['note'] ?? 'No notes',
+            'payment_method': productData['payment_method'],
+            'manage_staff': productData['staffname'],
+            'customer_name': productData['customer'],
+            'billing_address': productData['billing_address'],
+            'family': productData['family'],
+            'state': productData['state'],
+            'bank': productData['bank'],
+          });
+        }
+
+        setState(() {
+          orders = performaInvoiceList;
+        });
+      } else {
+        print('Failed to load orders: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching orders: $error');
+    }
+  }
   Future<void> fetchOrderData() async {
+    if (!mounted) return;
     try {
       final token = await getTokenFromPrefs();
       final response = await http.get(
@@ -54,10 +116,10 @@ class _ProformaInvoiceListState extends State<ProformaInvoiceList> {
         },
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && mounted) {
         final parsed = jsonDecode(response.body);
         final data = parsed['data'] as List;
-        
+
         List<Map<String, dynamic>> performaInvoiceList = [];
 
         for (var productData in data) {
@@ -74,15 +136,19 @@ class _ProformaInvoiceListState extends State<ProformaInvoiceList> {
         }
 
         setState(() {
-          orders = performaInvoiceList;
+          orders = performaInvoiceList.reversed.toList(); // Reverse the data list
+          filteredOrders = performaInvoiceList.reversed.toList();
         });
-      } else {
-        
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to fetch orders data')));
       }
     } catch (error) {
-      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error fetching orders data')));
+      }
     }
   }
+
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
     return ExpansionTile(
@@ -130,6 +196,33 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+ List<Map<String, dynamic>> filteredOrders = [];
+  String searchQuery = '';
+
+
+   void _filterOrders(String query) {
+    setState(() {
+      searchQuery = query;
+      if (query.isEmpty) {
+        filteredOrders = orders;
+      } else {
+        filteredOrders = orders.where((order) {
+          final customerName =
+              order['customer_name']?.toString().toLowerCase() ?? '';
+          final invoice = order['invoice']?.toString().toLowerCase() ?? '';
+          final manageStaff =
+              order['manage_staff']?.toString().toLowerCase() ?? '';
+          final totalAmount =
+              order['total_amount']?.toString().toLowerCase() ?? '';
+
+          return customerName.contains(query.toLowerCase()) ||
+              invoice.contains(query.toLowerCase()) ||
+              manageStaff.contains(query.toLowerCase()) ||
+              totalAmount.contains(query.toLowerCase());
+        }).toList();
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,14 +263,31 @@ else {
        
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                ),
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: _filterOrders,
+            ),
+          ),
           Expanded(
-            child: orders.isEmpty
+            child: filteredOrders.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
-                    itemCount: orders.length,
-                    padding: const EdgeInsets.all(16.0),
+                    itemCount: filteredOrders.length,
+                    padding: const EdgeInsets.all(8.0),
                     itemBuilder: (context, index) {
-                      final order = orders[index];
+                      final order = filteredOrders[index];
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: GestureDetector(
@@ -202,7 +312,7 @@ else {
                                       topRight: Radius.circular(15.0),
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(12.0),
+                                  padding: const EdgeInsets.all(5.0),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
@@ -221,7 +331,7 @@ else {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(12.0),
+                                  padding: const EdgeInsets.all(8.0),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -258,7 +368,7 @@ else {
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 8.0),
+                                      const SizedBox(height:2.0),
                                     ],
                                   ),
                                 ),

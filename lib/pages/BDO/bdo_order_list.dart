@@ -32,8 +32,8 @@ import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 
 class bod_oredr_list extends StatefulWidget {
-  var status ;
-  bod_oredr_list({super.key,required this.status});
+  var status;
+  bod_oredr_list({super.key, required this.status});
 
   @override
   State<bod_oredr_list> createState() => _bod_oredr_listState();
@@ -76,252 +76,108 @@ class _bod_oredr_listState extends State<bod_oredr_list> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-  Future<void> fetchOrderData() async {
-    try {
-      final token = await getTokenFromPrefs();
-                    final dep= await getdepFromPrefs();
-                    
- final jwt = JWT.decode(token!);
-          var name = jwt.payload['name'];
-          
-      var response = await http.get(
-        Uri.parse('$api/api/orders/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+Future<void> fetchOrderData() async {
+  try {
+    final token = await getTokenFromPrefs();
+    final dep = await getdepFromPrefs();
 
-      
+    if (token == null) {
+      print("Error: Token is null");
+      return;
+    }
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed;
+    // final jwt = Jwt.parseJwt(token);
+    // var name = jwt['name']; // Extract user name (if needed)
+
+    var response = await http.get(
+      Uri.parse('$api/api/staff/orders/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print("Response Body: ${response.body}");
+    print("Response Status Code: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+
+      if (parsed is Map<String, dynamic> && parsed.containsKey('data')) {
+        List<dynamic> productsData = parsed['data']; // Extract the data array
+
         List<Map<String, dynamic>> orderList = [];
 
         for (var productData in productsData) {
-          // Parse the date
-          String rawOrderDate = productData['order_date'];
-          String formattedOrderDate =
-              rawOrderDate; // Fallback in case of parsing failure
+          // Handle missing or null values safely
+          String rawOrderDate = productData['order_date'] ?? "";
+          String formattedOrderDate = rawOrderDate; // Fallback in case of failure
 
           try {
-            // Try to parse the date in 'yyyy-MM-dd' format
-            DateTime parsedOrderDate =
-                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
-            formattedOrderDate = DateFormat('yyyy-MM-dd')
-                .format(parsedOrderDate); // Convert to desired format
+            DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+            formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
           } catch (e) {
-            
+            print("Date parsing error: $e");
           }
-if(widget.status==null){
 
- if(dep=="BDO" || dep=="BDM"){
-  
-          if(name==productData['manage_staff']){
-             orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-
-          }}
-          else{
-             orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
+          if (widget.status == null || widget.status == productData['status']) {
+            orderList.add({
+              'id': productData['id'],
+              'invoice': productData['invoice'],
+              'manage_staff': productData['manage_staff'],
+              'customer': productData['customer'] ?? {},
+              'billing_address': productData['billing_address'] ?? {},
+              'bank': productData['bank'] ?? {},
+              'items': productData['items'] != null
+                  ? List<Map<String, dynamic>>.from(productData['items'].map((item) => {
+                        'id': item['id'],
+                        'name': item['name'],
+                        'quantity': item['quantity'],
+                        'price': item['price'],
+                        'tax': item['tax'],
+                        'discount': item['discount'],
+                        'images': item['images'],
+                      }))
+                  : [],
+              'received_payment': productData['recived_payment'] != null
+                  ? List<Map<String, dynamic>>.from(productData['recived_payment'].map((payment) => {
+                        'id': payment['id'],
+                        'created_by': payment['created_by'],
+                        'bank': payment['bank'],
+                        'payment_receipt': payment['payment_receipt'],
+                        'amount': payment['amount'],
+                        'transactionID': payment['transactionID'],
+                        'received_at': payment['received_at'],
+                        'remark': payment['remark'],
+                      }))
+                  : [],
+              'status': productData['status'],
+              'total_amount': productData['total_amount'],
+              'order_date': formattedOrderDate,
+            });
           }
-         
         }
-        else if(widget.status==productData['status']){
-if(dep=="BDO" || dep=="BDM"){
-          if(name==productData['manage_staff']){
-               orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-          }}
-          else{
-               orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-          }
-          
-
-        }
-
-        
-        
-        }
-        
 
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
-          
         });
+        print("Processed Orders: $orders");
+      } else {
+        print("Error: Unexpected JSON format");
       }
-    } catch (error) {
-      
+    } else {
+      print("Error: Unexpected response ${response.statusCode}");
     }
+  } catch (error) {
+    print('Error fetching order data: $error');
   }
+}
 
   void _filterOrders(String query) {
     setState(() {
@@ -408,32 +264,33 @@ if(dep=="BDO" || dep=="BDM"){
       _filterOrdersByDateRange();
     }
   }
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
 
   Future<void> exportToExcel() async {
     var excel = Excel.createExcel();
@@ -700,68 +557,64 @@ void logout() async {
           ),
         ],
       ),
-    drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        "lib/assets/logo.png",
-                        width: 150, // Change width to desired size
-                        height: 150, // Change height to desired size
-                        fit: BoxFit
-                            .contain, // Use BoxFit.contain to maintain aspect ratio
-                      ),
-                    ],
-                  )),
-              ListTile(
-                leading: Icon(Icons.dashboard),
-                title: Text('Dashboard'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => bdo_dashbord()));
-                },
-              ),
-              
-              Divider(),
-              _buildDropdownTile(context, 'Customers', [
-                'Add Customer',
-                'Customers',
-              ]),
-            
-              _buildDropdownTile(context, 'Proforma Invoice', [
-                'New Proforma Invoice',
-                'Proforma Invoice List',
-              ]),
-               _buildDropdownTile(
-                  context, 'Orders', ['New Orders', 'Orders List']),
-             
-              Divider(),
-             
-              ListTile(
-                leading: Icon(Icons.chat),
-                title: Text('Chat'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(Icons.exit_to_app),
-                title: Text('Logout'),
-                onTap: () {
-                  logout();
-                },
-              ),
-            ],
-          ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "lib/assets/logo.png",
+                      width: 150, // Change width to desired size
+                      height: 150, // Change height to desired size
+                      fit: BoxFit
+                          .contain, // Use BoxFit.contain to maintain aspect ratio
+                    ),
+                  ],
+                )),
+            ListTile(
+              leading: Icon(Icons.dashboard),
+              title: Text('Dashboard'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => bdo_dashbord()));
+              },
+            ),
+            Divider(),
+            _buildDropdownTile(context, 'Customers', [
+              'Add Customer',
+              'Customers',
+            ]),
+            _buildDropdownTile(context, 'Proforma Invoice', [
+              'New Proforma Invoice',
+              'Proforma Invoice List',
+            ]),
+            _buildDropdownTile(
+                context, 'Orders', ['New Orders', 'Orders List']),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.chat),
+              title: Text('Chat'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Logout'),
+              onTap: () {
+                logout();
+              },
+            ),
+          ],
         ),
+      ),
       body: Column(
         children: [
           // Search Bar
@@ -907,33 +760,30 @@ void logout() async {
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600),
                                       ),
-                                                                            SizedBox(height: 4.0),
-
+                                      SizedBox(height: 4.0),
                                       Text(
                                         'Staff: ${order['manage_staff']}',
                                         style: TextStyle(
-                                            fontSize: 13,
-                                            ),
+                                          fontSize: 13,
+                                        ),
                                       ),
-                                      
-                                       SizedBox(height: 4.0),
-                                       Row(
-                                         children: [
-                                           Text(
+                                      SizedBox(height: 4.0),
+                                      Row(
+                                        children: [
+                                          Text(
                                             'Status: ',
                                             style: TextStyle(
-                                                fontSize: 13,
-                                                ),
-                                                                                 ),
-                                            Text(
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          Text(
                                             '${order['status']}',
                                             style: TextStyle(
                                                 fontSize: 13,
-                                                color: Colors.blue
-                                                ),
-                                                                                 ),
-                                         ],
-                                       ),
+                                                color: Colors.blue),
+                                          ),
+                                        ],
+                                      ),
                                       SizedBox(height: 8.0),
                                       Row(
                                         mainAxisAlignment:
@@ -942,8 +792,8 @@ void logout() async {
                                           Text(
                                             'Billing Amount:',
                                             style: TextStyle(
-                                                fontSize: 13,
-                                               ),
+                                              fontSize: 13,
+                                            ),
                                           ),
                                           Text(
                                             '\$${order['total_amount']}',

@@ -107,7 +107,7 @@ print(response.body);
         // Handle navigation based on active role
         Widget targetPage;
         switch (active) {
-          case 'IT':
+          case 'Information Technology':
           case 'Accounts / Accounting':
             targetPage = dashboard();
             break;
@@ -118,6 +118,9 @@ print(response.body);
             targetPage = bdo_dashbord();
             break;
           case 'COO':
+            targetPage = admin_dashboard();
+            break;
+          case 'ADMIN':
             targetPage = admin_dashboard();
             break;
           case 'BDM':

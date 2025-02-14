@@ -100,13 +100,17 @@ Future<String?> getdepFromPrefs() async {
           'Content-Type': 'application/json',
         },
       );
+      print(response.statusCode);
+print("===================");
+print(response.body);
+print(response.statusCode);
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var ordersData = parsed['results'];
 
         List<Map<String, dynamic>> newOrders = [];
-
+print(ordersData);
         for (var orderData in ordersData) {
           // Parse order date safely
           String rawOrderDate = orderData['order_date'] ?? "";

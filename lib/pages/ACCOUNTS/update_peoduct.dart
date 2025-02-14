@@ -280,11 +280,11 @@ class _update_productState extends State<update_product> {
               variantProducts = List<Map<String, dynamic>>.from(
                   variantIDs); // List of variants
               singleProducts = [productData]; // Single product as a list
-
+              print('singleProducts$singleProducts');
+print('variantProducts$variantProducts');
               if (singleProducts.isNotEmpty) {
                 name.text = singleProducts[0]['name']?.toString() ?? '';
                 hsncode.text = singleProducts[0]['hsn_code']?.toString() ?? '';
-                print("hsncode${singleProducts[0]['hsn_code']}");
                 sellingprice.text =
                     singleProducts[0]['selling_price']?.toString() ?? '';
                 purchaserate.text =
@@ -304,7 +304,6 @@ class _update_productState extends State<update_product> {
               }
             }
           });
-
           
         } else {
           
@@ -443,7 +442,8 @@ class _update_productState extends State<update_product> {
       var responseData = await http.Response.fromStream(response);
 
       // Print the response status and body for debugging
-      print(responseData.body);
+      print("Response status: ${responseData.statusCode}");
+      print("Response body: ${responseData.body}");
       
 
       if (responseData.statusCode == 200) {
@@ -536,21 +536,19 @@ class _update_productState extends State<update_product> {
         }
 
         setState(() {
-  fam = familylist;
-  print(fam);
+          fam = familylist;
 
-  // Correctly initialize `_checkboxValues` with the same length as `fam`
-  _checkboxValues = List<bool>.filled(fam.length, false);
+          // Correctly initialize `_checkboxValues` with the same length as `fam`
+          _checkboxValues = List<bool>.filled(fam.length, false);
 
-  // Automatically select checkboxes for `fami` items
-  for (int i = 0; i < fam.length; i++) {
-    if (fami.contains(fam[i]['id'])) {
-      _checkboxValues[i] = true;
-      _selectedFamily.add(fam[i]['id']);
-    }
-  }
-});
-
+          // Automatically select checkboxes for `fami` items
+          for (int i = 0; i < fam.length; i++) {
+            if (fami.contains(fam[i]['id'])) {
+              _checkboxValues[i] = true;
+              _selectedFamily.add(fam[i]['id']);
+            }
+          }
+        });
       }
     } catch (error) {
       
@@ -1499,59 +1497,5 @@ class _update_productState extends State<update_product> {
     );
   }
 
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
-      case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-      case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-
-      default:
-        break;
-    }
-  }
+ 
 }

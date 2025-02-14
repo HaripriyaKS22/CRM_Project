@@ -74,22 +74,22 @@ Future<void> initdata() async {
   
 
    warehouse = await getwarehouseFromPrefs();
-  
+  print('warehouse'+warehouse.toString());
 
-  if(warehouse=="0"){
+  // if(warehouse=="0"){
     
-   await  fetchProductList();
-    setState(() {
-    filteredProducts = products;
-  });
-  }
-  else{
+  //  await  fetchProductList();
+  //   setState(() {
+  //   filteredProducts = products;
+  // });
+  // }
+  
     
   await  fetchProductListid(warehouse);
    setState(() {
     filteredProducts = products;
   });
-  }
+  
 
  
 }
@@ -319,6 +319,7 @@ dep= await getdepFromPrefs();
 
       setState(() {
         products = productList;
+        print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
         filteredProducts=products;
       });
     }
@@ -333,7 +334,7 @@ dep= await getdepFromPrefs();
  
 dep= await getdepFromPrefs();
  
-
+print('depppppppppppppppppp$dep');
   try {
     final response = await http.get(
       Uri.parse("$api/api/warehouse/products/$warehouse/"),
@@ -379,6 +380,7 @@ dep= await getdepFromPrefs();
 
       setState(() {
         products = productList;
+        print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
         filteredProducts=products;
       });
     }
@@ -592,6 +594,8 @@ void showSizeDialog2(BuildContext context, List variants) {
                   valueListenable: selectedProductNotifier,
                   builder: (context, selectedProduct, child) {
                     if (selectedProduct != null) {
+                                          print('urlllllllllllllllll$api${selectedProduct['image']}');
+
                       return Column(
                         children: [
                           Container(
@@ -606,7 +610,7 @@ void showSizeDialog2(BuildContext context, List variants) {
                                 selectedProduct['image'] != null &&
                                         selectedProduct['image'].isNotEmpty
                                     ? Image.network(
-                                        selectedProduct['image'],
+                                        '$api${selectedProduct['image']}',
                                         width: 50,
                                         height: 50,
                                         fit: BoxFit.cover,
@@ -654,10 +658,11 @@ void showSizeDialog2(BuildContext context, List variants) {
                   itemCount: variants.length,
                   itemBuilder: (context, index) {
                     var variant = variants[index];
+                    print('variant${variant['image']}');
                     return ListTile(
                       leading: variant['image'] != null && variant['image'].isNotEmpty
                           ? Image.network(
-                              variant['image'],
+                              '$api${variant['image']}',
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
@@ -941,7 +946,7 @@ else {
        child: Column(
          children: [
 
-          if(dep=='COO'||dep=='Admin'||dep=='Accounts')
+          if(dep=='COO'||dep=='ADMIN'||dep=='Accounts')
 
 
           Padding(
@@ -1028,7 +1033,8 @@ Padding(
       itemCount: filteredProducts.length,
       itemBuilder: (context, index) {
         final product = filteredProducts[index];
-        
+        print('product${product['image']}');
+        print("===============================[[[[[[[[[==========$product");
         final isExpanded = expandedProducts[product['id']] ?? false;
     
         return Padding(
@@ -1053,7 +1059,7 @@ Padding(
                 child: ListTile(
                   leading: product['image'] != null && product['image'].isNotEmpty
                       ? Image.network(
-                          '${product['image']}',
+                          '$api${product['image']}',
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,

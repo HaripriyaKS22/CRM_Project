@@ -1,1 +1,1 @@
-var api="https://launches-completely-deutsch-bush.trycloudflare.com";
+var api="https://assumptions-hat-carlos-responding.trycloudflare.com";

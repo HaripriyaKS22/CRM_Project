@@ -45,12 +45,12 @@ class drower{
           MaterialPageRoute(builder: (context) =>add_new_customer()),
         );
         break;
-      case 'Customers':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
+      // case 'Customers':
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => customer_list()),
+      //   );
+       // break;
       case 'Add Staff':
         Navigator.push(
           context,

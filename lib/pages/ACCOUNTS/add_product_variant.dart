@@ -10,6 +10,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_peoduct.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_product_variant.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
@@ -133,7 +134,7 @@ class _add_product_variantState extends State<add_product_variant> {
                 ),
                 DataCell(
                   Image.network(
-                    '${product['image']}',
+                    '$api${product['image']}',
                     width: 30,
                     height: 30,
                     fit: BoxFit.cover,
@@ -248,8 +249,8 @@ class _add_product_variantState extends State<add_product_variant> {
                 ),
               ),
               DataCell(
-                variant['variant_images']?.isNotEmpty == true
-                    ? Image.network(
+                
+                     Image.network(
                         '${api}${variant['image']}',
                         width: 50,
                         height: 40,
@@ -258,7 +259,7 @@ class _add_product_variantState extends State<add_product_variant> {
                           return const Icon(Icons.image_not_supported);
                         },
                       )
-                    : const Icon(Icons.image_not_supported),
+                    
               ),
               DataCell(
                 ElevatedButton(
@@ -406,6 +407,75 @@ class _add_product_variantState extends State<add_product_variant> {
     }
   }
 
+  
+  Future<void> pickImagemain() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        image = File(pickedFile.path);
+      });
+    }
+  }
+Future<void> updateProductImage(
+      BuildContext scaffoldContext, File newImage) async {
+    final token = await gettokenFromPrefs();
+
+    try {
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse(
+            "$api/api/product/update/${widget.id}/"), // Use the global product ID
+      );
+
+      // Add headers
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+      });
+
+      // Check if new image is provided
+      if (newImage != null) {
+        // Add the image file to the request
+        request.files
+            .add(await http.MultipartFile.fromPath('image', newImage.path));
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Please select a valid image.'),
+          ),
+        );
+        return;
+      }
+
+      // Send the request
+      var response = await request.send();
+      var responseData = await http.Response.fromStream(response);
+
+      // Print the response status and body for debugging
+      
+      
+
+      if (responseData.statusCode == 200) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Image updated successfully.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            content: Text('Image is not Updated'),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+        ),
+      );
+    }
+  }
   void addimage(
     BuildContext scaffoldContext,
   ) async {
@@ -416,7 +486,7 @@ class _add_product_variantState extends State<add_product_variant> {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse("$api/api/add/product/variant/"),
+        Uri.parse("$api/api/image/add/${widget.id}/"),
       );
 
       // Add headers
@@ -425,7 +495,7 @@ class _add_product_variantState extends State<add_product_variant> {
         'Authorization': 'Bearer $token',
       });
 
-      request.fields['product'] = widget.id;
+      request.fields['product'] = widget.id.toString();
       for (File imageFile in selectedImagesList) {
         var stream = http.ByteStream(imageFile.openRead());
         var length = await imageFile.length();
@@ -443,17 +513,17 @@ class _add_product_variantState extends State<add_product_variant> {
       // Send the request
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
-
+print("responseData.body${responseData.body}");
       
 
       if (responseData.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
-            content: Text('Product added successfully.'),
+            content: Text('Image added successfully.'),
           ),
         );
-        // Navigator.push(
-        //     context, MaterialPageRoute(builder: (context) => add_product()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Product_List()));
       } else if (responseData.statusCode == 500) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -492,7 +562,7 @@ class _add_product_variantState extends State<add_product_variant> {
         );
       }
     } catch (e) {
-      
+      print(e);
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Enter valid information'),
@@ -549,7 +619,7 @@ class _add_product_variantState extends State<add_product_variant> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
+var groupid;
   var viewprofileurl = "$api/api/profile/";
   String? selectedValue;
   Future<void> getprofiledata() async {
@@ -607,11 +677,15 @@ print(response.body);
               product.text = singleProducts[0]['name'] ?? '';
               
             }
-          } else if (widget.type == 'variant') {
+          } else if (widget.type == 'variant') 
+          {
             variantProducts = List<Map<String, dynamic>>.from(variantIDs); // List of variants
             print("variantProducts$variantProducts");
             if (variantProducts.isNotEmpty) {
               product.text = variantProducts[0]['name'] ?? '';
+              groupid=variantProducts[0]['groupID'];
+              print("groupid$groupid");
+
               
             }
           }
@@ -924,77 +998,108 @@ Future<String?> getdepFromPrefs() async {
                                 // Set vertical padding
                               ),
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
+                            // SizedBox(
+                            //   height: 10,
+                            // ),
+
+                            // TextFormField(
+                            //   readOnly: true,
+                            //   decoration: InputDecoration(
+                            //     labelText: 'Select Main Image',
+                            //     border: OutlineInputBorder(
+                            //       borderRadius: BorderRadius.circular(10.0),
+                            //       borderSide: BorderSide(color: Colors.grey),
+                            //     ),
+                            //     suffixIcon: IconButton(
+                            //       icon: Icon(Icons.image),
+                            //       onPressed: () =>
+                            //           pickImagemain(), // Trigger image picker for this index
+                            //     ),
+                            //   ),
+                            // ),
+                            // SizedBox(height: 10),
+                            // if (image != null)
+                            //   Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     children: [
+                            //       Image.file(
+                            //         File(image
+                            //             .path), // Use the file path obtained from the picked image
+                            //         width: 100, // Set the desired width
+                            //         height: 100, // Set the desired height
+                            //         fit: BoxFit.cover, // Set the fit style
+                            //       ),
+                            //       SizedBox(height: 10),
+                            //     ],
+                            //   ),
                   
-                            if (widget.type != "single")
-                              Column(
-                                children:
-                                    List.generate(imagePickerCount, (index) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      TextFormField(
-                                        readOnly: true,
-                                        decoration: InputDecoration(
-                                          labelText: 'Select Image',
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide:
-                                                BorderSide(color: Colors.grey),
-                                          ),
-                                          suffixIcon: IconButton(
-                                            icon: Icon(Icons.image),
-                                            onPressed: () =>
-                                                pickImage(), // Trigger image picker for this index
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 20),
-                                    ],
-                                  );
-                                }),
-                              ),
+                            // if (widget.type != "single")
+                            //   Column(
+                            //     children:
+                            //         List.generate(imagePickerCount, (index) {
+                            //       return Column(
+                            //         crossAxisAlignment:
+                            //             CrossAxisAlignment.start,
+                            //         children: [
+                            //           TextFormField(
+                            //             readOnly: true,
+                            //             decoration: InputDecoration(
+                            //               labelText: 'Select Image',
+                            //               border: OutlineInputBorder(
+                            //                 borderRadius:
+                            //                     BorderRadius.circular(10.0),
+                            //                 borderSide:
+                            //                     BorderSide(color: Colors.grey),
+                            //               ),
+                            //               suffixIcon: IconButton(
+                            //                 icon: Icon(Icons.image),
+                            //                 onPressed: () =>
+                            //                     pickImage(), // Trigger image picker for this index
+                            //               ),
+                            //             ),
+                            //           ),
+                            //           SizedBox(height: 20),
+                            //         ],
+                            //       );
+                            //     }),
+                            //   ),
                   
                             // Display all selected images with a cross icon to remove
-                            if (selectedImagesList.isNotEmpty &&
-                                widget.type != "single")
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: selectedImagesList
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  int index = entry.key;
-                                  File image = entry.value;
+                            // if (selectedImagesList.isNotEmpty &&
+                            //     widget.type != "single")
+                            //   Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     children: selectedImagesList
+                            //         .asMap()
+                            //         .entries
+                            //         .map((entry) {
+                            //       int index = entry.key;
+                            //       File image = entry.value;
                   
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: Row(
-                                      children: [
-                                        Image.file(
-                                          image,
-                                          width: 50,
-                                          height: 50,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        SizedBox(width: 10),
-                                        Text(image.path.split('/').last),
-                                        Spacer(),
-                                        IconButton(
-                                          icon: Icon(Icons.close,
-                                              color: Colors.red),
-                                          onPressed:
-                                              () {}, // Remove image on click
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
+                            //       return Padding(
+                            //         padding: const EdgeInsets.only(bottom: 8.0),
+                            //         child: Row(
+                            //           children: [
+                            //             Image.file(
+                            //               image,
+                            //               width: 50,
+                            //               height: 50,
+                            //               fit: BoxFit.cover,
+                            //             ),
+                            //             SizedBox(width: 10),
+                            //             Text(image.path.split('/').last),
+                            //             Spacer(),
+                            //             IconButton(
+                            //               icon: Icon(Icons.close,
+                            //                   color: Colors.red),
+                            //               onPressed:
+                            //                   () {}, // Remove image on click
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       );
+                            //     }).toList(),
+                            //   ),
                           ],
                         ),
                       ),
@@ -1250,6 +1355,7 @@ print("attributesToSend$attributesToSend");
                         onPressed: () {
                           addvariant(context);
                           addimage(context);
+                         // updateProductImage(context, image);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
@@ -1305,59 +1411,5 @@ print("attributesToSend$attributesToSend");
     );
   }
 
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
-      case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-      case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
 
-      default:
-        break;
-    }
-  }
 }

@@ -122,13 +122,17 @@ double total=0.0;
                    dep = await getdepFromPrefs();
                    
 
+    if (dep == "BDO" || dep == "BDM") {
+      getcustomer2();
+    } else {
+      getcustomer();
+    }
     await getprofiledata();
     getfamily();
     selectedFamilyId=famid;
     
     getstaff();
     selectedstaffId=staffid;
-    getcustomer();
      getstate();
     await fetchProductList();
 
@@ -692,6 +696,57 @@ var imgurl="$api/$firstImageUrl";
   }
 }
 
+Future<void> getcustomer2() async {
+    print("getcustomer22222222222222222");
+    try {
+
+      
+      // final dep = await getdepFromPrefs();
+      final token = await gettokenFromPrefs();
+
+      final jwt = JWT.decode(token!);
+      var name = jwt.payload['name'];
+      print("Name: $name");
+      print("Decoded Token Payload: ${jwt.payload}");
+
+      List<Map<String, dynamic>> managerlist = [];
+
+      var response = await http.get(
+        Uri.parse('$api/api/staff/customers/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print("Customer data responseeeeeeeee: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        List<Map<String, dynamic>> newCustomers = [];
+
+        for (var productData in productsData) {
+          newCustomers.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'created_at': productData['created_at'],
+          });
+        }
+        setState(() {
+          customer = newCustomers;
+        });
+
+        print("ccccccccccuuuuuuuuussssssssss============$customer");
+      } else {
+        throw Exception("Failed to load customer data");
+      }
+    } catch (error) {
+      print("Error fetching customerssssssssssssss: $error");
+    }
+  }
+
 Future<void> getcustomer() async {
   try {
     final dep = await getdepFromPrefs();
@@ -996,14 +1051,14 @@ List<Map<String, dynamic>> sta = [];
     textEditingController.dispose();
     super.dispose();
   }
-   List<String>  paystatus = ["Payed",'COD','credit'];
+   List<String>  paystatus = ["Paid",'COD','credit'];
       List<String>  mode = ["request",'invoice','warehouse to warehouse'];
 
-  String selectpaystatus="COD";
+  String selectpaystatus="Payed";
     String selectedmode="invoice";
 
-   List<String>  paymethod = ['Razorpay',"Credit Card",'Debit Card','Net Bankng','PayPal','Cash on Delivery','Bank Transfer'];
-  String selectpaymethod="Razorpay";
+   List<String>  paymethod = ['1 Razorpay',"Credit Card",'Debit Card','Net Bankng','PayPal','Cash on Delivery (COD)','Bank Transfer'];
+  String selectpaymethod="1 Razorpay";
 
 void showInvoiceDialog(BuildContext context,  double total) {
   showDialog(
@@ -1470,100 +1525,7 @@ Future<String?> getdepFromPrefs() async {
                              ),
 
                                                
-                    if(selectedmode=="request"||selectedmode=='invoice')
-                     Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                      SizedBox(height: 5,),
-              
-                       if(selectedmode=="request"||selectedmode=='invoice')
-    
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    return Container(
-                                      child: DropdownButtonHideUnderline(
-                                        child: Container(
-                                          height: 46,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(color: Colors.grey, width: 1.0),
-                                            borderRadius: BorderRadius.circular(8.0),
-                                          ),
-                                          child: DropdownButton2<String>(
-                                            isExpanded: true,
-                                            hint: Text(
-                                              'Select a Customer',
-                                              style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
-                                            ),
-                                            items: customer
-                                                .map((item) => DropdownMenuItem<String>(
-                                value: item['name'], // Use the customer's name as the value
-                                child: Text(
-                                  item['name'],
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              ))
-                                                .toList(),
-                                            value: selectedValue,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                // Update the selected value with the chosen customer's name
-                                                selectedValue = value;
-                                                // Find the corresponding customer ID
-                                                selectedCustomerId = customer
-                              .firstWhere((item) => item['name'] == value)['id'];
-                                                
-                                              });
-                            
-                                          getaddress(selectedCustomerId);
-                                            },
-                                            buttonStyleData: const ButtonStyleData(
-                                              padding: EdgeInsets.symmetric(horizontal: 16),
-                                              height: 40,
-                                            ),
-                                            dropdownStyleData: const DropdownStyleData(
-                                              maxHeight: 200,
-                                            ),
-                                            menuItemStyleData: const MenuItemStyleData(
-                                              height: 40,
-                                            ),
-                                            dropdownSearchData: DropdownSearchData(
-                                              searchController: textEditingController,
-                                              searchInnerWidgetHeight: 50,
-                                              searchInnerWidget: Container(
-                                                height: 50,
-                                                padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
-                                                child: TextFormField(
-                            expands: true,
-                            maxLines: null,
-                            controller: textEditingController,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                              hintText: 'Search for a customer...',
-                              hintStyle: const TextStyle(fontSize: 12),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                                                ),
-                                              ),
-                                              searchMatchFn: (item, searchValue) {
-                                                // Perform case-insensitive search
-                                                return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
-                                              },
-                                            ),
-                                            // Clear the search value when the menu is closed
-                                            onMenuStateChange: (isOpen) {
-                                              if (!isOpen) {
-                                                textEditingController.clear();
-                                              }
-                                            },
-                                            
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                          ),
+                    
                             
                                         
                     SizedBox(height: 8,),
@@ -1739,6 +1701,100 @@ Future<String?> getdepFromPrefs() async {
                           ),
                         ),
                     ),
+                    if(selectedmode=="request"||selectedmode=='invoice')
+                     Text("Customer",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                      SizedBox(height: 5,),
+              
+                       if(selectedmode=="request"||selectedmode=='invoice')
+    
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Container(
+                                      child: DropdownButtonHideUnderline(
+                                        child: Container(
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(color: Colors.grey, width: 1.0),
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          child: DropdownButton2<String>(
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Select a Customer',
+                                              style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                                            ),
+                                            items: customer
+                                                .map((item) => DropdownMenuItem<String>(
+                                value: item['name'], // Use the customer's name as the value
+                                child: Text(
+                                  item['name'],
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ))
+                                                .toList(),
+                                            value: selectedValue,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                // Update the selected value with the chosen customer's name
+                                                selectedValue = value;
+                                                // Find the corresponding customer ID
+                                                selectedCustomerId = customer
+                              .firstWhere((item) => item['name'] == value)['id'];
+                                                
+                                              });
+                            
+                                          getaddress(selectedCustomerId);
+                                            },
+                                            buttonStyleData: const ButtonStyleData(
+                                              padding: EdgeInsets.symmetric(horizontal: 16),
+                                              height: 40,
+                                            ),
+                                            dropdownStyleData: const DropdownStyleData(
+                                              maxHeight: 200,
+                                            ),
+                                            menuItemStyleData: const MenuItemStyleData(
+                                              height: 40,
+                                            ),
+                                            dropdownSearchData: DropdownSearchData(
+                                              searchController: textEditingController,
+                                              searchInnerWidgetHeight: 50,
+                                              searchInnerWidget: Container(
+                                                height: 50,
+                                                padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
+                                                child: TextFormField(
+                            expands: true,
+                            maxLines: null,
+                            controller: textEditingController,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              hintText: 'Search for a customer...',
+                              hintStyle: const TextStyle(fontSize: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                                                ),
+                                              ),
+                                              searchMatchFn: (item, searchValue) {
+                                                // Perform case-insensitive search
+                                                return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
+                                              },
+                                            ),
+                                            // Clear the search value when the menu is closed
+                                            onMenuStateChange: (isOpen) {
+                                              if (!isOpen) {
+                                                textEditingController.clear();
+                                              }
+                                            },
+                                            
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                          ),
               
                SizedBox(height: 8),
               Text("Shipping Address", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
@@ -2122,64 +2178,5 @@ Future<String?> getdepFromPrefs() async {
   }
 
 
-void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
-    switch (selectedOption) 
-    {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => credit_note_list()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
-        case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-        case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-         case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-     
-      
-      default:
-        
-        break;
-    }
-  }
 
 }

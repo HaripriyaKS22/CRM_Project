@@ -139,17 +139,19 @@ void navigateToLogin() {
                   ? WarehouseDashboard()
                   : department == "BDO"
                       ? bdo_dashbord()
-                      : department == "Admin"
+                      : department == "ADMIN"
                           ? admin_dashboard()
                           : department == "Accounts / Accounting "
                               ? admin_dashboard()
-                              : department == "IT"
+                              : department == "Information Technology"
                                   ? admin_dashboard()
                                   : department == "HR"
                                     ? HrDashboard()
                                     : department == "warehouse admin"
                                       ? WarehouseAdmin()
-                                      : dashboard()
+                                        : department == "COO"
+                                          ? admin_dashboard()
+                                          : dashboard()
           : login(),
     );
   }

@@ -325,7 +325,7 @@ double landingPriceValue = 0.0;
   Future<void> updateProductImage(
       BuildContext scaffoldContext, File newImage) async {
     final token = await gettokenFromPrefs();
-
+print("globalProductId$globalProductId");
     try {
       var request = http.MultipartRequest(
         'PUT',
@@ -358,7 +358,8 @@ double landingPriceValue = 0.0;
 
       // Print the response status and body for debugging
       
-      
+      print(responseData.statusCode);
+      print("responseData.body${responseData.body}");
 
       if (responseData.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -1283,59 +1284,5 @@ double landingPriceValue = 0.0;
     );
   }
 
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
-      case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-      case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-
-      default:
-        break;
-    }
-  }
+ 
 }

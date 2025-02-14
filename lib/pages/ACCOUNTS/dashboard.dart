@@ -42,10 +42,10 @@ class _dashboardState extends State<dashboard> {
   @override
   void initState() {
     super.initState();
-    _getUsername(); // Get the username when the page loads
-    getGrvList();
-    fetchproformaData();
-    getSalesReport();
+    // _getUsername(); // Get the username when the page loads
+    // getGrvList();
+    // fetchproformaData();
+    // getSalesReport();
     fetchOrderData();
   }
 
@@ -198,23 +198,11 @@ int confirm=0;
           salesReportList = salesReportDataList;
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to fetch sales report data'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+        
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error fetching sales report data'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } finally {
-      setState(() {});
-    }
+     
+    } 
   }
 
   String getTodaysBills() {
@@ -325,20 +313,10 @@ int grv=0;
         int grvListCount = grvlist.length;
         
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to fetch GRV data'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+       
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error fetching GRV data'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+     
     }
   }
 
@@ -355,23 +333,8 @@ int grv=0;
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove('userId');
   await prefs.remove('token');
-
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
-
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
-
-  // Navigate to the HomePage after the snackbar is shown
+  await prefs.remove('username');
+  await prefs.remove('email');
   Navigator.pushReplacement(
     context,
     MaterialPageRoute(builder: (context) => login()),
@@ -669,7 +632,7 @@ int grv=0;
                     ),
                     SizedBox(width: 16),
                     Text(
-                      '$username',
+                      '$username  cooo',
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),

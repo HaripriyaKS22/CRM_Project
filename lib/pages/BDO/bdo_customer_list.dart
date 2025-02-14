@@ -91,55 +91,54 @@ Future<String?> getdepFromPrefs() async {
   }
   Future<void> getcustomer() async {
     try {
-              final dep= await getdepFromPrefs();
+      // final dep = await getdepFromPrefs();
 
       final token = await gettokenFromPrefs();
+      // final id = await getidFromPrefs();
 
-      final jwt = JWT.decode(token!);
-          var name = jwt.payload['name'];
-          
-          
+      // print(id);
+
+      // final jwt = JWT.decode(token!);
+      // var name = jwt.payload['id'];
+
+      // print("tokeniddddddddddddddd$name");
+
+      print("wwwwwwwwwwwwwwww");
+      
+
       var response = await http.get(
-        Uri.parse('$api/api/customers/'),
+        Uri.parse('$api/api/staff/customers/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
-
-
+print("rrrrrrrrrreeeeeeeee===========================${response.body}");
+print(response.statusCode);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
         List<Map<String, dynamic>> managerlist = [];
 
         for (var productData in productsData) {
-          
-           if(dep=="BDO" || dep=="BDM"){
-          if(name==productData['manager']){
-             managerlist.add({
+          managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
             'created_at': productData['created_at']
           });
-          }
-           
-          }
-             
-          
-         
         }
 
         setState(() {
           customer = managerlist; // Update full customer list
-          filteredProducts = List.from(customer); // Show all customers initially
+          filteredProducts =
+              List.from(customer); // Show all customers initially
         });
       }
     } catch (error) {
-      
+
+      print("errorrrrrrrrrrrrrrrrr$error");
     }
   }
-
   void _filterProducts(String query) {
     setState(() {
       if (query.isEmpty) {
