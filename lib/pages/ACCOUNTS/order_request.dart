@@ -845,6 +845,7 @@ List<Map<String, dynamic>> stat = [];
   List<Map<String, dynamic>> addres = [];
 
     Future<void> getaddress(var id) async {
+      print("id$id");
     try {
       final token = await gettokenFromPrefs();
 
@@ -889,6 +890,7 @@ List<Map<String, dynamic>> stat = [];
         });
       }
     } catch (error) {
+      print(error);
       
     }
   }
@@ -1054,7 +1056,7 @@ List<Map<String, dynamic>> sta = [];
    List<String>  paystatus = ["Paid",'COD','credit'];
       List<String>  mode = ["request",'invoice','warehouse to warehouse'];
 
-  String selectpaystatus="Payed";
+  String selectpaystatus="Paid";
     String selectedmode="invoice";
 
    List<String>  paymethod = ['1 Razorpay',"Credit Card",'Debit Card','Net Bankng','PayPal','Cash on Delivery (COD)','Bank Transfer'];
