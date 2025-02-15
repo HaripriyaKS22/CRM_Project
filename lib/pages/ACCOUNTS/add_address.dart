@@ -16,6 +16,7 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_customer_address.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -124,14 +125,60 @@ void logout() async {
   void initState() {
     getstates();
     getcustomers();
+    getaddress();
       customer = TextEditingController(text: widget.name);
     super.initState();
     
   }
 
+
+
+
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
+  }
+
+
+    List<Map<String, dynamic>> addres = [];
+
+  Future<void> getaddress() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/add/customer/address/${widget.customerid}/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      List<Map<String, dynamic>> addresslist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          addresslist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'email': productData['email'],
+            'zipcode': productData['zipcode'],
+            'address': productData['address'],
+            'phone': productData['phone'],
+            'country': productData['country'],
+            'city': productData['city'],
+            'state': productData['state'],
+          });
+        }
+        setState(() {
+          addres = addresslist;
+        });
+      }
+    } catch (error) {}
   }
 
   Future<void> getcustomers() async {
@@ -300,7 +347,7 @@ void logout() async {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async{
-            // Navigator.push(context, MaterialPageRoute(builder: (context)=>customer_list()));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>customer_list()));
                        
           },
         ),
@@ -775,6 +822,53 @@ void logout() async {
                   ),
                 ),
                 SizedBox(height: 35),
+
+
+
+            // Display addresses in table format
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Customer Addresses',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Customer Name')),
+                        DataColumn(label: Text('Address')),
+                                                DataColumn(label: Text('Edit')),
+
+                      ],
+                      rows: addres
+                          .map((address) => DataRow(cells: [
+                                DataCell(Text(widget.name)),
+                                DataCell(Text(address['address'])),
+                                  DataCell(
+                                  IconButton(
+                                    icon: Icon(Icons.edit),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Editaddress(addresid: address['id'],customerid:widget.customerid,customername:widget.name),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ]))
+                          .toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
               ],
             ),
           ),
@@ -783,4 +877,59 @@ void logout() async {
     );
   }
 
+  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
+    switch (selectedOption) {
+      case 'Option 1':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => add_credit_note()),
+        );
+        break;
+      case 'Option 2':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => customer_list()),
+        );
+        break;
+      case 'Option 3':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => add_receipts()),
+        );
+        break;
+      case 'Option 4':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+      case 'Option 5':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+      case 'Option 6':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+      case 'Option 7':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+      case 'Option 8':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => receips()),
+        );
+        break;
+
+      default:
+        break;
+    }
+  }
 }

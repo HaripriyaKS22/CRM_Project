@@ -337,7 +337,6 @@ class _add_product_variantState extends State<add_product_variant> {
   @override
   void initState() {
     super.initState();
-    getfamily();
     getprofiledata();
     getvariant();
     getattributes();
@@ -708,15 +707,6 @@ print(response.body);
   try {
     final token = await gettokenFromPrefs();
 
-    // Check if selectedAttributeName is null or if selectedValues is empty
-    // if (selectedAttributeName == null || selectedValues.isEmpty) {
-    //   ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-    //     SnackBar(content: Text('Please select an attribute and its values.')),
-    //   );
-    //   return;
-    // }
-
-    // Convert attributesToSend to a JSON string
     String attributesJson = jsonEncode(attributesToSend);
 
     // Prepare the final JSON body
@@ -725,9 +715,6 @@ print(response.body);
       'attributes': attributesJson,   // Send attributes as a JSON string
     });
 
-    
-
-    // Sending the request to the backend
     var response = await http.post(
       Uri.parse('$api/api/add/product/variant/'),
       headers: {
@@ -736,7 +723,7 @@ print(response.body);
       },
       body: jsonString,
     );
-print(response.body);
+print("response.body${response.body}");
     // Debugging output
     
     
@@ -764,6 +751,7 @@ print(response.body);
       );
     }
   } catch (e) {
+    print(e);
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
         content: Text('Enter valid information: ${e.toString()}'),
@@ -772,66 +760,7 @@ print(response.body);
   }
 }
 
-  Future<void> getfamily() async {
-    try {
-      final token = await gettokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/familys/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-        List<Map<String, dynamic>> familylist = [];
-
-        for (var productData in productsData) {
-          familylist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-
-        setState(() {
-          fam = familylist;
-          _checkboxValues = List<bool>.filled(fam.length, false);
-        });
-      }
-    } catch (error) {
-      
-    }
-  }
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
-
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
-
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
-
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
-
+ 
   Future<void> deleteProduct(int productId, BuildContext context) async {
     final token = await gettokenFromPrefs();
 
@@ -1354,7 +1283,7 @@ print("attributesToSend$attributesToSend");
                       ElevatedButton(
                         onPressed: () {
                           addvariant(context);
-                          addimage(context);
+                         // addimage(context);
                          // updateProductImage(context, image);
                         },
                         style: ButtonStyle(
