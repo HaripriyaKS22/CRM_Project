@@ -1,21 +1,11 @@
 import 'dart:convert';
 
 import 'package:beposoft/loginpage.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
-import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_services.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
-import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;

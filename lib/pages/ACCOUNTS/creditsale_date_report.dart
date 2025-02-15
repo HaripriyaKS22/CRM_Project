@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
@@ -66,7 +64,6 @@ var sta;
 
         
         for (var productData in productsData) {
-          String imageUrl = "${productData['image']}";
           stafflist.add({
             'id': productData['id'],
             'name': productData['name'],

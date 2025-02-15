@@ -1,38 +1,13 @@
 
 import 'package:beposoft/loginpage.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
-import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:flutter/material.dart';
-
-import 'package:beposoft/main.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
-import 'package:beposoft/pages/ACCOUNTS/customer.dart';
-import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
-import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
-import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
-import 'package:beposoft/pages/ACCOUNTS/order_request.dart';
-import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
-
 
 class add_new_stock extends StatefulWidget {
   const add_new_stock({super.key});

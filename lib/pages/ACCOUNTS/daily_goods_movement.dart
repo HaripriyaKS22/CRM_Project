@@ -1,15 +1,5 @@
 import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
-import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';

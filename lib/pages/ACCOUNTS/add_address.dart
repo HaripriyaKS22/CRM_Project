@@ -1,23 +1,9 @@
 import 'dart:convert';
 
 import 'package:beposoft/loginpage.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_family.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
-import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/methods.dart';
-import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_customer_address.dart';
-import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -161,7 +147,7 @@ void logout() async {
         var productsData = parsed['data'];
 
         for (var productData in productsData) {
-          String imageUrl = "${productData['image']}";
+          // String imageUrl = "${productData['image']}";
           addresslist.add({
             'id': productData['id'],
             'name': productData['name'],
@@ -402,97 +388,6 @@ void logout() async {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Text(
-                            //   "Customer ",
-                            //   style: TextStyle(
-                            //       fontSize: 15, fontWeight: FontWeight.bold),
-                            // ),
-                            // SizedBox(
-                            //   height: 10,
-                            // ),
-                            // Container(
-                            //   width: 310,
-                            //   height: 49,
-                            //   decoration: BoxDecoration(
-                            //     border: Border.all(color: Colors.grey),
-                            //     borderRadius: BorderRadius.circular(10),
-                            //   ),
-                            //   child: Row(
-                            //     children: [
-                            //       Expanded(
-                            //         child: Container(
-                            //           child: Row(
-                            //             children: [
-                            //               Expanded(
-                            //                 child: TextField(
-                            //                   controller: _controller,
-                            //                   keyboardType: TextInputType
-                            //                       .numberWithOptions(
-                            //                           decimal: true),
-                            //                   decoration: InputDecoration(
-                            //                     prefixIcon:
-                            //                         Icon(Icons.line_weight),
-                            //                     border: InputBorder.none,
-                            //                     hintText: '',
-                            //                     // Adjust horizontal padding
-                            //                   ),
-                            //                   onChanged: (value) {
-                            //                     setState(() {
-                            //                       number =
-                            //                           double.tryParse(value) ??
-                            //                               0.00;
-                            //                     });
-                            //                   },
-                            //                 ),
-                            //               ),
-                            //               Container(
-                            //                 width: 30,
-                            //                 color: Color.fromARGB(
-                            //                     255, 88, 184, 248),
-                            //                 child: IconButton(
-                            //                   icon: Icon(
-                            //                       Icons
-                            //                           .keyboard_arrow_down_rounded,
-                            //                       size: 20,
-                            //                       color: Colors
-                            //                           .white), // Down arrow icon with size 20
-                            //                   onPressed: decrementNumber,
-                            //                 ),
-                            //               ),
-                            //               Container(
-                            //                 width: 30,
-                            //                 decoration: BoxDecoration(
-                            //                     color: Color.fromARGB(
-                            //                         255, 64, 176, 251),
-                            //                     border: Border.all(
-                            //                         color: Color.fromARGB(
-                            //                             255, 64, 176, 251)),
-                            //                     borderRadius: BorderRadius.only(
-                            //                         bottomRight:
-                            //                             Radius.circular(10),
-                            //                         topRight:
-                            //                             Radius.circular(10))),
-                            //                 child: IconButton(
-                            //                   icon: Icon(
-                            //                       Icons
-                            //                           .keyboard_arrow_up_rounded,
-                            //                       size: 20,
-                            //                       color: Colors
-                            //                           .white), // Up arrow icon with size 20
-                            //                   onPressed: incrementNumber,
-                            //                 ),
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                            // Text("Customer Name",
-                            //     style: TextStyle(
-                            //         fontSize: 15, fontWeight: FontWeight.bold)),
-                            // SizedBox(height: 10),
                             TextField(
                               controller: customer,
                               decoration: InputDecoration(
@@ -875,61 +770,5 @@ void logout() async {
         ),
       ),
     );
-  }
-
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => customer_list()),
-        );
-        break;
-      case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-      case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-
-      default:
-        break;
-    }
   }
 }

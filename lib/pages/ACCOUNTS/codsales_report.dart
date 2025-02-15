@@ -58,7 +58,6 @@ class _CodSales2State extends State<CodSales2> {
         var productsData = parsed['data'];
 
         for (var productData in productsData) {
-          String imageUrl = "${productData['image']}";
           statelist.add({
             'id': productData['id'],
             'name': productData['name'],
