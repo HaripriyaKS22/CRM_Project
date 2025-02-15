@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:beposoft/loginpage.dart';
-import 'package:beposoft/pages/ACCOUNTS/customer.dart';
-import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
-import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
