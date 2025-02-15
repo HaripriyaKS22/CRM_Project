@@ -979,6 +979,7 @@ print("globalProductId$globalProductId");
                             ),
                             TextField(
                               controller: landingprice,
+                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 labelText: ' ',
                                 border: OutlineInputBorder(
@@ -1006,6 +1007,7 @@ print("globalProductId$globalProductId");
                             ),
                             TextField(
                               controller: sellingprice,
+                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 labelText: ' ',
                                 border: OutlineInputBorder(
@@ -1030,6 +1032,7 @@ print("globalProductId$globalProductId");
                             ),
                             TextField(
                               controller: retailprice,
+                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 labelText: ' ',
                                 border: OutlineInputBorder(

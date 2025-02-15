@@ -4,6 +4,8 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +27,7 @@ class _Invoice_ReportState extends State<Invoice_Report> {
   @override
   void initState() {
     super.initState();
-    fetchinvoicereport();
+    getSalesReport();
     
   }
 
@@ -60,59 +62,142 @@ class _Invoice_ReportState extends State<Invoice_Report> {
   );
 }
 
-  Future<void> fetchinvoicereport() async {
-    try {
-      final token = await getTokenFromPrefs();
+ Future<void> getSalesReport() async {
+  setState(() {}); // Update UI
+  try {
+    final token = await getTokenFromPrefs();
+print('$api/api/invoice/report/${widget.date}/');
+    var response = await http.get(
+      Uri.parse('$api/api/invoice/report/${widget.date}/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      var response = await http.get(
-        Uri.parse('$api/api/invoice/report/${widget.date}/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
+    print(response.body);
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var salesData = parsed['data'];
       
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+      List<Map<String, dynamic>> salesReportDataList = [];
+      List<String> approvedStatuses = [
+        "Completed",
+        "Shipped",
+        "Waiting For Confirmation",
+        "Invoice Created",
+        "Invoice Approved",
+        "To Print",
+        "Processing"
+      ];
+      List<String> rejectedStatuses = ["Cancelled", "Refunded", "Return", "Invoice Rejected"];
 
-        List<Map<String, dynamic>> invoiceList = [];
-        for (var productData in productsData) {
-          invoiceList.add({
-            'staff_name': productData['name'],
-            'total_bills': productData['orders'],
-            'total_amount_': productData['total_amount'],
-            'approved_bills': productData['approved_orders'],
-            'rejected_bills': productData['rejected_orders'],
-            'approved_amount': productData['approved_total_amount'],
-            'rejected_amount': productData['rejected_total_amount'],
-            'state_name': productData['state_name'],
-            'family': productData['family'],
-          });
+      for (var reportData in salesData) {
+
+
+        print("reportData$reportData");
+        List<dynamic> staffOrders = reportData['orders_details'] ?? [];
+        int totalApprovedBills = 0;
+        double totalApprovedAmount = 0.0;
+        int totalRejectedBills = 0;
+        double totalRejectedAmount = 0.0;
+print("staffOrders$staffOrders");
+        // Iterate through each staff order and classify based on status
+        for (var order in staffOrders) {
+          print("orderr>>>>>>.$order");
+          double orderAmount = (order['total_amount'] ?? 0.0).toDouble();
+          if (approvedStatuses.contains(order['status'])) {
+            totalApprovedBills++;
+            print("totalApprovedBills$totalApprovedBills");
+
+            totalApprovedAmount += orderAmount;
+          } else if (rejectedStatuses.contains(order['status'])) {
+            totalRejectedBills++;
+            totalRejectedAmount += orderAmount;
+          }
         }
-        setState(() {
-          invoicedata = invoiceList;
-          filteredProducts = invoiceList; // Initially show all data
+
+        salesReportDataList.add({
+          'date': reportData['order_date'],
+          'staff_orders': staffOrders,
+          'total_bills_in_date': reportData['total_bills'],
+          'amount': reportData['total_amount'],
+          'staff_name': reportData['name'],
+          'family': reportData['family'],
+          'approved': {
+            'bills': totalApprovedBills,
+            'amount': totalApprovedAmount,
+          },
+          'rejected': {
+            'bills': totalRejectedBills,
+            'amount': totalRejectedAmount,
+          },
         });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to fetch invoice report'),
-            duration: Duration(seconds: 2),
-          ),
-        );
       }
-    } catch (error) {
+
+      setState(() {
+        invoicedata = salesReportDataList;
+        filteredProducts = salesReportDataList;
+        print("filteredProducts$filteredProducts");
+        _updateTotals();
+      });
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Error fetching invoice report'),
+          content: Text('Failed to fetch sales report data'),
           duration: Duration(seconds: 2),
         ),
       );
     }
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Error fetching sales report data'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  } finally {
+    setState(() {}); // Final UI update
   }
+}
+double totalBills = 0.0;
+  double totalAmount = 0.0;
+  double approvedBills = 0.0;
+  double approvedAmount = 0.0;
+  double rejectedBills = 0.0;
+  double rejectedAmount = 0.0;
+ void _updateTotals() {
+    double tempTotalBills = 0.0;
+    double tempTotalAmount = 0.0;
+    double tempApprovedBills = 0.0;
+    double tempApprovedAmount = 0.0;
+    double tempRejectedBills = 0.0;
+    double tempRejectedAmount = 0.0;
+
+    for (var reportData in filteredProducts) {
+
+
+      print("reportData}}}}}}}}}}}$reportData");
+      tempTotalBills += reportData['total_bills_in_date'];
+      tempTotalAmount += reportData['amount'];
+      tempApprovedBills += reportData['approved']['bills'];
+      tempApprovedAmount += reportData['approved']['amount'];
+      tempRejectedBills += reportData['rejected']['bills'];
+      tempRejectedAmount += reportData['rejected']['amount'];
+    }
+
+    setState(() {
+      totalBills = tempTotalBills;
+      totalAmount = tempTotalAmount;
+      approvedBills = tempApprovedBills;
+      approvedAmount = tempApprovedAmount;
+      rejectedBills = tempRejectedBills;
+      rejectedAmount = tempRejectedAmount;
+    });
+  }
+
+
 
   // Method to filter products based on search input
   void _filterProducts(String query) {
@@ -209,12 +294,12 @@ class _Invoice_ReportState extends State<Invoice_Report> {
             ),
             Divider(color: Colors.grey),
             SizedBox(height: 8),
-            _buildRow('Total Bills:', invoice['total_bills']),
-            _buildRow('Total Amount:', invoice['total_amount_']),
-            _buildRow('Approved Bills:', invoice['approved_bills']),
-            _buildRow('Approved Amount:', invoice['approved_amount']),
-            _buildRow('Rejected Bills:', invoice['rejected_bills']),
-            _buildRow('Rejected Amount:', invoice['rejected_amount']),
+            _buildRow('Total Bills:',invoice['total_bills_in_date']),
+            _buildRow('Total Amount:', invoice['amount']),
+            _buildRow('Approved Bills:',invoice['approved']['bills']),
+            _buildRow('Approved Amount:', invoice['approved']['amount']),
+            _buildRow('Rejected Bills:', invoice['rejected']['bills']),
+            _buildRow('Rejected Amount:', invoice['rejected']['amount']),
             SizedBox(height: 12),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -237,7 +322,10 @@ class _Invoice_ReportState extends State<Invoice_Report> {
       ),
     );
   }
-
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -247,6 +335,34 @@ class _Invoice_ReportState extends State<Invoice_Report> {
           "Invoice Report",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
+          
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Custom back arrow
+          onPressed: () async{
+                    final dep= await getdepFromPrefs();
+if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else {
+    Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+            );
+
+}
+           
+          },
+        ),
         actions: [
           IconButton(
             icon: Image.asset('lib/assets/profile.png'),
@@ -254,120 +370,7 @@ class _Invoice_ReportState extends State<Invoice_Report> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 110, 110, 110),
-              ),
-              child: Row(
-                children: [
-                  Image.asset(
-                    "lib/assets/logo-white.png",
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(
-                    width: 70,
-                  ),
-                  Text(
-                    'BepoSoft',
-                    style: TextStyle(
-                      color: Color.fromARGB(236, 255, 255, 255),
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.dashboard),
-              title: Text('Dashboard'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => dashboard()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Customer'),
-              onTap: () {
-                // Navigator.push(context,
-                //     MaterialPageRoute(builder: (context) => customer_list()));
-              },
-            ),
-            Divider(),
-            _buildDropdownTile(context, 'Credit Note', [
-              'Add Credit Note',
-              'Credit Note List',
-            ]),
-            _buildDropdownTile(
-                context, 'Recipts', ['Add recipts', 'Recipts List']),
-            _buildDropdownTile(context, 'Proforma Invoice', [
-              'New Proforma Invoice',
-              'Proforma Invoice List',
-            ]),
-            _buildDropdownTile(context, 'Delivery Note',
-                ['Delivery Note List', 'Daily Goods Movement']),
-            _buildDropdownTile(
-                context, 'Orders', ['New Orders', 'Orders List']),
-            Divider(),
-            Text("Others"),
-            Divider(),
-            _buildDropdownTile(context, 'Product', [
-              'Product List',
-              'Stock',
-            ]),
-            _buildDropdownTile(
-                context, 'Purchase', [' New Purchase', 'Purchase List']),
-            _buildDropdownTile(context, 'Expence', [
-              'Add Expence',
-              'Expence List',
-            ]),
-            _buildDropdownTile(context, 'Reports', [
-              'Sales Report',
-              'Credit Sales Report',
-              'COD Sales Report',
-              'Statewise Sales Report',
-              'Expence Report',
-              'Delivery Report',
-              'Product Sale Report',
-              'Stock Report',
-              'Damaged Stock'
-            ]),
-            _buildDropdownTile(context, 'GRV', ['Create New GRV', 'GRVs List']),
-            _buildDropdownTile(context, 'Banking Module',
-                ['Add Bank ', 'List', 'Other Transfer']),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Methods'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Methods()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.chat),
-              title: Text('Chat'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
+     
       body: Column(
         children: [
           Padding(

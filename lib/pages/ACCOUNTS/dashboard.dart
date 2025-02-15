@@ -8,6 +8,7 @@ import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/uploadbulkorders.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart';
+
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
@@ -26,10 +27,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class dashboard extends StatefulWidget {
   @override
-  State<dashboard> createState() => _dashboardState();
+  State<dashboard> createState() => _admin_dashboardState();
 }
 
-class _dashboardState extends State<dashboard> {
+class _admin_dashboardState extends State<dashboard> {
   List<String> statusOptions = ["pending", "approved", "rejected"];
   List<Map<String, dynamic>> grvlist = [];
   List<Map<String, dynamic>> proforma = [];
@@ -42,45 +43,47 @@ class _dashboardState extends State<dashboard> {
   @override
   void initState() {
     super.initState();
-    // _getUsername(); // Get the username when the page loads
-    // getGrvList();
-    // fetchproformaData();
-    // getSalesReport();
-    fetchOrderData();
+     _getUsername(); // Get the username when the page loads
+      getGrvList();
+    fetchproformaData();
+     getSalesReport();
+   fetchOrderData();
   }
 
 int approval=0;
 int confirm=0;
+int approvalcount=0;
+int confirmcount=0;
+Future<void> fetchOrderData() async {
+  try {
+    final token = await getTokenFromPrefs();
+    var response = await http.get(
+      Uri.parse('$api/api/orders/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-  Future<void> fetchOrderData() async {
-    try {
-      final token = await getTokenFromPrefs();
-      var response = await http.get(
-        Uri.parse('$api/api/orders/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    print("response.body: ${response.body}");
+    print("response.statusCode: ${response.statusCode}");
 
-      
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['results'];  // Corrected: Extracting orders from 'results'
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed;
+      if (productsData != null && productsData is Iterable) {
         List<Map<String, dynamic>> orderList = [];
 
         for (var productData in productsData) {
-          String rawOrderDate = productData['order_date'];
+          String rawOrderDate = productData['updated_at'];
           String formattedOrderDate = rawOrderDate;
 
           try {
-            DateTime parsedOrderDate =
-                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
-            formattedOrderDate = DateFormat('yyyy-MM-dd')
-                .format(parsedOrderDate); // Convert to desired format
+            DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+            formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
           } catch (e) {
-            
+            print("Date format error: $e");
           }
 
           orderList.add({
@@ -122,61 +125,72 @@ int confirm=0;
                   }).toList()
                 : [],
             'status': productData['status'],
+            'order_date': formattedOrderDate,
             'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
           });
-           if (productData['status'] == 'Invoice Created') {
+
+          if (productData['status'] == 'Invoice Created') {
             approval++;
-
+          } else if (productData['status'] == 'Invoice Approved') {
+            confirm++;
+          }
 
         }
-        else if(productData['status'] == 'Invoice Approved'){
-          confirm++;
-        }
-        }
 
-        // Filter orders by 'Shipped' status and today's date
         DateTime today = DateTime.now();
         String formattedToday = DateFormat('yyyy-MM-dd').format(today);
 
         var shippedOrdersToday = orderList.where((order) {
-          return order['status'] == 'Shipped' &&
-              order['order_date'] == formattedToday; // Match today's date
+          return order['status'] == 'Shipped' && order['updated_at'] == formattedToday;
         }).toList();
-
-        // Get the length of today's shipped orders
-        
 
         setState(() {
           orders = orderList;
           filteredOrders = orderList;
-          shippedOrders =
-              shippedOrdersToday; // Set filtered today's shipped orders
-          
+          shippedOrders = shippedOrdersToday;
+          print("orders: $shippedOrders");
+          approvalcount = parsed['invoice_created_count'];
+          confirmcount =parsed['invoice_approved_count'];
+          print("approvalcount: $approvalcount");
+          print("confirmcount: $confirmcount");
         });
+      } else {
+        print('No orders found');
       }
-    } catch (error) {
-      
     }
-  }
-
-  Future<void> getSalesReport() async {
-    setState(() {});
-    try {
-      final token = await getTokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/salesreport'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
+  } catch (error) {
+    print("Error: $error");
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching order data: $error')),
       );
+    });
+  }
+}
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var salesData = parsed['Sales report'];
 
+ Future<void> getSalesReport() async {
+  setState(() {});  // Keep the loading state if needed
+  try {
+    final token = await getTokenFromPrefs();
+
+    var response = await http.get(
+      Uri.parse('$api/api/salesreport/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print("response.body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+
+      // Corrected the key
+      var salesData = parsed['sales_report'];  
+
+      if (salesData != null && salesData is Iterable) {
         List<Map<String, dynamic>> salesReportDataList = [];
         for (var reportData in salesData) {
           salesReportDataList.add({
@@ -196,16 +210,25 @@ int confirm=0;
 
         setState(() {
           salesReportList = salesReportDataList;
+          print("salesReportList: $salesReportList");
         });
-      } else {
-        
+        getTodaysBills();  // Get today's bills count
       }
-    } catch (error) {
-     
     } 
+  } catch (error) {
+    print('Error: $error');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred while fetching data')),
+      );
+    });
+  } finally {
+    setState(() {});  // End loading state
   }
+}
 
-  String getTodaysBills() {
+var totalbills="0";
+  void getTodaysBills() {
     // Get today's date in the same format as in the response (yyyy-MM-dd)
     String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
@@ -214,12 +237,16 @@ int confirm=0;
       (report) => report['date'] == currentDate,
       orElse: () => {}, // Return null if no report for today
     );
-
-    if (todaysReport['total_bills_in_date'] != null) {
-      return todaysReport['total_bills_in_date'].toString();
+setState(() {
+  if (todaysReport['total_bills_in_date'] != null) {
+      totalbills= todaysReport['total_bills_in_date'].toString();
+      print('totalbills: $totalbills');
     } else {
-      return '0'; // Return '0' if no report is found for today
+      totalbills= '0'; // Return '0' if no report is found for today
     }
+  
+});
+    
   }
 
   Future<void> fetchproformaData() async {
@@ -232,7 +259,7 @@ int confirm=0;
           'Content-Type': 'application/json',
         },
       );
-print(response.body);
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final data = parsed['data'] as List;
@@ -271,19 +298,21 @@ print(response.body);
     return prefs.getString('token');
   }
 int grv=0;
+int grvcount=0;
 // Function to fetch GRV data
   Future<void> getGrvList() async {
     try {
       final token = await getTokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/grvget/'),
+        Uri.parse('$api/api/grv/data/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
-
+print("response.body grvvvvvvvvvvvvv: ${response.body}");
+print("response.statusCode: ${response.statusCode}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -307,16 +336,18 @@ int grv=0;
         }
         setState(() {
           grvlist = grvDataList;
+          grvcount=grv;
         });
 
         // Get the count of grvlist
         int grvListCount = grvlist.length;
         
       } else {
-       
+     
       }
     } catch (error) {
-     
+    
+      
     }
   }
 
@@ -334,7 +365,26 @@ int grv=0;
   await prefs.remove('userId');
   await prefs.remove('token');
   await prefs.remove('username');
-  await prefs.remove('email');
+    await prefs.remove('department');
+
+  
+
+  // Use a post-frame callback to show the SnackBar after the current frame
+  // WidgetsBinding.instance.addPostFrameCallback((_) {
+  //   if (ScaffoldMessenger.of(context).mounted) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Logged out successfully'),
+  //         duration: Duration(seconds: 2),
+  //       ),
+  //     );
+  //   }
+  // });
+
+  // // Wait for the SnackBar to disappear before navigating
+  // await Future.delayed(Duration(seconds: 2));
+
+  // Navigate to the HomePage after the snackbar is shown
   Navigator.pushReplacement(
     context,
     MaterialPageRoute(builder: (context) => login()),
@@ -632,7 +682,7 @@ int grv=0;
                     ),
                     SizedBox(width: 16),
                     Text(
-                      '$username  cooo',
+                      '$username',
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
@@ -660,7 +710,7 @@ int grv=0;
                           
 
                         },
-                        child: _buildInfoCard(getTodaysBills(), 'Todays Bills', 0)),
+                        child: _buildInfoCard(totalbills, 'Todays Bills', 0)),
                       GestureDetector(
                         onTap: () {
                            Navigator.push(
@@ -668,7 +718,7 @@ int grv=0;
           MaterialPageRoute(builder: (context) => OrderList(status: "Invoice Created",)),
         );
                         },
-                        child: _buildInfoCard(approval.toString(), 'Approve Bills', 0)),
+                        child: _buildInfoCard(approvalcount.toString(), 'Approve Bills', 0)),
                       GestureDetector(
                         onTap: () {
 
@@ -679,7 +729,7 @@ int grv=0;
                           
 
                         },
-                        child: _buildInfoCard(confirm.toString(), 'Confirm Bills',0)),
+                        child: _buildInfoCard(confirmcount.toString(), 'Confirm Bills',0)),
                     ],
                   ),
                 ),

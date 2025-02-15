@@ -82,7 +82,8 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
       );
 
       
-
+print(response.body);
+print(response.statusCode);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed;
@@ -104,7 +105,7 @@ class _WarehouseOrderViewState extends State<WarehouseOrderView> {
             formattedOrderDate = DateFormat('yyyy-MM-dd')
                 .format(parsedOrderDate); // Convert to desired format
           } catch (e) {
-            
+            print(e);
           }
 
           // Parse warehouse_orders

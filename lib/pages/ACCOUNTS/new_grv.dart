@@ -31,7 +31,8 @@ class NewGrv extends StatefulWidget {
 
 class _NewGrvState extends State<NewGrv> {
   final TextEditingController returnreason = TextEditingController();
-  final TextEditingController returnQuantityController = TextEditingController();
+  final TextEditingController returnQuantityController =
+      TextEditingController();
   final TextEditingController textEditingController = TextEditingController();
 
   List<Map<String, dynamic>> orders = [];
@@ -53,38 +54,46 @@ class _NewGrvState extends State<NewGrv> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
- void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
 
-  Future<void> fetchOrders() async {
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
+
+  int currentPage = 1;
+  String? nextPageUrl;
+  Future<void> fetchOrders({bool loadMore = false}) async {
     final token = await getTokenFromPrefs();
     try {
+      String url =
+          loadMore && nextPageUrl != null ? nextPageUrl! : "$api/api/orders/";
+
+      print('Fetching from URL: $url'); // Debug print
+
       final response = await http.get(
-        Uri.parse("$api/api/orders/"),
+        Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -93,8 +102,13 @@ class _NewGrvState extends State<NewGrv> {
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
+        nextPageUrl = parsed['next']; // Save next page URL
+        print('Next Page: $nextPageUrl'); // Debug print
+
+        final List data = parsed['results'];
         List<Map<String, dynamic>> orderList = [];
-        for (var order in parsed) {
+
+        for (var order in data) {
           orderList.add({
             'id': order['id'],
             'manage_staff': order['manage_staff'] ?? 'Unknown',
@@ -104,14 +118,19 @@ class _NewGrvState extends State<NewGrv> {
             'created_at': order['customer']['created_at'] ?? 'Unknown Date',
           });
         }
+
         setState(() {
-          orders = orderList;
+          if (loadMore) {
+            orders.addAll(orderList.reversed.toList());
+          } else {
+            orders = orderList.reversed.toList();
+          }
         });
       } else {
-        
+        print('Failed to load orders: ${response.statusCode}');
       }
     } catch (error) {
-      
+      print('Error fetching orders: $error');
     }
   }
 
@@ -125,18 +144,19 @@ class _NewGrvState extends State<NewGrv> {
           'Authorization': 'Bearer $token',
         },
       );
-
+      print("==============${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         if (parsed['items'] != null && (parsed['items'] as List).isNotEmpty) {
-          List<Map<String, dynamic>> productItems = (parsed['items'] as List).map((item) {
+          List<Map<String, dynamic>> productItems =
+              (parsed['items'] as List).map((item) {
             return {
-              'id': item['id'],
-              'name': item['name'],
-              'rate': item['rate'],
-              'quantity': item['quantity'],
-              'discount': item['discount'],
-              'images': item['image'],
+              'id': item['id'] ?? 0,
+              'name': item['name'] ?? 'Unknown Product',
+              'rate': item['rate'] ?? 0.0,
+              'quantity': item['quantity'] ?? 0,
+              'discount': item['discount'] ?? 0,
+              'images': item['image'] ?? '',
               'return_quantity': 0 // Initialize return_quantity as 0
             };
           }).toList();
@@ -145,23 +165,19 @@ class _NewGrvState extends State<NewGrv> {
             orderItems = productItems;
             hasItems = true; // If items are found
           });
-          
         } else {
           setState(() {
             orderItems = [];
             hasItems = false; // No items found
           });
-          
         }
       } else {
-        
         setState(() {
           orderItems = [];
           hasItems = false;
         });
       }
     } catch (error) {
-      
       setState(() {
         hasItems = false;
       });
@@ -187,7 +203,8 @@ class _NewGrvState extends State<NewGrv> {
           actions: [
             TextButton(
               onPressed: () {
-                int returnQuantity = int.tryParse(returnQuantityController.text) ?? 0;
+                int returnQuantity =
+                    int.tryParse(returnQuantityController.text) ?? 0;
                 if (returnQuantity > 0) {
                   setState(() {
                     item['return_quantity'] = returnQuantity;
@@ -214,7 +231,6 @@ class _NewGrvState extends State<NewGrv> {
   }
 
   void PostGRV() async {
-    
     final token = await getTokenFromPrefs();
     try {
       for (var item in orderItems) {
@@ -232,9 +248,8 @@ class _NewGrvState extends State<NewGrv> {
             'returnreason': returnreason.text,
           }),
         );
-
-        
-
+        print(response.body);
+        print(response.statusCode);
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: Color.fromARGB(255, 49, 212, 4),
@@ -252,7 +267,6 @@ class _NewGrvState extends State<NewGrv> {
         }
       }
     } catch (e) {
-      
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: Colors.red,
         content: Text('An error occurred. Please try again.'),
@@ -266,7 +280,8 @@ class _NewGrvState extends State<NewGrv> {
     returnreason.dispose();
     super.dispose();
   }
-drower d = drower();
+
+  drower d = drower();
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
     return ExpansionTile(
@@ -284,59 +299,59 @@ drower d = drower();
     );
   }
 
-
   Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('New GRV'),
-
-         leading: IconButton(
+        leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
-
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else if(dep=="warehouse" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
-            );
-}
-else if(dep=="warehouse admin" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "warehouse") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "warehouse admin") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
-
       ),
-     
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(10),
@@ -352,7 +367,8 @@ else {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
                 child: Container(
                   padding: EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -363,99 +379,130 @@ else {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                     Padding(
-  padding: const EdgeInsets.only(right: 10),
-  child: LayoutBuilder(
-    builder: (context, constraints) {
-      return Container(
-        child: DropdownButtonHideUnderline(
-          child: Container(
-            height: 46,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey, width: 1.0),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: DropdownButton2<String>(
-              isExpanded: true,
-              hint: Text(
-                'Select Invoice',
-                style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
-              ),
-              items: orders.map((order) {
-                return DropdownMenuItem<String>(
-                  value: '${order['invoice']} / ${order['name']}',
-                  child: Text(
-                    '${order['invoice']} / ${order['name']}',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                );
-              }).toList(),
-              value: selectedValue,
-              onChanged: (value) {
-                setState(() {
-                  selectedValue = value;
-                  final selectedOrder = orders.firstWhere(
-                    (order) => '${order['invoice']} / ${order['name']}' == value,
-                    orElse: () => {},
-                  );
-                  if (selectedOrder != null) {
-                    orderId = selectedOrder['id'].toString();
-                    manageStaffName = selectedOrder['manage_staff'];
-                    selectedInvoiceAddress = selectedOrder['address'];
-                    createdAtDate = selectedOrder['created_at'];
-                    fetchOrderItems(orderId);
-                  }
-                });
-              },
-              buttonStyleData: const ButtonStyleData(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                height: 40,
-              ),
-              dropdownStyleData: const DropdownStyleData(
-                maxHeight: 200,
-              ),
-              menuItemStyleData: const MenuItemStyleData(
-                height: 40,
-              ),
-              dropdownSearchData: DropdownSearchData(
-                searchController: textEditingController,
-                searchInnerWidgetHeight: 50,
-                searchInnerWidget: Container(
-                  height: 50,
-                  padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
-                  child: TextFormField(
-                    expands: true,
-                    maxLines: null,
-                    controller: textEditingController,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      hintText: 'Search for an invoice...',
-                      hintStyle: const TextStyle(fontSize: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                ),
-                searchMatchFn: (item, searchValue) {
-                  return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
-                },
-              ),
-              onMenuStateChange: (isOpen) {
-                if (!isOpen) {
-                  textEditingController.clear();
-                }
-              },
-            ),
-          ),
-        ),
-      );
-    },
-  ),
-),
-
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Container(
+                              child: DropdownButtonHideUnderline(
+                                child: Container(
+                                  height: 46,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.grey, width: 1.0),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: DropdownButton2<String>(
+                                    isExpanded: true,
+                                    hint: Text(
+                                      'Select Invoice',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Theme.of(context).hintColor),
+                                    ),
+                                    items: orders.map((order) {
+                                      return DropdownMenuItem<String>(
+                                        value:
+                                            '${order['invoice']} / ${order['name']}',
+                                        child: Text(
+                                          '${order['invoice']} / ${order['name']}',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    value: selectedValue,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedValue = value;
+                                        final selectedOrder = orders.firstWhere(
+                                          (order) =>
+                                              '${order['invoice']} / ${order['name']}' ==
+                                              value,
+                                          orElse: () => {},
+                                        );
+                                        if (selectedOrder != null) {
+                                          orderId =
+                                              selectedOrder['id'].toString();
+                                          manageStaffName =
+                                              selectedOrder['manage_staff'];
+                                          selectedInvoiceAddress =
+                                              selectedOrder['address'];
+                                          createdAtDate =
+                                              selectedOrder['created_at'];
+                                          fetchOrderItems(orderId);
+                                        }
+                                      });
+                                    },
+                                    buttonStyleData: const ButtonStyleData(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 16),
+                                      height: 40,
+                                    ),
+                                    dropdownStyleData: const DropdownStyleData(
+                                      maxHeight: 200,
+                                    ),
+                                    menuItemStyleData: const MenuItemStyleData(
+                                      height: 40,
+                                    ),
+                                    dropdownSearchData: DropdownSearchData(
+                                      searchController: textEditingController,
+                                      searchInnerWidgetHeight: 50,
+                                      searchInnerWidget: Container(
+                                        height: 50,
+                                        padding: const EdgeInsets.only(
+                                            top: 8,
+                                            bottom: 4,
+                                            right: 8,
+                                            left: 8),
+                                        child: TextFormField(
+                                          expands: true,
+                                          maxLines: null,
+                                          controller: textEditingController,
+                                          decoration: InputDecoration(
+                                            isDense: true,
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 8),
+                                            hintText:
+                                                'Search for an invoice...',
+                                            hintStyle:
+                                                const TextStyle(fontSize: 12),
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8)),
+                                          ),
+                                        ),
+                                      ),
+                                      searchMatchFn: (item, searchValue) {
+                                        return item.value
+                                            .toString()
+                                            .toLowerCase()
+                                            .contains(
+                                                searchValue.toLowerCase());
+                                      },
+                                    ),
+                                    onMenuStateChange: (isOpen) {
+                                      if (isOpen && nextPageUrl != null) {
+                                        fetchOrders(
+                                            loadMore:
+                                                true); // Load more when dropdown opens
+                                      }
+                                      if (!isOpen) {
+                                        textEditingController.clear();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                       SizedBox(height: 20),
                       TextFormField(
-                        controller: TextEditingController(text: manageStaffName),
+                        controller:
+                            TextEditingController(text: manageStaffName),
                         decoration: InputDecoration(
                           labelText: 'Managed by',
                           suffixIcon: Icon(Icons.lock),
@@ -465,7 +512,8 @@ else {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
-                        controller: TextEditingController(text: selectedInvoiceAddress),
+                        controller:
+                            TextEditingController(text: selectedInvoiceAddress),
                         decoration: InputDecoration(
                           labelText: 'Address',
                           suffixIcon: Icon(Icons.lock),
@@ -515,22 +563,24 @@ else {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if (item['images'] != null && item['images'].isNotEmpty)
+                                    if (item['images'] != null &&
+                                        item['images'].isNotEmpty)
                                       Image.network(
-                                                    "${item['images']}",
-                                                    width: 80,
-                                                    height: 80,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (context,
-                                                        error, stackTrace) {
-                                                      return Icon(Icons
-                                                          .image_not_supported); // Fallback image or icon
-                                                    },
-                                                  ),
+                                        "${item['images']}",
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Icon(Icons
+                                              .image_not_supported); // Fallback image or icon
+                                        },
+                                      ),
                                     SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             item['name'],
@@ -542,11 +592,15 @@ else {
                                           SizedBox(height: 8),
                                           Text('Rate: ₹${item['rate']}'),
                                           Text('Quantity: ${item['quantity']}'),
-                                          Text('Discount: ${item['discount']}%'),
-                                          Text('Return Quantity: ${item['return_quantity']}'),
+                                          Text(
+                                              'Discount: ${item['discount']}%'),
+                                          Text(
+                                              'Return Quantity: ${item['return_quantity']}'),
                                           TextButton(
-                                            onPressed: () => showReturnQuantityDialog(item),
-                                            child: Text('Enter Return Quantity'),
+                                            onPressed: () =>
+                                                showReturnQuantityDialog(item),
+                                            child:
+                                                Text('Enter Return Quantity'),
                                           ),
                                         ],
                                       ),
@@ -570,7 +624,8 @@ else {
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       backgroundColor: Colors.orange,
-                      content: Text('Please select an order and ensure there are items to submit.'),
+                      content: Text(
+                          'Please select an order and ensure there are items to submit.'),
                     ));
                   }
                 },

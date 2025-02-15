@@ -102,8 +102,8 @@ class _add_staffState extends State<add_staff> {
   String selectgender = "Female";
   List<String> material = ["Married", 'Single', 'Other'];
   String selectmarital = "Single";
-  List<String> approval = ["Approved", 'Disapproved'];
-  String approvalstatus = "Approved";
+  List<String> approval = ["approved", 'disapproved'];
+  String approvalstatus = "approved";
 
 //dateselection
   DateTime selectedDate = DateTime.now();
@@ -530,7 +530,7 @@ class _add_staffState extends State<add_staff> {
 //    }
 //   }
 
-  Future<void> RegisterUserData(
+Future<void> RegisterUserData(
     int selectedDepartmentId,
     DateTime selectedDate,
     String selectgender,
@@ -543,27 +543,22 @@ class _add_staffState extends State<add_staff> {
     final token = await gettokenFromPrefs();
 
     try {
-      // Create the request
       var request = http.Request(
         'POST',
         Uri.parse('$api/api/add/staff/'),
       );
 
-      // Add headers
       request.headers.addAll({
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json', // Specify content type as JSON
+        'Content-Type': 'application/json',
       });
 
-      // Prepare the data to send in JSON format
       Map<String, dynamic> data = {
         'date_of_birth': selectedDate.toIso8601String().substring(0, 10),
-        'driving_license_exp_date':
-            selecteExp.toIso8601String().substring(0, 10),
+        'driving_license_exp_date': selecteExp.toIso8601String().substring(0, 10),
         'join_date': selectejoin.toIso8601String().substring(0, 10),
         'confirmation_date': selecteconf.toIso8601String().substring(0, 10),
-        'allocated_states':
-            dynamicStatid.map((stateId) => stateId.toString()).toList(),
+        'allocated_states': dynamicStatid.map((stateId) => stateId.toString()).toList(),
         'name': name.text,
         'username': username.text,
         'email': email.text,
@@ -586,53 +581,59 @@ class _add_staffState extends State<add_staff> {
         'family': _selectedFamily.isNotEmpty ? _selectedFamily[0] : null,
       };
 
-      // Convert data to JSON and set the request body
       request.body = jsonEncode(data);
 
-      // Send the request
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
 
-      // Print the response status and body for debugging
-      
-      
+      print(responseData.body);
+      print(responseData.statusCode);
 
       if (responseData.statusCode == 201) {
-        // Parse the response body
         final Map<String, dynamic> responseJson = jsonDecode(responseData.body);
-
-        
-
-        // Store the product ID in the global variable
         staffId = responseJson['data']['id'].toString();
 
-        // Show success message
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        
           SnackBar(
-            content: Text('Data Added Successfully.'),
-          ),
+            backgroundColor: Colors.green,
+            content: Text('Data Added Successfully.'
+        
+          )),
         );
 
-        // Navigate to another page after successful registration
         Navigator.pushReplacement(
           scaffoldContext,
           MaterialPageRoute(builder: (context) => add_staff()),
         );
+      } else if (responseData.statusCode == 400) {
+        // Parse the response body and extract the errors
+        final Map<String, dynamic> responseJson = jsonDecode(responseData.body);
+        if (responseJson['errors'] != null) {
+          String errorMessage = responseJson['errors'].entries.map((e) {
+            return "${e.key}: ${e.value.join(', ')}";
+          }).join('\n');
+
+          ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+            SnackBar(content: Text(errorMessage)),
+          );
+        } else {
+          ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+            SnackBar(content: Text('Validation failed. Please check your input.')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            content: Text('Something went wrong. Please try again later.'),
-          ),
+          SnackBar(content: Text('Something went wrong. Please try again later.')),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-        ),
+        SnackBar(content: Text('Error: ${e.toString()}')),
       );
     }
   }
+
 
   Future<void> updateStaffImage(
     String staffId,

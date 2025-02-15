@@ -168,10 +168,9 @@ final productsData=Data['data'];
   void performaordercreate(
     BuildContext scaffoldContext,
   ) async {
- 
+ print("selectedstaffId$selectedCustomerId");
     try {
       final token = await gettokenFromPrefs();
-      
       var response = await http.post(
         Uri.parse('$api/api/perfoma/invoice/create/'),
         headers: {
@@ -193,7 +192,7 @@ final productsData=Data['data'];
           'payment_method': selectpaymethod,
         }),
       );
-
+print("${response.body}");
     
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -1400,7 +1399,7 @@ void logout() async {
                                                       value)['id'];
                                          
                                             });
-
+print("customerrrrrrrrrrrrrrrrrrid$selectedCustomerId");
                                             getaddress(selectedCustomerId);
                                           },
                                           buttonStyleData:

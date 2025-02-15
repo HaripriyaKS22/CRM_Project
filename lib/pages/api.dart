@@ -1,1 +1,1 @@
-var api="https://assumptions-hat-carlos-responding.trycloudflare.com";
+var api="https://curve-vip-bus-activists.trycloudflare.com";

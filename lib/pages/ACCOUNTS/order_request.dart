@@ -757,45 +757,39 @@ Future<void> getcustomer() async {
     print("Name: $name");
     print("Decoded Token Payload: ${jwt.payload}");
 
-    String? nextPageUrl = '$api/api/customers/';
-    List<Map<String, dynamic>> managerlist = [];
 
-    while (nextPageUrl != null) {
-      var response = await http.get(
-        Uri.parse(nextPageUrl),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    var response = await http.get(
+      Uri.parse('$api/api/customers/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      print("Customer data response: ${response.body}");
+    print("Customer data response: ${response.body}");
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['results']['data'];
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data']; // Directly accessing 'data' since no pagination
 
-        List<Map<String, dynamic>> newCustomers = [];
+      List<Map<String, dynamic>> newCustomers = [];
 
-        for (var productData in productsData) {
-          newCustomers.add({
-            'id': productData['id'],
-            'name': productData['name'],
-            'created_at': productData['created_at'],
-          });
-        }
-
-        // Append new data and update UI in each iteration
-        setState(() {
-          customer.addAll(newCustomers);
-          filteredProducts.addAll(newCustomers);
+      for (var productData in productsData) {
+        newCustomers.add({
+          'id': productData['id'],
+          'name': productData['name'],
+          'created_at': productData['created_at'],
         });
-
-        // Update nextPageUrl to continue fetching next pages
-        nextPageUrl = parsed['next'];
-      } else {
-        throw Exception("Failed to load customer data");
       }
+
+      // Update UI
+      setState(() {
+        customer = newCustomers;
+        print("Customer data: $customer");
+        filteredProducts = newCustomers;
+      });
+    } else {
+      throw Exception("Failed to load customer data");
     }
   } catch (error) {
     print("Error fetching customers: $error");
@@ -2078,48 +2072,42 @@ Future<String?> getdepFromPrefs() async {
                       SizedBox(height:5,),
               
               
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: InputDecorator(
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: '',
-                                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                      ),
-                                      child: DropdownButton<String>(
-                                        value: selectpaymethod,
-                                        underline: Container(), // Removes the underline
-                                        onChanged: (String? newValue) {
-                                          setState(() {
-                                            selectpaymethod= newValue!;
-                                            
-                                          });
-                                        },
-                                        items: paymethod.map<DropdownMenuItem<String>>((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(
-                                              value,
-                                              style: TextStyle(
-                                                fontSize: 12
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                        icon: Container(
-                                          padding: EdgeInsets.only(left: 180),
-                                          alignment: Alignment.centerRight,
-                                          child: Icon(Icons.arrow_drop_down),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                            ),
+                          Padding(
+  padding: const EdgeInsets.only(right: 10),
+  child: Container(
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey),
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    child: InputDecorator(
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 8), // Adjusted padding
+      ),
+      child: DropdownButton<String>(
+        value: selectpaymethod,
+        underline: SizedBox(), // Removes the underline
+        onChanged: (String? newValue) {
+          setState(() {
+            selectpaymethod = newValue!;
+          });
+        },
+        items: paymethod.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 12),
+            ),
+          );
+        }).toList(),
+        icon: Icon(Icons.arrow_drop_down), // Default icon without excessive padding
+        isExpanded: true, // Ensures dropdown expands within its container
+      ),
+    ),
+  ),
+),
+
                      SizedBox(height: 8,),
                     
               

@@ -680,6 +680,7 @@ print('variantProducts$variantProducts');
                             ),
                             TextField(
                               controller: hsncode,
+                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 labelText: 'Index',
 
@@ -1042,6 +1043,7 @@ print('variantProducts$variantProducts');
                               SizedBox(height: 10),
                               TextField(
                                 controller: stock,
+                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   labelText: 'Enter stock quantity',
                                   border: OutlineInputBorder(
@@ -1219,6 +1221,7 @@ print('variantProducts$variantProducts');
                             ),
                             TextField(
                               controller: sellingprice,
+                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 labelText: ' ',
                                 border: OutlineInputBorder(
@@ -1243,6 +1246,7 @@ print('variantProducts$variantProducts');
                             ),
                             TextField(
                               controller: retailprice,
+                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 labelText: ' ',
                                 border: OutlineInputBorder(

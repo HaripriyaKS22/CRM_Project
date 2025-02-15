@@ -168,7 +168,7 @@ class _GrvListState extends State<GrvList> {
       
 
       var response = await http.put(
-        Uri.parse('$api/api/grvupdate/$id/'),
+        Uri.parse('$api/api/grv/update/$id/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
