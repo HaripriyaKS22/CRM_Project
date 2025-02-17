@@ -1143,16 +1143,12 @@ Future<String?> getdepFromPrefs() async {
   Widget build(BuildContext context) {
       double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-
-
       backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
-
-         leading: IconButton(
+          leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async{
-                Navigator.pop(context);
-           
+                Navigator.pop(context); 
           },
         ),
 
@@ -1161,6 +1157,7 @@ Future<String?> getdepFromPrefs() async {
               icon: Image.asset('lib/assets/profile.png'),
                
               onPressed: () {
+                
                 
               },
             ),
@@ -1299,7 +1296,6 @@ Future<String?> getdepFromPrefs() async {
      Text("TO",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height:5,),
 
-                           if(dep=="ADMIN"||dep=="COO"||dep=="Accounts")
                            if(selectedmode=="warehouse to warehouse")
                              Padding(
                             padding: const EdgeInsets.only(right: 10),
@@ -1397,7 +1393,6 @@ Future<String?> getdepFromPrefs() async {
                          Text("From",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height:5,),
 
-                           if(dep=="ADMIN"||dep=="COO"||dep=="Accounts")
                            if(selectedmode=="warehouse to warehouse")
                              Padding(
                             padding: const EdgeInsets.only(right: 10),
@@ -1489,7 +1484,6 @@ Future<String?> getdepFromPrefs() async {
                           ),
 
 
-                     if(dep=="ADMIN"||dep=="COO"||dep=="Accounts")
                            if(selectedmode=="request")
                              Padding(
                                padding: const EdgeInsets.only(right: 10),
