@@ -757,39 +757,45 @@ Future<void> getcustomer() async {
     print("Name: $name");
     print("Decoded Token Payload: ${jwt.payload}");
 
+    String? nextPageUrl = '$api/api/customers/';
+    List<Map<String, dynamic>> managerlist = [];
 
-    var response = await http.get(
-      Uri.parse('$api/api/customers/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+    while (nextPageUrl != null) {
+      var response = await http.get(
+        Uri.parse(nextPageUrl),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    print("Customer data response: ${response.body}");
+      print("Customer data response: ${response.body}");
 
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      var productsData = parsed['data']; // Directly accessing 'data' since no pagination
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['results']['data'];
 
-      List<Map<String, dynamic>> newCustomers = [];
+        List<Map<String, dynamic>> newCustomers = [];
 
-      for (var productData in productsData) {
-        newCustomers.add({
-          'id': productData['id'],
-          'name': productData['name'],
-          'created_at': productData['created_at'],
+        for (var productData in productsData) {
+          newCustomers.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            'created_at': productData['created_at'],
+          });
+        }
+
+        // Append new data and update UI in each iteration
+        setState(() {
+          customer.addAll(newCustomers);
+          filteredProducts.addAll(newCustomers);
         });
-      }
 
-      // Update UI
-      setState(() {
-        customer = newCustomers;
-        print("Customer data: $customer");
-        filteredProducts = newCustomers;
-      });
-    } else {
-      throw Exception("Failed to load customer data");
+        // Update nextPageUrl to continue fetching next pages
+        nextPageUrl = parsed['next'];
+      } else {
+        throw Exception("Failed to load customer data");
+      }
     }
   } catch (error) {
     print("Error fetching customers: $error");
@@ -1192,13 +1198,13 @@ Future<String?> getdepFromPrefs() async {
                           children: [
                             SizedBox(height: 15,),
 
-                            if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+                            if(dep=="ADMIN"||dep=="COO"||dep=="Accounts")
 
                               Text("Order Mode",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
 
                               SizedBox(height:5,),
                             
-                            if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+                            if(dep=="ADMIN"||dep=="COO"||dep=="Accounts")
 
                             Padding(
                               padding: const EdgeInsets.only(right: 10),
@@ -1293,7 +1299,7 @@ Future<String?> getdepFromPrefs() async {
      Text("TO",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height:5,),
 
-                           if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+                           if(dep=="ADMIN"||dep=="COO"||dep=="Accounts")
                            if(selectedmode=="warehouse to warehouse")
                              Padding(
                             padding: const EdgeInsets.only(right: 10),
@@ -1391,7 +1397,7 @@ Future<String?> getdepFromPrefs() async {
                          Text("From",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
                       SizedBox(height:5,),
 
-                           if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+                           if(dep=="ADMIN"||dep=="COO"||dep=="Accounts")
                            if(selectedmode=="warehouse to warehouse")
                              Padding(
                             padding: const EdgeInsets.only(right: 10),
@@ -1483,7 +1489,7 @@ Future<String?> getdepFromPrefs() async {
                           ),
 
 
-                     if(dep=="Admin"||dep=="COO"||dep=="Accounts")
+                     if(dep=="ADMIN"||dep=="COO"||dep=="Accounts")
                            if(selectedmode=="request")
                              Padding(
                                padding: const EdgeInsets.only(right: 10),

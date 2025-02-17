@@ -126,7 +126,7 @@ print(response.body);
           case 'BDM':
             targetPage = bdm_dashbord();
             break;
-          case 'warehouse admin':
+          case 'Warehouse Admin':
             targetPage = WarehouseAdmin();
             break;
           case 'HR':

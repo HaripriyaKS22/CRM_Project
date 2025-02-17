@@ -168,7 +168,7 @@ void logout() async {
         'Authorization': 'Bearer $token',
       },
     );
-print(response.body);
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
