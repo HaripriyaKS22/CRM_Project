@@ -36,7 +36,7 @@ class _CustomerListState extends State<CustomerList> {
       Sheet sheetObject = excel['CustomerData'];
       
       // Add headers
-      sheetObject.appendRow(['ID', 'Name', 'Created At']);
+      // sheetObject.appendRow(['ID', 'Name', 'Created At']);
       
       // Add customer data rows
       for (var customer in filteredProducts) {

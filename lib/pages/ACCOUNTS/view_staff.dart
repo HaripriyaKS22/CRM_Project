@@ -152,7 +152,13 @@ class _staff_listState extends State<staff_list> {
     var excel = Excel.createExcel();
     Sheet sheetObject = excel['Staff List'];
 
-    sheetObject.appendRow(['ID', 'Name', 'Email', 'Designation', 'Approval Status']);
+sheetObject.appendRow([
+  TextCellValue('ID'),
+  TextCellValue('Name'),
+  TextCellValue('Email'),
+  TextCellValue('Designation'),
+  TextCellValue('Approval Status'),
+]);
 
     for (var staff in filteredProducts) {
       sheetObject.appendRow([

@@ -198,8 +198,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
           }
         }
 
-        Map<String, double> parcelAverages = {};
-
+      Map<String, double> parcelAverages = {};
         setState(() {
           parcelData.forEach((parcelService, data) {
             double totalActualWeight = data['total_actual_weight'] ?? 0.0;

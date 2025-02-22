@@ -4,9 +4,6 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-
-
 
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
@@ -224,15 +221,7 @@ void logout() async {
 
 
 
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Methods'),
-              onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (context)=>Methods()));
-
-              },
-            ),
-
+       
             ListTile(
               leading: Icon(Icons.chat),
               title: Text('Chat'),

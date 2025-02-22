@@ -13,7 +13,6 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 
 
@@ -339,14 +338,7 @@ void logout() async {
               _buildDropdownTile(context, 'Banking Module',
                   ['Add Bank ', 'List', 'Other Transfer']),
               Divider(),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Methods'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Methods()));
-                },
-              ),
+              
               ListTile(
                 leading: Icon(Icons.chat),
                 title: Text('Chat'),

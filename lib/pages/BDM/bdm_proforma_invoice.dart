@@ -168,14 +168,6 @@ class _bdm_performa_invoiceState extends State<bdm_performa_invoice> {
 
 
 
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('users'),
-              onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (context)=>Methods()));
-
-              },
-            ),
 
             ListTile(
               leading: Icon(Icons.chat),

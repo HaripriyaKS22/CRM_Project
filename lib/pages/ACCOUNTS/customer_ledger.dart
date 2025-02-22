@@ -257,38 +257,48 @@ Future<void> fetchCustomerLedgerDetails() async {
     var excel = Excel.createExcel();
     Sheet sheetObject = excel['Customer Ledger'];
 
-    sheetObject.appendRow(
-        ['#', 'Date', 'Invoice', 'Particular', 'Debit (₹)', 'Credit (₹)']);
+   sheetObject.appendRow([
+  TextCellValue('#'),
+  TextCellValue('Date'),
+  TextCellValue('Invoice'),
+  TextCellValue('Particular'),
+  TextCellValue('Debit (₹)'),
+  TextCellValue('Credit (₹)'),
+]);
+
 
     for (int i = 0; i < filteredEntries.length; i++) {
       final entry = filteredEntries[i];
-      sheetObject.appendRow([
-        "${i + 1}",
-        entry['date'] ?? '',
-        entry['invoice'] ?? '',
-        entry['particular'] ?? '',
-        entry['debit']?.toString() ?? '',
-        entry['credit']?.toString() ?? '',
-      ]);
+     sheetObject.appendRow([
+  IntCellValue(i + 1),  // Integer values
+  TextCellValue(entry['date'] ?? ''),
+  TextCellValue(entry['invoice'] ?? ''),
+  TextCellValue(entry['particular'] ?? ''),
+  DoubleCellValue(entry['debit'] ?? 0.0),  // Decimal values
+  DoubleCellValue(entry['credit'] ?? 0.0),
+]);
+
     }
 
     sheetObject.appendRow([]);
     sheetObject.appendRow([
-      'Grand Total',
-      '',
-      '',
-      '',
-      totalDebit.toStringAsFixed(2),
-      totalCredit.toStringAsFixed(2),
-    ]);
-    sheetObject.appendRow([
-      'Closing Balance',
-      '',
-      '',
-      '',
-      (totalDebit - totalCredit).toStringAsFixed(2),
-      '',
-    ]);
+  TextCellValue('Grand Total'),
+  TextCellValue(''),
+  TextCellValue(''),
+  TextCellValue(''),
+  DoubleCellValue(totalDebit),  // Correct format for numbers
+  DoubleCellValue(totalCredit),
+]);
+
+sheetObject.appendRow([
+  TextCellValue('Closing Balance'),
+  TextCellValue(''),
+  TextCellValue(''),
+  TextCellValue(''),
+  DoubleCellValue(totalDebit - totalCredit),
+  TextCellValue(''),
+]);
+
 
     final tempDir = await getTemporaryDirectory();
     final tempPath = "${tempDir.path}/customer_ledger_preview.xlsx";

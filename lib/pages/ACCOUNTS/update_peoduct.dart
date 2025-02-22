@@ -19,7 +19,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
@@ -87,12 +86,12 @@ class _update_productState extends State<update_product> {
   double prate = 0.00;
   double tax = 0.00;
   double spricetax = 0.00;
+  var producttype;
 
   TextEditingController name = TextEditingController();
   TextEditingController hsncode = TextEditingController();
   TextEditingController price = TextEditingController();
   TextEditingController family = TextEditingController();
-  TextEditingController types = TextEditingController();
   TextEditingController units = TextEditingController();
   TextEditingController purchaserate = TextEditingController();
   TextEditingController taxx = TextEditingController();
@@ -273,6 +272,7 @@ class _update_productState extends State<update_product> {
                 retailprice.text =
                     singleProducts[0]['retail_price']?.toString() ?? '';
                 fami = singleProducts[0]['family'];
+                producttype = singleProducts[0]['type'];
 
             
               }
@@ -298,6 +298,7 @@ print('variantProducts$variantProducts');
                 retailprice.text =
                     singleProducts[0]['retail_price']?.toString() ?? '';
                 fami = singleProducts[0]['family'];
+                producttype = singleProducts[0]['type'];
             
 
                 
@@ -336,7 +337,6 @@ print('variantProducts$variantProducts');
       Map<String, dynamic> data = {
         'name': name.text,
         'hsn_code': hsncode.text,
-        'type': selecttype,
         'unit': selectunit,
         'purchase_rate': purchaserate.text,
         'tax': taxx.text,
@@ -848,11 +848,15 @@ print('variantProducts$variantProducts');
                               ),
                             ),
                             SizedBox(height: 10),
+                          if(producttype == 'single')
 
                             Text("Product Type ",
+
+                            
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),
                             SizedBox(height: 20),
+                            if(producttype == 'single')
                             Container(
                               width: 310,
                               height: 49,

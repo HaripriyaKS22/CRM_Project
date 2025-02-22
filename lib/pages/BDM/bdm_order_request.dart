@@ -165,14 +165,7 @@ class _bdm_order_requestState extends State<bdm_order_request> {
 
 
 
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('users'),
-              onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (context)=>Methods()));
-
-              },
-            ),
+         
 
             ListTile(
               leading: Icon(Icons.chat),

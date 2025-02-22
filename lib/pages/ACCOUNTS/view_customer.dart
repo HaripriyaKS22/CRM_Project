@@ -162,12 +162,12 @@ void initdata()async{
 }
 var managerfetchid;
 var statefetchid;
-  Future<void> getcustomers() async {
+ Future<void> getcustomers() async {
     try {
       final token = await gettokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/customers/'),
+        Uri.parse('$api/api/customer/update/${widget.customerid}/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -176,60 +176,37 @@ var statefetchid;
 
       List<Map<String, dynamic>> managerlist = [];
 
+      print("===================${response.body}");
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
+        gstno.text = productsData['gst'] ?? '';
+        name.text = productsData['name'] ?? '';
+        managerfetchid = productsData['manager'];
+        statefetchid = productsData['state'];
+        phone.text = productsData['phone'] ?? '';
+        altphone.text = productsData['alt_phone'] ?? '';
+        email.text = productsData['email'] ?? '';
+        address.text = productsData['address'] ?? '';
+        zipcode.text = productsData['zip_code'].toString() ?? '';
+        city.text = productsData['city'] ?? '';
+        selectstate = statess.firstWhere(
+            (state) => state['id'] == productsData['state'],
+            orElse: () => {'name': ''})['name']; // Set selectstate
 
-        for (var productData in productsData) {
-          managerlist.add({
-            'id': productData['id'],
-            'gst': productData['gst'],
-            'name': productData['name'],
-            'created_at': productData['created_at'],
-            'manager': productData['manager'],
-            'phone': productData['phone'],
-            'alt_phone': productData['alt_phone'],
-            'email': productData['email'],
-            'address': productData['address'],
-            'zip_code': productData['zip_code'],
-            'city': productData['city'],
-            'state': productData['state'],
-            'comment': productData['comment'],
-          });
+        selectedManagerName = manager.firstWhere(
+            (manager) => manager['id'] == productsData['manager'],
+            orElse: () => {'name': ''})['name'];
+        comment.text = productsData['comment'] ?? '';
 
-          if (widget.customerid == productData['id']) {
-            gstno.text = productData['gst'] ?? '';
-            name.text = productData['name'] ?? '';
-            managerfetchid=productData['manager'];
-            statefetchid=productData['state'];
-            phone.text = productData['phone'] ?? '';
-            altphone.text = productData['alt_phone'] ?? '';
-            email.text = productData['email'] ?? '';
-            address.text = productData['address'] ?? '';
-            zipcode.text = productData['zip_code'].toString() ?? '';
-            city.text = productData['city'] ?? '';
-            selectstate = statess.firstWhere(
-                (state) => state['id'] == productData['state'],
-                orElse: () => {'name': ''})['name']; // Set selectstate
-
-             selectedManagerName = manager.firstWhere(
-                (manager) => manager['id'] == productData['manager'],
-                orElse: () => {'name': ''})['name']; 
-            comment.text = productData['comment'] ?? '';
-
-          }
-        }
-
-        
         getstates();
         setState(() {
           customer = managerlist;
         });
       }
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
 
   // Future<String?> gettokenFromPrefs() async {
@@ -425,7 +402,7 @@ Future<void> getstates() async {
                 ),
                 SizedBox(height: 15),
                 SizedBox(
-                  height: 300,
+                  height: 440,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -476,25 +453,7 @@ Future<void> getstates() async {
 
             SizedBox(height: 15),
 
-            Text(
-              "GSTIN Number",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              controller: gstno,
-              decoration: InputDecoration(
-                labelText: 'AAA00',
-                prefixIcon: Icon(Icons.numbers),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-              ),
-            ),
-
-            SizedBox(height: 10),
+            
 
 
 

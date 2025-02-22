@@ -457,7 +457,7 @@ print("response.statusCode: ${response.statusCode}");
                 title: Text('Dashboard'),
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Graph()));
+                      MaterialPageRoute(builder: (context) => admin_dashboard()));
                 },
               ),
              
@@ -631,14 +631,7 @@ print("response.statusCode: ${response.statusCode}");
               _buildDropdownTile(context, 'Banking Module',
                   ['Add Bank ', 'List', 'Other Transfer']),
               Divider(),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Methods'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Methods()));
-                },
-              ),
+             
               ListTile(
                 leading: Icon(Icons.chat),
                 title: Text('Chat'),
