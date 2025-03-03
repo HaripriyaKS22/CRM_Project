@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ACCOUNTS/dgm.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/profilepage.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
@@ -194,7 +195,7 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
-else if(dep=="warehouse admin" ){
+else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
@@ -399,6 +400,10 @@ else {
                                 ),
                               ],
                             ),
+SizedBox(height: 10),
+                            ElevatedButton(onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>Dgm(shipped_date: item['shipped_date'])));
+                            }, child: Text("View")),
                           ],
                         ),
                       );

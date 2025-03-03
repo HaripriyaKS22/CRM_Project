@@ -89,7 +89,7 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
- Future<void> getcustomer() async {
+Future<void> getcustomer() async {
   try {
     final dep = await getdepFromPrefs();
     final token = await gettokenFromPrefs();
@@ -99,45 +99,39 @@ Future<String?> getdepFromPrefs() async {
     print("Name: $name");
     print("Decoded Token Payload: ${jwt.payload}");
 
-    String? nextPageUrl = '$api/api/customers/';
-    List<Map<String, dynamic>> managerlist = [];
 
-    while (nextPageUrl != null) {
-      var response = await http.get(
-        Uri.parse(nextPageUrl),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    var response = await http.get(
+      Uri.parse('$api/api/customers/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      print("Customer data response: ${response.body}");
+    print("Customer data responseeeeeeeeeeeeeeeeee: ${response.body}");
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['results']['data'];
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data']; // Directly accessing 'data' since no pagination
 
-        List<Map<String, dynamic>> newCustomers = [];
+      List<Map<String, dynamic>> newCustomers = [];
 
-        for (var productData in productsData) {
-          newCustomers.add({
-            'id': productData['id'],
-            'name': productData['name'],
-            'created_at': productData['created_at'],
-          });
-        }
-
-        // Append new data and update UI in each iteration
-        setState(() {
-          customer.addAll(newCustomers);
-          filteredProducts.addAll(newCustomers);
+      for (var productData in productsData) {
+        newCustomers.add({
+          'id': productData['id'],
+          'name': productData['name'],
+          'created_at': productData['created_at'],
         });
-
-        // Update nextPageUrl to continue fetching next pages
-        nextPageUrl = parsed['next'];
-      } else {
-        throw Exception("Failed to load customer data");
       }
+
+      // Update UI
+      setState(() {
+        customer = newCustomers;
+        print("Customer data: $customer");
+        filteredProducts = newCustomers;
+      });
+    } else {
+      throw Exception("Failed to load customer data");
     }
   } catch (error) {
     print("Error fetching customers: $error");

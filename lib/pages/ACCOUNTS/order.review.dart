@@ -102,88 +102,112 @@ class _OrderReviewState extends State<OrderReview> {
     return prefs.getString('department');
   }
 
-  void _showShippingChargeDialog(BuildContext context, var warehouseId) {
-    final shippingController = TextEditingController();
-    final actualWeightController = TextEditingController();
-    final postOfficeAmountController = TextEditingController();
+void _showShippingChargeDialog(BuildContext context, var warehouseId) {
+  final shippingController = TextEditingController();
+  final actualWeightController = TextEditingController();
+  final postOfficeAmountController = TextEditingController();
+  final dateController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add Details'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Shipping Charge
-                TextField(
-                  controller: shippingController,
-                  decoration: InputDecoration(
-                    labelText: 'Shipping Charge',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Add Details'),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Shipping Charge
+              TextField(
+                controller: shippingController,
+                decoration: InputDecoration(
+                  labelText: 'Shipping Charge',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 10),
-                // Actual Weight
-                TextField(
-                  controller: actualWeightController,
-                  decoration: InputDecoration(
-                    labelText: 'Actual Weight',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 10),
+              // Actual Weight
+              TextField(
+                controller: actualWeightController,
+                decoration: InputDecoration(
+                  labelText: 'Actual Weight',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 10),
-                // Post Office Amount
-                TextField(
-                  controller: postOfficeAmountController,
-                  decoration: InputDecoration(
-                    labelText: 'Post Office Amount',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 10),
+              // Post Office Amount
+              TextField(
+                controller: postOfficeAmountController,
+                decoration: InputDecoration(
+                  labelText: 'Post Office Amount',
+                  border: OutlineInputBorder(),
                 ),
-              ],
-            ),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 10),
+              // Date Picker
+              TextField(
+                controller: dateController,
+                decoration: InputDecoration(
+                  labelText: 'Select Date',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.calendar_today),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+
+                  if (pickedDate != null) {
+                    dateController.text = "${pickedDate.toLocal()}".split(' ')[0];
+                  }
+                },
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (shippingController.text.isNotEmpty &&
+                  actualWeightController.text.isNotEmpty &&
+                  postOfficeAmountController.text.isNotEmpty &&
+                  dateController.text.isNotEmpty) {
+                updateactualweight(
+                  warehouseId,
+                  double.parse(shippingController.text),
+                  double.parse(actualWeightController.text),
+                  double.parse(postOfficeAmountController.text),
+                  dateController.text, // Pass selected date
+                );
                 Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (shippingController.text.isNotEmpty &&
-                    actualWeightController.text.isNotEmpty &&
-                    postOfficeAmountController.text.isNotEmpty) {
-                  updateactualweight(
-                    warehouseId, // Pass the ID
-                    double.parse(shippingController.text), // Shipping Charge
-                    double.parse(actualWeightController.text), // Actual Weight
-                    double.parse(
-                        postOfficeAmountController.text), // Post Office Amount
-                  );
-                  Navigator.of(context).pop();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Please fill out all fields.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Please fill out all fields.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
+}
   // final List<String> statuses = [
   //   'Pending',
   //   'Approved',
@@ -276,6 +300,8 @@ class _OrderReviewState extends State<OrderReview> {
     double shippingController,
     double actualWeight,
     double postOfficeAmount,
+    var selectedDate,
+
   ) async {
     try {
       final token = await getTokenFromPrefs();
@@ -293,11 +319,12 @@ class _OrderReviewState extends State<OrderReview> {
             'shipping_charge': shippingController,
             'actual_weight': actualWeight,
             'parcel_amount': postOfficeAmount,
+            'postoffice_date': selectedDate,
           },
         ),
       );
-
-      
+print('responsessssssssssssssss${response.body}');
+      print('responsessssssssssssssss${response.statusCode}');
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -314,6 +341,7 @@ class _OrderReviewState extends State<OrderReview> {
         );
       }
     } catch (error) {
+      print("Error: $error");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error updating shipping charge'),
@@ -715,7 +743,7 @@ class _OrderReviewState extends State<OrderReview> {
       },
     );
 
-    print("Response: ${response.body}");
+    print("Response reviewwwwwwwwwww: ${response.body}");
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -724,7 +752,7 @@ class _OrderReviewState extends State<OrderReview> {
       print("Order Data: $ord");
 
       List<dynamic> itemsData = parsed['items'] ?? [];
-      List<dynamic> warehouseData = parsed['order']['warehouse'] ?? [];
+      List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
 
       print("Warehouse Data: $warehouseData");
 
@@ -1314,7 +1342,7 @@ class _OrderReviewState extends State<OrderReview> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
-                                    image: NetworkImage('${item["images"]}'),
+                                    image: NetworkImage('$api${item["images"]}'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),

@@ -112,13 +112,13 @@ class _staff_listState extends State<staff_list> {
 
         
         for (var productData in productsData) {
-          String imageUrl = "$api${productData['image']}";
+         
           stafflist.add({
             'id': productData['id'],
             'name': productData['name'],
             'email': productData['email'],
             'designation':productData['designation'],
-            'image': imageUrl,
+            'image': productData['image'],
             'approval_status':productData['approval_status']
           });
         }
@@ -383,6 +383,7 @@ Expanded(
     itemCount: filteredProducts.length,
     itemBuilder: (context, index) {
       final staffData = filteredProducts[index];
+      print("url>>>>>>>>>>>>>>>>>>>>>${staffData['image']}");
       return GestureDetector(
         onTap: () {
           Navigator.push(
@@ -412,12 +413,19 @@ Expanded(
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(30),
-                      child: Image.asset(
-                        "lib/assets/user.png", // Profile image
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      ),
+                      child: staffData['image'] != null && staffData['image'].isNotEmpty
+                          ? Image.network(
+                              "$api${staffData['image']}", // Profile image from network
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              "lib/assets/user.png", // Default profile image
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                     // Circular Approval Status ring around the image
                     Positioned(
@@ -431,10 +439,6 @@ Expanded(
                           color: staffData['approval_status'] == 'approved'
                               ? Colors.green
                               : Colors.red,
-                          // border: Border.all(
-                          //   color: Colors.white, // Border color for the ring
-                          //   width: 3,
-                          // ),
                         ),
                         child: Center(
                           child: Text(

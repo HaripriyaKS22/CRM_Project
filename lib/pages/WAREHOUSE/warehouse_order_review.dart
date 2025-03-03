@@ -388,8 +388,8 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      
-
+      print("ress>>>>>>>>>>>>>stta>>>>${response.statusCode}");
+print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
       // Handle response based on status code
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

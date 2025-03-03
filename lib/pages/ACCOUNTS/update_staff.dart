@@ -530,7 +530,7 @@ Future<void> updateStaffImage(
 
       // Add headers
       request.headers['Authorization'] = 'Bearer $token';
-
+print('image update$image1');
       // Add the images to the request if they are not null
       if (image1 != null) {
         request.files

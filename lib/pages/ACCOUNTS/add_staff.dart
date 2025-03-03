@@ -5,6 +5,7 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_staff.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -2028,7 +2029,7 @@ Future<void> RegisterUserData(
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      update_expence(
+                                                      Staff_Update(
                                                           id: sta[i]['id'])));
                                         },
                                         child: Image.asset(

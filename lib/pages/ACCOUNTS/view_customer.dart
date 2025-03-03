@@ -45,7 +45,7 @@ class _view_customerState extends State<view_customer> {
   List<Map<String, dynamic>> customer = [];
 
   List<String> categories = ["customer", "warehouse"];
-String selectedCategory = "customer"; // Default value
+  String selectedCategory = "customer"; // Default value
 
   String? selectedManagerName;
   int? selectedManagerId;
@@ -70,13 +70,13 @@ String selectedCategory = "customer"; // Default value
     getmanagers();
     getstates();
 
-
-    
+    print("=============>>>>>>>>>..${widget.customerid}");
   }
-void initdata()async{
-  await getmanagers();
-   await getstates();
-}
+
+  void initdata() async {
+    await getmanagers();
+    await getstates();
+  }
 
   Future<void> storeUserData(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -89,85 +89,78 @@ void initdata()async{
   }
 
   void updateCustomer(
-  String gst,
-  String name,
-  String manager,
-  String phone,
-  String altPhone,
-  String email,
-  String address,
-  String zipcode,
-  String city,
-  String state,
-  String comment,
-  BuildContext context,
-) async {
-  
-  
+    String gst,
+    String name,
+    String manager,
+    String phone,
+    String altPhone,
+    String email,
+    String address,
+    String zipcode,
+    String city,
+    String state,
+    String comment,
+    BuildContext context,
+  ) async {
+    final token = await gettokenFromPrefs();
 
-  final token = await gettokenFromPrefs();
-
-  try {
-    var response = await http.put(
-      Uri.parse("$api/api/customer/update/${widget.customerid}/"),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        "gst": gst,
-        "name": name,
-        'manager': selectedManagerId,
-        'phone': phone,
-        'alt_phone': altPhone,
-        'email': email,
-        'address': address,
-        'zip_code': zipcode,
-        'city': city,
-        'state': state,
-        'comment': comment,
-      }),
-    );
-
-    
-
-    
-
-    if (response.statusCode == 200) {
-      var responseData = jsonDecode(response.body);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Color.fromARGB(255, 49, 212, 4),
-          content: Text('Success'),
-        ),
+    try {
+      var response = await http.put(
+        Uri.parse("$api/api/customer/update/${widget.customerid}/"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "gst": gst,
+          "name": name,
+          'manager': selectedManagerId,
+          'phone': phone,
+          'alt_phone': altPhone,
+          'email': email,
+          'address': address,
+          'zip_code': zipcode,
+          'city': city,
+          'state': state,
+          'comment': comment,
+        }),
       );
-    } else {
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Color.fromARGB(255, 49, 212, 4),
+            content: Text('Success'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Failed to update customer. Please try again.'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text('Failed to update customer. Please try again.'),
+          content: Text('An error occurred. Please try again.'),
         ),
       );
     }
-  } catch (e) {
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text('An error occurred. Please try again.'),
-      ),
-    );
   }
-}
-var managerfetchid;
-var statefetchid;
+
+  var managerfetchid;
+  var statefetchid;
   Future<void> getcustomers() async {
     try {
       final token = await gettokenFromPrefs();
 
       var response = await http.get(
-        Uri.parse('$api/api/customers/'),
+        Uri.parse('$api/api/customer/update/${widget.customerid}/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -176,60 +169,37 @@ var statefetchid;
 
       List<Map<String, dynamic>> managerlist = [];
 
+      print("===================${response.body}");
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
+        gstno.text = productsData['gst'] ?? '';
+        name.text = productsData['name'] ?? '';
+        managerfetchid = productsData['manager'];
+        statefetchid = productsData['state'];
+        phone.text = productsData['phone'] ?? '';
+        altphone.text = productsData['alt_phone'] ?? '';
+        email.text = productsData['email'] ?? '';
+        address.text = productsData['address'] ?? '';
+        zipcode.text = productsData['zip_code'].toString() ?? '';
+        city.text = productsData['city'] ?? '';
+        selectstate = statess.firstWhere(
+            (state) => state['id'] == productsData['state'],
+            orElse: () => {'name': ''})['name']; // Set selectstate
 
-        for (var productData in productsData) {
-          managerlist.add({
-            'id': productData['id'],
-            'gst': productData['gst'],
-            'name': productData['name'],
-            'created_at': productData['created_at'],
-            'manager': productData['manager'],
-            'phone': productData['phone'],
-            'alt_phone': productData['alt_phone'],
-            'email': productData['email'],
-            'address': productData['address'],
-            'zip_code': productData['zip_code'],
-            'city': productData['city'],
-            'state': productData['state'],
-            'comment': productData['comment'],
-          });
+        selectedManagerName = manager.firstWhere(
+            (manager) => manager['id'] == productsData['manager'],
+            orElse: () => {'name': ''})['name'];
+        comment.text = productsData['comment'] ?? '';
 
-          if (widget.customerid == productData['id']) {
-            gstno.text = productData['gst'] ?? '';
-            name.text = productData['name'] ?? '';
-            managerfetchid=productData['manager'];
-            statefetchid=productData['state'];
-            phone.text = productData['phone'] ?? '';
-            altphone.text = productData['alt_phone'] ?? '';
-            email.text = productData['email'] ?? '';
-            address.text = productData['address'] ?? '';
-            zipcode.text = productData['zip_code'].toString() ?? '';
-            city.text = productData['city'] ?? '';
-            selectstate = statess.firstWhere(
-                (state) => state['id'] == productData['state'],
-                orElse: () => {'name': ''})['name']; // Set selectstate
-
-             selectedManagerName = manager.firstWhere(
-                (manager) => manager['id'] == productData['manager'],
-                orElse: () => {'name': ''})['name']; 
-            comment.text = productData['comment'] ?? '';
-
-          }
-        }
-
-        
         getstates();
         setState(() {
           customer = managerlist;
         });
       }
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
 
   // Future<String?> gettokenFromPrefs() async {
@@ -238,103 +208,92 @@ var statefetchid;
   // }
 
   Future<void> getmanagers() async {
-  try {
-    final token = await gettokenFromPrefs();
+    try {
+      final token = await gettokenFromPrefs();
 
-    var response = await http.get(
-      Uri.parse('$api/api/staffs/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    List<Map<String, dynamic>> managerlist = [];
+      var response = await http.get(
+        Uri.parse('$api/api/staffs/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      List<Map<String, dynamic>> managerlist = [];
 
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      var productsData = parsed['data'];
+      print("=============>>>???????>>>>>>>>>>>>>>${response.body}");
 
-      for (var productData in productsData) {
-        managerlist.add({
-          'id': productData['id'],
-          'name': productData['name'],
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        for (var productData in productsData) {
+          managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+
+        // Reorder the list to have the manager with managerfetchid first
+        managerlist.sort((a, b) {
+          if (a['id'] == managerfetchid) return -1;
+          if (b['id'] == managerfetchid) return 1;
+          return 0;
+        });
+
+        setState(() {
+          manager = managerlist;
+          selectedManagerName = managerlist[0]['name'];
+          selectedManagerId = managerlist[0]['id'];
+
+          print("managerlisttttttttttttttttttttttt: $managerlist");
         });
       }
-
-
-      // Reorder the list to have the manager with managerfetchid first
-      managerlist.sort((a, b) {
-        if (a['id'] == managerfetchid) return -1;
-        if (b['id'] == managerfetchid) return 1;
-        return 0;
-      });
-
-
-      setState(() {
-        manager = managerlist;
-        selectedManagerName = managerlist[0]['name'];
-        selectedManagerId = managerlist[0]['id'];
-        
-        
-      });
-    }
-  } catch (error) {
-    
+    } catch (error) {}
   }
-}
 
+  Future<void> getstates() async {
+    try {
+      final token = await gettokenFromPrefs();
 
-Future<void> getstates() async {
-  try {
-    final token = await gettokenFromPrefs();
+      var response = await http.get(
+        Uri.parse('$api/api/states/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      List<Map<String, dynamic>> stateslist = [];
 
-    var response = await http.get(
-      Uri.parse('$api/api/states/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    List<Map<String, dynamic>> stateslist = [];
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
 
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      var productsData = parsed['data'];
+        for (var productData in productsData) {
+          stateslist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
 
-      for (var productData in productsData) {
-        stateslist.add({
-          'id': productData['id'],
-          'name': productData['name'],
+        // Convert statefetchid to match the type of id in stateslist
+        final convertedStatefetchid =
+            statefetchid is String ? int.tryParse(statefetchid) : statefetchid;
+
+        // Reorder the list to have the state with statefetchid first
+        stateslist.sort((a, b) {
+          if (a['id'] == convertedStatefetchid) return -1;
+          if (b['id'] == convertedStatefetchid) return 1;
+          return 0;
+        });
+
+        setState(() {
+          statess = stateslist;
+          selectstate = stateslist[0]['name'];
+          selectedStateId = stateslist[0]['id'];
         });
       }
-      
-
-      // Convert statefetchid to match the type of id in stateslist
-      final convertedStatefetchid = statefetchid is String
-          ? int.tryParse(statefetchid)
-          : statefetchid;
-
-      // Reorder the list to have the state with statefetchid first
-      stateslist.sort((a, b) {
-        if (a['id'] == convertedStatefetchid) return -1;
-        if (b['id'] == convertedStatefetchid) return 1;
-        return 0;
-      });
-      
-
-      setState(() {
-        statess = stateslist;
-        selectstate = stateslist[0]['name'];
-        selectedStateId = stateslist[0]['id'];
-        
-        
-      });
-    }
-  } catch (error) {
-    
+    } catch (error) {}
   }
-}
-
 
   drower d = drower();
   Widget _buildDropdownTile(
@@ -355,31 +314,31 @@ Future<void> getstates() async {
   }
 
   void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
 
   // String selectstate = "Kerala";
   @override
@@ -388,11 +347,11 @@ Future<void> getstates() async {
       backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
             Navigator.pop(context);
-            },
-          ),
+          },
+        ),
         actions: [
           IconButton(
             icon: Image.asset('lib/assets/profile.png'),
@@ -400,7 +359,6 @@ Future<void> getstates() async {
           ),
         ],
       ),
-     
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 30, left: 12, right: 12),
@@ -416,7 +374,7 @@ Future<void> getstates() async {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        "Add New Customer ",
+                        "Add New Customer",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
@@ -425,7 +383,7 @@ Future<void> getstates() async {
                 ),
                 SizedBox(height: 15),
                 SizedBox(
-                  height: 300,
+                  height: 440,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -441,63 +399,61 @@ Future<void> getstates() async {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
-                               Text(
-              "Select Type",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child:DropdownButton<String>(
-  value: categories.contains(selectedCategory) ? selectedCategory : null, // Ensure valid selection
-  isExpanded: true,
-  underline: SizedBox(),
-  onChanged: (String? newValue) {
-    setState(() {
-      selectedCategory = newValue!;
-    });
-  },
-  items: categories.map<DropdownMenuItem<String>>((String category) {
-    return DropdownMenuItem<String>(
-      value: category,
-      child: Text(category),
-    );
-  }).toList(),
-  icon: Icon(Icons.arrow_drop_down),
-),
-
-            ),
-
-            SizedBox(height: 15),
-
-            Text(
-              "GSTIN Number",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              controller: gstno,
-              decoration: InputDecoration(
-                labelText: 'AAA00',
-                prefixIcon: Icon(Icons.numbers),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-              ),
-            ),
-
-            SizedBox(height: 10),
-
-
-
+                            Text(
+                              "Select Type",
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 10),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: DropdownButton<String>(
+                                value: categories.contains(selectedCategory)
+                                    ? selectedCategory
+                                    : null, // Ensure valid selection
+                                isExpanded: true,
+                                underline: SizedBox(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectedCategory = newValue!;
+                                  });
+                                },
+                                items: categories.map<DropdownMenuItem<String>>(
+                                    (String category) {
+                                  return DropdownMenuItem<String>(
+                                    value: category,
+                                    child: Text(category),
+                                  );
+                                }).toList(),
+                                icon: Icon(Icons.arrow_drop_down),
+                              ),
+                            ),
+                            SizedBox(height: 15),
+                            // Text(
+                            //   "GSTIN Number",
+                            //   style: TextStyle(
+                            //       fontSize: 15, fontWeight: FontWeight.bold),
+                            // ),
+                            // SizedBox(height: 10),
+                            // TextField(
+                            //   controller: gstno,
+                            //   decoration: InputDecoration(
+                            //     labelText: 'AAA00',
+                            //     prefixIcon: Icon(Icons.numbers),
+                            //     border: OutlineInputBorder(
+                            //       borderRadius: BorderRadius.circular(10.0),
+                            //       borderSide: BorderSide(color: Colors.grey),
+                            //     ),
+                            //     contentPadding:
+                            //         EdgeInsets.symmetric(vertical: 8.0),
+                            //   ),
+                            // ),
+                            // SizedBox(height: 10),
                             Text("GSTIN Number ",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.bold)),
@@ -581,7 +537,6 @@ Future<void> getstates() async {
                                                         newValue!['name'];
                                                     selectedManagerId =
                                                         newValue['id'];
-                                                   
                                                   });
                                                 }
                                               : null,
@@ -973,44 +928,44 @@ Future<void> getstates() async {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                    
-                      
-                     SizedBox(
-                      width: 200,
-                       child: ElevatedButton(
-                         onPressed: () {
-                           updateCustomer(
-                             gstno.text,
-                             name.text,
-                       selectedManagerId.toString(),
-                             phone.text,
-                             altphone.text,
-                             email.text,
-                             address.text,
-                             zipcode.text,
-                             city.text,
-                             selectedStateId.toString(), // Use selectedStateId instead of states.text
-                             comment.text,
-                             context,
-                           );
-                         },
-                         style: ButtonStyle(
-                           backgroundColor: MaterialStateProperty.all<Color>(
-                             Colors.blue,
-                           ),
-                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                             RoundedRectangleBorder(
-                               borderRadius: BorderRadius.circular(10),
-                             ),
-                           ),
-                           fixedSize: MaterialStateProperty.all<Size>(
-                             Size(95, 15),
-                           ),
-                         ),
-                         child: Text("Update", style: TextStyle(color: Colors.white)),
-                       ),
-                     ),
-
+                      SizedBox(
+                        width: 200,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            updateCustomer(
+                              gstno.text,
+                              name.text,
+                              selectedManagerId.toString(),
+                              phone.text,
+                              altphone.text,
+                              email.text,
+                              address.text,
+                              zipcode.text,
+                              city.text,
+                              selectedStateId
+                                  .toString(), // Use selectedStateId instead of states.text
+                              comment.text,
+                              context,
+                            );
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.blue,
+                            ),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            fixedSize: MaterialStateProperty.all<Size>(
+                              Size(95, 15),
+                            ),
+                          ),
+                          child: Text("Update",
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1022,5 +977,4 @@ Future<void> getstates() async {
       ),
     );
   }
-
 }
