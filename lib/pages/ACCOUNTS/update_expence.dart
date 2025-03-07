@@ -38,6 +38,7 @@ class _Expense_UpdateState extends State<Expense_Update> {
 
   String selectcompanyId = "";
   String selectpaybyId = "";
+  String LoanId = "";
   String selectbankId = "";
   TextEditingController transactionid = TextEditingController();
   TextEditingController purposes = TextEditingController();
@@ -68,71 +69,122 @@ class _Expense_UpdateState extends State<Expense_Update> {
   @override
   void initState() {
     super.initState();
-    getexpenselist();
+    getExpenseList();
     getbank();
     getcompany();
     getstaff();
+    getemi();
   }
 
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
- Future<void> getexpenselist() async {
+var selectedExpense;
+Future<void> getExpenseList() async {
+  print('Fetching expense list for ID: ${widget.id}');
   try {
     final token = await gettokenFromPrefs();
-    var response = await http.get(
-      Uri.parse('$api/api/expense/get/'),
+    final response = await http.get(
+      Uri.parse('$api/api/expense/add/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
     );
-    List<Map<String, dynamic>> expenselist = [];
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
-      for (var productData in parsed) {
-        // Parse the expense_date string into a DateTime object
-        DateTime expenseDate = DateTime.parse(productData['expense_date']);
-        
-        expenselist.add({
-          'id': productData['id'],
-          'purpose_of_payment': productData['purpose_of_payment'],
-          'amount': productData['amount'],
-          'expense_date': expenseDate, // Store as DateTime
-          'transaction_id': productData['transaction_id'],
-          'description': productData['description'],
-          'added_by': productData['added_by'],
-          'company': productData['company'],
-          'payed_by': productData['payed_by'],
-          'bank': productData['bank'],
-        });
-      }
 
-      final selectedExpense = expenselist.firstWhere(
-        (expense) => expense['id'] == widget.id,
-        orElse: () => {},
-      );
+      if (parsed is Map && parsed.containsKey('data')) {
+        List<Map<String, dynamic>> expenselist = List<Map<String, dynamic>>.from(parsed['data']);
 
-      if (selectedExpense != null) {
-        setState(() {
-          transactionid.text = selectedExpense['transaction_id'].toString();
-          purposes.text = selectedExpense['purpose_of_payment'];
-          amount.text = selectedExpense['amount']?.toString() ?? '';
-          description.text = selectedExpense['description'] ?? '';
-          selectcompanyId = selectedExpense['company'].toString();
-          selectpaybyId = selectedExpense['payed_by'].toString();
-          selectbankId = selectedExpense['bank'].toString();
-          selectedDate = selectedExpense['expense_date']; 
-        });
+        // Find the selected expense
+       
+        for(int i=0;i<expenselist.length;i++){
+          print('Expense ID: ${expenselist[i]['id']}  == ${widget.id}' );
+          var expenseid=expenselist[i]['id'].toString();
+          var id=widget.id.toString();
+
+          print('Expense ID: $expenseid  == $id' );
+          if(id==expenseid){
+                      print('innnnnnnnnnnnnnnnnnnr ${expenselist[i]['id']}  == ${widget.id}' );
+
+            selectedExpense=expenselist[i];
+          }
+        }
+
+        print('Selected Expense: $selectedExpense');
+
+        // Ensure selectedExpense is valid before updating UI
+        if (selectedExpense.isNotEmpty && mounted) {
+          setState(() {
+            transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
+            purposes.text = selectedExpense['purpose_of_payment'] ?? '';
+            LoanId = selectedExpense['loan']?.toString() ?? '';
+            amount.text = selectedExpense['amount']?.toString() ?? '';
+            description.text = selectedExpense['description'] ?? '';
+            selectcompanyId = selectedExpense['company']?['id']?.toString() ?? '';
+            selectpaybyId = selectedExpense['payed_by']?['id']?.toString() ?? '';
+            selectbankId = selectedExpense['bank']?['id']?.toString() ?? '';
+            selectedDate = selectedExpense['expense_date'] != null
+                ? DateTime.tryParse(selectedExpense['expense_date']) ?? DateTime.now()
+                : DateTime.now();
+          });
+        }
+        print("LoanIddddddddddddddddddd$LoanId");
+
+      } else {
+        print('Error: "data" key not found in response');
       }
+    } else {
+      print('Error fetching expenses: ${response.statusCode}');
     }
   } catch (error) {
-    
+    print('Error getting expense list: $error');
   }
 }
+ List<Map<String, dynamic>> emiList = [];
+
+    Future<void> getemi() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/apis/emi/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      List<Map<String, dynamic>> emiDataList = [];
+      print(response.statusCode);
+      print("emiiiiiiiiiiiiiiiiiiiiiiiiiiiiii${response.body}");
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        for (var productData in productsData) {
+          emiDataList.add({
+            'id': productData['id'],
+            'emi_name': productData['emi_name'],
+            'emi': productData['emi'],
+            'principal': productData['principal'],
+            'annual_interest_rate': productData['annual_interest_rate'],
+            'tenure_months': productData['tenure_months'],
+            'down_payment': productData['down_payment'],
+          });
+        }
+        setState(() {
+          emiList = emiDataList;
+          print("emiList$emiList");
+        });
+      }
+    } catch (error) {
+      // Handle error
+    }
+  }
 
   Future<void> getbank() async {
     final token = await gettokenFromPrefs();
@@ -167,34 +219,39 @@ class _Expense_UpdateState extends State<Expense_Update> {
   }
 
   Future<void> getcompany() async {
-    try {
-      final token = await gettokenFromPrefs();
-      var response = await http.get(
-        Uri.parse('$api/api/company/data/'),
-        headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      List<Map<String, dynamic>> companylist = [];
+  try {
+    final token = await gettokenFromPrefs();
+    var response = await http.get(
+      Uri.parse('$api/api/company/data/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    List<Map<String, dynamic>> companylist = [];
+    print("Company response: ${response.body}");
 
-      if (response.statusCode == 200) {
-        final productsData = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
 
-        for (var productData in productsData) {
-          companylist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-        setState(() {
-          company = companylist;
+      for (var productData in productsData) {
+        companylist.add({
+          'id': productData['id'],
+          'name': productData['name'],
         });
       }
-    } catch (error) {
-      
+      setState(() {
+        company = companylist;
+      });
+      print("Company list: $company");
+    } else {
+      print("Failed to fetch company data: ${response.statusCode}");
     }
+  } catch (error) {
+    print("Error fetching company data: $error");
   }
+}
 
   Future<void> getstaff() async {
     try {
@@ -458,6 +515,51 @@ Future<void> updatexpense() async {
                                   borderRadius: BorderRadius.circular(10.0)),
                             ),
                           ),
+
+if(purposes.text=="emi")
+                          SizedBox(height: 10),
+                          if(purposes.text=="emi")
+
+                          Text("Emi Plan"),
+                          if(purposes.text=="emi")
+
+if (emiList.isNotEmpty)
+  Container(
+    width: MediaQuery.of(context).size.width * 0.9, // Adjust width
+    height: 49, // Set the desired height
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Row(
+      children: [
+        SizedBox(width: 20), // Padding on the left for better alignment
+        Expanded(  // Wrap DropdownButton with Expanded
+          child: DropdownButton<String>(
+            value: LoanId.isEmpty ? null : LoanId,
+            hint: Text("Emi Plan"),
+            onChanged: (String? newValue) {
+              setState(() {
+                LoanId = newValue!;
+              });
+            },
+            items: emiList.map<DropdownMenuItem<String>>((emiData) {
+              return DropdownMenuItem<String>(
+                value: emiData['id'].toString(),
+                child: Text(emiData['emi_name'] ?? 'Unknown'),
+              );
+            }).toList(),
+            icon: Container(
+              padding: EdgeInsets.only(left: 150),
+              alignment: Alignment.centerRight,
+              child: Icon(Icons.arrow_drop_down),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+
                           SizedBox(height: 10),
                          Text("Payment Date"),
 GestureDetector(

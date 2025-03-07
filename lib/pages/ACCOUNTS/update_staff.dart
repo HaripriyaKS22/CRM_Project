@@ -285,6 +285,31 @@ Future<void> getwarehouse() async {
       ));
     }
   }
+
+  File? selectedImage1;
+
+  void imageSelect1() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+      );
+      if (result != null) {
+        setState(() {
+          selectedImage1 = File(result.files.single.path!);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("image1 selected successfully."),
+          backgroundColor: Color.fromARGB(173, 120, 249, 126),
+        ));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error while selecting the file."),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
 Future<void> RegisterUserData(BuildContext scaffoldContext) async {
   final token = await gettokenFromPrefs(); // Replace with your token retrieval method
 
@@ -516,6 +541,7 @@ Future<void> getstaff() async {
 }
 
 Future<void> updateStaffImage(
+    String staffId,
     File? image1,
     File? image2,
     BuildContext scaffoldContext,
@@ -525,7 +551,7 @@ Future<void> updateStaffImage(
     try {
       var request = http.MultipartRequest(
         'PUT',
-        Uri.parse('$api/api/staff/update/${widget.id}/'),
+        Uri.parse('$api/api/staff/update/$staffId/'),
       );
 
       // Add headers
@@ -545,7 +571,7 @@ Future<void> updateStaffImage(
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print("image update response: ${response.body}");
+      
       
       // Handle response based on status code
       if (response.statusCode == 200) {
@@ -567,30 +593,29 @@ Future<void> updateStaffImage(
       );
     }
   }
-
   // Function to allow the user to select an image
-  void imageSelect1() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-      );
-      if (result != null) {
-        setState(() {
-          selectedSignatureImage = File(result.files.single.path!);
+  // void imageSelect1() async {
+  //   try {
+  //     FilePickerResult? result = await FilePicker.platform.pickFiles(
+  //       type: FileType.image,
+  //     );
+  //     if (result != null) {
+  //       setState(() {
+  //         selectedSignatureImage = File(result.files.single.path!);
           
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("image1 selected successfully."),
-          backgroundColor: Color.fromARGB(173, 120, 249, 126),
-        ));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error while selecting the file."),
-        backgroundColor: Colors.red,
-      ));
-    }
-  }
+  //       });
+  //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //         content: Text("image1 selected successfully."),
+  //         backgroundColor: Color.fromARGB(173, 120, 249, 126),
+  //       ));
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //       content: Text("Error while selecting the file."),
+  //       backgroundColor: Colors.red,
+  //     ));
+  //   }
+  // }
   // Function to remove the selected image
   void removeSignatureImage() {
     print('remove image');
@@ -1508,8 +1533,8 @@ SizedBox(height: 8,),
                   RegisterUserData(context);
                   // Handle Submit action with updated dates and image
 
-                  updateStaffImage( selectedImage,
-                                          selectedSignatureImage, context);
+                 updateStaffImage(staffId, selectedImage,
+                                          selectedImage1, context);
                 },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(

@@ -4,12 +4,15 @@ import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
+import 'package:dropdown_button2/dropdown_button2.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -27,6 +30,7 @@ class _add_expenceState extends State<add_expence> {
     getcompany();
     getstaff();
     getbank();
+    getemi();
   }
 
 var url = "$api/api/add/department/";
@@ -71,6 +75,52 @@ void logout() async {
     MaterialPageRoute(builder: (context) => login()),
   );
 }
+
+ String? selectedEmiName;
+  int? selectedEmiId;
+  TextEditingController textEditingController = TextEditingController();
+ List<Map<String, dynamic>> emiList = [];
+
+    Future<void> getemi() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/apis/emi/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      List<Map<String, dynamic>> emiDataList = [];
+      print(response.statusCode);
+      print("emiiiiiiiiiiiiiiiiiiiiiiiiiiiiii${response.body}");
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        for (var productData in productsData) {
+          emiDataList.add({
+            'id': productData['id'],
+            'emi_name': productData['emi_name'],
+            'emi': productData['emi'],
+            'principal': productData['principal'],
+            'annual_interest_rate': productData['annual_interest_rate'],
+            'tenure_months': productData['tenure_months'],
+            'down_payment': productData['down_payment'],
+          });
+        }
+        setState(() {
+          emiList = emiDataList;
+          print("emiList$emiList");
+        });
+      }
+    } catch (error) {
+      // Handle error
+    }
+  }
+
  String selectedstaff='';
     int? selectedstaffId;
         int? selectedbankId;
@@ -219,7 +269,6 @@ List<Map<String, dynamic>> sta = [];
  
 
   String? selectedValue;
-  final TextEditingController textEditingController = TextEditingController();
 
   @override
   void dispose() {
@@ -300,10 +349,6 @@ void addexpense() async {
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString('username'); 
-
-    
-    
-
     if (username == null) {
       
       return;
@@ -326,9 +371,6 @@ void addexpense() async {
         "added_by": username, 
       },
     );
-
-    
-    
 
     if (response.statusCode == 200) {
       Navigator.push(
@@ -373,29 +415,42 @@ void addexpense() async {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
 
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
 
@@ -548,11 +603,105 @@ else {
     },
   ),
 ),
+if(selectedpurpose == 'emi')
+SizedBox(
+                      height: 5,
+                    ),
+                    if(selectedpurpose == 'emi')
 
-
+                      Text(
+                      "EMI Plan",
+                      style: TextStyle(
+                          fontSize: 13, ),
+                    ),
           SizedBox(
                       height: 5,
                     ),
+
+                  if(selectedpurpose == 'emi')
+
+
+                    Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Container(
+            child: DropdownButtonHideUnderline(
+              child: Container(
+                height: 46,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 1.0),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: Text(
+                    'Select an EMI Plan',
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                  ),
+                  items: emiList.map((emi) => DropdownMenuItem<String>(
+                        value: emi['emi_name'],
+                        child: Text(
+                          emi['emi_name'],
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      )).toList(),
+                  value: selectedEmiName,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedEmiName = value;
+                      selectedEmiId = emiList.firstWhere((emi) => emi['emi_name'] == value)['id'];
+                    });
+
+                    // Call a function to process selected EMI if needed
+                    print("Selected EMI: $selectedEmiName (ID: $selectedEmiId)");
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 40,
+                  ),
+                  dropdownStyleData: const DropdownStyleData(
+                    maxHeight: 200,
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(
+                    height: 40,
+                  ),
+                  dropdownSearchData: DropdownSearchData(
+                    searchController: textEditingController,
+                    searchInnerWidgetHeight: 50,
+                    searchInnerWidget: Container(
+                      height: 50,
+                      padding: const EdgeInsets.only(top: 8, bottom: 4, right: 8, left: 8),
+                      child: TextFormField(
+                        expands: true,
+                        maxLines: null,
+                        controller: textEditingController,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          hintText: 'Search EMI Plan...',
+                          hintStyle: const TextStyle(fontSize: 12),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ),
+                    searchMatchFn: (item, searchValue) {
+                      return item.value.toString().toLowerCase().contains(searchValue.toLowerCase());
+                    },
+                  ),
+                  onMenuStateChange: (isOpen) {
+                    if (!isOpen) {
+                      textEditingController.clear();
+                    }
+                  },
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+    
            Text(
                       "Payment Date",
                       style: TextStyle(

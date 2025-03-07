@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
@@ -42,7 +43,48 @@ class _expenceState extends State<expence> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-   
+
+    List<Map<String, dynamic>> emiList = [];
+
+    Future<void> getemi() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/apis/emi/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      List<Map<String, dynamic>> emiDataList = [];
+      print(response.statusCode);
+      print("emiiiiiiiiiiiiiiiiiiiiiiiiiiiiii${response.body}");
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        for (var productData in productsData) {
+          emiDataList.add({
+            'id': productData['id'],
+            'emi_name': productData['emi_name'],
+            'emi': productData['emi'],
+            'principal': productData['principal'],
+            'annual_interest_rate': productData['annual_interest_rate'],
+            'tenure_months': productData['tenure_months'],
+            'down_payment': productData['down_payment'],
+          });
+        }
+        setState(() {
+          emiList = emiDataList;
+        });
+      }
+    } catch (error) {
+      // Handle error
+    }
+  }
+
   Future<void> getbank() async {
     final token = await gettokenFromPrefs();
     try {
@@ -297,6 +339,9 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
+String selectedEmiName = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -308,29 +353,42 @@ Future<String?> getdepFromPrefs() async {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
 
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
         actions: [
@@ -741,6 +799,42 @@ else {
                     SizedBox(
                       height: 10,
                     ),
+                    Text("Select EMI"),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.9, // Adjust width
+              height: 49,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: selectedEmiName.isEmpty ? null : selectedEmiName,
+                      hint: Text("Select EMI"),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedEmiName = newValue!;
+                        });
+                      },
+                      items: emiList.map<DropdownMenuItem<String>>((emiData) {
+                        return DropdownMenuItem<String>(
+                          value: emiData['emi_name'],
+                          child: Text(emiData['emi_name']),
+                        );
+                      }).toList(),
+                      icon: Container(
+                        padding: EdgeInsets.only(left: 150),
+                        alignment: Alignment.centerRight,
+                        child: Icon(Icons.arrow_drop_down),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
                     ElevatedButton(
                       onPressed: () {
                         addexpense();

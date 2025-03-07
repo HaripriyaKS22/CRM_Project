@@ -5,6 +5,7 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -137,60 +138,11 @@ class _add_departmentState extends State<add_department> {
   );
 }
 
-//  Future<void> deletedepartment(int Id) async {
-//     final token = await gettokenFromPrefs();
-
-//     try {
-//       final response = await http.delete(
-//         Uri.parse('$api/api/department/update/$Id/'),
-//         headers: {
-//           'Authorization': '$token',
-//         },
-//       );
-//     
-//     if(response.statusCode == 200){
-//          ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           backgroundColor: Color.fromARGB(255, 49, 212, 4),
-//           content: Text('Deleted sucessfully'),
-//         ),
-//       );
-//          Navigator.push(context, MaterialPageRoute(builder: (context)=>add_department()));
-//     }
-
-//       if (response.statusCode == 204) {
-//       } else {
-//         throw Exception('Failed to delete wishlist ID: $Id');
-//       }
-//     } catch (error) {
-//     }
-//   }
-
   void removeProduct(int index) {
     setState(() {
       dep.removeAt(index);
     });
   }
-
-  drower d = drower();
-  Widget _buildDropdownTile(
-      BuildContext context, String title, List<String> options) {
-    return ExpansionTile(
-      title: Text(title),
-      children: options.map((option) {
-        return ListTile(
-          title: Text(option),
-          onTap: () {
-            Navigator.pop(context);
-            d.navigateToSelectedPage(
-                context, option); // Navigate to selected page
-          },
-        );
-      }).toList(),
-    );
-  }
-
-  //searchable dropdown
 
   String? selectedValue;
   final TextEditingController textEditingController = TextEditingController();
@@ -215,29 +167,42 @@ Future<String?> getdepFromPrefs() async {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
 
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
           actions: [

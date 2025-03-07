@@ -13,6 +13,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
@@ -46,7 +47,8 @@ class _Product_ListState extends State<Product_List> {
       }).toList(),
     );
   }
-
+    List<String> purchasetype = ["All Type","International", 'Local'];
+  String selectpurchasetype = "All Type";
   List<Map<String, dynamic>> fam = [];
   List<Map<String, dynamic>> products = [];
   List<bool> _checkboxValues = [];
@@ -66,8 +68,24 @@ var warehouse;
     await fetchProductList();
     setState(() {
       filteredProducts = products;
+      print("filteredProducts${filteredProducts}");
     });
   }
+
+
+void _filterProductsByPurchaseType(String purchaseType) {
+  if (purchaseType == "All Type") {
+    setState(() {
+      filteredProducts = products;
+    });
+  } else {
+    setState(() {
+      filteredProducts = products
+          .where((product) => product['purchase_type'] == purchaseType)
+          .toList();
+    });
+  }
+}
 
   void _filterProducts(String query) {
     if (query.isEmpty) {
@@ -190,6 +208,7 @@ var imageurl='${api}${productData['image']}';
           'hsn_code': productData['hsn_code'],
           'type': productData['type'],
           'unit': productData['unit'],
+          'purchase_type': productData['purchase_type'],
           'purchase_rate': productData['purchase_rate'],
           'tax': productData['tax'],
           'exclude_price': productData['exclude_price'],
@@ -241,6 +260,12 @@ else if(dep=="BDM" ){
               MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="ADMIN" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => admin_dashboard()), // Replace AnotherPage with your target page
+            );
+}
 else {
     Navigator.pushReplacement(
               context,
@@ -257,6 +282,60 @@ else {
      body: Container(
        child: Column(
          children: [
+
+
+           Container(
+                              width: 340,
+                              height: 49,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 20),
+                                  Container(
+                                    width: 276,
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding:
+                                            EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectpurchasetype,
+                                        underline:
+                                            Container(), // This removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectpurchasetype = newValue!;
+                                            _filterProductsByPurchaseType(selectpurchasetype);
+                                            print(selectpurchasetype);
+                                          });
+                                        },
+                                        items: purchasetype
+                                            .map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(
+                                              left:
+                                                  137), // Adjust padding as needed
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons
+                                              .arrow_drop_down), // Dropdown arrow icon
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
 Padding(
   padding: const EdgeInsets.all(8.0),
   child: TextField(

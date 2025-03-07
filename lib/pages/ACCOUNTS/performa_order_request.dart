@@ -186,10 +186,9 @@ final productsData=Data['data'];
               "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
           "family": selectedFamilyId,
           "state": selectedstateId,
-          'paymet_status': selectpaystatus,
+          
           'total_amount': tot,
-          'bank': selectedbankId,
-          'payment_method': selectpaymethod,
+          
         }),
       );
 print("${response.body}");
@@ -641,14 +640,11 @@ Future<void> getcustomer2() async {
       print("Error fetching customerssssssssssssss: $error");
     }
   }
-
 Future<void> getcustomer() async {
   try {
     final dep = await getdepFromPrefs();
     final token = await gettokenFromPrefs();
 
-  
-  
     String? nextPageUrl = '$api/api/customers/';
     List<Map<String, dynamic>> managerlist = [];
 
@@ -665,7 +661,7 @@ Future<void> getcustomer() async {
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        var productsData = parsed['results']['data'];
+        var productsData = parsed['data']; // Corrected line
 
         List<Map<String, dynamic>> newCustomers = [];
 
@@ -877,6 +873,7 @@ Future<void> getcustomer() async {
         });
       }
     } catch (error) {
+      print("Error fetching staff: $error");
       
     }
   }
@@ -1639,228 +1636,279 @@ print("customerrrrrrrrrrrrrrrrrrid$selectedCustomerId");
               ],
             ),
           ),
-          Container(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 202, 202, 202)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Bank Details ",
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Payment Status ",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    contentPadding:
-                                        EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child: DropdownButton<String>(
-                                    value: selectpaystatus,
-                                    underline:
-                                        Container(), // Removes the underline
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectpaystatus = newValue!;
+          // Container(
+          //   child: Column(
+          //     children: [
+          //       Padding(
+          //         padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+          //         child: Container(
+          //             decoration: BoxDecoration(
+          //               color: Colors.white,
+          //               borderRadius: BorderRadius.circular(10.0),
+          //               border: Border.all(
+          //                   color: Color.fromARGB(255, 202, 202, 202)),
+          //             ),
+          //             child: Padding(
+          //               padding: const EdgeInsets.only(left: 10),
+          //               child: Column(
+          //                 crossAxisAlignment: CrossAxisAlignment.start,
+          //                 children: [
+          //                   SizedBox(
+          //                     height: 15,
+          //                   ),
+          //                   Text(
+          //                     "Bank Details ",
+          //                     style: TextStyle(
+          //                         fontSize: 13,
+          //                         fontWeight: FontWeight.bold,
+          //                         color: Colors.blue),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 5,
+          //                   ),
+          //                   SizedBox(
+          //                     height: 15,
+          //                   ),
+          //                   Text(
+          //                     "Payment Status ",
+          //                     style: TextStyle(
+          //                         fontSize: 12, fontWeight: FontWeight.bold),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 5,
+          //                   ),
+          //                   Padding(
+          //                     padding: const EdgeInsets.only(right: 10),
+          //                     child: Container(
+          //                       decoration: BoxDecoration(
+          //                         border: Border.all(color: Colors.grey),
+          //                         borderRadius: BorderRadius.circular(10.0),
+          //                       ),
+          //                       child: InputDecorator(
+          //                         decoration: InputDecoration(
+          //                           border: InputBorder.none,
+          //                           hintText: '',
+          //                           contentPadding:
+          //                               EdgeInsets.symmetric(horizontal: 1),
+          //                         ),
+          //                         child: DropdownButton<String>(
+          //                           value: selectpaystatus,
+          //                           underline:
+          //                               Container(), // Removes the underline
+          //                           onChanged: (String? newValue) {
+          //                             setState(() {
+          //                               selectpaystatus = newValue!;
                                         
-                                      });
-                                    },
-                                    items: paystatus
-                                        .map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    icon: Container(
-                                      padding: EdgeInsets.only(left: 240),
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(Icons.arrow_drop_down),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "Bank",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                height: 49,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: const Color.fromARGB(
-                                          255, 206, 206, 206)),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 20),
-                                    Container(
-                                      width: 280,
-                                      child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: 'Select',
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 1),
-                                          ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton<int>(
-                                              hint: Text(
-                                                'Select',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey[600]),
-                                              ),
-                                              value: selectedbankId,
-                                              isExpanded: true,
-                                              dropdownColor:
-                                                  const Color.fromARGB(
-                                                      255, 255, 255, 255),
-                                              icon: Icon(Icons.arrow_drop_down,
-                                                  color: const Color.fromARGB(
-                                                      255, 107, 107, 107)),
-                                              onChanged: (int? newValue) {
-                                                setState(() {
-                                                  selectedbankId =
-                                                      newValue; // Store the selected family ID
+          //                             });
+          //                           },
+          //                           items: paystatus
+          //                               .map<DropdownMenuItem<String>>(
+          //                                   (String value) {
+          //                             return DropdownMenuItem<String>(
+          //                               value: value,
+          //                               child: Text(
+          //                                 value,
+          //                                 style: TextStyle(fontSize: 12),
+          //                               ),
+          //                             );
+          //                           }).toList(),
+          //                           icon: Container(
+          //                             padding: EdgeInsets.only(left: 240),
+          //                             alignment: Alignment.centerRight,
+          //                             child: Icon(Icons.arrow_drop_down),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 8,
+          //                   ),
+          //                   Text(
+          //                     "Bank",
+          //                     style: TextStyle(
+          //                         fontSize: 12, fontWeight: FontWeight.bold),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 5,
+          //                   ),
+          //                   Padding(
+          //                     padding: const EdgeInsets.only(right: 10),
+          //                     child: Container(
+          //                       height: 49,
+          //                       decoration: BoxDecoration(
+          //                         border: Border.all(
+          //                             color: const Color.fromARGB(
+          //                                 255, 206, 206, 206)),
+          //                         borderRadius: BorderRadius.circular(10),
+          //                       ),
+          //                       child: Row(
+          //                         children: [
+          //                           SizedBox(width: 20),
+          //                           Container(
+          //                             width: 280,
+          //                             child: InputDecorator(
+          //                                 decoration: InputDecoration(
+          //                                   border: InputBorder.none,
+          //                                   hintText: 'Select',
+          //                                   contentPadding:
+          //                                       EdgeInsets.symmetric(
+          //                                           horizontal: 1),
+          //                                 ),
+          //                                 child: DropdownButtonHideUnderline(
+          //                                   child: DropdownButton<int>(
+          //                                     hint: Text(
+          //                                       'Select',
+          //                                       style: TextStyle(
+          //                                           fontSize: 12,
+          //                                           color: Colors.grey[600]),
+          //                                     ),
+          //                                     value: selectedbankId,
+          //                                     isExpanded: true,
+          //                                     dropdownColor:
+          //                                         const Color.fromARGB(
+          //                                             255, 255, 255, 255),
+          //                                     icon: Icon(Icons.arrow_drop_down,
+          //                                         color: const Color.fromARGB(
+          //                                             255, 107, 107, 107)),
+          //                                     onChanged: (int? newValue) {
+          //                                       setState(() {
+          //                                         selectedbankId =
+          //                                             newValue; // Store the selected family ID
                                                   
-                                                });
-                                              },
-                                              items: bank
-                                                  .map<DropdownMenuItem<int>>(
-                                                      (bank) {
-                                                return DropdownMenuItem<int>(
-                                                  value: bank['id'],
-                                                  child: Text(
-                                                    bank['name'],
-                                                    style: TextStyle(
-                                                        color: Colors.black87,
-                                                        fontSize: 12),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                            ),
-                                          )),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Payment Method ",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    contentPadding:
-                                        EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child: DropdownButton<String>(
-                                    value: selectpaymethod,
-                                    underline:
-                                        Container(), // Removes the underline
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectpaymethod = newValue!;
+          //                                       });
+          //                                     },
+          //                                     items: bank
+          //                                         .map<DropdownMenuItem<int>>(
+          //                                             (bank) {
+          //                                       return DropdownMenuItem<int>(
+          //                                         value: bank['id'],
+          //                                         child: Text(
+          //                                           bank['name'],
+          //                                           style: TextStyle(
+          //                                               color: Colors.black87,
+          //                                               fontSize: 12),
+          //                                         ),
+          //                                       );
+          //                                     }).toList(),
+          //                                   ),
+          //                                 )),
+          //                           ),
+          //                         ],
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 15,
+          //                   ),
+          //                   Text(
+          //                     "Payment Method ",
+          //                     style: TextStyle(
+          //                         fontSize: 12, fontWeight: FontWeight.bold),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 5,
+          //                   ),
+          //                   Padding(
+          //                     padding: const EdgeInsets.only(right: 10),
+          //                     child: Container(
+          //                       decoration: BoxDecoration(
+          //                         border: Border.all(color: Colors.grey),
+          //                         borderRadius: BorderRadius.circular(10.0),
+          //                       ),
+          //                       child: InputDecorator(
+          //                         decoration: InputDecoration(
+          //                           border: InputBorder.none,
+          //                           hintText: '',
+          //                           contentPadding:
+          //                               EdgeInsets.symmetric(horizontal: 1),
+          //                         ),
+          //                         child: DropdownButton<String>(
+          //                           value: selectpaymethod,
+          //                           underline:
+          //                               Container(), // Removes the underline
+          //                           onChanged: (String? newValue) {
+          //                             setState(() {
+          //                               selectpaymethod = newValue!;
                                         
-                                      });
-                                    },
-                                    items: paymethod
-                                        .map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    icon: Container(
-                                      padding: EdgeInsets.only(left: 180),
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(Icons.arrow_drop_down),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
+          //                             });
+          //                           },
+          //                           items: paymethod
+          //                               .map<DropdownMenuItem<String>>(
+          //                                   (String value) {
+          //                             return DropdownMenuItem<String>(
+          //                               value: value,
+          //                               child: Text(
+          //                                 value,
+          //                                 style: TextStyle(fontSize: 12),
+          //                               ),
+          //                             );
+          //                           }).toList(),
+          //                           icon: Container(
+          //                             padding: EdgeInsets.only(left: 180),
+          //                             alignment: Alignment.centerRight,
+          //                             child: Icon(Icons.arrow_drop_down),
+          //                           ),
+          //                         ),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 8,
+          //                   ),
+          //                   Padding(
+          //                     padding: const EdgeInsets.only(right: 10),
+          //                     child: SizedBox(
+          //                       width: double.infinity,
+          //                       child: ElevatedButton(
+          //                         onPressed: () async {
+                                 
+          //                           showTotalDialog(context);
+          //                           // Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
+          //                         },
+          //                         style: ButtonStyle(
+          //                           backgroundColor:
+          //                               MaterialStateProperty.all<Color>(
+          //                             Colors.blue,
+          //                           ),
+          //                           shape: MaterialStateProperty.all<
+          //                               RoundedRectangleBorder>(
+          //                             RoundedRectangleBorder(
+          //                               borderRadius: BorderRadius.circular(10),
+          //                             ),
+          //                           ),
+          //                           fixedSize: MaterialStateProperty.all<Size>(
+          //                             Size(95, 15),
+          //                           ),
+          //                         ),
+          //                         child: Text("Generate Invoice",
+          //                             style: TextStyle(color: Colors.white)),
+          //                       ),
+          //                     ),
+          //                   ),
+          //                   SizedBox(
+          //                     height: 20,
+          //                   ),
+          //                 ],
+          //               ),
+          //             )),
+          //       ),
+          //       SizedBox(
+          //         height: 20,
+          //       ),
+
+                
+          //     ],
+          //   ),
+          // ),
+
+
+
+
+
+
+          Padding(
+                              padding: const EdgeInsets.all(15),
                               child: SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
@@ -1889,19 +1937,6 @@ print("customerrrrrrrrrrrrrrrrrrid$selectedCustomerId");
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                          ],
-                        ),
-                      )),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-              ],
-            ),
-          ),
         ],
       )),
     );

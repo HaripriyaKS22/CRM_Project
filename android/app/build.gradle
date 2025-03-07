@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.beposoft"
+    namespace "com.bepo.beposoft"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 

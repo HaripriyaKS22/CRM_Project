@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
@@ -98,7 +99,7 @@ double totalBankExpensesBeforeDate = (bankData['banks'] as List<dynamic>?)
               return sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0);
             }) ??
             0.0;
-
+print("==================================$todayPayments");
         totalTodayPayments += todayPayments;
 
         // Handle `banks` for today's expenses
@@ -346,29 +347,42 @@ Widget build(BuildContext context) {
       ),
        leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
 
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
          actions: [
@@ -397,6 +411,7 @@ else {
             itemCount: Finance.length,
             itemBuilder: (context, index) {
               final item = Finance[index]; // Current bank data
+              print("==================================>>>>>>$item");
               return Card(
                 color: Colors.white,
                 margin: const EdgeInsets.all(8.0),

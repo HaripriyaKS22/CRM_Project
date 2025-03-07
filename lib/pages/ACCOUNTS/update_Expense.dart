@@ -61,6 +61,9 @@ void initdata() async {
   }
 var url = "$api/api/add/department/";
  TextEditingController transactionid = TextEditingController();
+
+ TextEditingController quantity = TextEditingController();
+
   TextEditingController purposes = TextEditingController();
   TextEditingController amount = TextEditingController();
   TextEditingController description = TextEditingController();
@@ -294,6 +297,9 @@ Future<void> getexpenselist() async {
           purposes.text = selectedExpense['purpose_of_payment'] ?? '';
           amount.text = selectedExpense['amount']?.toString() ?? '';
           description.text = selectedExpense['description'] ?? '';
+          name.text=selectedExpense['name']??'';
+          quantity.text=selectedExpense['quantity']??'';
+
 
           // Parse nested objects (if necessary)
           selectedCompanyId = selectedExpense['company']?['id'] as int? ?? selectedExpense['company'] as int?;
@@ -753,6 +759,57 @@ Padding(
 
    Text(
             "Transaction Id",
+            style: TextStyle(
+              fontSize: 13,
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            child: TextField(
+              controller: transactionid,
+              decoration: InputDecoration(
+                labelText: 'No.',
+                labelStyle: TextStyle(
+        fontSize: 13.0, // Adjust the font size as needed
+      ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+              ),
+            ),
+          ),
+                    SizedBox(height: 5),
+
+
+
+                    Text(
+            "Name",
+            style: TextStyle(
+              fontSize: 13,
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            child: TextField(
+              controller: transactionid,
+              decoration: InputDecoration(
+                labelText: 'No.',
+                labelStyle: TextStyle(
+        fontSize: 13.0, // Adjust the font size as needed
+      ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+              ),
+            ),
+          ),
+                    SizedBox(height: 5),
+                    Text(
+            "Quantity",
             style: TextStyle(
               fontSize: 13,
             ),

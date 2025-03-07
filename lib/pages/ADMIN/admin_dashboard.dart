@@ -1,12 +1,16 @@
 import 'dart:convert';
+import 'package:beposoft/pages/ACCOUNTS/Asset_manegment.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_EMI.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
+import 'package:beposoft/pages/ACCOUNTS/categories.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/uploadbulkorders.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_product_approval.dart';
 import 'package:intl/intl.dart';
 
 import 'package:beposoft/loginpage.dart';
@@ -470,6 +474,24 @@ print("response.statusCode: ${response.statusCode}");
                   // Navigate to the Settings page or perform any other action
                 },
               ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Approve Products'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Approve_products()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Add EMI'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_Emi()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
                ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Bulk Upload Orders'),
@@ -553,6 +575,24 @@ print("response.statusCode: ${response.statusCode}");
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => add_attribute()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Categories'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_categories()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Asset Manegment'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AssetManegment()));
                   // Navigate to the Settings page or perform any other action
                 },
               ),

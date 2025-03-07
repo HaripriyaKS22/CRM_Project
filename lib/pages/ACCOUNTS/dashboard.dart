@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
+import 'package:beposoft/pages/ACCOUNTS/categories.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
@@ -42,8 +43,8 @@ class _admin_dashboardState extends State<dashboard> {
   @override
   void initState() {
     super.initState();
-     _getUsername(); // Get the username when the page loads
-      getGrvList();
+    _getUsername(); // Get the username when the page loads
+     getGrvList();
     fetchproformaData();
      getSalesReport();
    fetchOrderData();
@@ -478,6 +479,7 @@ print("response.statusCode: ${response.statusCode}");
                   // Navigate to the Settings page or perform any other action
                 },
               ),
+              
               //   ListTile(
               //   leading: Icon(Icons.person),
               //   title: Text('Bulk Upload'),
@@ -495,6 +497,19 @@ print("response.statusCode: ${response.statusCode}");
                       context,
                       MaterialPageRoute(
                           builder: (context) => add_department()));
+                  // Navigate to the Settings page or perform any other action
+              
+                },
+              ),
+
+                ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Categories'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => add_categories()));
                   // Navigate to the Settings page or perform any other action
                 },
               ),

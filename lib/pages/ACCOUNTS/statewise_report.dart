@@ -11,6 +11,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
@@ -371,6 +372,7 @@ void _filterOrdersByStaffId() {
 var count;
 var amount;
 Future<void> getstatewisereport() async {
+  print('getstatewisereport');
   try {
     final token = await gettokenFromPrefs();
 
@@ -381,7 +383,7 @@ Future<void> getstatewisereport() async {
         'Content-Type': 'application/json',
       },
     );
-print(response.body);
+print("response.body${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
@@ -425,7 +427,7 @@ print(response.body);
               String status = waitingOrder['status'];
 
               switch (status) {
-                case 'Completed':
+                case 'Shipped':
                   completedOrdersCount += 1;
                   completedAmount += (waitingOrder['total_amount'] as num).toDouble();
                   break;
@@ -522,29 +524,42 @@ Widget build(BuildContext context) {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
 
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
         actions: [

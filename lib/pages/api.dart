@@ -1,1 +1,1 @@
-var api="https://pants-maria-purchased-drew.trycloudflare.com";
+var api="https://kiss-seeds-micro-instructions.trycloudflare.com";

@@ -5,6 +5,7 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_staff.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -501,6 +502,8 @@ class _add_staffState extends State<add_staff> {
 //    }
 //   }
 
+
+
 Future<void> RegisterUserData(
     int selectedDepartmentId,
     DateTime selectedDate,
@@ -529,7 +532,7 @@ Future<void> RegisterUserData(
         'driving_license_exp_date': selecteExp.toIso8601String().substring(0, 10),
         'join_date': selectejoin.toIso8601String().substring(0, 10),
         'confirmation_date': selecteconf.toIso8601String().substring(0, 10),
-        'allocated_states': dynamicStatid.map((stateId) => stateId.toString()).toList(),
+        'allocated_states'  
         'name': name.text,
         'username': username.text,
         'email': email.text,
@@ -2028,7 +2031,7 @@ Future<void> RegisterUserData(
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      update_expence(
+                                                      Staff_Update(
                                                           id: sta[i]['id'])));
                                         },
                                         child: Image.asset(
