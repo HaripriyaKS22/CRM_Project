@@ -36,7 +36,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
   }
 
   Future<void> fetchorders() async {
-    print("fetchorderssssssssssssssssss");
+    print("fetchorderssssssssssssssssssss");
     final token = await getTokenFromPrefs();
     try {
       final response = await http.get(
@@ -80,7 +80,7 @@ if(postofficeDate == selectedDateString){
                         0.0;
 
                 if (!parcelData.containsKey(parcelService)) {
-                  parcelData[parcelService] = {
+                  parcelData[parcelService ?? 'Unknown'] = {
                     'total_actual_weight': 0.0,
                     'total_parcel_amount': 0.0,
                   };
@@ -125,6 +125,7 @@ if(postofficeDate == selectedDateString){
   }
 
   Future<void> _selectDateRange(BuildContext context) async {
+    print("selectDateRange>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
@@ -142,95 +143,89 @@ if(postofficeDate == selectedDateString){
     }
   }
 
-  Future<void> fetchorders2() async {
-    
-    final token = await getTokenFromPrefs();
-    try {
-      final response = await http.get(
-        Uri.parse('$api/api/orders/'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+ Future<void> fetchorders2() async {
+  print("startDate: $startDate");
+  print("endDate: $endDate");
+  print("=====================================");
+  final token = await getTokenFromPrefs();
+  try {
+    final response = await http.get(
+      Uri.parse('$api/api/warehouse/get/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+print("response.statusCode${response.statusCode}");
+print("response.body....................${response.body}");
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      final orderdata = parsed['results'];
 
-      
+      List<Map<String, dynamic>> orderlist = [];
+      parcelData.clear();
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        
+      for (var orderData in orderdata) {
+        if (orderData['warehouses'] != null && orderData['warehouses'] is List) {
+          for (var warehouse in orderData['warehouses']) {
+            String? parcelService = warehouse['parcel_service'];
+            print("parcelService: $parcelService");
+            String? postofficeDateStr = warehouse['postoffice_date'];
+            DateTime? postofficeDate;
 
-        List<Map<String, dynamic>> orderlist = [];
-        parcelData.clear();
+            // Parse the postoffice_date to DateTime
+            if (postofficeDateStr != null && postofficeDateStr.isNotEmpty) {
+              postofficeDate = DateTime.parse(postofficeDateStr);
+            }
+print("postofficeDate: $postofficeDate");
+            // Check if the postoffice_date is within the selected date range
+            if (postofficeDate != null &&
+                startDate != null &&
+                endDate != null &&
+                postofficeDate.isAfter(startDate!) &&
+                postofficeDate.isBefore(endDate!)) {
+              double actualWeight =
+                  double.tryParse(warehouse['actual_weight'].toString()) ?? 0.0;
+              double parcelAmount =
+                  double.tryParse(warehouse['parcel_amount'].toString()) ?? 0.0;
 
-        for (var orderData in parsed) {
-          List<Map<String, dynamic>> warehouseList = [];
-
-          if (orderData['warehouse'] != null) {
-            for (var warehouse in orderData['warehouse']) {
-              String parcelService = warehouse['parcel_service'] ??
-                  ""; // Default to empty string if null
-              String? postofficeDate = warehouse['postoffice_date'];
-              String? shippedDateStr = warehouse['shipped_date'];
-              DateTime? shippedDate;
-
-              // Parse the shipped_date to DateTime
-              if (shippedDateStr != null && shippedDateStr.isNotEmpty) {
-                shippedDate = DateTime.parse(shippedDateStr);
+              if (!parcelData.containsKey(parcelService)) {
+                parcelData[parcelService ?? 'Unknown'] = {
+                  'total_actual_weight': 0.0,
+                  'total_parcel_amount': 0.0,
+                };
               }
 
-            
+              parcelData[parcelService]!['total_actual_weight'] =
+                  (parcelData[parcelService]!['total_actual_weight'] ?? 0) +
+                      actualWeight;
 
-              // Check if the shipped_date is within the selected date range
-              if (shippedDate != null &&
-                  shippedDate.isAfter(startDate!) &&
-                  shippedDate.isBefore(endDate!)) {
-                double actualWeight =
-                    double.tryParse(warehouse['actual_weight'].toString()) ??
-                        0.0;
-                double parcelAmount =
-                    double.tryParse(warehouse['parcel_amount'].toString()) ??
-                        0.0;
-
-                if (!parcelData.containsKey(parcelService)) {
-                  parcelData[parcelService] = {
-                    'total_actual_weight': 0.0,
-                    'total_parcel_amount': 0.0,
-                  };
-                }
-
-                parcelData[parcelService]!['total_actual_weight'] =
-                    (parcelData[parcelService]!['total_actual_weight'] ?? 0) +
-                        actualWeight;
-                parcelData[parcelService]!['total_parcel_amount'] =
-                    (parcelData[parcelService]!['total_parcel_amount'] ?? 0) +
-                        parcelAmount;
-              }
+              parcelData[parcelService]!['total_parcel_amount'] =
+                  (parcelData[parcelService]!['total_parcel_amount'] ?? 0) +
+                      parcelAmount;
             }
           }
         }
-
-        Map<String, double> parcelAverages = {};
-
-        setState(() {
-          parcelData.forEach((parcelService, data) {
-            double totalActualWeight = data['total_actual_weight'] ?? 0.0;
-            double totalParcelAmount = data['total_parcel_amount'] ?? 1.0;
-            double average = totalActualWeight / totalParcelAmount;
-            parcelAverages[parcelService] = average;
-
-
-          });
-
-          orders = orderlist;
-          
-          
-        });
       }
-    } catch (e) {
-      
+      print('parcelDataaaaaaaaaaaaa: $parcelData');
+
+      Map<String, double> parcelAverages = {};
+      setState(() {
+        parcelData.forEach((parcelService, data) {
+          double totalActualWeight = data['total_actual_weight'] ?? 0.0;
+          double totalParcelAmount = data['total_parcel_amount'] ?? 1.0;
+          double average = totalActualWeight / totalParcelAmount;
+          parcelAverages[parcelService] = average;
+        });
+        print("parcelAverages: $parcelAverages");
+        print("parcelData: $parcelData");
+        orders = orderlist;
+      });
     }
+  } catch (e) {
+    // Handle error
   }
+}
 Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
@@ -316,6 +311,7 @@ Future<String?> getdepFromPrefs() async {
                 
                 itemBuilder: (context, index) {
                   String parcelService = parcelData.keys.elementAt(index);
+                print("parcelService??????????????????????????: $parcelService");
                   double totalWeight =
                       parcelData[parcelService]!['total_actual_weight'] ?? 0.0;
                   double totalAmount =

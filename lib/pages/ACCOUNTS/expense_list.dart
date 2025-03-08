@@ -266,7 +266,6 @@ Future<void> _selectDateRange(BuildContext context) async {
   }
 
   Future<void> getexpenselist() async {
-  
   try {
     final token = await gettokenFromPrefs();
 
@@ -278,8 +277,6 @@ Future<void> _selectDateRange(BuildContext context) async {
       },
     );
     List<Map<String, dynamic>> expenselist = [];
-    
-
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       final productsDatas = parsed['data'];

@@ -195,7 +195,7 @@ setState(() {
       },
     );
     List<Map<String, dynamic>> damagedstocklist = [];
-    
+    print("rrrrrrrrrrrrrreeeeeeeeeeeeeee${response.body}"); 
     
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -211,7 +211,7 @@ setState(() {
           'id': productData['id'] ?? 0, // Provide default values if needed
           'product': productData['product'] ?? 'Unknown Product',
           'quantity': productData['quantity'] ?? 0,
-          'date': updatedDate,
+          'date': productData['date'] ?? 'Unknown Date',
           'returnreason': productData['returnreason'] ?? 'No reason provided',
         });
       }
