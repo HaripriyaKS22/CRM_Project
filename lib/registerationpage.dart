@@ -41,7 +41,8 @@ class _RegisterState extends State<Register> {
           "phone":phone,
           "gender": gender,
           "password": password,
-          "retype_password": retypepass
+          "retype_password": retypepass,
+          
         }),
       );
 

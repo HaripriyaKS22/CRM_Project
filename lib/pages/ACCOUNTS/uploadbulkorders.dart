@@ -27,61 +27,62 @@ class _UploadBulkProductsState extends State<UploadBulkProducts> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     return pref.getString('token');
   }
+Future<void> uploadExcel(BuildContext scaffoldContext) async {
+  final token = await getToken();
 
-  Future<void> uploadExcel(BuildContext scaffoldContext) async {
-    final token = await getToken();
-    if (filePath == null) {
+  if (filePath == null) {
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      const SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('No file selected'),
+      ),
+    );
+    return;
+  }
+
+  try {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$api/api/bulk/upload/products/'),
+    );
+
+    request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(
+      await http.MultipartFile.fromPath('file', filePath!),
+    );
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    if (response.statusCode == 201) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('No file selected'),
+          backgroundColor: Colors.green,
+          content: Text('File uploaded successfully.'),
         ),
       );
-      return;
-    }
-
-    try {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$api/api/bulk/upload/orders/'),
-      );
-
-      request.headers['Authorization'] = 'Bearer $token';
-      request.files.add(
-        await http.MultipartFile.fromPath('file', filePath!),
-      );
-
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
-      
-      
-  
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.green,
-            content: Text('File uploaded successfully.'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('File upload failed.'),
-          ),
-        );
-      }
-    } catch (e) {
-      
+    } else {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text('Error: $e'),
+          content: Text('File upload failed: ${response.body}'),
         ),
       );
     }
+  } catch (e) {
+    print('Upload error: $e');
+
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('Error: $e'),
+      ),
+    );
   }
+}
 
   Future<void> pickExcelFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(

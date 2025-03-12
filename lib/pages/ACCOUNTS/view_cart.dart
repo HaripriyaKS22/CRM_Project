@@ -55,7 +55,8 @@ var dep;
         },
       );
 
-      
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -201,7 +202,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           'Authorization': 'Bearer $token',
         },
       );
-
+print("==========================?????????${response.body}");
       if (response.statusCode == 204) {
         setState(() {
           cartdata.removeWhere((item) => item['id'] == id);
@@ -404,7 +405,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
                                       child: Row(
                                         children: [
                                           Image.network(
-                                                    "${item['image']}",
+                                                    "$api${item['image']}",
                                                     width: 80,
                                                     height: 80,
                                                     fit: BoxFit.cover,

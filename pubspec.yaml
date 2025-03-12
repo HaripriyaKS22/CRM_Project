@@ -40,6 +40,7 @@ dependencies:
   responsive_table: ^0.2.0+2
   file_picker :
   path_provider : ^2.0.5
+  permission_handler: ^11.4.0
 
 dev_dependencies:
   flutter_test:
@@ -62,12 +63,10 @@ dev_dependencies:
   image_picker: ^0.8.5+3
   dart_jsonwebtoken: ^2.0.0
   pdf: ^3.6.0
-  permission_handler: ^10.0.0
   printing: ^5.9.0
   path_provider: ^2.0.11
   excel: ^2.0.8
   open_file: ^3.2.1
-  fl_chart: ^0.55.2
   url_launcher: ^6.1.7
 
 

@@ -33,8 +33,8 @@ import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 
 class OrderList extends StatefulWidget {
-  var status ;
-  OrderList({super.key,required this.status});
+  var status;
+  OrderList({super.key, required this.status});
 
   @override
   State<OrderList> createState() => _OrderListState();
@@ -77,110 +77,107 @@ class _OrderListState extends State<OrderList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-  
- Future<void> fetchOrderData() async {
+ 
+Future<void> fetchOrderData() async {
   try {
     final token = await getTokenFromPrefs();
     final dep = await getdepFromPrefs();
     final jwt = JWT.decode(token!);
     var name = jwt.payload['name'];
-
-    String? nextPageUrl = '$api/api/orders/';
+print("name issssssssssssssssssssssssssssssssssssssssss $name");
+    String url = '$api/api/orders/';
     List<Map<String, dynamic>> orderList = [];
 
-    while (nextPageUrl != null) {
-      var response = await http.get(
-        Uri.parse(nextPageUrl),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(response.statusCode);
-print("===================");
-print(response.body);
-print(response.statusCode);
+    var response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var ordersData = parsed['results'];
+    print(response.statusCode);
+    print("=================== ${response.body}");
+    print(response.body);
 
-        List<Map<String, dynamic>> newOrders = [];
-print(ordersData);
-        for (var orderData in ordersData) {
-          // Parse order date safely
-          String rawOrderDate = orderData['order_date'] ?? "";
-          String formattedOrderDate = rawOrderDate; // Default if parsing fails
-          try {
-            DateTime parsedOrderDate =
-                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
-            formattedOrderDate =
-                DateFormat('yyyy-MM-dd').format(parsedOrderDate);
-          } catch (e) {}
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final List ordersData = responseData['results'];
 
-          if (widget.status == null || widget.status == orderData['status']) {
-            if (orderData['status'] != "Order Request by Warehouse") {
-              newOrders.add({
-                'id': orderData['id'],
-                'invoice': orderData['invoice'],
-                'manage_staff': orderData['manage_staff'],
-                'customer': {
-                  'name': orderData['customer']['name'],
-                  'phone': orderData['customer']['phone'],
-                  'email': orderData['customer']['email'],
-                  'address': orderData['customer']['address'],
-                },
-                'billing_address': {
-                  'name': orderData['billing_address']['name'],
-                  'email': orderData['billing_address']['email'],
-                  'zipcode': orderData['billing_address']['zipcode'],
-                  'address': orderData['billing_address']['address'],
-                  'phone': orderData['billing_address']['phone'],
-                  'city': orderData['billing_address']['city'],
-                  'state': orderData['billing_address']['state'],
-                },
-                'bank': {
-                  'name': orderData['bank']['name'],
-                  'account_number': orderData['bank']['account_number'],
-                  'ifsc_code': orderData['bank']['ifsc_code'],
-                  'branch': orderData['bank']['branch'],
-                },
-                'items': orderData['items'] != null
-                    ? orderData['items'].map((item) {
-                        return {
-                          'id': item['id'],
-                          'name': item['name'],
-                          'quantity': item['quantity'],
-                          'price': item['price'],
-                          'tax': item['tax'],
-                          'discount': item['discount'],
-                          'images': item['images'],
-                        };
-                      }).toList()
-                    : [], // Empty list fallback
-                'status': orderData['status'],
-                'total_amount': orderData['total_amount'],
-                'order_date': formattedOrderDate,
-              });
-            }
+      List<Map<String, dynamic>> newOrders = [];
+
+      for (var orderData in ordersData) {
+        String rawOrderDate = orderData['order_date'] ?? "";
+        String formattedOrderDate = rawOrderDate;
+        try {
+          DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+          formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
+        } catch (e) {}
+
+        if (widget.status == null || widget.status == orderData['status']) {
+          if (orderData['status'] != "Order Request by Warehouse") {
+            newOrders.add({
+              'id': orderData['id'],
+              'invoice': orderData['invoice'],
+               'manage_staff': orderData['manage_staff'],
+              'customer': {
+                'name': orderData['customer']['name'],
+                'phone': orderData['customer']['phone'],
+                'email': orderData['customer']['email'],
+                'address': orderData['customer']['address'],
+              },
+              // 'billing_address': {
+              //   'name': orderData['billing_address']['name'],
+              //   'email': orderData['billing_address']['email'],
+              //   'zipcode': orderData['billing_address']['zipcode'],
+              //   'address': orderData['billing_address']['address'],
+              //   'phone': orderData['billing_address']['phone'],
+              //   'city': orderData['billing_address']['city'],
+              //   'state': orderData['billing_address']['state'],
+              // },
+              // 'bank': {
+              //   'name': orderData['bank']['name'],
+              //   'account_number': orderData['bank']['account_number'],
+              //   'ifsc_code': orderData['bank']['ifsc_code'],
+              //   'branch': orderData['bank']['branch'],
+              // },
+              // 'items': orderData['items'] != null && orderData['items'] is List
+              //     ? orderData['items'].map((item) {
+              //         if (item is Map<String, dynamic>) {
+              //           return {
+              //             'id': item['id'],
+              //             'name': item['name'],
+              //             'quantity': item['quantity'],
+              //             'price': item['price'],
+              //             'tax': item['tax'],
+              //             'discount': item['discount'],
+              //             'images': item['images'],
+              //           };
+              //         }
+              //         return null;
+              //       }).where((item) => item != null).toList()
+              //     : [],
+              'status': orderData['status'],
+              'total_amount': orderData['total_amount'],
+              'order_date': formattedOrderDate,
+            });
           }
         }
-
-        // 🔹 Update UI after fetching each page
-        setState(() {
-          orders.addAll(newOrders);
-          filteredOrders.addAll(newOrders);
-        });
-
-        // Fetch next page if available
-        nextPageUrl = parsed['next'];
-      } else {
-        throw Exception("Failed to load order data");
       }
+
+      setState(() {
+        orders = newOrders;
+
+        print("orders are$orders");
+        filteredOrders = newOrders;
+      });
+    } else {
+      throw Exception("Failed to load order data");
     }
   } catch (error) {
     print("Error fetching orders: $error");
@@ -272,32 +269,33 @@ print(ordersData);
       _filterOrdersByDateRange();
     }
   }
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
 
   Future<void> exportToExcel() async {
     var excel = Excel.createExcel();
@@ -517,35 +515,36 @@ void logout() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-       title: Text(
+        title: Text(
           "Order List",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
-
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
         actions: [
@@ -592,7 +591,6 @@ else {
           ),
         ],
       ),
- 
       body: Column(
         children: [
           // Search Bar
@@ -738,33 +736,30 @@ else {
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600),
                                       ),
-                                                                            SizedBox(height: 4.0),
-
+                                      SizedBox(height: 4.0),
                                       Text(
                                         'Staff: ${order['manage_staff']}',
                                         style: TextStyle(
-                                            fontSize: 13,
-                                            ),
+                                          fontSize: 13,
+                                        ),
                                       ),
-                                      
-                                       SizedBox(height: 4.0),
-                                       Row(
-                                         children: [
-                                           Text(
+                                      SizedBox(height: 4.0),
+                                      Row(
+                                        children: [
+                                          Text(
                                             'Status: ',
                                             style: TextStyle(
-                                                fontSize: 13,
-                                                ),
-                                                                                 ),
-                                            Text(
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          Text(
                                             '${order['status']}',
                                             style: TextStyle(
                                                 fontSize: 13,
-                                                color: Colors.blue
-                                                ),
-                                                                                 ),
-                                         ],
-                                       ),
+                                                color: Colors.blue),
+                                          ),
+                                        ],
+                                      ),
                                       SizedBox(height: 8.0),
                                       Row(
                                         mainAxisAlignment:
@@ -773,8 +768,8 @@ else {
                                           Text(
                                             'Billing Amount:',
                                             style: TextStyle(
-                                                fontSize: 13,
-                                               ),
+                                              fontSize: 13,
+                                            ),
                                           ),
                                           Text(
                                             '\$${order['total_amount']}',

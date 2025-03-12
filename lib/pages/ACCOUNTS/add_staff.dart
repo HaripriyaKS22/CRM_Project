@@ -5,6 +5,7 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_staff.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -524,6 +525,8 @@ Future<void> RegisterUserData(
         'Content-Type': 'application/json',
       });
 
+      print(dynamicStatid);
+
       Map<String, dynamic> data = {
         'date_of_birth': selectedDate.toIso8601String().substring(0, 10),
         'driving_license_exp_date': selecteExp.toIso8601String().substring(0, 10),
@@ -554,10 +557,12 @@ Future<void> RegisterUserData(
 
       request.body = jsonEncode(data);
 
+
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
+      print("rrrrrrrrrrrrrreeeeeesssssss==================$response");
 
-      print(responseData.body);
+      print("=====================>>>>>>>>>>>>>>${responseData.body}");
       print(responseData.statusCode);
 
       if (responseData.statusCode == 201) {
@@ -2028,7 +2033,7 @@ Future<void> RegisterUserData(
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      update_expence(
+                                                      Staff_Update(
                                                           id: sta[i]['id'])));
                                         },
                                         child: Image.asset(

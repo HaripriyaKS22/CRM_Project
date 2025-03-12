@@ -372,7 +372,6 @@ class _PerformaInvoice_BigView_ListState
 // Fetch performa list data and map state ID to state name
   Future<void> fetchperformalistData() async {
     try {
-      
       final token = await getTokenFromPrefs();
       final response = await http.get(
         Uri.parse('$api/api/perfoma/${widget.invoice}/invoice/'),
@@ -381,14 +380,14 @@ class _PerformaInvoice_BigView_ListState
           'Content-Type': 'application/json',
         },
       );
-      
+      print(response.body);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
         List<Map<String, dynamic>> performaInvoiceList = [];
 
         List<Map<String, dynamic>> perfomaItemsWithImages =
-            (parsed['perfoma_items'] as List<dynamic>).map((item) {
+            (parsed['perfoma_items'] as List<dynamic>?)?.map((item) {
           return {
             'id': item['id'],
             'name': item['name'],
@@ -397,7 +396,7 @@ class _PerformaInvoice_BigView_ListState
             'first_image': item['images'],
             'discount': item['discount'],
           };
-        }).toList();
+        }).toList() ?? [];
 
         // Get state name from ID
         final stateName = getStateNameById(parsed['state']);
@@ -407,28 +406,31 @@ class _PerformaInvoice_BigView_ListState
           'invoice': parsed['invoice'],
           'manage_staff': parsed['manage_staff'],
           'company': parsed['company'],
-          'customer_name': parsed['customer']['name'],
+          'company_name':parsed['company_name'],
+          'customer_name': parsed['customer']?['name'] ?? 'Unknown',
           'family': parsed['family'],
           'state': stateName, // Use state name instead of ID
-          'address': parsed['billing_address']['address'],
+          'address': parsed['billing_address']?['address'] ?? 'Unknown',
           'payment_status': parsed['payment_status'],
-          'bank': parsed['bank']['name'],
+          'bank': parsed['bank']?['name'] ?? 'Unknown',
           'payment_method': parsed['payment_method'],
           'status': parsed['status'],
           'total_amount': parsed['total_amount'],
           'order_date': parsed['order_date'],
-          'created_at': parsed['customer']['created_at'],
+          'created_at': parsed['customer']?['created_at'] ?? 'Unknown',
           'perfoma_items': perfomaItemsWithImages,
         });
 
         setState(() {
           orders = performaInvoiceList;
+          print("orders:$orders");
         });
       } else {
-        
+        // Handle error response
       }
     } catch (error) {
-      
+      print(error);
+      // Handle exception
     }
   }
 
@@ -515,12 +517,12 @@ class _PerformaInvoice_BigView_ListState
                                           fontWeight: FontWeight.w600),
                                     ),
                                     Text(
-                                      'Company: ${order['company']}',
+                                      'Company: ${order['company_name']}',
                                       style: const TextStyle(fontSize: 16),
                                     ),
                                     Text(
                                       'Managed By: ${order['manage_staff']}',
-                                      style: const TextStyle(fontSize: 16),
+                                      style: const TextStyle(fontSize: 16), 
                                     ),
                                     Text(
                                       'Family: ${order['family']}',
@@ -573,7 +575,7 @@ class _PerformaInvoice_BigView_ListState
                                               Flexible(
                                                 flex: 1,
                                                 child: Image.network(
-                                                  "${item['first_image']}",
+                                                  "$api${item['first_image']}",
                                                   width: 80,
                                                   height: 80,
                                                   fit: BoxFit.cover,

@@ -1,11 +1,18 @@
 import 'dart:convert';
+import 'package:beposoft/pages/ACCOUNTS/add_EMI.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_category.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_purpose_of_payment.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
+import 'package:beposoft/pages/ACCOUNTS/assetmanagement.dart';
+import 'package:beposoft/pages/ACCOUNTS/assetmanegment2.dart';
+import 'package:beposoft/pages/ACCOUNTS/bulk_customer_upload.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/uploadbulkorders.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_product_approval.dart';
 import 'package:intl/intl.dart';
 
 import 'package:beposoft/loginpage.dart';
@@ -42,8 +49,8 @@ class _admin_dashboardState extends State<dashboard> {
   @override
   void initState() {
     super.initState();
-     _getUsername(); // Get the username when the page loads
-      getGrvList();
+    _getUsername(); // Get the username when the page loads
+     getGrvList();
     fetchproformaData();
      getSalesReport();
    fetchOrderData();
@@ -431,7 +438,7 @@ print("response.statusCode: ${response.statusCode}");
             //   ),
           ],
         ),
-        drawer: Drawer(
+       drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
@@ -451,14 +458,14 @@ print("response.statusCode: ${response.statusCode}");
                       ),
                     ],
                   )),
-              ListTile(
-                leading: Icon(Icons.dashboard),
-                title: Text('Dashboard'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Graph()));
-                },
-              ),
+              // ListTile(
+              //   leading: Icon(Icons.dashboard),
+              //   title: Text('Dashboard'),
+              //   onTap: () {
+              //     Navigator.push(context,
+              //         MaterialPageRoute(builder: (context) => Graph()));
+              //   },
+              // ),
              
               ListTile(
                 leading: Icon(Icons.person),
@@ -469,12 +476,69 @@ print("response.statusCode: ${response.statusCode}");
                   // Navigate to the Settings page or perform any other action
                 },
               ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Approve Products'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Approve_products()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Add EMI'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_Emi()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Asset Management'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AssetManegment()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+             
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Category'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_categories()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
                ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Bulk Upload Orders'),
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => UploadBulkProducts()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Bulk Upload Customers'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UploadBulkcustomer()));
+                  // Navigate to the Settings page or perform any other action
+                },
+              ),
+
+               ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Add Purpose of payment'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => add_purpose_of_payment()));
                   // Navigate to the Settings page or perform any other action
                 },
               ),
@@ -630,14 +694,7 @@ print("response.statusCode: ${response.statusCode}");
               _buildDropdownTile(context, 'Banking Module',
                   ['Add Bank ', 'List', 'Other Transfer']),
               Divider(),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Methods'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Methods()));
-                },
-              ),
+              
               ListTile(
                 leading: Icon(Icons.chat),
                 title: Text('Chat'),

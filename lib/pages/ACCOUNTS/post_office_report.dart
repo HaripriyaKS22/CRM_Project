@@ -1,4 +1,8 @@
 import 'dart:convert';
+import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -32,32 +36,38 @@ class _PostofficeReportState extends State<PostofficeReport> {
   }
 
   Future<void> fetchorders() async {
+    print("fetchorderssssssssssssssssss");
     final token = await getTokenFromPrefs();
     try {
       final response = await http.get(
-        Uri.parse('$api/api/orders/'),
+        Uri.parse('$api/api/warehouse/get/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
-
+print("response.statusCode${response.statusCode}");
+print("response.body....................${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
+        final orderdata=parsed['results'];
         List<Map<String, dynamic>> orderlist = [];
         parcelData.clear();
 
-        for (var orderData in parsed) {
-          if (orderData['warehouse'] != null) {
-            for (var warehouse in orderData['warehouse']) {
+        for (var orderData in orderdata) {
+          if (orderData['warehouses'] != null && orderData['warehouses'] is List) {
+            for (var warehouse in orderData['warehouses']) {
               String? parcelService = warehouse['parcel_service'];
               String? postofficeDate = warehouse['postoffice_date'];
-
+print("postofficeDate----------------------$postofficeDate");
               // Convert selectedDate to String format for comparison
               String selectedDateString = selectedDate != null
                   ? DateFormat('yyyy-MM-dd').format(selectedDate!)
                   : todayDate;
-
+print("selectedDateString----------------------$selectedDateString");
+if(postofficeDate == selectedDateString){
+  print('yessssssssssssssssss');
+}
               if (parcelService != null &&
                   parcelService.isNotEmpty &&
                   postofficeDate != null &&
@@ -89,6 +99,8 @@ class _PostofficeReportState extends State<PostofficeReport> {
 
         setState(() {
           orders = orderlist;
+          print('parcelData: $parcelData');
+          print('orders: $orders');
         });
       }
     } catch (e) {
@@ -135,7 +147,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
     final token = await getTokenFromPrefs();
     try {
       final response = await http.get(
-        Uri.parse('$api/api/orders/'),
+        Uri.parse('$api/api/warehouse/get/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -143,15 +155,16 @@ class _PostofficeReportState extends State<PostofficeReport> {
       );
 
       
-
+print("responseeeeeeeeeeeeeeeeeeee${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        
+         final orderdata=parsed['results'];
+
 
         List<Map<String, dynamic>> orderlist = [];
         parcelData.clear();
 
-        for (var orderData in parsed) {
+        for (var orderData in orderdata) {
           List<Map<String, dynamic>> warehouseList = [];
 
           if (orderData['warehouse'] != null) {
@@ -206,7 +219,10 @@ class _PostofficeReportState extends State<PostofficeReport> {
             double totalParcelAmount = data['total_parcel_amount'] ?? 1.0;
             double average = totalActualWeight / totalParcelAmount;
             parcelAverages[parcelService] = average;
+
+
           });
+          print("parcelDataparcelData$parcelData");
 
           orders = orderlist;
           
@@ -217,7 +233,10 @@ class _PostofficeReportState extends State<PostofficeReport> {
       
     }
   }
-
+Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -225,6 +244,47 @@ class _PostofficeReportState extends State<PostofficeReport> {
         title: Text(
           "Post Office Report",
           style: TextStyle(color: Colors.grey, fontSize: 14),
+        ),
+
+         leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Custom back arrow
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
+
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+          },
         ),
         actions: [
           IconButton(
@@ -255,6 +315,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
             onRefresh: fetchorders,
             child: ListView.builder(
                 itemCount: parcelData.length,
+                
                 itemBuilder: (context, index) {
                   String parcelService = parcelData.keys.elementAt(index);
                   double totalWeight =

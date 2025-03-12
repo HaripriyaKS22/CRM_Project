@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
 
 import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
@@ -24,9 +25,19 @@ class _expence_listState extends State<expence_list> {
   DateTime? selectedDate;
   DateTime? startDate; // For date range filter
   DateTime? endDate; // For date range filter
-String? selectedpurpose; // Holds the selected value
-  final List<String> items = ['water', 'electricity','salary','emi','rent','travel','Others'];
-List<Map<String, dynamic>> originalExpensedata = [];
+  String? selectedpurpose; // Holds the selected value
+  final List<String> items = [
+    'water',
+    'electricity',
+    'salary',
+    'emi',
+    'rent',
+    'travel',
+    'Others'
+  ];
+  List<Map<String, dynamic>> originalExpensedata = [];
+  List<Map<String, dynamic>> purposesofpay = [];
+
   @override
   void initState() {
     super.initState();
@@ -34,39 +45,70 @@ List<Map<String, dynamic>> originalExpensedata = [];
     getbank();
     getcompany();
     getstaff();
-    
+    getpurpose();
+  }
+
+  Future<void> getpurpose() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/apis/add/purpose/'),
+        headers: {
+          'Authorization': ' Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print("======================================${response.body}");
+      List<Map<String, dynamic>> purposelist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        for (var productData in parsed) {
+          purposelist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          purposesofpay = purposelist;
+        });
+      }
+    } catch (error) {}
   }
 
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
- void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
 
   void _filterOrdersBySingleDate() {
     if (selectedDate != null) {
@@ -76,46 +118,36 @@ List<Map<String, dynamic>> originalExpensedata = [];
           final normalizedOrderDate = _normalizeDate(orderDate);
           final normalizedSelectedDate = _normalizeDate(selectedDate!);
 
-          
-
           return normalizedOrderDate == normalizedSelectedDate;
         }).toList();
       });
-
-      
     }
   }
 
-   void _filterOrdersByDateRange() {
-  
-  
-  
+  void _filterOrdersByDateRange() {
+    if (startDate != null && endDate != null) {
+      setState(() {
+        expensedata = originalExpensedata.where((order) {
+          try {
+            // Safely parse the 'expense_date' only if it's not null
+            final expenseDate = order['expense_date'];
+            if (expenseDate == null || expenseDate.isEmpty) {
+              return false; // Exclude items with missing or null dates
+            }
 
-  if (startDate != null && endDate != null) {
-    setState(() {
-      expensedata = originalExpensedata.where((order) {
-        try {
-          // Safely parse the 'expense_date' only if it's not null
-          final expenseDate = order['expense_date'];
-          if (expenseDate == null || expenseDate.isEmpty) {
-            return false; // Exclude items with missing or null dates
+            // Parse the date using the correct format
+            final orderDate = DateFormat('yyyy-MM-dd').parse(expenseDate);
+
+            // Check if the date is within the range
+            return orderDate.isAfter(startDate!.subtract(Duration(days: 1))) &&
+                orderDate.isBefore(endDate!.add(Duration(days: 1)));
+          } catch (e) {
+            return false; // Exclude items with invalid dates
           }
-
-          // Parse the date using the correct format
-          final orderDate = DateFormat('yyyy-MM-dd').parse(expenseDate);
-
-          // Check if the date is within the range
-          return orderDate.isAfter(startDate!.subtract(Duration(days: 1))) &&
-              orderDate.isBefore(endDate!.add(Duration(days: 1)));
-        } catch (e) {
-          
-          return false; // Exclude items with invalid dates
-        }
-      }).toList();
-    });
+        }).toList();
+      });
+    }
   }
-}
-
 
   DateTime _parseDate(String dateString) {
     try {
@@ -124,7 +156,8 @@ List<Map<String, dynamic>> originalExpensedata = [];
     } catch (e) {
       try {
         // If the first attempt fails, try parsing it as an ISO8601 string
-        return DateTime.parse(dateString).toLocal(); // Ensure it is in local time
+        return DateTime.parse(dateString)
+            .toLocal(); // Ensure it is in local time
       } catch (e) {
         throw FormatException('Invalid date format: $dateString');
       }
@@ -145,14 +178,12 @@ List<Map<String, dynamic>> originalExpensedata = [];
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        
       });
       _filterOrdersBySingleDate();
     }
   }
 
-
-Future<void> _selectDateRange(BuildContext context) async {
+  Future<void> _selectDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
@@ -194,9 +225,7 @@ Future<void> _selectDateRange(BuildContext context) async {
           bank = banklist;
         });
       }
-    } catch (e) {
-      
-    }
+    } catch (e) {}
   }
 
   List<Map<String, dynamic>> company = [];
@@ -226,9 +255,7 @@ Future<void> _selectDateRange(BuildContext context) async {
           company = companylist;
         });
       }
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
 
   List<Map<String, dynamic>> sta = [];
@@ -259,60 +286,55 @@ Future<void> _selectDateRange(BuildContext context) async {
           sta = stafflist;
         });
       }
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
 
   Future<void> getexpenselist() async {
-  
-  try {
-    final token = await gettokenFromPrefs();
+    try {
+      final token = await gettokenFromPrefs();
 
-    var response = await http.get(
-      Uri.parse('$api/api/expense/add/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    List<Map<String, dynamic>> expenselist = [];
-    
+      var response = await http.get(
+        Uri.parse('$api/api/expense/add/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      List<Map<String, dynamic>> expenselist = [];
 
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      final productsDatas = parsed['data'];
+      print("yyyyyyyyyyyyyyyyyyyyyy${response.body}");
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        final productsDatas = parsed['data'];
 
-      for (var productData in productsDatas) {
-        expenselist.add({
-          'id': productData['id'],
-          'purpose_of_payment': productData['purpose_of_payment'],
-          'bank': productData['bank']?['id'], // Extract bank ID
-          'amount': productData['amount'],
-          'company': productData['company']?['id'], // Extract company ID
-          'company_name': productData['company']?['name'], // For direct use
-          'payed_by': productData['payed_by']?['id'], // Extract payed_by ID
-          'payed_by_name': productData['payed_by']?['name'], // For direct use
-          'transaction_id': productData['transaction_id'],
-          'expense_date': productData['expense_date'],
-          'added_by': productData['added_by'],
+        for (var productData in productsDatas) {
+          expenselist.add({
+            'id': productData['id'],
+            'purpose_of_payment': productData['purpose_of_payment'],
+            'bank': productData['bank']?['id'], // Extract bank ID
+            'amount': productData['amount'],
+            'company': productData['company']?['id'], // Extract company ID
+            'company_name': productData['company']?['name'], // For direct use
+            'payed_by': productData['payed_by']?['id'], // Extract payed_by ID
+            'payed_by_name': productData['payed_by']?['name'], // For direct use
+            'transaction_id': productData['transaction_id'],
+            'expense_date': productData['expense_date'],
+            'added_by': productData['added_by'],
+          });
+        }
+        setState(() {
+          expensedata = expenselist;
+          originalExpensedata =
+              List.from(expenselist); // Update the backup here
         });
-      }
-      setState(() {
-        expensedata = expenselist;
-        originalExpensedata = List.from(expenselist); // Update the backup here
-      });
-    } else {
-      
-    }
-  } catch (error) {
-    
+      } else {}
+    } catch (error) {}
   }
-}
-Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -323,36 +345,42 @@ Future<String?> getdepFromPrefs() async {
           "Expense List",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
-         leading: IconButton(
+        leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
-
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
-
-       actions: [
-          
+        actions: [
           IconButton(
             icon: Icon(Icons.calendar_today),
             onPressed: () => _selectSingleDate(context),
@@ -363,164 +391,166 @@ else {
           ),
         ],
       ),
-    
       body: Column(
         children: [
-           Padding(
-  padding: const EdgeInsets.all(12.0),
-  child: Container(
-    padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: .0),
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.blue, width: 1.0),
-      borderRadius: BorderRadius.circular(10.0),
-    ),
-    child: DropdownButton<String>(
-      value: selectedpurpose,
-      hint: Text('Select an option'),
-      isExpanded: true,
-      underline: SizedBox(), // Removes the default underline
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {
-        setState(() {
-          selectedpurpose = newValue;
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: .0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blue, width: 1.0),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: DropdownButton<String>(
+                value: selectedpurpose,
+                hint: Text('Select an option'),
+                isExpanded: true,
+                underline: SizedBox(),
+                items: purposesofpay.map((purpose) {
+                  return DropdownMenuItem<String>(
+                    value: purpose['name'],
+                    child: Text(purpose['name']),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedpurpose = newValue;
 
-          if (selectedpurpose == null || selectedpurpose!.isEmpty || selectedpurpose == "Others") {
-            // Reset to the original data if no value is selected or "Others" is chosen
-            expensedata = List.from(originalExpensedata);
-          } else {
-            // Apply filtering based on the selected purpose
-            expensedata = originalExpensedata.where((expense) {
-              return expense['purpose_of_payment']
-                  .toString()
-                  .toLowerCase()
-                  .contains(selectedpurpose!.toLowerCase());
-            }).toList();
-          }
-        });
-      },
-    ),
-  ),
-),
-
-          Expanded(child: 
-           expensedata.isEmpty
-            ? Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-              onRefresh: () async {
-                await getexpenselist();
-              },
-              child: ListView.builder( 
-                  itemCount: expensedata.length,
-                  itemBuilder: (context, index) {
-                    final expense = expensedata[index];
-                    return Card(
-                      color: Colors.white,
-                      elevation: 4,
-                      margin: EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Purpose of Payment: ${expense['purpose_of_payment']}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Amount: ₹${expense['amount']}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            
-                            Text(
-                            'Company: ${expense['company_name'] ?? 'Unknown'}',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            'Payed By: ${expense['payed_by_name'] ?? 'Unknown'}',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                      
-                           
-                            Text(
-                              'Bank: ${getNameById(bank, expense['bank'])}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                         
-                            // Text(
-                            //   'Payed By: ${getNameById(sta, expense['payed_by'] ?? -1)}',
-                            //   style: TextStyle(fontSize: 14),
-                            // ),
-                            SizedBox(height: 2),
-                            Text(
-                              'Added By: ${expense['added_by'] ?? 'Unknown'}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                             Text(
-                              'Transaction Id: ${expense['transaction_id']}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Expense Date: ${expense['expense_date']}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>update_expence(id:expense['id'])));
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue, 
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              ),
-                              child: const Text(
-                                "View",
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                    if (selectedpurpose == null ||
+                        selectedpurpose!.isEmpty ||
+                        selectedpurpose == "Others") {
+                      expensedata = List.from(originalExpensedata);
+                    } else {
+                      expensedata = originalExpensedata.where((expense) {
+                        return expense['purpose_of_payment']
+                            .toString()
+                            .toLowerCase()
+                            .contains(selectedpurpose!.toLowerCase());
+                      }).toList();
+                    }
+                  });
+                },
+              ),
             ),
-          )
+          ),
+          Expanded(
+            child: expensedata.isEmpty
+                ? Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      await getexpenselist();
+                    },
+                    child: ListView.builder(
+                      itemCount: expensedata.length,
+                      itemBuilder: (context, index) {
+                        final expense = expensedata[index];
+                        return Card(
+                          color: Colors.white,
+                          elevation: 4,
+                          margin: EdgeInsets.all(10),
+                          child: Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Purpose of Payment: ${expense['purpose_of_payment']}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Amount: ₹${expense['amount']}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
 
+                                Text(
+                                  'Company: ${expense['company_name'] ?? 'Unknown'}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  'Payed By: ${expense['payed_by_name'] ?? 'Unknown'}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+
+                                Text(
+                                  'Bank: ${getNameById(bank, expense['bank'])}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+
+                                // Text(
+                                //   'Payed By: ${getNameById(sta, expense['payed_by'] ?? -1)}',
+                                //   style: TextStyle(fontSize: 14),
+                                // ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Added By: ${expense['added_by'] ?? 'Unknown'}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  'Transaction Id: ${expense['transaction_id']}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Expense Date: ${expense['expense_date']}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                update_expence(
+                                                    id: expense['id'])));
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                  ),
+                                  child: const Text(
+                                    "View",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+          )
         ],
-        
       ),
     );
   }
 
   String getNameById(List<Map<String, dynamic>> dataList, dynamic id) {
-  if (id == null || dataList.isEmpty) return 'Unknown';
+    if (id == null || dataList.isEmpty) return 'Unknown';
 
-  if (id is Map<String, dynamic>) {
-    // If `id` is a map, extract the name directly
-    return id['name'] ?? 'Unknown';
+    if (id is Map<String, dynamic>) {
+      // If `id` is a map, extract the name directly
+      return id['name'] ?? 'Unknown';
+    }
+
+    // For standard cases with an ID
+    final item = dataList.firstWhere(
+      (element) => element['id'] == id,
+      orElse: () => {},
+    );
+    return item.isNotEmpty ? item['name'] : 'Unknown';
   }
-
-  // For standard cases with an ID
-  final item = dataList.firstWhere(
-    (element) => element['id'] == id,
-    orElse: () => {},
-  );
-  return item.isNotEmpty ? item['name'] : 'Unknown';
-}
-
 }

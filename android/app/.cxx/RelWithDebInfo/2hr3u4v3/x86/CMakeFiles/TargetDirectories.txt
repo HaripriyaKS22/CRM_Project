@@ -1,0 +1,2 @@
+C:/Users/harip/Downloads/beposoft 10-03-2025/beposoft/android/app/.cxx/RelWithDebInfo/2hr3u4v3/x86/CMakeFiles/edit_cache.dir
+C:/Users/harip/Downloads/beposoft 10-03-2025/beposoft/android/app/.cxx/RelWithDebInfo/2hr3u4v3/x86/CMakeFiles/rebuild_cache.dir

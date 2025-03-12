@@ -1,22 +1,22 @@
 buildscript {
-     ext.kotlin_version = "1.9.24" // Match with the expected Kotlin version
+     ext.kotlin_version = '1.8.22'
+
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.android.tools.build:gradle:8.0.2" // Ensure Gradle plugin is up-to-date
+        classpath 'com.android.tools.build:gradle:8.1.0'
+
     }
 }
-
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
 }
-
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"

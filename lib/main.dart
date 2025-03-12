@@ -147,7 +147,7 @@ void navigateToLogin() {
                                   ? admin_dashboard()
                                   : department == "HR"
                                     ? HrDashboard()
-                                    : department == "warehouse admin"
+                                    : department == "Warehouse Admin"
                                       ? WarehouseAdmin()
                                         : department == "COO"
                                           ? admin_dashboard()

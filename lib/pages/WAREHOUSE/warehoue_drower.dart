@@ -1,6 +1,6 @@
+import 'package:beposoft/pages/ACCOUNTS/add_Expenses.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_expence.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
@@ -161,7 +161,7 @@ class drower{
       case 'Add Expence':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => expence()),
+          MaterialPageRoute(builder: (context) => add_expence()),
         );
         break;
       case 'Expence List':
@@ -200,7 +200,7 @@ class drower{
       case 'Expence Report':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => expence()),
+          MaterialPageRoute(builder: (context) => add_expence()),
         );
         break;
       case 'Delivery Report':

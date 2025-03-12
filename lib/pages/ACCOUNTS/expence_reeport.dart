@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_expence.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:intl/intl.dart'; 
@@ -239,7 +240,7 @@ Future<void> getexpenselist() async {
         'Content-Type': 'application/json',
       },
     );
-
+print("expenselistttttttttttttt${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
@@ -268,6 +269,9 @@ Future<void> getexpenselist() async {
               'transaction_id': productData['transaction_id']?.toString() ?? '',
               'payed_by': productData['payed_by']['name']?.toString() ?? '',
               'expense_date': productData['expense_date']?.toString() ?? '',
+              'catrgory':productData['categoryname']?.toString() ?? '',
+              'name':productData['name']?.toString() ?? '',
+              'quantity':productData['quantity']?.toString() ?? '',
             });
           } catch (e) {
             
@@ -361,29 +365,42 @@ Future<void> getexpenselist() async {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
 
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
         actions: [
@@ -433,12 +450,26 @@ else {
                               'Amount: ₹${expense['amount'] ?? '0'}',
                               style: TextStyle(fontSize: 14),
                             ),
-                            SizedBox(height: 8),
+                          if (expense['name'] != null)
                             Text(
-                              'Company: ₹${expense['company'] ?? '0'}',
+                              'Name: ${expense['name'] ?? '0'}',
+                              style: TextStyle(fontSize: 14),
+                          ),
+                            if (expense['quantity'] != null)
+                            Text(
+                              'Quantity: ${expense['quantity'] ?? '0'}',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            if (expense['category'] != null)
+                            Text(
+                              'Categoty: ${expense['category'] ?? '0'}',
                               style: TextStyle(fontSize: 14),
                             ),
                             SizedBox(height: 8),
+                            Text(
+                              'Company: ${expense['company'] ?? '0'}',
+                              style: TextStyle(fontSize: 14),
+                            ),
                             // Text(
                             //   'Bank: ${getNameById(bank, expense['bank'])}',
                             //   style: TextStyle(fontSize: 14),
@@ -495,6 +526,7 @@ else {
                   },
                 ),
         ),
+        SizedBox(height: 100),
       ],
     ),
     Positioned(

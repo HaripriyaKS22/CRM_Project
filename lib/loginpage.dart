@@ -38,9 +38,6 @@ class _loginState extends State<login> {
 
  Future<void> storeUserData(String token, String department, String username, dynamic warehouse) async {
   
-  
-  
-
   SharedPreferences prefs = await SharedPreferences.getInstance();
   
   // Save the data into SharedPreferences
@@ -59,9 +56,6 @@ class _loginState extends State<login> {
 }
 
 void login(String email, String password, BuildContext context) async {
-  
-  
-
   try {
     var response = await http.post(
       Uri.parse(url),
@@ -69,13 +63,10 @@ void login(String email, String password, BuildContext context) async {
     );
 
     
-print(response.body);
+     print(response.body);
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
-
-      
-      
 
       if (status == 'success') {
         var token = responseData['token'];
@@ -126,7 +117,7 @@ print(response.body);
           case 'BDM':
             targetPage = bdm_dashbord();
             break;
-          case 'warehouse admin':
+          case 'Warehouse Admin':
             targetPage = WarehouseAdmin();
             break;
           case 'HR':

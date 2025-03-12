@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
@@ -32,10 +33,11 @@ class _FinancialReportState extends State<FinancialReport> {
 
 Future<void> getFinancialReport() async {
   final token = await getTokenFromPrefs();
- totalAdjustedOpeningBalance = 0.0;
+  totalAdjustedOpeningBalance = 0.0;
   totalClosingBalance = 0.0;
   totalTodayPayments = 0.0;
   totalTodayBanksAmount = 0.0;
+
   try {
     final response = await http.get(
       Uri.parse('$api/api/finance-report/'),
@@ -45,14 +47,13 @@ Future<void> getFinancialReport() async {
       },
     );
 
-    
-
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
-      final currentDate = DateTime.now();
+      final DateTime currentDate = DateTime.now();
+      final DateTime today = DateTime(currentDate.year, currentDate.month, currentDate.day);
 
       List<Map<String, dynamic>> financeList = [];
-  
+
       for (var bankData in parsed['data'] ?? []) {
         String bankName = bankData['name'] ?? 'Unknown Bank';
 
@@ -61,65 +62,74 @@ Future<void> getFinancialReport() async {
 
         // Calculate total payments before today
         double totalPaymentsBeforeDate = (bankData['payments'] as List<dynamic>?)
-            ?.where((payment) {
-              final receivedAt = DateTime.tryParse(payment['received_at'] ?? '');
-              return receivedAt != null &&
-                  receivedAt.isBefore(currentDate) &&
-                  receivedAt.day != currentDate.day;
-            })
-            .fold<double>(0.0, (sum, payment) {
-              return sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0);
-            }) ??
+                ?.where((payment) {
+                  final receivedAt = DateTime.tryParse(payment['received_at'] ?? '');
+                  if (receivedAt == null) return false;
+
+                  // Normalize the date (remove time)
+                  final paymentDate = DateTime(receivedAt.year, receivedAt.month, receivedAt.day);
+
+                  return paymentDate.isBefore(today);
+                })
+                .fold<double>(0.0, (sum, payment) {
+                  return sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0);
+                }) ??
             0.0;
-double totalBankExpensesBeforeDate = (bankData['banks'] as List<dynamic>?)
-    ?.where((bank) {
-      final expenseDate = DateTime.tryParse(bank['expense_date'] ?? '');
-      return expenseDate != null &&
-          expenseDate.isBefore(currentDate) &&
-          expenseDate.day != currentDate.day;
-    })
-    .fold<double>(0.0, (sum, bank) {
-      return sum + (double.tryParse(bank['amount'] ?? '') ?? 0.0);
-    }) ?? 0.0;
+
+        double totalBankExpensesBeforeDate = (bankData['banks'] as List<dynamic>?)
+                ?.where((bank) {
+                  final expenseDate = DateTime.tryParse(bank['expense_date'] ?? '');
+                  if (expenseDate == null) return false;
+
+                  final expenseDay = DateTime(expenseDate.year, expenseDate.month, expenseDate.day);
+
+                  return expenseDay.isBefore(today);
+                })
+                .fold<double>(0.0, (sum, bank) {
+                  return sum + (double.tryParse(bank['amount'] ?? '') ?? 0.0);
+                }) ??
+            0.0;
+
         // Adjusted opening balance
-        double adjustedOpeningBalance = openBalance + totalPaymentsBeforeDate-totalBankExpensesBeforeDate;
+        double adjustedOpeningBalance = openBalance + totalPaymentsBeforeDate - totalBankExpensesBeforeDate;
         totalAdjustedOpeningBalance += adjustedOpeningBalance;
 
         // Calculate today's payments
         double todayPayments = (bankData['payments'] as List<dynamic>?)
-            ?.where((payment) {
-              final receivedAt = DateTime.tryParse(payment['received_at'] ?? '');
-              return receivedAt != null &&
-                  receivedAt.year == currentDate.year &&
-                  receivedAt.month == currentDate.month &&
-                  receivedAt.day == currentDate.day;
-            })
-            .fold<double>(0.0, (sum, payment) {
-              return sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0);
-            }) ??
+                ?.where((payment) {
+                  final receivedAt = DateTime.tryParse(payment['received_at'] ?? '');
+                  if (receivedAt == null) return false;
+
+                  final paymentDate = DateTime(receivedAt.year, receivedAt.month, receivedAt.day);
+                  return paymentDate.isAtSameMomentAs(today);
+                })
+                .fold<double>(0.0, (sum, payment) {
+                  return sum + (double.tryParse(payment['amount'] ?? '') ?? 0.0);
+                }) ??
             0.0;
 
+        print("Today's Payments for $bankName: $todayPayments");
         totalTodayPayments += todayPayments;
 
         // Handle `banks` for today's expenses
-        List<dynamic> banks = bankData['banks'] ?? [];
-        double todayBanksAmount = banks
-            .where((bank) {
-              final expenseDate = DateTime.tryParse(bank['expense_date'] ?? '');
-              return expenseDate != null &&
-                  expenseDate.year == currentDate.year &&
-                  expenseDate.month == currentDate.month &&
-                  expenseDate.day == currentDate.day;
-            })
-            .fold<double>(0.0, (sum, bank) {
-              return sum + (double.tryParse(bank['amount'] ?? '') ?? 0.0);
-            });
+        double todayBanksAmount = (bankData['banks'] as List<dynamic>?)
+                ?.where((bank) {
+                  final expenseDate = DateTime.tryParse(bank['expense_date'] ?? '');
+                  if (expenseDate == null) return false;
 
+                  final expenseDay = DateTime(expenseDate.year, expenseDate.month, expenseDate.day);
+                  return expenseDay.isAtSameMomentAs(today);
+                })
+                .fold<double>(0.0, (sum, bank) {
+                  return sum + (double.tryParse(bank['amount'] ?? '') ?? 0.0);
+                }) ??
+            0.0;
+
+        print("Today's Expenses for $bankName: $todayBanksAmount");
         totalTodayBanksAmount += todayBanksAmount;
 
         // Calculate closing balance
-        double closingBalance =
-            adjustedOpeningBalance + todayPayments - todayBanksAmount;
+        double closingBalance = adjustedOpeningBalance + todayPayments - todayBanksAmount;
         totalClosingBalance += closingBalance;
 
         // Add to finance list
@@ -132,23 +142,22 @@ double totalBankExpensesBeforeDate = (bankData['banks'] as List<dynamic>?)
         });
       }
 
-      // Log totals
-      
-      
-      
-      
-
       // Update state to reflect the finance list in UI
       setState(() {
-        Finance = financeList;
-        
-      });
+  Finance = List<Map<String, dynamic>>.from(financeList);
+  
+  // Ensure totals are updated in UI
+  totalAdjustedOpeningBalance = totalAdjustedOpeningBalance;
+  totalClosingBalance = totalClosingBalance;
+  totalTodayPayments = totalTodayPayments;
+  totalTodayBanksAmount = totalTodayBanksAmount;
+});
+
     }
   } catch (e) {
-    
+    print("Error: $e");
   }
 }
-
 
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -309,8 +318,8 @@ Future<void> getFinancialReport2() async {
           'Opening Balance': adjustedOpeningBalance.toStringAsFixed(2),
           'Credit Until End Date': totalPaymentsUntilEndDate.toStringAsFixed(2),
           'Debit Until End Date': totalExpensesUntilEndDate.toStringAsFixed(2),
-          'credit': totalPaymentsBetween.toStringAsFixed(2),
-          'debit': totalExpensesBetween.toStringAsFixed(2),
+          'Credit': totalPaymentsBetween.toStringAsFixed(2),
+          'Debit': totalExpensesBetween.toStringAsFixed(2),
           'Closing Balance': closingBalance.toStringAsFixed(2),
         });
       }
@@ -346,29 +355,42 @@ Widget build(BuildContext context) {
       ),
        leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
-            );
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
 
-}
-else if(dep=="BDM" ){
-   Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
-            );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
           },
         ),
          actions: [
@@ -397,6 +419,7 @@ else {
             itemCount: Finance.length,
             itemBuilder: (context, index) {
               final item = Finance[index]; // Current bank data
+              print("==================================>>>>>>$item");
               return Card(
                 color: Colors.white,
                 margin: const EdgeInsets.all(8.0),
@@ -436,7 +459,7 @@ else {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           Text(
-  '\u{20B9}${item['credit'] ?? '0.0'}',
+  '\u{20B9}${item['Credit'] ?? '0.0'}',
   style: const TextStyle(fontSize: 14, color: Colors.blue),
 ),
 
@@ -450,7 +473,7 @@ else {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            '\u{20B9}${item['debit']  ?? '0.0'}',
+                            '\u{20B9}${item['Debit']  ?? '0.0'}',
                             style: const TextStyle(fontSize: 14, color: Colors.red),
                           ),
                         ],

@@ -11,6 +11,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
@@ -70,7 +71,10 @@ class _new_productState extends State<new_product> {
   }
 
   List<String> type = ["single", 'variant'];
+    List<String> purchasetype = ["International", 'Local'];
+
   String selecttype = "single";
+  String selectpurchasetype = "International";
   List<String> unit = ["BOX", 'NOS', 'PRS', 'SET'];
   String selectunit = "BOX";
   bool checkbox3 = false;
@@ -253,6 +257,7 @@ double landingPriceValue = 0.0;
         'hsn_code': hsncode.text,
         'groupID': groupID.text,
         'type': selecttype,
+        'purchase_type': selectpurchasetype,
         'unit': selectunit,
         'purchase_rate': purchaserate.text,
         'tax': taxx.text,
@@ -447,7 +452,19 @@ print("globalProductId$globalProductId");
                     builder: (context) =>
                         bdm_dashbord()), // Replace AnotherPage with your target page
               );
-            } else {
+            }
+
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -489,7 +506,7 @@ print("globalProductId$globalProductId");
                   height: 15,
                 ),
                 SizedBox(
-                  height: 299,
+                  height: 390,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -530,6 +547,62 @@ print("globalProductId$globalProductId");
                             // SizedBox(
                             //   height: 10,
                             // ),
+
+
+                            Text("Purchase Type",
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold)),
+                            SizedBox(height: 10),
+                            Container(
+                              width: 310,
+                              height: 49,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 20),
+                                  Container(
+                                    width: 276,
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding:
+                                            EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectpurchasetype,
+                                        underline:
+                                            Container(), // This removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectpurchasetype = newValue!;
+                                          });
+                                        },
+                                        items: purchasetype
+                                            .map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(
+                                              left:
+                                                  137), // Adjust padding as needed
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons
+                                              .arrow_drop_down), // Dropdown arrow icon
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Text(
                               "Product Name * ",
                               style: TextStyle(

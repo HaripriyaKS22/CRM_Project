@@ -70,6 +70,8 @@ class _update_productState extends State<update_product> {
       }).toList(),
     );
   }
+    List<String> purchasetype = ["International", 'Local'];
+  String selectpurchasetype = "International";
 
   List<String> type = ["single", 'variant'];
   String selecttype = "single";
@@ -298,6 +300,8 @@ print('variantProducts$variantProducts');
                 retailprice.text =
                     singleProducts[0]['retail_price']?.toString() ?? '';
                 fami = singleProducts[0]['family'];
+
+                print("fffffffffaaaaaaaaaaaaaaaaaaaaaaaaaaaa$fami");
             
 
                 
@@ -337,6 +341,7 @@ print('variantProducts$variantProducts');
         'name': name.text,
         'hsn_code': hsncode.text,
         'type': selecttype,
+        'purchase_type': selectpurchasetype,
         'unit': selectunit,
         'purchase_rate': purchaserate.text,
         'tax': taxx.text,
@@ -591,6 +596,8 @@ print('variantProducts$variantProducts');
                 SizedBox(
                   height: 20,
                 ),
+
+                 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -605,7 +612,7 @@ print('variantProducts$variantProducts');
                   height: 15,
                 ),
                 SizedBox(
-                  height: 300,
+                  height: 390,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -646,6 +653,61 @@ print('variantProducts$variantProducts');
                             // SizedBox(
                             //   height: 10,
                             // ),
+
+                            Text("Purchase Type",
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold)),
+                            SizedBox(height: 10),
+                            Container(
+                              width: 310,
+                              height: 49,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 20),
+                                  Container(
+                                    width: 276,
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding:
+                                            EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectpurchasetype,
+                                        underline:
+                                            Container(), // This removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectpurchasetype = newValue!;
+                                          });
+                                        },
+                                        items: purchasetype
+                                            .map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(
+                                              left:
+                                                  137), // Adjust padding as needed
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons
+                                              .arrow_drop_down), // Dropdown arrow icon
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Text(
                               "Product Name ",
                               style: TextStyle(

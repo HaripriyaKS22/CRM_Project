@@ -86,7 +86,7 @@ print(response.body);
 print(response.statusCode);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
-        var productsData = parsed;
+        var productsData = parsed['results'];
         List<Map<String, dynamic>> orderList = [];
 
         for (var productData in productsData) {
@@ -111,7 +111,9 @@ print(response.statusCode);
           // Parse warehouse_orders
           List<Map<String, dynamic>> warehouseOrders = [];
           if (productData['warehouse_orders'] != null) {
+            
             for (var warehouseOrder in productData['warehouse_orders']) {
+              if(warehouseOrder['status']=="Packing under progress" ||  warehouseOrder['status']=="Packing"||  warehouseOrder['status']=="Ready to ship" ||  warehouseOrder['status']=="To Print"){
               warehouseOrders.add({
                 'id': warehouseOrder['id'],
                 'box': warehouseOrder['box'],
@@ -133,47 +135,47 @@ print(response.statusCode);
                 'invoice': warehouseOrder['invoice'],
                 'family': warehouseOrder['family'],
               });
-            }
+            }}
           }
 
           orderList.add({
             'id': productData['id'],
             'invoice': productData['invoice'],
             'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
+            // 'customer': {
+            //   'name': productData['customer']['name'],
+            //   'phone': productData['customer']['phone'],
+            //   'email': productData['customer']['email'],
+            //   'address': productData['customer']['address'],
+            // },
+            // 'billing_address': {
+            //   'name': productData['billing_address']['name'],
+            //   'email': productData['billing_address']['email'],
+            //   'zipcode': productData['billing_address']['zipcode'],
+            //   'address': productData['billing_address']['address'],
+            //   'phone': productData['billing_address']['phone'],
+            //   'city': productData['billing_address']['city'],
+            //   'state': productData['billing_address']['state'],
+            // },
+            // 'bank': {
+            //   'name': productData['bank']['name'],
+            //   'account_number': productData['bank']['account_number'],
+            //   'ifsc_code': productData['bank']['ifsc_code'],
+            //   'branch': productData['bank']['branch'],
+            // },
+            // 'items': productData['items'] != null
+            //     ? productData['items'].map((item) {
+            //         return {
+            //           'id': item['id'],
+            //           'name': item['name'],
+            //           'quantity': item['quantity'],
+            //           'price': item['price'],
+            //           'tax': item['tax'],
+            //           'discount': item['discount'],
+            //           'images': item['images'],
+            //         };
+            //       }).toList()
+                //: [], // Fallback to empty list
             'status': productData['status'],
             'total_amount': productData['total_amount'],
             'order_date': formattedOrderDate, // Use the formatted string
@@ -230,40 +232,40 @@ print(response.statusCode);
             'id': productData['id'],
             'invoice': productData['invoice'],
             'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
+            // 'customer': {
+            //   'name': productData['customer']['name'],
+            //   'phone': productData['customer']['phone'],
+            //   'email': productData['customer']['email'],
+            //   'address': productData['customer']['address'],
+            // },
+            // 'billing_address': {
+            //   'name': productData['billing_address']['name'],
+            //   'email': productData['billing_address']['email'],
+            //   'zipcode': productData['billing_address']['zipcode'],
+            //   'address': productData['billing_address']['address'],
+            //   'phone': productData['billing_address']['phone'],
+            //   'city': productData['billing_address']['city'],
+            //   'state': productData['billing_address']['state'],
+            // },
+            // 'bank': {
+            //   'name': productData['bank']['name'],
+            //   'account_number': productData['bank']['account_number'],
+            //   'ifsc_code': productData['bank']['ifsc_code'],
+            //   'branch': productData['bank']['branch'],
+            // },
+            // 'items': productData['items'] != null
+            //     ? productData['items'].map((item) {
+            //         return {
+            //           'id': item['id'],
+            //           'name': item['name'],
+            //           'quantity': item['quantity'],
+            //           'price': item['price'],
+            //           'tax': item['tax'],
+            //           'discount': item['discount'],
+            //           'images': item['images'],
+            //         };
+            //       }).toList()
+            //     : [], // Fallback to empty list
             'status': productData['status'],
             'total_amount': productData['total_amount'],
             'order_date': formattedOrderDate, // Use the formatted string
@@ -294,15 +296,15 @@ print(response.statusCode);
         filteredOrders = orders;
       } else {
         filteredOrders = orders.where((order) {
-          final customerName =
-              order['customer_name']?.toString().toLowerCase() ?? '';
+          // final customerName =
+          //     order['customer_name']?.toString().toLowerCase() ?? '';
           final invoice = order['invoice']?.toString().toLowerCase() ?? '';
           final manageStaff =
               order['manage_staff']?.toString().toLowerCase() ?? '';
           final totalAmount =
               order['total_amount']?.toString().toLowerCase() ?? '';
 
-          return customerName.contains(query.toLowerCase()) ||
+          return  
               invoice.contains(query.toLowerCase()) ||
               manageStaff.contains(query.toLowerCase()) ||
               totalAmount.contains(query.toLowerCase());
@@ -620,7 +622,7 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
-else if(dep=="warehouse admin" ){
+else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
@@ -799,7 +801,7 @@ else {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        '#${order['invoice']} /${order['customer']['name']}',
+                                        '#${order['invoice']} ',
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
@@ -861,7 +863,8 @@ else {
                                     ],
                                   ),
                                 ),
-                                // Warehouse Details Section
+                                // Warehouse Details Section\
+                                
                                 if (order['warehouse_orders'] != null &&
                                     order['warehouse_orders'].isNotEmpty)
                                   Padding(

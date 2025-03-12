@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WarehouseOrderReview extends StatefulWidget {
   final id;
@@ -282,6 +283,55 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
     
   }
 }
+Future<void> updateverifiedby( var orderId,selectedManagerId) async {
+  try {
+    print('selectedManagerId in functionnnnnnnnnnnnnnnnnn: $selectedManagerId');
+    final token = await getTokenFromPrefs();
+
+print('$api/api/warehouse/detail/$orderId/');
+    var response = await http.put(
+      Uri.parse('$api/api/warehouse/detail/$orderId/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(
+        {
+          'verified_by': selectedManagerId,
+
+        },
+      ),
+    );
+    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
+    print('responsessssssssssssssss${response.statusCode}');
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shipping charge updated successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+fetchOrderItems();
+
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update shipping charge'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (error) {
+    print("Error: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error updating shipping charge'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
   Future<void> getmanagers() async {
     try {
       final token = await getTokenFromPrefs();
@@ -295,7 +345,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
       );
       
       List<Map<String, dynamic>> managerlist = [];
-
+print('https://rising-regression-canada-intensity.trycloudflare.com/${response.body}');
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -317,7 +367,98 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
       
     }
   }
+void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails) {
+  int? selectedManagerId;
+  String? selectedManagerName;
 
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Box Details'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Box: ${boxDetails['box'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Packed By: ${boxDetails['packed_by'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              
+              Text('Shipping Charge: ${boxDetails['shipping_charge'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Parcel Service: ${boxDetails['parcel_service'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Tracking ID: ${boxDetails['tracking_id'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Status: ${boxDetails['status'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Shipped Date: ${boxDetails['shipped_date'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              if (boxDetails['image'] != null)
+                Image.network(
+                  '$api${boxDetails['image']}',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.image_not_supported, size: 40, color: Colors.grey);
+                  },
+                ),
+
+                
+              SizedBox(height: 12),
+              DropdownButtonFormField<Map<String, dynamic>>(
+                value: selectedManagerId != null
+                    ? manager.firstWhere(
+                        (element) => element['id'] == selectedManagerId,
+                        orElse: () => manager[0],
+                      )
+                    : null,
+                hint: Text('Select here...'),
+                items: manager.map((Map<String, dynamic> manager) {
+                  return DropdownMenuItem<Map<String, dynamic>>(
+                    value: manager,
+                    child: Text(manager['name']),
+                  );
+                }).toList(),
+                onChanged: (Map<String, dynamic>? newValue) {
+                  setState(() {
+                    selectedManagerName = newValue!['name'];
+                    selectedManagerId = newValue['id'];
+                    print('selectedManagerId: $selectedManagerId');
+
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Verify By',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text('Close'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+            ),
+            onPressed: () {
+              updateverifiedby(boxDetails['id'],selectedManagerId);
+              
+              Navigator.of(context).pop();
+            },
+            child: Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      );
+    },
+  );
+}
   void addboxdetails(
     File? image1,
     DateTime selectedDate,
@@ -388,8 +529,8 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      
-
+      print("ress>>>>>>>>>>>>>stta>>>>${response.statusCode}");
+print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
       // Handle response based on status code
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -731,8 +872,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
           createdBy = name;
         });
         
-        
-        
+        print('$api/api/order/${widget.id}/items/');
         var response = await http.get(
           Uri.parse('$api/api/order/${widget.id}/items/'),
           headers: {
@@ -740,6 +880,9 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
             'Content-Type': 'application/json',
           },
         );
+
+                print('Token:resssssssssssssssssssssss??????? ${response.body}');
+
   
         if (response.statusCode == 200) {
           final parsed = jsonDecode(response.body);
@@ -1033,6 +1176,54 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                 ],
               ),
             ),
+            SizedBox(height: 10,),
+            Container(
+      color: Colors.white, // Background color
+      padding: EdgeInsets.all(10), // Add padding
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Evenly space buttons
+        children: [
+          ElevatedButton.icon(
+            onPressed: () async{
+
+              final Uri url = Uri.parse('$api/deliverynote/${ord['id']}/');
+
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          // Handle error case
+        }
+
+
+
+            },
+            icon: Icon(Icons.download,color: Colors.white,), // Download icon
+            label: Text("Delivery"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue, // Button color
+              foregroundColor: Colors.white, // Text color
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async{
+
+              final Uri url = Uri.parse('$api/shippinglabel/${ord['id']}/');
+
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          // Handle error case
+        }
+
+
+
+            },
+            icon: Icon(Icons.download,color: Colors.white), // Download icon
+            label: Text("Address"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue, // Button color
+              foregroundColor: Colors.white, // Text color
+            ),
+          ),
+        ],
+      ),
+    ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Card(
@@ -1309,7 +1500,7 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
                                     image: NetworkImage(
-                                        '${item["images"]}'),
+                                        '$api${item["images"]}'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -1469,6 +1660,9 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                                   setState(() {
                                     selectedManagerName = newValue!['name'];
                                     selectedManagerId = newValue['id'];
+                                    print(selectedManagerId);
+                                    print(selectedManagerName);
+
                                   });
                                 }
                               : null,
@@ -1784,179 +1978,246 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Container(
-                                padding: EdgeInsets.all(12.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.3),
-                                      spreadRadius: 2,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2), // Shadow position
-                                    ),
-                                  ],
-                                  border:
-                                      Border.all(color: Colors.grey.shade300),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Image and Box Details
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 80,
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            color: Colors.grey[200],
+                              child: GestureDetector(
+                                onTap: (){
+
+                                   showBoxDetailsDialog(
+                                      context, order);
+
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(12.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        spreadRadius: 2,
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2), // Shadow position
+                                      ),
+                                    ],
+                                    border:
+                                        Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Image and Box Details
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 80,
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              color: Colors.grey[200],
+                                            ),
+                                            child: order['image'] != null
+                                                ? Image.network(
+                                                    '$api${order['image']}',
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context, error,
+                                                        stackTrace) {
+                                                      return Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                          size: 40,
+                                                          color: Colors.grey);
+                                                    },
+                                                  )
+                                                : Icon(Icons.image_not_supported,
+                                                    size: 40, color: Colors.grey),
                                           ),
-                                          child: order['image'] != null
-                                              ? Image.network(
-                                                  '$api${order['image']}',
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Icon(
-                                                        Icons
-                                                            .image_not_supported,
-                                                        size: 40,
-                                                        color: Colors.grey);
-                                                  },
-                                                )
-                                              : Icon(Icons.image_not_supported,
-                                                  size: 40, color: Colors.grey),
-                                        ),
-                                        SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            ' ${order['box'] ?? 'N/A'}',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              ' ${order['box'] ?? 'N/A'}',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        // Delete Button
-                                        GestureDetector(
-                                          onTap: () {
-                                            // Call your delete function here
-                                            //deleteWarehouseOrder(order['id']);
-                                          },
-                                          child: Image.asset(
-                                            "lib/assets/close.png",
-                                            height: 15,
-                                            width: 15,
+                                          // Delete Button
+                                          GestureDetector(
+                                            onTap: () {
+                                              // Call your delete function here
+                                              //deleteWarehouseOrder(order['id']);
+                                            },
+                                            child: Image.asset(
+                                              "lib/assets/close.png",
+                                              height: 15,
+                                              width: 15,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Divider(),
-                                    SizedBox(height: 12),
+                                        ],
+                                      ),
+                                      Divider(),
+                                      SizedBox(height: 12),
+                                
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Packed By:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['packed_by'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
 
-                                    // Shipping Charge
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Shipping Charge:',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                                       Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Verified by:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          order['shipping_charge'] ?? 'N/A',
-                                          style: TextStyle(fontSize: 14),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 6),
+                                          Text(
+                                            order['verified_by'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
 
-                                    // Parcel Service
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Parcel Service:',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        Text(
-                                          order['parcel_service'] ?? 'N/A',
-                                          style: TextStyle(fontSize: 14),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 6),
 
-                                    // Tracking ID
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Tracking ID:',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        Text(
-                                          order['tracking_id']?.toString() ??
-                                              'N/A',
-                                          style: TextStyle(fontSize: 14),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 6),
 
-                                    // Status
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Status:',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Checked by:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          order['status'] ?? 'N/A',
-                                          style: TextStyle(fontSize: 14),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 6),
-
-                                    // Shipped Date
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Shipped Date:',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                                          Text(
+                                            order['checked_by'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
                                           ),
-                                        ),
-                                        Text(
-                                          order['shipped_date'] ?? 'N/A',
-                                          style: TextStyle(fontSize: 14),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+                                
+                                      // Shipping Charge
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Shipping Charge:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['shipping_charge'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+                                
+                                      // Parcel Service
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Parcel Service:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['parcel_service'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+                                
+                                      // Tracking ID
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Tracking ID:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['tracking_id']?.toString() ??
+                                                'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+                                
+                                      // Status
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Status:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['status'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+                                
+                                      // Shipped Date
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Shipped Date:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            order['shipped_date'] ?? 'N/A',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -1971,4 +2232,52 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
       ),
     );
   }
+}
+
+void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Box Details'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Box: ${boxDetails['box'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Packed By: ${boxDetails['packed_by'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Shipping Charge: ${boxDetails['shipping_charge'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Parcel Service: ${boxDetails['parcel_service'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Tracking ID: ${boxDetails['tracking_id'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Status: ${boxDetails['status'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              Text('Shipped Date: ${boxDetails['shipped_date'] ?? 'N/A'}'),
+              SizedBox(height: 8),
+              if (boxDetails['image'] != null)
+                Image.network(
+                  '$api${boxDetails['image']}',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.image_not_supported, size: 40, color: Colors.grey);
+                  },
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text('Close'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

@@ -3,18 +3,12 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-
-
 
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
 import 'package:beposoft/pages/ACCOUNTS/profile.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
-
-
-
 
 import 'package:beposoft/main.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
