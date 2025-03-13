@@ -96,8 +96,6 @@ class _add_product_variantState extends State<add_product_variant> {
                   Text(
                     product['name'] ?? '',
                     style: const TextStyle(fontSize: 12),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 DataCell(
@@ -114,8 +112,7 @@ class _add_product_variantState extends State<add_product_variant> {
                 DataCell(
                   ElevatedButton(
                     onPressed: () {
-                     
-                     Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product(id: product['id'],type:widget.type)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product(id: product['id'],type:widget.type)));
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
@@ -205,41 +202,34 @@ class _add_product_variantState extends State<add_product_variant> {
           ),
         ],
         rows: variantProducts.map((variant) {
-          
           return DataRow(
             cells: <DataCell>[
               DataCell(
                 Text(
                   variant['name'] ?? '',
                   style: const TextStyle(fontSize: 12),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               DataCell(
-                
-                     Image.network(
-                        '${api}${variant['image']}',
-                        width: 50,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.image_not_supported);
-                        },
-                      )
-                    
+                Image.network(
+                  '${api}${variant['image']}',
+                  width: 50,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.image_not_supported);
+                  },
+                ),
               ),
               DataCell(
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>update_product(id: variant['id'],type:widget.type)));
-
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     minimumSize: const Size(50, 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -259,8 +249,7 @@ class _add_product_variantState extends State<add_product_variant> {
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.red,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     minimumSize: const Size(50, 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),

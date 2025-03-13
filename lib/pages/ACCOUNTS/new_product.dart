@@ -75,7 +75,7 @@ class _new_productState extends State<new_product> {
 
   String selecttype = "single";
   String selectpurchasetype = "International";
-  List<String> unit = ["BOX", 'NOS', 'PRS', 'SET'];
+  List<String> unit = ["BOX", 'NOS', 'PRS','PCS', 'SET','SET OF 12','SET OF 16','SET OF 8','SET OF 6'];
   String selectunit = "BOX";
   bool checkbox3 = false;
   bool checkbox1 = false;

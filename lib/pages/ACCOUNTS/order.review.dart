@@ -42,13 +42,14 @@ class _OrderReviewState extends State<OrderReview> {
   TextEditingController shippingchargeController = TextEditingController();
    TextEditingController codamount = TextEditingController();
   TextEditingController shippingmethod = TextEditingController();
-
+var selectedserviceId;
   List<String> statuses = [];
   @override
   void initState() {
     super.initState();
     initData();
     getbank();
+    getcourierservices();
   
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
@@ -103,7 +104,62 @@ class _OrderReviewState extends State<OrderReview> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-
+void showParcelServiceDialog(BuildContext context,var id) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Select Parcel Service'),
+        content: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey, width: 1.0),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton<int>(
+                isExpanded: true,
+                underline: SizedBox(), // Removes default underline
+                hint: Text('Select a Parcel Service'),
+                value: selectedserviceId,
+                items: courierdata.map((item) {
+                  return DropdownMenuItem<int>(
+                    value: item['id'],
+                    child: Text(item['name']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedserviceId = value;
+                  });
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  updateparcel(selectedserviceId, id);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Set background color
+                ),
+                child: Text('Submit', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text('Close'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 void _showShippingChargeDialog(BuildContext context, Map<String, dynamic> boxDetails) {
   final shippingController = TextEditingController(text: boxDetails['shipping_charge']?.toString() ?? '');
   final actualWeightController = TextEditingController(text: boxDetails['actual_weight']?.toString() ?? '');
@@ -247,6 +303,49 @@ void _showShippingChargeDialog(BuildContext context, Map<String, dynamic> boxDet
     }
   }
 
+    List<Map<String, dynamic>> courierdata = [];
+
+Future<void> getcourierservices() async {
+  try {
+    final token = await getTokenFromPrefs();
+
+    var response = await http.get(
+      Uri.parse('$api/api/parcal/service/'),
+      headers: {
+        'Authorization': ' Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    
+    
+    // Ensure the response is in the expected format
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      
+      // Access the 'data' field which contains the list of courier services
+      List<Map<String, dynamic>> Courierlist = [];
+
+      // Check if 'data' exists in the response
+      if (parsed.containsKey('data')) {
+        for (var productData in parsed['data']) {
+          Courierlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+      }
+
+      setState(() {
+        courierdata = Courierlist;
+        
+      });
+print('courierdataaaaaaaaa$courierdata');
+    }
+  } catch (error) {
+    
+  }
+}
   Future<void> updatestatus() async {
     try {
       final token = await getTokenFromPrefs();
@@ -404,6 +503,55 @@ fetchOrderItems();
     );
   }
 }
+
+Future<void> updateparcel(var parcel , var orderId) async {
+  try {
+    final token = await getTokenFromPrefs();
+
+
+    var response = await http.put(
+      Uri.parse('$api/api/warehouse/detail/$orderId/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(
+        {
+          'parcel_service': parcel,
+        },
+      ),
+    );
+    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
+    print('responsessssssssssssssss${response.statusCode}');
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shipping charge updated successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+fetchOrderItems();
+
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update shipping charge'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (error) {
+    print("Error: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error updating shipping charge'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
 
   List<Map<String, dynamic>> company = [];
 
@@ -2575,22 +2723,28 @@ SizedBox(height: 5,),
                                       SizedBox(height: 6),
 
                                       // Parcel Service
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Parcel Service:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
+                                      GestureDetector(
+                                        onTap: (){
+                                          showParcelServiceDialog(context,order['id']);
+
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Parcel Service:',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            order['parcel_service'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
+                                            Text(
+                                              order['parcel_service'] ?? 'N/A',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                       SizedBox(height: 6),
 

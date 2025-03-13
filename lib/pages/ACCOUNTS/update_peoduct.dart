@@ -74,7 +74,7 @@ class _update_productState extends State<update_product> {
   String selectpurchasetype = "International";
 
   List<String> type = ["single", 'variant'];
-  String selecttype = "single";
+  
   List<String> unit = ["BOX", 'NOS', 'PRS', 'SET'];
   String selectunit = "BOX";
   bool checkbox3 = false;
@@ -113,16 +113,29 @@ class _update_productState extends State<update_product> {
   List<Map<String, dynamic>> variantProducts = [];
   List<Map<String, dynamic>> singleProducts = [];
   List<Map<String, dynamic>> Warehouses = [];
-
+var selecttype;
   @override
   void initState() {
     super.initState();
+initdata();
     getfamily();
     getmanagers();
     getvariant();
     getwarehouse();
   }
+void initdata(){
+  if(widget.type=='variant'){
+    setState(() {
+      selecttype='variant';
+    });
+  }
+  else{
+    setState(() {
+      selecttype='single';
+    });
+  }
 
+}
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -235,7 +248,7 @@ class _update_productState extends State<update_product> {
   Future<void> getvariant() async {
     try {
       final token = await gettokenFromPrefs();
-      
+      print('$api/api/products/${widget.id}/variants/');
       var response = await http.get(
         Uri.parse('$api/api/products/${widget.id}/variants/'),
         headers: {
@@ -283,6 +296,7 @@ class _update_productState extends State<update_product> {
                   variantIDs); // List of variants
               singleProducts = [productData]; // Single product as a list
               print('singleProducts$singleProducts');
+              // Handle response based on widget.type
 print('variantProducts$variantProducts');
               if (singleProducts.isNotEmpty) {
                 name.text = singleProducts[0]['name']?.toString() ?? '';
