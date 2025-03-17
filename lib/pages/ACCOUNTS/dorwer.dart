@@ -93,7 +93,7 @@ class drower{
         break;
 
       
-      case 'Add recipts':
+      case 'Add Recipt':
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => add_receipts()),
@@ -102,7 +102,7 @@ class drower{
       case 'Recipts List':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => receips()),
+          MaterialPageRoute(builder: (context) => recipt_Report()),
         );
         break;
       case 'New Proforma Invoice':

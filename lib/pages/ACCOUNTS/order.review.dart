@@ -2514,81 +2514,77 @@ Text(
                           style: TextStyle(
                               fontSize: 12, fontWeight: FontWeight.bold)),
                       SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Container(
-                          height: 50,
-                          width: 360,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                          ),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 20),
-                              Container(
-                                width: 260,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    contentPadding:
-                                        EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child: DropdownButton<int>(
-                                    hint: Text(
-                                      'Address',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Theme.of(context).hintColor),
-                                    ),
-                                    value: selectedAddressId,
-                                    isExpanded: true,
-                                    underline:
-                                        Container(), // This removes the underline
-                                    onChanged: (int? newValue) {
-                                      setState(() {
-                                        selectedAddressId = newValue!;
-                                        
-                                      });
-                                    },
-                                    items: addres
-                                        .map<DropdownMenuItem<int>>((address) {
-                                      return DropdownMenuItem<int>(
-                                        value: address['id'],
-                                        child: Text("${address['address']}",
-                                            style: TextStyle(fontSize: 12)),
-                                      );
-                                    }).toList(),
-                                    selectedItemBuilder:
-                                        (BuildContext context) {
-                                      return addres.map<Widget>((address) {
-                                        return Text(
-                                          selectedAddressId != null &&
-                                                  selectedAddressId ==
-                                                      address['id']
-                                              ? "${address['address']}"
-                                              : "Address",
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black),
-                                        );
-                                      }).toList();
-                                    },
-                                    icon: Container(
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(
-                                        Icons.arrow_drop_down,
-                                        color: const Color.fromARGB(
-                                            255, 151, 150, 150),
-                                      ), // Dropdown arrow icon
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    Padding(
+  padding: const EdgeInsets.only(),
+  child: Container(
+    height: 50,
+    width: MediaQuery.of(context).size.width * 0.9, // Adjust width based on device size
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey),
+    ),
+    child: Row(
+      children: [
+        SizedBox(width: 20),
+        Container(
+          width: MediaQuery.of(context).size.width * 0.7, // Adjust width based on device size
+          child: InputDecorator(
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: '',
+              contentPadding: EdgeInsets.symmetric(horizontal: 1),
+            ),
+            child: DropdownButton<int>(
+              hint: Text(
+                'Address',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+              value: selectedAddressId,
+              isExpanded: true,
+              underline: Container(), // This removes the underline
+              onChanged: (int? newValue) {
+                setState(() {
+                  selectedAddressId = newValue!;
+                });
+              },
+              items: addres.map<DropdownMenuItem<int>>((address) {
+                return DropdownMenuItem<int>(
+                  value: address['id'],
+                  child: Text(
+                    "${address['address']}",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                );
+              }).toList(),
+              selectedItemBuilder: (BuildContext context) {
+                return addres.map<Widget>((address) {
+                  return Text(
+                    selectedAddressId != null && selectedAddressId == address['id']
+                        ? "${address['address']}"
+                        : "Address",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                    ),
+                  );
+                }).toList();
+              },
+              icon: Container(
+                alignment: Alignment.centerRight,
+                child: Icon(
+                  Icons.arrow_drop_down,
+                  color: const Color.fromARGB(255, 151, 150, 150),
+                ), // Dropdown arrow icon
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
                       SizedBox(height: 16.0),
                       //  TextField(
                       //   controller: actualweightController,
@@ -2776,7 +2772,7 @@ Text(
                                                   child: Text(
                                                     "Send Tracking ID",
                                                     style: TextStyle(
-                                                        fontSize: 16,
+                                                        fontSize: 10,
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
@@ -2788,6 +2784,7 @@ Text(
                                                       color: Colors.grey),
                                                 ),
                                           // Delete Button
+                                          SizedBox(width: 5),
                                           GestureDetector(
                                             onTap: () {
                                                deletebox(order['id']);
@@ -2919,29 +2916,7 @@ Text(
                                       SizedBox(height: 6),
 
                                       // Parcel Service
-                                      GestureDetector(
-                                        onTap: (){
-                                          showParcelServiceDialog(context,order['id']);
-
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              'Parcel Service:',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            Text(
-                                              order['parcel_service'] ?? 'N/A',
-                                              style: TextStyle(fontSize: 14),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                    
                                       SizedBox(height: 6),
 
                                       // Tracking ID
@@ -2985,6 +2960,39 @@ Text(
                                       ),
                                       SizedBox(height: 6),
 
+                                        GestureDetector(
+                                        onTap: (){
+                                          showParcelServiceDialog(context,order['id']);
+
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                             Container(
+    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    decoration: BoxDecoration(
+      color: const Color.fromARGB(255, 220, 220, 220), // Background color
+      borderRadius: BorderRadius.circular(8), // Rounded corners
+    ),
+    child: Text(
+      'Parcel Service',
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: Colors.white, // Text color
+      ),
+    ),
+  ),
+                                            Text(
+                                              order['parcel_service'] ?? 'N/A',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+  SizedBox(height: 5,),
+
                                       // Shipped Date
                                       GestureDetector(
                                         onTap: ()  {
@@ -2995,13 +3003,21 @@ Text(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
-                                              'Shipped Date:',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
+                                           Container(
+    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    decoration: BoxDecoration(
+      color: const Color.fromARGB(255, 220, 220, 220), // Background color
+      borderRadius: BorderRadius.circular(8), // Rounded corners
+    ),
+    child: Text(
+      'Shipped DAte',
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: Colors.white, // Text color
+      ),
+    ),
+  ),
                                             Text(
                                               order['shipped_date'] ?? 'N/A',
                                               style: TextStyle(fontSize: 14),
