@@ -1,7 +1,7 @@
 
 
 
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_Recipt.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
 import 'package:beposoft/pages/BDO/bdo_customer_list.dart';
 import 'package:beposoft/pages/BDO/bdo_order_list.dart';
@@ -198,7 +198,7 @@ class _logistics_dashbordState extends State<logistics_dashbord> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
+                                MaterialPageRoute(builder: (context) => add_receipt()),
                               );
                             },
                             child: Container(
@@ -262,7 +262,7 @@ class _logistics_dashbordState extends State<logistics_dashbord> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => add_receipts()),
+                                MaterialPageRoute(builder: (context) => add_receipt()),
                               );
                             },
                             child: Container(

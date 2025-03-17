@@ -9,7 +9,6 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 
 import 'package:beposoft/main.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
@@ -296,38 +295,7 @@ Future<void> updatexpense() async {
   }
 }
 
-  // _navigateToSelectedPage method
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    switch (selectedOption) {
-      case 'Credit Note':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => credit_note_list()),
-        );
-        break;
-      case 'Customer':
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => customer_list()),
-        // );
-        break;
-      case 'Add Receipts':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-      case 'Receipts List':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      default:
-        break;
-    }
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(

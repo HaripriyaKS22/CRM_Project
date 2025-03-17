@@ -1,9 +1,9 @@
 import 'package:beposoft/pages/ACCOUNTS/add_Expenses.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_Recipt.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/bank_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
@@ -80,7 +80,7 @@ class drower{
       case 'Add recipts':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
+          MaterialPageRoute(builder: (context) => add_receipt()),
         );
         break;
       case 'Recipts List':

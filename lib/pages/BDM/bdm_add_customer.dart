@@ -5,7 +5,6 @@ import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:flutter/material.dart';
 
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
 import 'package:beposoft/pages/BDM/bdm_customer_list.dart';
 import 'package:beposoft/pages/BDM/bdm_order_list.dart';

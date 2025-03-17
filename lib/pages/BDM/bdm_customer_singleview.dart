@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:beposoft/main.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_address.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';

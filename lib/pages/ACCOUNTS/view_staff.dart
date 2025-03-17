@@ -31,7 +31,6 @@ import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 import 'package:beposoft/main.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_credit_note.dart';
-import 'package:beposoft/pages/ACCOUNTS/add_recipts.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:path_provider/path_provider.dart';
@@ -540,60 +539,5 @@ Expanded(
     );
   }
 
-  void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_credit_note()),
-        );
-        break;
-      case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_receipts()),
-        );
-        break;
-      case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 5':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 6':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 7':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-      case 'Option 8':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => receips()),
-        );
-        break;
-
-      default:
-        // Handle default case or unexpected options
-        break;
-    }
-  }
+  
 }
