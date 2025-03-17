@@ -286,7 +286,7 @@ class _OrderRequestState extends State<OrderRequest> {
                     TextField(
                       controller: transactionIdController,
                       decoration: InputDecoration(
-                        labelText: 'Transaction ID',
+                        labelText: 'Tracking ID',
                         prefixIcon: Icon(Icons.receipt),
                       ),
                     ),

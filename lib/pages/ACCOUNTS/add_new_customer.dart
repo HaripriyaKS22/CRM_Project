@@ -246,7 +246,9 @@ void logout() async {
 
 
         }
+        print("allocatedstatesallocatedstatesallocatedstates$allocatedstates");
         // Filter to keep only allocated states
+        if(allocatedstates.isNotEmpty){
       List<Map<String, dynamic>> filteredStates = stateslist
           .where((state) => allocatedstates.contains(state['id']))
           .toList();
@@ -254,7 +256,13 @@ void logout() async {
           statess = filteredStates;
 
           print("statessstatessstatess$statess");
-        });
+        });}
+        else{
+          setState(() {
+            
+          statess = stateslist;
+          });
+        }
       }
     } catch (error) {
       

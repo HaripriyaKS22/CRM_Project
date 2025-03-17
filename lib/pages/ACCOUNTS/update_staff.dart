@@ -546,12 +546,13 @@ Future<void> updateStaffImage(
     File? image2,
     BuildContext scaffoldContext,
   ) async {
+    print('===============${widget.id}');
     final token = await gettokenFromPrefs();
-    
+    print('-----------------$api/api/staff/update/${widget.id}/');
     try {
       var request = http.MultipartRequest(
         'PUT',
-        Uri.parse('$api/api/staff/update/$staffId/'),
+        Uri.parse('$api/api/staff/update/${widget.id}/'),
       );
 
       // Add headers
@@ -571,8 +572,8 @@ Future<void> updateStaffImage(
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      
-      
+      print("response.bodyyyyyyyyyyyyyyyyy${response.statusCode}");
+      print("response.bodyyyyyyyyyyyyyyyyy${response.body}");
       // Handle response based on status code
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

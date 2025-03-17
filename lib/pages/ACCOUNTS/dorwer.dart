@@ -28,6 +28,7 @@ import 'package:beposoft/pages/ACCOUNTS/post_office_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchase_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/purchases_request.dart';
+import 'package:beposoft/pages/ACCOUNTS/recipt.report.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/sales_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/sold_product_report.dart';
@@ -188,6 +189,13 @@ class drower{
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => Sales_Report()),
+        );
+        break;
+
+        case 'Recipt Report':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => recipt_Report()),
         );
         break;
       case 'Credit Sales Report':

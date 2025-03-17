@@ -645,6 +645,7 @@ print("response.statusCode: ${response.statusCode}");
               Divider(),
               _buildDropdownTile(context, 'Reports', [
                 'Sales Report',
+                'Recipt Report',
                 'Credit Sales Report',
                 'COD Sales Report',
                 'Statewise Sales Report',

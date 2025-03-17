@@ -104,7 +104,7 @@ var selectedserviceId;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-void showParcelServiceDialog(BuildContext context,var id) {
+void showParcelServiceDialog(BuildContext context, var id) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -135,16 +135,6 @@ void showParcelServiceDialog(BuildContext context,var id) {
                   });
                 },
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  updateparcel(selectedserviceId, id);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Set background color
-                ),
-                child: Text('Submit', style: TextStyle(color: Colors.white)),
-              ),
             ],
           ),
         ),
@@ -155,11 +145,23 @@ void showParcelServiceDialog(BuildContext context,var id) {
               Navigator.of(context).pop();
             },
           ),
+        ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.blue, // Set the background color
+  ),
+  child: Text('Submit', style: TextStyle(color: Colors.white)),
+  onPressed: () {
+    updateparcel(selectedserviceId, id);
+  },
+),
         ],
       );
     },
   );
 }
+
+
+
 void _showShippingChargeDialog(BuildContext context, Map<String, dynamic> boxDetails) {
   final shippingController = TextEditingController(text: boxDetails['shipping_charge']?.toString() ?? '');
   final actualWeightController = TextEditingController(text: boxDetails['actual_weight']?.toString() ?? '');
@@ -285,6 +287,7 @@ void _showShippingChargeDialog(BuildContext context, Map<String, dynamic> boxDet
   double totalTaxAmount = 0.0; // Define at the class level
   double payableAmount = 0.0; // Define at the class level
   double Balance = 0.0; // Define at the class level
+  double paymentreceipt = 0.0; // Define at the class level
   int? selectedAddressId; // Variable to store the selected address ID
 
   Future<void> _selectDate(BuildContext context) async {
@@ -346,6 +349,45 @@ print('courierdataaaaaaaaa$courierdata');
     
   }
 }
+
+Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orderid) async {
+    final token = await gettoken();
+    try {
+      final response = await http.post(Uri.parse('$api/api/sendtrackingid/'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'name': ord['customer']['name'],
+            'tracking_id':trackingId,
+            'order_id': Orderid,
+            'phone': ord['customer']['phone'],
+          }));
+print(response.statusCode);
+          print("=========================${response.body}");
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Tracking Id Sent Successfully.'),
+          ),
+        );
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => OrderReview()));
+      } else {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Sending Tracking Id failed.'),
+          ),
+        );
+      }
+    } catch (e) {
+       print("Error: $e");
+    }
+  }
   Future<void> updatestatus() async {
     try {
       final token = await getTokenFromPrefs();
@@ -970,6 +1012,51 @@ fetchOrderItems();
     }
   }
 
+
+Future<void> deletebox( var orderId) async {
+  try {
+    final token = await getTokenFromPrefs();
+
+print('$api/api/warehouse/detail/$orderId/');
+    var response = await http.delete(
+      Uri.parse('$api/api/warehouse/detail/$orderId/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      
+    );
+    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
+    print('responsessssssssssssssss${response.statusCode}');
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shipping charge updated successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update shipping charge'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+    fetchOrderItems();
+
+  } catch (error) {
+    print("Error: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error updating shipping charge'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
   bool flag = false;
 
   double totalDiscount = 0.0; // Define at the class level
@@ -1038,16 +1125,18 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
           'exclude_price': item['exclude_price'] ?? 0.0,
           'images': item['image'] ?? '',
         });
+        double price=(item['rate'] ?? 0).toDouble();
 
+        double price_discount=(item['price_discount'] ?? 0).toDouble();
         double excludePrice = (item['exclude_price'] ?? 0).toDouble();
         double actualPrice = (item['actual_price'] ?? 0).toDouble();
         double discount = (item['discount'] ?? 0).toDouble();
         final quantity = int.tryParse(item['quantity'].toString()) ?? 1;
 
-        calculatedNetAmount += excludePrice;
-        calculatedTotalTax += (actualPrice - excludePrice);
+        calculatedNetAmount += excludePrice* quantity;
+        calculatedTotalTax += (price_discount - excludePrice);
         calculatedTotalDiscount += discount * quantity;
-        calculatedPayableAmount += (actualPrice - discount) * quantity;
+        calculatedPayableAmount += price* quantity;
       }
 
       // Process each warehouse item
@@ -1067,18 +1156,21 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
           'shipped_date': warehouse['shipped_date'] ?? '',
           'actual_weight': warehouse['actual_weight'] ?? '0.0',
           'parcel_amount': warehouse['parcel_amount'] ?? '0.0',
-          'postoffice_date': warehouse['postoffice_date'] ?? ''
+          'postoffice_date': warehouse['postoffice_date'] ?? '',
+          'message_status': warehouse['message_status'] ?? '',
         });
       }
 
       double paymentReceiptsSum = 0.0;
+
       for (var receipt in parsed['order']['recived_payment'] ?? []) {
         paymentReceiptsSum += double.tryParse(receipt['amount'].toString()) ?? 0.0;
         print("Payment Receipt Sum: $paymentReceiptsSum");
       }
-
-      double remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
-      flag = paymentReceiptsSum > calculatedPayableAmount ? true : false;
+print("Payment Receipt Sum: $paymentReceiptsSum");
+      double remainingAmount = calculatedNetAmount - paymentReceiptsSum;
+      flag = paymentReceiptsSum >= calculatedNetAmount ? true : false;
+      print("FlagGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG: $flag");
 
       setState(() {
         items = orderList;
@@ -1088,13 +1180,15 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
         payableAmount = calculatedPayableAmount;
         totalDiscount = calculatedTotalDiscount;
         Balance = remainingAmount;
+        paymentreceipt=remainingAmount;
       });
-
+print("Itemssssssssssssssssssssssssss: $items");
       print("Net Amount Before Tax: $netAmountBeforeTax");
       print("Total Tax Amount: $totalTaxAmount");
       print("Payable Amount: $payableAmount");
       print("Total Discount: $totalDiscount");
       print("Remaining Amount: $remainingAmount");
+      print("BALANCE: $Balance");
     } else {
       print("Failed to fetch data. Status Code: ${response.statusCode}");
     }
@@ -1102,7 +1196,51 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
     print("Error: $error");
   }
 }
+Future<void> updatemsg(var orderId) async {
+    try {
+      final token = await getTokenFromPrefs();
 
+      var response = await http.put(
+        Uri.parse('$api/api/warehouse/detail/$orderId/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          {
+            'message_status': 'sent',
+          },
+        ),
+      );
+      print(
+          'responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
+      print('responsessssssssssssssss${response.statusCode}');
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Message send successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        fetchOrderItems();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send msg'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      print("Error: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error in send message'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
   Future<void> removeproduct(int Id) async {
     final token = await getTokenFromPrefs();
 
@@ -1255,7 +1393,7 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
 
   @override
   Widget build(BuildContext context) {
-    final visibleItems = showAllProducts ? items : items.take(2).toList();
+    final visibleItems = showAllProducts ? items : items.take(3).toList();
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SingleChildScrollView(
@@ -1275,7 +1413,7 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
                   ),
                 ],
               ),
-              height: 140,
+              height: 160,
               child: Column(
                 children: [
                   SizedBox(height: 50),
@@ -1326,16 +1464,20 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
   ],
 ),
 
-                          Text(
-                            ord != null
-                                ? ord['company']['name'] ?? 'Company'
-                                : 'Loading...',
-                            style: TextStyle(color: Colors.black),
-                          ),
+                         
                         ],
                       ),
                     ],
                   ),
+                  SizedBox(height: 5,),
+                   Text(
+                            ord != null
+                                ? ord['company']['name'] ?? 'Company'
+                                : 'Loading...',
+                            style: TextStyle(color: const Color.fromARGB(255, 0, 77, 141)),
+                          ),
+                                            SizedBox(height: 5,)
+
                 ],
               ),
             ),
@@ -1699,7 +1841,7 @@ SizedBox(height: 5,),
                                     Row(
                                       children: [
                                         Text(
-                                          'Excluded price: ${item["exclude_price"]}',
+                                          'discount: ${item["discount"]}',
                                           style: TextStyle(
                                               fontSize: 12, color: Colors.grey),
                                         ),
@@ -1715,19 +1857,32 @@ SizedBox(height: 5,),
                                           )
                                       ],
                                     ),
-                                    Text(
-                                      'Tax Amount: ${item["rate"] - item["exclude_price"]}',
+                                     Text(
+                                      'Rate After Discount: ${item["rate"] - item["discount"]}',
                                       style: TextStyle(
                                           fontSize: 12, color: Colors.grey),
                                     ),
+
+                                   Text(
+  'Tax Amount: ${((item["rate"] - item["discount"]) - item["exclude_price"]).toStringAsFixed(2)}',
+  style: TextStyle(
+      fontSize: 12, color: Colors.grey),
+),
+                                     // ...existing code...
+Text(
+  'Excluded price: ${item["exclude_price"]}',
+  style: TextStyle(
+      fontSize: 12, color: Colors.grey),
+),
+// ...existing code...
                                     Row(
                                       children: [
-                                        Text(
-                                          'Total: ${item["actual_price"] * item["quantity"]}',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black),
-                                        ),
+                                       Text(
+  'Total: ${((item["exclude_price"] )  * item["quantity"]).toStringAsFixed(2)}',
+  style: TextStyle(
+      fontSize: 12,
+      color: Colors.black),
+),
                                         Spacer(),
                                         GestureDetector(
                                           onTap: () {
@@ -1983,7 +2138,7 @@ SizedBox(height: 5,),
                           ),
                         ),
                         Text(
-                          '\$${netAmountBeforeTax.toStringAsFixed(2)}', // Format to 2 decimal places
+                          '\$${payableAmount.toStringAsFixed(2)}', // Format to 2 decimal places
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -2053,7 +2208,7 @@ SizedBox(height: 5,),
                           ),
                         ),
                         Text(
-                          '\$${payableAmount.toStringAsFixed(2)}', // Format to 2 decimal places
+                          '\$${netAmountBeforeTax.toStringAsFixed(2)}', // Format to 2 decimal places
                           style: TextStyle(
                             color: const Color.fromARGB(255, 1, 155, 24),
                             fontWeight: FontWeight.bold,
@@ -2114,7 +2269,7 @@ SizedBox(height: 5,),
                                     fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                Balance == payableAmount || flag == true
+                                 flag == true
                                     ? 'Payment Completed'
                                     : '\$${Balance.toStringAsFixed(2)}',
                                 style: TextStyle(color: Colors.green),
@@ -2134,7 +2289,7 @@ SizedBox(height: 5,),
                                 ),
                                 Text(
                                   Balance == 0
-                                      ? '\$${payableAmount.toStringAsFixed(2)}'
+                                      ? '\$${netAmountBeforeTax.toStringAsFixed(2)}'
                                       : '\$${Balance.toStringAsFixed(2)}',
                                   style: TextStyle(color: Colors.green),
                                 )
@@ -2590,11 +2745,52 @@ SizedBox(height: 5,),
                                               ),
                                             ),
                                           ),
+                                         order['status'] == "Shipped" &&
+                                                  order['message_status'] ==
+                                                      "pending"
+                                              ? ElevatedButton(
+                                                  onPressed: () {
+                                                    SendTrackingId(
+                                                        context,
+                                                        order['tracking_id'],
+                                                        order['invoice']);
+                                                    updatemsg(order['id']);
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor: Colors
+                                                        .blue, // Blue button color
+                                                    foregroundColor: Colors
+                                                        .white, // White text color
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12), // Curved border
+                                                    ),
+                                                    padding: EdgeInsets.symmetric(
+                                                        horizontal: 20,
+                                                        vertical:
+                                                            12), // Button padding
+                                                  ),
+                                                  child: Text(
+                                                    "Send Tracking ID",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                )
+                                              : Text(
+                                                  "Message Status: ${order['message_status']}",
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.grey),
+                                                ),
                                           // Delete Button
                                           GestureDetector(
                                             onTap: () {
-                                              // Call your delete function here
-                                              //deleteWarehouseOrder(order['id']);
+                                               deletebox(order['id']);
                                             },
                                             child: Image.asset(
                                               "lib/assets/close.png",

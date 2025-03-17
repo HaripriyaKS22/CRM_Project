@@ -143,6 +143,7 @@ Future<void> fetchOrderData() async {
           }
 
         }
+        print("approval:$approval");
 
         DateTime today = DateTime.now();
         String formattedToday = DateFormat('yyyy-MM-dd').format(today);
@@ -163,6 +164,7 @@ Future<void> fetchOrderData() async {
         });
       } else {
         print('No orders found');
+        
       }
     }
   } catch (error) {
@@ -174,6 +176,7 @@ Future<void> fetchOrderData() async {
     });
   }
 }
+
 
 
  Future<void> getSalesReport() async {
@@ -646,6 +649,7 @@ print("response.statusCode: ${response.statusCode}");
               Divider(),
               _buildDropdownTile(context, 'Reports', [
                 'Sales Report',
+                'Recipt Report',
                 'Credit Sales Report',
                 'COD Sales Report',
                 'Statewise Sales Report',

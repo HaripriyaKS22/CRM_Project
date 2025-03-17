@@ -332,6 +332,104 @@ fetchOrderItems();
     );
   }
 }
+
+
+Future<void> updateboxstatus( var orderId) async {
+  try {
+    final token = await getTokenFromPrefs();
+
+print('$api/api/warehouse/detail/$orderId/');
+    var response = await http.put(
+      Uri.parse('$api/api/warehouse/detail/$orderId/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(
+        {
+          'status': selectedStatus,
+
+        },
+      ),
+    );
+    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
+    print('responsessssssssssssssss${response.statusCode}');
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shipping charge updated successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+fetchOrderItems();
+
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update shipping charge'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (error) {
+    print("Error: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error updating shipping charge'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+
+
+Future<void> deletebox( var orderId) async {
+  try {
+    print('selectedManagerId in functionnnnnnnnnnnnnnnnnn: $selectedManagerId');
+    final token = await getTokenFromPrefs();
+
+print('$api/api/warehouse/detail/$orderId/');
+    var response = await http.delete(
+      Uri.parse('$api/api/warehouse/detail/$orderId/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      
+    );
+    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
+    print('responsessssssssssssssss${response.statusCode}');
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shipping charge updated successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update shipping charge'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+    fetchOrderItems();
+
+  } catch (error) {
+    print("Error: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error updating shipping charge'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
   Future<void> getmanagers() async {
     try {
       final token = await getTokenFromPrefs();
@@ -564,6 +662,55 @@ print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
     }
   }
 
+void showStatusDialog(BuildContext context,var order) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Update Status'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButtonFormField<String>(
+              value: selectedStatus,
+              hint: Text('Select Status'),
+              items: statuses.map((status) {
+                return DropdownMenuItem<String>(
+                    value: status,
+                  child: Text(status),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedStatus = value; // This will store the selected status
+                });
+              },
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await updateboxstatus(order['id']);
+                  Navigator.of(context).pop(); // Close the dialog after saving
+                },
+                label: Text("Save"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Button color
+                  foregroundColor: Colors.white, // Text color
+                ),
+                icon: Icon(Icons.save),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
   void showAddDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -1132,7 +1279,7 @@ print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
                   ),
                 ],
               ),
-              height: 140,
+              height: 160,
               child: Column(
                 children: [
                   SizedBox(height: 50),
@@ -1163,19 +1310,23 @@ print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
                               color: const Color.fromARGB(255, 0, 0, 0),
                             ),
                           ),
-                         Text(
+                        
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 5,),
+                   Text(
                             ord != null
                                 ? ord['company']['name'] ?? 'Company'
                                 : 'Loading...',
                             style: TextStyle(color: Colors.black),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          SizedBox(height: 5,)
                 ],
               ),
             ),
+
             SizedBox(height: 10,),
             Container(
       color: Colors.white, // Background color
@@ -1225,7 +1376,7 @@ print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
       ),
     ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(left: 8, right: 8),
               child: Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
@@ -1351,6 +1502,45 @@ print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(left: 12, right: 12,top: 10),
+              child: DropdownButtonFormField<String>(
+                          value: selectedStatus,
+                          hint: Text('Select Status'),
+                          items: statuses.map((status) {
+                            return DropdownMenuItem<String>(
+                              value: status,
+                              child: Text(status),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedStatus =
+                                  value; // This will store the selected status
+                            });
+                          },
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            
+                          ),
+                        ),
+            ),
+            SizedBox(height: 5,),
+             Padding(
+               padding: const EdgeInsets.only(left: 12),
+               child: ElevatedButton.icon(
+                           onPressed: () async{
+                updatestatus();
+               
+                           },
+                           label: Text("Save"),
+                           style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Button color
+                foregroundColor: Colors.white, // Text color
+                           ),
+                         ),
+             ),
+            SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: Column(
@@ -1755,7 +1945,7 @@ print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
                             child: TextField(
                               controller: weight,
                               decoration: InputDecoration(
-                                labelText: 'Weight',
+                                labelText: 'Weight(g)',
                                 labelStyle: TextStyle(fontSize: 13),
                                 border: OutlineInputBorder(),
                                 contentPadding: EdgeInsets.symmetric(
@@ -2044,8 +2234,8 @@ print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
                                           // Delete Button
                                           GestureDetector(
                                             onTap: () {
-                                              // Call your delete function here
-                                              //deleteWarehouseOrder(order['id']);
+                                            
+                                              deletebox(order['id']);
                                             },
                                             child: Image.asset(
                                               "lib/assets/close.png",
@@ -2179,22 +2369,27 @@ print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
                                       SizedBox(height: 6),
                                 
                                       // Status
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Status:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
+                                      GestureDetector(
+                                        onTap: () {
+                                           showStatusDialog(context,order);
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Status:',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            order['status'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
+                                            Text(
+                                              order['status'] ?? 'N/A',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                       SizedBox(height: 6),
                                 

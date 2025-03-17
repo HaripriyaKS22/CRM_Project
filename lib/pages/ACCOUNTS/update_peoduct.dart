@@ -244,6 +244,7 @@ void initdata(){
     });
   }
 
+
   var fami;
   Future<void> getvariant() async {
     try {
@@ -262,12 +263,18 @@ void initdata(){
         final parsed = jsonDecode(response.body);
         var productData = parsed['products']; // Map of the product
         var variantIDs = productData['variantIDs']; // List of variants
-
+print("productData}}}}}}}}}}}}}}}}}}}}}$productData");
         if (variantIDs is List) {
           setState(() {
             selectedwarehouseId = productData[
                 'warehouse']; // Set the warehouse ID from the response
+
+            
+            
+
+
             selectedwarehouseName = productData['warehouse_name'];
+            print('selectedwarehouseId------------------$selectedwarehouseId');
             // Handle response based on widget.type
             if (widget.type == 'single') {
               singleProducts = [productData]; // Single prduct as a list

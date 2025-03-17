@@ -192,7 +192,7 @@ final productsData=Data['data'];
           
         }),
       );
-print("${response.body}");
+print("rrrrrrrrrrrrrrkkkkkkkkkkkkkk${response.body}");
     
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -352,7 +352,7 @@ print("${response.body}");
 
       setState(() {
         cartdata = cartList;
-
+print("cartdata$cartsData");
         // Calculate total
         for (var item in cartdata) {
           final discountPerQuantity = item['discount'] ?? 0.0;

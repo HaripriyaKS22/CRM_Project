@@ -823,22 +823,27 @@ else {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Status:',
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                          Spacer(),
-                                          Text(
-                                            ' ${order['status']}',
-                                            style: TextStyle(
+                                      GestureDetector(
+                                        onTap: () {
+                                          
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'Status:',
+                                              style: TextStyle(
                                                 fontSize: 13,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        ],
+                                              ),
+                                            ),
+                                            Spacer(),
+                                            Text(
+                                              ' ${order['status']}',
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                       SizedBox(height: 8.0),
                                       Row(

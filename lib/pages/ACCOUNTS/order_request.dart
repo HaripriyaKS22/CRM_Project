@@ -110,6 +110,7 @@ class _order_requestState extends State<order_request> {
 
   var dep;
   void initdata() async {
+    getstate();
     dep = await getdepFromPrefs();
 
     if (dep == "BDO" || dep == "BDM") {
@@ -761,7 +762,7 @@ Future<void> getstate() async {
           'name': productData['name'],
         });
       }
-
+if(allocatedstates.isNotEmpty){
       // Filter to keep only allocated states
       List<Map<String, dynamic>> filteredStates = statelist
           .where((state) => allocatedstates.contains(state['id']))
@@ -769,7 +770,10 @@ Future<void> getstate() async {
 
       setState(() {
         stat = filteredStates;
-      });
+      });}
+      else{
+        stat=statelist;
+      }
     }
   } catch (error) {
     print("Error fetching states: $error");
