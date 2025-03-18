@@ -112,10 +112,14 @@ var dep;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-
-  
+  var customerledgertotal;
+  var customerledgerreceived;
+  var difference;
+  bool ledger=false;
 Future<void> fetchCustomerLedgerDetails() async {
   try {
+    print('Fetching customer ledger details...');
+    
     final token = await getTokenFromPrefs();
     final response = await http.get(
       Uri.parse('$api/api/customer/${widget.customer}/ledger/'),
@@ -124,68 +128,53 @@ Future<void> fetchCustomerLedgerDetails() async {
         'Content-Type': 'application/json',
       },
     );
-    
-print('responsessssssssssssssss ledgerrr${response.body}');
-print('responsessssssssssssssss ledgerrrr${response.statusCode}');
+
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       final data = parsed['data'] as List;
 
-      List<Map<String, dynamic>> entries = [];
-      double debitSum = 0.0;
-      double creditSum = 0.0;
+      double totalAmountSum = 0;
+      double receivedPaymentSum = 0;
 
-      
+      for (var order in data) {
+        totalAmountSum += (order['total_amount'] as num).toDouble();
 
-      for (var entry in data) {
-        double? debitAmount = entry['total_amount'];
-        debitSum += debitAmount ?? 0.0;
-
-       
-        print(
-            "Adding Debit Entry: Date: ${entry['order_date']}, Invoice: ${entry['invoice']}, Amount: $debitAmount");
-
-        entries.add({
-          'date': entry['order_date'],
-          'invoice': '${entry['invoice']}',
-          'particular': 'Goods Sale',
-          'debit': debitAmount,
-          'credit': null,
-          'isFirstOfOrder': true,
-        });
-
-        // Safely handle `recived_payment`
-        var receivedPayments = entry['recived_payment'] as List<dynamic>? ?? [];
-        for (var receipt in receivedPayments) {
-          double creditAmount = double.parse(receipt['amount']);
-          creditSum += creditAmount;
-
-
-          entries.add({
-            'date': receipt['received_at'],
-            'invoice': '${entry['invoice']}',
-            'particular': 'Payment received',
-            'debit': null,
-            'credit': creditAmount,
-            'isFirstOfOrder': false,
-          });
+        if (order['recived_payment'] != null) {
+          for (var payment in order['recived_payment']) {
+            receivedPaymentSum += double.tryParse(payment['amount'].toString()) ?? 0.0;
+          }
         }
       }
+      var dif;
+      if(receivedPaymentSum>totalAmountSum){
+print('receivedPaymentSum>totalAmountSum');
+         dif=receivedPaymentSum-totalAmountSum;
+         ledger=true;
 
+      }
+      else{
+         dif=totalAmountSum-receivedPaymentSum;
+         ledger=false;
+      }
       setState(() {
-        ledgerEntries = entries;
-        filteredEntries = entries;
-        totalDebit = debitSum;
-        totalCredit = creditSum;
+        customerledgertotal = totalAmountSum;
+        customerledgerreceived = receivedPaymentSum;
+        difference=dif;
+        
       });
 
-      
-      
+      print('Total Amount Sum: $totalAmountSum');
+      print('Received Payment Sum: $receivedPaymentSum');
+      print('Difference: $difference');
+
     } else {
-      
+      print('Failed to fetch data.');
     }
   } catch (error) {
-    
+    print('Error fetching customer ledger details: $error');
   }
 }
 
@@ -1146,7 +1135,7 @@ print('$api/api/warehouse/detail/$orderId/');
     );
   }
 }
-  bool flag = false;
+  // bool flag = false;
 
   double totalDiscount = 0.0; // Define at the class level
  Future<void> fetchOrderItems() async {
@@ -1223,7 +1212,7 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
         final quantity = int.tryParse(item['quantity'].toString()) ?? 1;
 
         calculatedNetAmount += excludePrice* quantity;
-        calculatedTotalTax += (price_discount - excludePrice);
+        calculatedTotalTax += (price_discount - excludePrice)* quantity;
         calculatedTotalDiscount += discount * quantity;
         calculatedPayableAmount += price* quantity;
       }
@@ -1257,10 +1246,14 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
         print("Payment Receipt Sum: $paymentReceiptsSum");
       }
 print("Payment Receipt Sum: $paymentReceiptsSum");
-      double remainingAmount = calculatedNetAmount - paymentReceiptsSum;
-      flag = paymentReceiptsSum >= calculatedNetAmount ? true : false;
-      print("FlagGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG: $flag");
-
+double remainingAmount;
+if(calculatedNetAmount>paymentReceiptsSum){
+       remainingAmount = calculatedNetAmount - paymentReceiptsSum;
+     
+}
+else{
+  remainingAmount=paymentReceiptsSum-calculatedNetAmount;
+}
       setState(() {
         items = orderList;
         warehouse = warehouseList;
@@ -2365,49 +2358,54 @@ Text(
                                     fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                 flag == true
-                                    ? 'Payment Completed'
-                                    : '\$${Balance.toStringAsFixed(2)}',
+                               
+                                    '\$${Balance.toStringAsFixed(2)}',
                                 style: TextStyle(color: Colors.green),
                               )
                             ],
                           ),
                           SizedBox(height: 4.0),
-                          if (flag)
+                          
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Text(
+      ledger
+          ? 'Customer Ledger Credit:'
+          : 'Customer Ledger Debit:',
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    
+  ],
+),
                                 Text(
-                                  'Customer Ledger Credit:',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  Balance == 0
-                                      ? '\$${netAmountBeforeTax.toStringAsFixed(2)}'
-                                      : '\$${Balance.toStringAsFixed(2)}',
-                                  style: TextStyle(color: Colors.green),
+                                 '\$${difference.toStringAsFixed(2)}',
                                 )
                               ],
                             ),
-                          if (flag == false)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Customer Ledger Debit:',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  Balance == 0
-                                      ? '\$${payableAmount.toStringAsFixed(2)}'
-                                      : '\$${Balance.toStringAsFixed(2)}',
-                                )
-                              ],
-                            ),
+                          // if (flag == false)
+                          //   Row(
+                          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //     children: [
+                          //       Text(
+                          //         'Customer Ledger Debit:',
+                          //         style: TextStyle(
+                          //             fontSize: 12,
+                          //             fontWeight: FontWeight.bold),
+                          //       ),
+                          //       Text(
+                          //         Balance == 0
+                          //             ? '\$${payableAmount.toStringAsFixed(2)}'
+                          //             : '\$${Balance.toStringAsFixed(2)}',
+                          //       )
+                          //     ],
+                          //   ),
                           SizedBox(height: 8.0),
                           if(dep != "BDM" && dep != "BDO")
 
