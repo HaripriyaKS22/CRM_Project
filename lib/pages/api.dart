@@ -1,1 +1,1 @@
-var api="https://nw-farmers-casio-start.trycloudflare.com";
+var api="https://bepocart.in";

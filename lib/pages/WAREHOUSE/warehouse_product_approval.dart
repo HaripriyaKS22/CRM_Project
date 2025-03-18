@@ -351,7 +351,7 @@ dep= await getdepFromPrefs();
 
       for (var productData in productsData) {
         // Filter products with "approval_status": "Disapproved"
-        if (productData['approval_status'] == "Disapproved") {
+        
           List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
               (famItem) => famItem['id'] == id,
               orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
@@ -367,13 +367,14 @@ dep= await getdepFromPrefs();
             'purchase_rate': productData['purchase_rate'],
             'tax': productData['tax'],
             'exclude_price': productData['exclude_price'],
+            'approval_status': productData['approval_status'],
             'selling_price': productData['selling_price'],
             'stock': productData['stock'],
             'created_user': productData['created_user'],
             'family': familyNames, // Add family names here
             'image': productData['image'], // Main product image
           });
-        }
+        
       }
 
       setState(() {
@@ -480,6 +481,7 @@ Future<void> getvariant(int id, var type) async {
 
 
 Future<void> updateproduct( var productId) async {
+  print("dkhbkhbdkbdbd");
   try {
     final token = await getTokenFromPrefs();
 
@@ -608,7 +610,10 @@ print('response${response.body}');
 }
 // 
 
-void showSizeDialog2(BuildContext context, List variants) {
+void showSizeDialog2(BuildContext context, var products) {
+  print("productsssssssssssssssssssssss${products}");
+  List variants = products['variantIDs'].where((variant) => variant['approval_status'] == "Disapproved").toList();
+
   // Create a ValueNotifier to track the selected product
   ValueNotifier<Map<String, dynamic>?> selectedProductNotifier = ValueNotifier(null);
 
@@ -635,12 +640,80 @@ void showSizeDialog2(BuildContext context, List variants) {
                 ),
                 SizedBox(height: 20),
 
+                // Display the main product details
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.blue, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.all(10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      products['image'] != null && products['image'].isNotEmpty
+                          ? Image.network(
+                              '$api${products['image']}',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: 50,
+                              height: 50,
+                              color: Colors.grey[300],
+                              child: Icon(Icons.image_not_supported, color: Colors.grey),
+                            ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              products['name'],
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            Text("HSN Code: ${products['hsn_code']}"),
+                            Text("Unit: ${products['unit']}"),
+                            Text("Purchase Rate: \$${products['purchase_rate']}"),
+                            Text("Tax: ${products['tax']}%"),
+                            Text("Selling Price: \$${products['selling_price']}"),
+                            Text("Stock: ${products['stock']}"),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                // Approve button for the main product
+                SizedBox(
+                  height: 50,
+                  width: 300,
+                  child: ElevatedButton(
+                    onPressed: products['approval_status'] == "Approved" ? null : () {
+                      // Approve the main product
+                      updateproduct(products['id']);
+                      // Close the dialog
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Approve Main Product", style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: products['approval_status'] == "Approved" ? Colors.grey : Colors.green,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+
                 // Display the selected product as the "Selected Option"
                 ValueListenableBuilder<Map<String, dynamic>?>(
                   valueListenable: selectedProductNotifier,
                   builder: (context, selectedProduct, child) {
                     if (selectedProduct != null) {
-                                          print('urlllllllllllllllll$api${selectedProduct['image']}');
+                      print('urlllllllllllllllll$api${selectedProduct['image']}');
 
                       return Column(
                         children: [
@@ -665,8 +738,7 @@ void showSizeDialog2(BuildContext context, List variants) {
                                         width: 50,
                                         height: 50,
                                         color: Colors.grey[300],
-                                        child: Icon(Icons.image_not_supported,
-                                            color: Colors.grey),
+                                        child: Icon(Icons.image_not_supported, color: Colors.grey),
                                       ),
                                 SizedBox(width: 10),
                                 Expanded(
@@ -675,13 +747,10 @@ void showSizeDialog2(BuildContext context, List variants) {
                                     children: [
                                       Text(
                                         selectedProduct['name'],
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
+                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                       ),
                                       Text("Stock: ${selectedProduct['stock']}"),
-                                      Text(
-                                          "Price: \$${selectedProduct['selling_price']}"),
+                                      Text("Price: \$${selectedProduct['selling_price']}"),
                                     ],
                                   ),
                                 ),
@@ -717,8 +786,7 @@ void showSizeDialog2(BuildContext context, List variants) {
                               width: 50,
                               height: 50,
                               color: Colors.grey[300],
-                              child: Icon(Icons.image_not_supported,
-                                  color: Colors.grey),
+                              child: Icon(Icons.image_not_supported, color: Colors.grey),
                             ),
                       title: Text(variant['name']),
                       subtitle: Text("Stock: ${variant['stock']}"),
@@ -733,11 +801,9 @@ void showSizeDialog2(BuildContext context, List variants) {
                   },
                 ),
 
-                
-
                 SizedBox(height: 20),
 
-                // Add to Cart button
+                // Approve button for the selected variant
                 SizedBox(
                   height: 50,
                   width: 300,
@@ -755,9 +821,7 @@ void showSizeDialog2(BuildContext context, List variants) {
                       var selectedProduct = selectedProductNotifier.value;
                       int quantity = int.tryParse(quantityController.text) ?? 1;
 
-                      
-
-                      // Call add to cart function
+                      // Call update product function
                       if (selectedProduct != null) {
                         updateproduct(selectedProduct['id']);
                       }
@@ -765,7 +829,7 @@ void showSizeDialog2(BuildContext context, List variants) {
                       // Close the dialog
                       Navigator.of(context).pop();
                     },
-                    child: Text("Approve", style: TextStyle(color: Colors.white)),
+                    child: Text("Approve Selected Variant", style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -782,10 +846,6 @@ void showSizeDialog2(BuildContext context, List variants) {
     },
   );
 }
-
-
-
-
 
 void showSizeDialog3(BuildContext context, mainid, stock) {
   showDialog(
@@ -1108,7 +1168,7 @@ Padding(
     
       showSizeDialog2(
         context,
-        product['variantIDs'] );
+       product );
     
     }
     else if(product['type']=='single'){

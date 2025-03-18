@@ -159,6 +159,7 @@ var sta;
 ;
         creditList.add({
           'id':productData['id'],
+          'customerid':productData['customer'],
           'invoice': productData['invoice'],
           'order_date': productData['order_date'],
           'payment_status': productData['payment_status'],
@@ -304,7 +305,7 @@ var sta;
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    OrderReview(id:invoice['id']),
+                                    OrderReview(id:invoice['id'],customer: invoice['customerid'],),
                               ),
                             );
               },

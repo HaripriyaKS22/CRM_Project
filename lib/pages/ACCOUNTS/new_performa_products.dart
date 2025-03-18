@@ -342,6 +342,7 @@ print('depppppppppppppppppp$dep');
       
 
       for (var productData in productsData) {
+ if (productData['approval_status'] == "Approved"){
         // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
         List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
             (famItem) => famItem['id'] == id,
@@ -365,6 +366,7 @@ print('depppppppppppppppppp$dep');
           'image': productData['image'], // Main product image
           // Don't process single_products or variant_products
         });
+      }
       }
 
       setState(() {
@@ -1029,7 +1031,7 @@ Padding(
      Expanded(
   child: RefreshIndicator(
     onRefresh: () {
-      return fetchProductList();
+      return fetchProductListid(warehouse);
     },
     child: ListView.builder(
       itemCount: filteredProducts.length,

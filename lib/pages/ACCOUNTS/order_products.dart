@@ -345,7 +345,7 @@ print('depppppppppppppppppp$dep');
       },
     );
 
-
+print('response prooooooooooooooo${response.body}');
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -354,6 +354,7 @@ print('depppppppppppppppppp$dep');
       
 
       for (var productData in productsData) {
+         if (productData['approval_status'] == "Approved"){
         // Ensure that 'family', 'single_products', and 'variant_products' are non-null and lists
         List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
             (famItem) => famItem['id'] == id,
@@ -383,9 +384,10 @@ print('depppppppppppppppppp$dep');
         products = productList;
         print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
         filteredProducts=products;
-      });
+      });}
     }
   } catch (error) {
+    print('error$error');
     
   }
 }
@@ -1041,7 +1043,7 @@ Padding(
      Expanded(
   child: RefreshIndicator(
     onRefresh: () {
-      return fetchProductList();
+      return fetchProductListid(warehouse);
     },
     child: ListView.builder(
       itemCount: filteredProducts.length,

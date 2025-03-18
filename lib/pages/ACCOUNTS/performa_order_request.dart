@@ -20,7 +20,6 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
-import 'package:beposoft/pages/ACCOUNTS/profile.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 
 import 'package:beposoft/main.dart';
@@ -313,65 +312,66 @@ print("rrrrrrrrrrrrrrkkkkkkkkkkkkkk${response.body}");
 //     
 //   }
 
- Future<void> fetchCartData() async {
-  try {
-    final token = await gettokenFromPrefs();
+  Future<void> fetchCartData() async {
+    try {
+      final token = await gettokenFromPrefs();
 
-    final response = await http.get(
-      Uri.parse("$api/api/cart/products/"),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+      final response = await http.get(
+        Uri.parse("$api/api/cart/products/"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        final List<dynamic> cartsData = parsed['data'];
+        List<Map<String, dynamic>> cartList = [];
 
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body);
-      final List<dynamic> cartsData = parsed['data'];
-      List<Map<String, dynamic>> cartList = [];
+        double total = 0.0; // Initialize total here
 
-      double total = 0.0; // Initialize total here
+        for (var cartData in cartsData) {
+          // Safely handle the null value for image
+          String imageUrl = cartData['image'] ??
+              'default_image_url'; // Provide a default value or a placeholder URL
 
-      for (var cartData in cartsData) {
-        String imageUrl = cartData['image'];
-        
-        cartList.add({
-          'id': cartData['id'],
-          'name': cartData['name'],
-          'image': imageUrl,
-          'slug': cartData['slug'],
-          'size': cartData['size'],
-          'quantity': cartData['quantity'],
-          'price': cartData['price'],
-          'discount': cartData['discount'],
-        });
-      }
-
-      setState(() {
-        cartdata = cartList;
-print("cartdata$cartsData");
-        // Calculate total
-        for (var item in cartdata) {
-          final discountPerQuantity = item['discount'] ?? 0.0;
-          final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
-final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
-          final totalItemPrice = quantity * price;
-          final totalDiscount = quantity * discountPerQuantity;
-          total += totalItemPrice - totalDiscount;
+          cartList.add({
+            'id': cartData['id'],
+            'name': cartData['name'],
+            'image': imageUrl,
+            'slug': cartData['slug'],
+            'size': cartData['size'],
+            'quantity': cartData['quantity'],
+            'price': cartData['price'],
+            'discount': cartData['discount'],
+          });
         }
-      });
 
-      // Call the function to show total in a dialog box
+        setState(() {
+          cartdata = cartList;
 
-    } else {
-      throw Exception('Failed to load cart data');
+          // Calculate total
+          for (var item in cartdata) {
+            final discountPerQuantity = item['discount'] ?? 0.0;
+            final quantity = int.tryParse(item['quantity'].toString()) ??
+                0; // Ensure it's an integer
+            final price = double.tryParse(item['price'].toString()) ??
+                0.0; // Ensure it's a double
+            final totalItemPrice = quantity * price;
+            final totalDiscount = quantity * discountPerQuantity;
+            total += totalItemPrice - totalDiscount;
+          }
+        });
+
+        // Call the function to show total in a dialog box
+      } else {
+        throw Exception('Failed to load cart data');
+      }
+    } catch (error) {
+      // Consider adding error handling in the UI
     }
-  } catch (error) {
-     // Consider adding error handling in the UI
   }
-}
 
   var tot;
   void showTotalDialog(BuildContext context) {
@@ -381,18 +381,20 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
     // Calculate total
     for (var item in cartdata) {
       final discountPerQuantity = item['discount'] ?? 0.0;
-      final quantity = int.tryParse(item['quantity'].toString()) ?? 0; // Ensure it's an integer
-final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a double
- 
+      final quantity = int.tryParse(item['quantity'].toString()) ??
+          0; // Ensure it's an integer
+      final price = double.tryParse(item['price'].toString()) ??
+          0.0; // Ensure it's a double
+
       totalItemPrice += quantity * price;
       totalDiscount += quantity * discountPerQuantity;
-      
+
       total = totalItemPrice - totalDiscount;
     }
     setState(() {
       tot = total;
     });
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -433,13 +435,14 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
                     Text("0.0"),
                   ],
                 ),
-                Row(
-                  children: [
-                    Text("Total Cart Discount:"),
-                    Spacer(),
-                    Text("0.0"),
-                  ],
-                ),
+                // Row(
+                //   children: [
+                //     Text("Total Cart Discount:"),
+                //     Spacer(),
+                //     Text("0.0"),
+                //   ],
+                // ),
+
                 Divider(),
                 Row(
                   children: [
@@ -470,7 +473,6 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
       },
     );
   }
-
   Future<void> fetchProductList() async {
     final token = await gettokenFromPrefs();
 

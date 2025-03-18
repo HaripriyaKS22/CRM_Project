@@ -128,6 +128,7 @@ print("name issssssssssssssssssssssssssssssssssssssssss $name");
               'invoice': orderData['invoice'],
                'manage_staff': orderData['manage_staff'],
               'customer': {
+                'id':orderData['customer']['id'],
                 'name': orderData['customer']['name'],
                 'phone': orderData['customer']['phone'],
                 'email': orderData['customer']['email'],
@@ -684,7 +685,7 @@ print("name issssssssssssssssssssssssssssssssssssssssss $name");
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        OrderReview(id: order['id'])));
+                                        OrderReview(id: order['id'],customer: order['customer']['id'],)));
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(

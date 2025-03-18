@@ -26,7 +26,6 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
-import 'package:beposoft/pages/ACCOUNTS/profile.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 
 import 'package:beposoft/main.dart';

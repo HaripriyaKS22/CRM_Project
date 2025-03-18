@@ -241,7 +241,7 @@ Future<String?> getdepFromPrefs() async {
                            SizedBox(height: 20),  // Adding space between the content and the button
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderReview(id:salesData['id'])));
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderReview(id:salesData['id'],customer: salesData['customer'],)));
                               // Add your view action here
                               
                             },

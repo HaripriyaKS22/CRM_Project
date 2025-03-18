@@ -126,42 +126,13 @@ print("name issssssssssssssssssssssssssssssssssssssssss $name");
               'invoice': orderData['invoice'],
                'manage_staff': orderData['manage_staff'],
               'customer': {
+                'id': orderData['customer']['id'],
                 'name': orderData['customer']['name'],
                 'phone': orderData['customer']['phone'],
                 'email': orderData['customer']['email'],
                 'address': orderData['customer']['address'],
               },
-              // 'billing_address': {
-              //   'name': orderData['billing_address']['name'],
-              //   'email': orderData['billing_address']['email'],
-              //   'zipcode': orderData['billing_address']['zipcode'],
-              //   'address': orderData['billing_address']['address'],
-              //   'phone': orderData['billing_address']['phone'],
-              //   'city': orderData['billing_address']['city'],
-              //   'state': orderData['billing_address']['state'],
-              // },
-              // 'bank': {
-              //   'name': orderData['bank']['name'],
-              //   'account_number': orderData['bank']['account_number'],
-              //   'ifsc_code': orderData['bank']['ifsc_code'],
-              //   'branch': orderData['bank']['branch'],
-              // },
-              // 'items': orderData['items'] != null && orderData['items'] is List
-              //     ? orderData['items'].map((item) {
-              //         if (item is Map<String, dynamic>) {
-              //           return {
-              //             'id': item['id'],
-              //             'name': item['name'],
-              //             'quantity': item['quantity'],
-              //             'price': item['price'],
-              //             'tax': item['tax'],
-              //             'discount': item['discount'],
-              //             'images': item['images'],
-              //           };
-              //         }
-              //         return null;
-              //       }).where((item) => item != null).toList()
-              //     : [],
+             
               'status': orderData['status'],
               'total_amount': orderData['total_amount'],
               'order_date': formattedOrderDate,
@@ -682,7 +653,7 @@ print("name issssssssssssssssssssssssssssssssssssssssss $name");
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        OrderReview(id: order['id'])));
+                                        OrderReview(id: order['id'],customer:order['customer']['id'])));
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(

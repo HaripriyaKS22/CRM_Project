@@ -536,18 +536,18 @@ class _PerformaInvoice_BigView_ListState
                                       'Billing Address: ${order['address']}',
                                       style: const TextStyle(fontSize: 16),
                                     ),
-                                    Text(
-                                      'Payment Status: ${order['payment_status']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      'Bank: ${order['bank']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      'Payment Method: ${order['payment_method']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
+                                    // Text(
+                                    //   'Payment Status: ${order['payment_status']}',
+                                    //   style: const TextStyle(fontSize: 16),
+                                    // ),
+                                    // Text(
+                                    //   'Bank: ${order['bank']}',
+                                    //   style: const TextStyle(fontSize: 16),
+                                    // ),
+                                    // Text(
+                                    //   'Payment Method: ${order['payment_method']}',
+                                    //   style: const TextStyle(fontSize: 16),
+                                    // ),
                                     Text(
                                       'Order Status: ${order['status']}',
                                       style: const TextStyle(fontSize: 16),

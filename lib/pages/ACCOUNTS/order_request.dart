@@ -21,7 +21,6 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_grv.dart';
-import 'package:beposoft/pages/ACCOUNTS/profile.dart';
 import 'package:beposoft/pages/ACCOUNTS/transfer.dart';
 
 import 'package:beposoft/main.dart';
@@ -317,7 +316,6 @@ var allocatedstates;
   }
 
   List<Map<String, dynamic>> company = [];
-
   Future<void> getcompany() async {
     try {
       final token = await gettokenFromPrefs();
@@ -600,7 +598,8 @@ var allocatedstates;
       }
     } catch (error) {}
   }
-
+ 
+ 
   Future<void> getvariant(int id, var type) async {
     try {
       final token = await gettokenFromPrefs();

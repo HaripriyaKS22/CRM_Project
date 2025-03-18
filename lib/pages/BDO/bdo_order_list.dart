@@ -14,6 +14,8 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
+import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
@@ -131,6 +133,7 @@ Future<void> fetchOrderData() async {
               'invoice': productData['invoice'],
               'manage_staff': productData['manage_staff'],
               'customer': productData['customer'] ?? {},
+              'customerid':productData['customerID'],
               'billing_address': productData['billing_address'] ?? {},
               'bank': productData['bank'] ?? {},
               'items': productData['items'] != null
@@ -512,6 +515,47 @@ Future<void> fetchOrderData() async {
       appBar: AppBar(
         title: const Text('Order List',
             style: TextStyle(fontSize: 14, color: Colors.grey)),
+            leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Custom back arrow
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+            }
+
+            else if (dep == "ADMIN") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        admin_dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+            
+            
+            else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        dashboard()), // Replace AnotherPage with your target page
+              );
+            }
+          },
+        ),
+       
         centerTitle: true,
         actions: [
           IconButton(
@@ -557,64 +601,7 @@ Future<void> fetchOrderData() async {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      "lib/assets/logo.png",
-                      width: 150, // Change width to desired size
-                      height: 150, // Change height to desired size
-                      fit: BoxFit
-                          .contain, // Use BoxFit.contain to maintain aspect ratio
-                    ),
-                  ],
-                )),
-            ListTile(
-              leading: Icon(Icons.dashboard),
-              title: Text('Dashboard'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => bdo_dashbord()));
-              },
-            ),
-            Divider(),
-            _buildDropdownTile(context, 'Customers', [
-              'Add Customer',
-              'Customers',
-            ]),
-            _buildDropdownTile(context, 'Proforma Invoice', [
-              'New Proforma Invoice',
-              'Proforma Invoice List',
-            ]),
-            _buildDropdownTile(
-                context, 'Orders', ['New Orders', 'Orders List']),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.chat),
-              title: Text('Chat'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
-              onTap: () {
-                logout();
-              },
-            ),
-          ],
-        ),
-      ),
+    
       body: Column(
         children: [
           // Search Bar
@@ -706,7 +693,7 @@ Future<void> fetchOrderData() async {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        OrderReview(id: order['id'])));
+                                        OrderReview(id: order['id'],customer:order['customerid'])));
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(

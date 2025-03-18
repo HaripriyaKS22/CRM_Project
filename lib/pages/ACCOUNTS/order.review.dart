@@ -3,6 +3,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 class OrderReview extends StatefulWidget {
   final id;
-  const OrderReview({super.key, required this.id});
+  final customer;
+  const OrderReview({super.key, required this.id,required this.customer});
 
   @override
   State<OrderReview> createState() => _OrderReviewState();
@@ -36,6 +38,10 @@ class _OrderReviewState extends State<OrderReview> {
   TextEditingController remarkController = TextEditingController();
   TextEditingController receivedDateController = TextEditingController();
   String? selectedStatus;
+   List<Map<String, dynamic>> ledgerEntries = [];
+  List<Map<String, dynamic>> filteredEntries = [];
+    double totalDebit = 0.0;
+  double totalCredit = 0.0;
   final TextEditingController noteController = TextEditingController();
   TextEditingController actualweightController = TextEditingController();
   TextEditingController postofficeamountController = TextEditingController();
@@ -50,13 +56,15 @@ var selectedserviceId;
     initData();
     getbank();
     getcourierservices();
+    fetchCustomerLedgerDetails();
   
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
-
+var dep;
   Future<void> initData() async {
     await fetchOrderItems();
-    final dep = await getdepFromPrefs();
+     dep = await getdepFromPrefs();
+     print("deppppppppppppppppppppppppppppppppp$dep");
     if (dep == "BDM") {
       statuses = [
         'Invoice Approved',
@@ -104,6 +112,83 @@ var selectedserviceId;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
+  
+Future<void> fetchCustomerLedgerDetails() async {
+  try {
+    final token = await getTokenFromPrefs();
+    final response = await http.get(
+      Uri.parse('$api/api/customer/${widget.customer}/ledger/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    
+print('responsessssssssssssssss ledgerrr${response.body}');
+print('responsessssssssssssssss ledgerrrr${response.statusCode}');
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      final data = parsed['data'] as List;
+
+      List<Map<String, dynamic>> entries = [];
+      double debitSum = 0.0;
+      double creditSum = 0.0;
+
+      
+
+      for (var entry in data) {
+        double? debitAmount = entry['total_amount'];
+        debitSum += debitAmount ?? 0.0;
+
+       
+        print(
+            "Adding Debit Entry: Date: ${entry['order_date']}, Invoice: ${entry['invoice']}, Amount: $debitAmount");
+
+        entries.add({
+          'date': entry['order_date'],
+          'invoice': '${entry['invoice']}',
+          'particular': 'Goods Sale',
+          'debit': debitAmount,
+          'credit': null,
+          'isFirstOfOrder': true,
+        });
+
+        // Safely handle `recived_payment`
+        var receivedPayments = entry['recived_payment'] as List<dynamic>? ?? [];
+        for (var receipt in receivedPayments) {
+          double creditAmount = double.parse(receipt['amount']);
+          creditSum += creditAmount;
+
+
+          entries.add({
+            'date': receipt['received_at'],
+            'invoice': '${entry['invoice']}',
+            'particular': 'Payment received',
+            'debit': null,
+            'credit': creditAmount,
+            'isFirstOfOrder': false,
+          });
+        }
+      }
+
+      setState(() {
+        ledgerEntries = entries;
+        filteredEntries = entries;
+        totalDebit = debitSum;
+        totalCredit = creditSum;
+      });
+
+      
+      
+    } else {
+      
+    }
+  } catch (error) {
+    
+  }
+}
+
 void showParcelServiceDialog(BuildContext context, var id) {
   showDialog(
     context: context,
@@ -420,6 +505,10 @@ print(response.statusCode);
             duration: Duration(seconds: 2),
           ),
         );
+       Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OrderList(status:null)),
+          );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -805,7 +894,7 @@ fetchOrderItems();
           );
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id)),
+            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id,customer: widget.customer,)),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -862,7 +951,7 @@ fetchOrderItems();
           );
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id)),
+            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id,customer: widget.customer)),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -997,7 +1086,7 @@ fetchOrderItems();
             context,
             MaterialPageRoute(
                 builder: (context) => OrderReview(
-                      id: widget.id,
+                      id: widget.id,customer: widget.customer
                     )));
       } else {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -1447,6 +1536,8 @@ Future<void> updatemsg(var orderId) async {
         color: const Color.fromARGB(255, 0, 0, 0),
       ),
     ),
+
+  if( dep != "BDO")
     IconButton(
       onPressed: () async {
         final Uri url = Uri.parse('$api/invoice/${ord['id']}/');
@@ -1609,56 +1700,59 @@ Future<void> updatemsg(var orderId) async {
               ),
             ),
 SizedBox(height: 5,),
-             Padding(
-            padding: const EdgeInsets.only(right: 10, left: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: shippingmethod,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0), // Add border radius
-                          ),
-                          labelText: 'Shipping Mode',
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: codamount,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0), // Add border radius
-                          ),
-                          labelText: 'COD Amount',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      updatecod();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Set background color
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0), // Add border radius
-                      ),
-                    ),
-                    child: Text('Save Changes', style: TextStyle(color: Colors.white)),
+
+          
+if (dep != "BDM" && dep != "BDO")
+  Padding(
+    padding: const EdgeInsets.only(right: 10, left: 10),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: shippingmethod,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0), // Add border radius
                   ),
+                  labelText: 'Shipping Mode',
                 ),
-              ],
+              ),
             ),
+            SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: codamount,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0), // Add border radius
+                  ),
+                  labelText: 'COD Amount',
+                ),
+              ),
+            ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            onPressed: () {
+              updatecod();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue, // Set background color
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0), // Add border radius
+              ),
+            ),
+            child: Text('Save Changes', style: TextStyle(color: Colors.white)),
           ),
+        ),
+      ],
+    ),
+  ),
 
            Padding(
               padding: const EdgeInsets.only(right: 15, left: 15),
@@ -1884,6 +1978,8 @@ Text(
       color: Colors.black),
 ),
                                         Spacer(),
+                                      if(dep != "BDM" && dep != "BDO")
+
                                         GestureDetector(
                                           onTap: () {
                                             removeproduct(item["id"]);
@@ -2313,6 +2409,8 @@ Text(
                               ],
                             ),
                           SizedBox(height: 8.0),
+                          if(dep != "BDM" && dep != "BDO")
+
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
@@ -2444,6 +2542,8 @@ Text(
               ),
             ),
             SizedBox(height: 10),
+          if(dep != "BDO")
+
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -2606,6 +2706,7 @@ Text(
                       //   ),
                       // ),
                       // SizedBox(height: 16.0),
+                    if(dep != "BDM" && dep != "BDO")
 
                       TextField(
                         controller: shippingchargeController,
@@ -2614,6 +2715,7 @@ Text(
                           labelText: 'Add Shipping Charge',
                         ),
                       ),
+                      if(dep != "BDM" && dep != "BDO")
                       SizedBox(height: 16.0),
                       TextField(
                         controller: noteController,
@@ -2679,8 +2781,9 @@ Text(
                                   const EdgeInsets.symmetric(vertical: 8.0),
                               child: GestureDetector(
                                 onTap: () {
-                                  _showShippingChargeDialog(
-                                      context, order);
+                                    if(dep != "BDM" && dep != "BDO"){
+                                  _showShippingChargeDialog(context, order);
+                                    }
                                 },
                                 child: Container(
                                   padding: EdgeInsets.all(12.0),
@@ -2732,6 +2835,7 @@ Text(
                                                     color: Colors.grey),
                                           ),
                                           SizedBox(width: 10),
+                                        
                                           Expanded(
                                             child: Text(
                                               ' ${order['box'] ?? 'N/A'}',
@@ -2741,6 +2845,7 @@ Text(
                                               ),
                                             ),
                                           ),
+                                        if(dep != "BDM" && dep != "BDO")
                                          order['status'] == "Shipped" &&
                                                   order['message_status'] ==
                                                       "pending"
@@ -2785,6 +2890,7 @@ Text(
                                                 ),
                                           // Delete Button
                                           SizedBox(width: 5),
+                                        if(dep != "BDM" && dep != "BDO")
                                           GestureDetector(
                                             onTap: () {
                                                deletebox(order['id']);
@@ -2962,8 +3068,9 @@ Text(
 
                                         GestureDetector(
                                         onTap: (){
+                                          if(dep != "BDM" && dep != "BDO"){
                                           showParcelServiceDialog(context,order['id']);
-
+                                          }
                                         },
                                         child: Row(
                                           mainAxisAlignment:
@@ -2996,8 +3103,9 @@ Text(
                                       // Shipped Date
                                       GestureDetector(
                                         onTap: ()  {
+                                          if(dep != "BDM" && dep != "BDO"){
                                           _showDatePicker(context, order['id']);
-
+                                          }
                                         },
                                         child: Row(
                                           mainAxisAlignment:

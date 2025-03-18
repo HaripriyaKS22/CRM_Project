@@ -124,7 +124,7 @@ Future<void> getprofiledata() async {
         // Store the matching family name
         familyName = matchingFamily['name'];
         
-        
+        print("Family Name: $familyName");
         });
     fetchOrderData();
 
@@ -169,161 +169,78 @@ Future<void> getprofiledata() async {
     }
   }
 
-  Future<void> fetchOrderData() async {
-    try {
-      final token = await getTokenFromPrefs();
-                    final dep= await getdepFromPrefs();
- final jwt = JWT.decode(token!);
-          var name = jwt.payload['name'];
-          
-      var response = await http.get(
-        Uri.parse('$api/api/orders/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+ Future<void> fetchOrderData() async {
+  try {
+    final token = await getTokenFromPrefs();
+    final dep = await getdepFromPrefs();
+    final jwt = JWT.decode(token!);
+    var name = jwt.payload['name'];
+print("name issssssssssssssssssssssssssssssssssssssssss $name");
+    String url = '$api/api/orders/';
+    List<Map<String, dynamic>> orderList = [];
 
-      
+    var response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed;
-        List<Map<String, dynamic>> orderList = [];
+    print(response.statusCode);
+    print("=================== ${response.body}");
+    print(response.body);
 
-        for (var productData in productsData) {
-          // Parse the date
-          String rawOrderDate = productData['order_date'];
-          String formattedOrderDate =
-              rawOrderDate; // Fallback in case of parsing failure
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final List ordersData = responseData['results'];
 
-          try {
-            // Try to parse the date in 'yyyy-MM-dd' format
-            DateTime parsedOrderDate =
-                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
-            formattedOrderDate = DateFormat('yyyy-MM-dd')
-                .format(parsedOrderDate); // Convert to desired format
-          } catch (e) {
-            
+      List<Map<String, dynamic>> newOrders = [];
+
+      for (var orderData in ordersData) {
+        String rawOrderDate = orderData['order_date'] ?? "";
+        String formattedOrderDate = rawOrderDate;
+        try {
+          DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+          formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
+        } catch (e) {}
+
+        if (widget.status == null || widget.status == orderData['status']) {
+          if (orderData['status'] != "Order Request by Warehouse") {
+            if(familyName==orderData['family']){
+            newOrders.add({
+              'id': orderData['id'],
+              'invoice': orderData['invoice'],
+               'manage_staff': orderData['manage_staff'],
+              'customer': {
+                'id': orderData['customer']['id'],
+                'name': orderData['customer']['name'],
+                'phone': orderData['customer']['phone'],
+                'email': orderData['customer']['email'],
+                'address': orderData['customer']['address'],
+              },
+             
+              'status': orderData['status'],
+              'total_amount': orderData['total_amount'],
+              'order_date': formattedOrderDate,
+            });}
           }
-
-          if(familyName==productData['family']){
-
-if(widget.status==null){
-
-
-             orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-          
-         
         }
-        else if(widget.status==productData['status']){
-
-          
-               orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-          
-          
-
-        }
-        }
-        
-        
-        }
-        
-
-        setState(() {
-          orders = orderList;
-          filteredOrders = orderList;
-          
-        });
       }
-    } catch (error) {
-      
-    }
-  }
 
- 
+      setState(() {
+        orders = newOrders;
+
+        print("orders are$orders");
+        filteredOrders = newOrders;
+      });
+    } else {
+      throw Exception("Failed to load order data");
+    }
+  } catch (error) {
+    print("Error fetching orders: $error");
+  }
+}
   void _filterOrders(String query) {
     setState(() {
       searchQuery = query;
@@ -834,7 +751,7 @@ void logout() async {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        OrderReview(id: order['id'])));
+                                        OrderReview(id: order['id'],customer: order['customer']['id'],)));
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(

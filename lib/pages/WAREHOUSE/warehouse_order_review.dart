@@ -2377,13 +2377,21 @@ void showStatusDialog(BuildContext context,var order) {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
-                                              'Status:',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
+                                            Container(
+    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    decoration: BoxDecoration(
+      color: const Color.fromARGB(255, 220, 220, 220), // Background color
+      borderRadius: BorderRadius.circular(8), // Rounded corners
+    ),
+    child: Text(
+      'Status',
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: Colors.white, // Text color
+      ),
+    ),
+  ),
                                             Text(
                                               order['status'] ?? 'N/A',
                                               style: TextStyle(fontSize: 14),
