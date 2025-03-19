@@ -2384,9 +2384,9 @@ Text(
     
   ],
 ),
-                                Text(
-                                 '\$${difference.toStringAsFixed(2)}',
-                                )
+                             Text(
+  '\$${(difference ?? 0).toStringAsFixed(2)}', // Use null-coalescing operator to handle null
+)
                               ],
                             ),
                           // if (flag == false)

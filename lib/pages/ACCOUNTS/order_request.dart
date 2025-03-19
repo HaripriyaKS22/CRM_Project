@@ -1630,7 +1630,7 @@ print("response.body profileeeeeeeeeeeeeeeeeeeeeeee${response.body}");
                               height: 8,
                             ),
                             Text(
-                              "Maneger",
+                              "Manager",
                               style: TextStyle(
                                   fontSize: 12, fontWeight: FontWeight.bold),
                             ),

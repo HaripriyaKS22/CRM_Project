@@ -681,13 +681,14 @@ void showSizeDialog2(BuildContext context, List variants) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("Stock: ${variant['stock']}"),
-          Text("Locked Stock: ${variant['Locked_stock']}",style:TextStyle(color: Colors.grey,fontWeight: FontWeight.bold)), // Display Locked Stock
+          Text("Locked Stock: ${variant['locked_stock']}",style:TextStyle(color: Colors.grey,fontWeight: FontWeight.bold)), // Display Locked Stock
         ],
       ),
       trailing: selectedProductNotifier.value == variant
           ? Icon(Icons.check_circle, color: Colors.green)
           : null,
       onTap: () {
+        print("jjjjjjjjjjjjjjjjjjjj");
         // Update the selected product using ValueNotifier
         selectedProductNotifier.value = variant;
       },
@@ -730,7 +731,7 @@ void showSizeDialog2(BuildContext context, List variants) {
                       int quantity = int.tryParse(quantityController.text) ?? 1;
 
                       // Validate stock
-                      if (quantity > (selectedProduct!['stock'] - selectedProduct['Locked_stock'])) {
+                      if (quantity > (selectedProduct!['stock'] - selectedProduct['locked_stock'])) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("Quantity exceeds available stock!")),
   );
@@ -764,7 +765,7 @@ void showSizeDialog2(BuildContext context, List variants) {
 
 
 
-void showSizeDialog3(BuildContext context, mainid, stock) {
+void showSizeDialog3(BuildContext context, mainid, stock, lockedStock) {
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -793,8 +794,18 @@ void showSizeDialog3(BuildContext context, mainid, stock) {
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Text(
-                            'Available Stock: $stock',
+                            'Stock: $stock',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    if (lockedStock != null) // Show locked stock info only if a size is selected
+                      Container(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            'Locked Stock: $lockedStock',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: const Color.fromARGB(255, 128, 128, 128)),
                           ),
                         ),
                       ),
@@ -1133,6 +1144,7 @@ Padding(
         context,
         product['id'],
         product['stock'],
+        product['locked_stock'],
         );
     }
     

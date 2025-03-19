@@ -616,7 +616,7 @@ print("======================================${response.body}");
         backgroundColor: Color.fromARGB(242, 255, 255, 255),
         appBar: AppBar(
           title: Text(
-            "Add Expence",
+            "Add Expense",
 
             style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
