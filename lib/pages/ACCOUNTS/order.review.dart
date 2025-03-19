@@ -589,7 +589,7 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
         ),
       );
 
-      
+      print(response.statusCode);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1316,7 +1316,8 @@ Future<void> deletebox( var orderId) async {
       },
     );
 
-    ;
+    print(response.statusCode);
+    print(response.body);
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
