@@ -393,7 +393,7 @@ Future<void> deletebox( var orderId) async {
     ;
     final token = await getTokenFromPrefs();
 
-;
+
     var response = await http.delete(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
