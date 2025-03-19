@@ -655,40 +655,45 @@ void showSizeDialog2(BuildContext context, List variants) {
                 ),
 
                 // Display the variants
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: variants.length,
-                  itemBuilder: (context, index) {
-                    var variant = variants[index];
-                    print('variant${variant['image']}');
-                    return ListTile(
-                      leading: variant['image'] != null && variant['image'].isNotEmpty
-                          ? Image.network(
-                              '$api${variant['image']}',
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              width: 50,
-                              height: 50,
-                              color: Colors.grey[300],
-                              child: Icon(Icons.image_not_supported,
-                                  color: Colors.grey),
-                            ),
-                      title: Text(variant['name']),
-                      subtitle: Text("Stock: ${variant['stock']}"),
-                      trailing: selectedProductNotifier.value == variant
-                          ? Icon(Icons.check_circle, color: Colors.green)
-                          : null,
-                      onTap: () {
-                        // Update the selected product using ValueNotifier
-                        selectedProductNotifier.value = variant;
-                      },
-                    );
-                  },
-                ),
+              ListView.builder(
+  shrinkWrap: true,
+  physics: NeverScrollableScrollPhysics(),
+  itemCount: variants.length,
+  itemBuilder: (context, index) {
+    var variant = variants[index];
+    print('variant${variant['image']}');
+    return ListTile(
+      leading: variant['image'] != null && variant['image'].isNotEmpty
+          ? Image.network(
+              '$api${variant['image']}',
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            )
+          : Container(
+              width: 50,
+              height: 50,
+              color: Colors.grey[300],
+              child: Icon(Icons.image_not_supported, color: Colors.grey),
+            ),
+      title: Text(variant['name']),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Stock: ${variant['stock']}"),
+          Text("Locked Stock: ${variant['Locked_stock']}",style:TextStyle(color: Colors.grey,fontWeight: FontWeight.bold)), // Display Locked Stock
+        ],
+      ),
+      trailing: selectedProductNotifier.value == variant
+          ? Icon(Icons.check_circle, color: Colors.green)
+          : null,
+      onTap: () {
+        // Update the selected product using ValueNotifier
+        selectedProductNotifier.value = variant;
+      },
+    );
+  },
+),
 
                 SizedBox(height: 20),
 
@@ -725,13 +730,12 @@ void showSizeDialog2(BuildContext context, List variants) {
                       int quantity = int.tryParse(quantityController.text) ?? 1;
 
                       // Validate stock
-                      if (quantity > selectedProduct!['stock']) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Quantity exceeds available stock!")),
-                        );
-                        return;
-                      }
-
+                      if (quantity > (selectedProduct!['stock'] - selectedProduct['Locked_stock'])) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Quantity exceeds available stock!")),
+  );
+  return;
+}
                       // Call add to cart function
                       addtocart(context, selectedProduct['id'], quantity);
 
