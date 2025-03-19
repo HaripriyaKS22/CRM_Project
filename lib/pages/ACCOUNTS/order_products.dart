@@ -75,7 +75,6 @@ Future<void> initdata() async {
   
 
    warehouse = await getwarehouseFromPrefs();
-  print('warehouse'+warehouse.toString());
 
   // if(warehouse=="0"){
     
@@ -320,7 +319,6 @@ dep= await getdepFromPrefs();
 
       setState(() {
         products = productList;
-        print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
         filteredProducts=products;
       });
     }
@@ -334,8 +332,6 @@ dep= await getdepFromPrefs();
  
  
 dep= await getdepFromPrefs();
- 
-print('depppppppppppppppppp$dep');
   try {
     final response = await http.get(
       Uri.parse("$api/api/warehouse/products/$warehouse/"),
@@ -345,7 +341,6 @@ print('depppppppppppppppppp$dep');
       },
     );
 
-print('response prooooooooooooooo${response.body}');
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -382,12 +377,10 @@ print('response prooooooooooooooo${response.body}');
 
       setState(() {
         products = productList;
-        print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
         filteredProducts=products;
       });}
     }
   } catch (error) {
-    print('error$error');
     
   }
 }
@@ -500,8 +493,6 @@ Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
   )
   );
    
-   print('response${response.body}');
-
       if (response.statusCode == 201) {
        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -541,7 +532,6 @@ Future<void> addtocart2(BuildContext scaffoldContext,mainid,quantity) async{
   );
    
    
-print('response${response.body}');
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -597,7 +587,6 @@ void showSizeDialog2(BuildContext context, List variants) {
                   valueListenable: selectedProductNotifier,
                   builder: (context, selectedProduct, child) {
                     if (selectedProduct != null) {
-                                          print('urlllllllllllllllll$api${selectedProduct['image']}');
 
                       return Column(
                         children: [
@@ -661,7 +650,6 @@ void showSizeDialog2(BuildContext context, List variants) {
   itemCount: variants.length,
   itemBuilder: (context, index) {
     var variant = variants[index];
-    print('variant${variant['image']}');
     return ListTile(
       leading: variant['image'] != null && variant['image'].isNotEmpty
           ? Image.network(
@@ -688,7 +676,7 @@ void showSizeDialog2(BuildContext context, List variants) {
           ? Icon(Icons.check_circle, color: Colors.green)
           : null,
       onTap: () {
-        print("jjjjjjjjjjjjjjjjjjjj");
+        ;
         // Update the selected product using ValueNotifier
         selectedProductNotifier.value = variant;
       },
@@ -1064,8 +1052,7 @@ Padding(
       itemCount: filteredProducts.length,
       itemBuilder: (context, index) {
         final product = filteredProducts[index];
-        print('product${product['image']}');
-        print("===============================[[[[[[[[[==========$product");
+        ;
         final isExpanded = expandedProducts[product['id']] ?? false;
     
         return Padding(

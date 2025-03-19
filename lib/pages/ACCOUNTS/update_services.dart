@@ -126,8 +126,8 @@ class _update_courierState extends State<update_courier> {
           },
         ),
       );
-    print(response.body);
-print(response.statusCode);
+    ;
+;
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

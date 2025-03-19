@@ -89,7 +89,7 @@ Future<void> fetchOrderData() async {
     final dep = await getdepFromPrefs();
 
     if (token == null) {
-      print("Error: Token is null");
+      ;
       return;
     }
 
@@ -104,8 +104,8 @@ Future<void> fetchOrderData() async {
       },
     );
 
-    print("Response Body: ${response.body}");
-    print("Response Status Code: ${response.statusCode}");
+    ;
+    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -124,7 +124,7 @@ Future<void> fetchOrderData() async {
             DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
             formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
           } catch (e) {
-            print("Date parsing error: $e");
+            ;
           }
 
           if (widget.status == null || widget.status == productData['status']) {
@@ -170,15 +170,15 @@ Future<void> fetchOrderData() async {
           orders = orderList;
           filteredOrders = orderList;
         });
-        print("Processed Orders: $orders");
+        ;
       } else {
-        print("Error: Unexpected JSON format");
+        ;
       }
     } else {
-      print("Error: Unexpected response ${response.statusCode}");
+      ;
     }
   } catch (error) {
-    print('Error fetching order data: $error');
+    ;
   }
 }
 

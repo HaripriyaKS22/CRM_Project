@@ -84,7 +84,7 @@ class _recipt_ReportState extends State<recipt_Report> {
 
   // Function to update totals based on filtered data
   void _updateTotals() {
-   print("salesReportList$salesReportList");
+   ;
     int tempTotalReceipts = 0; // Add this line
     double tempTotalAmount = 0.0; // Add this line
 
@@ -99,8 +99,8 @@ class _recipt_ReportState extends State<recipt_Report> {
       totalReceipts = tempTotalReceipts; // Add this line
       totalAmount = tempTotalAmount; // Add this line
     });
-    print("amounttttttttttttttt$totalAmount");
-    print("totalReceiptssssssssssss$totalReceipts");
+    ;
+    ;
   }
 
   drower d = drower();
@@ -146,7 +146,7 @@ class _recipt_ReportState extends State<recipt_Report> {
           allSalesReportList = reciptList; // Save original data
           salesReportList = allSalesReportList;
         });
-        print("salesReportList$salesReportList");
+        ;
                   _updateTotals();
 
       } else {
@@ -158,7 +158,7 @@ class _recipt_ReportState extends State<recipt_Report> {
         );
       }
     } catch (error) {
-      print("errorssssssssssssssss$error");
+      ;
       
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

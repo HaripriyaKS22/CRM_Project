@@ -91,8 +91,7 @@ int? selectedPurposeId;
         },
       );
 
-      print(response.statusCode);
-      print("==================>>>>>>>>>>>>>>>>>>${response.body}");
+      ;
 
       if (response.statusCode == 201) {
        getpurpose();
@@ -124,7 +123,7 @@ int? selectedPurposeId;
           'Content-Type': 'application/json',
         },
       );
-print("======================================${response.body}");
+;
       List<Map<String, dynamic>> purposelist = [];
 
       if (response.statusCode == 200) {
@@ -155,7 +154,7 @@ print("======================================${response.body}");
           'Content-Type': 'application/json',
         },
       );
-print("======================================${response.body}");
+;
       List<Map<String, dynamic>> categorylist = [];
 
       if (response.statusCode == 200) {
@@ -169,7 +168,7 @@ print("======================================${response.body}");
         }
         setState(() {
           category = categorylist;
-          print("category$category");
+          ;
         });
       }
     } catch (error) {}
@@ -193,8 +192,8 @@ print("======================================${response.body}");
       );
 
       List<Map<String, dynamic>> emiDataList = [];
-      print(response.statusCode);
-      print("emiiiiiiiiiiiiiiiiiiiiiiiiiiiiii${response.body}");
+      ;
+      ;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -212,7 +211,7 @@ print("======================================${response.body}");
         }
         setState(() {
           emiList = emiDataList;
-          print("emiList$emiList");
+          ;
         });
       }
     } catch (error) {
@@ -444,7 +443,7 @@ print("======================================${response.body}");
         },
       );
 
-      print("response.body expenceeeeeeeeeeeeeee${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         Navigator.push(
@@ -467,7 +466,7 @@ print("======================================${response.body}");
       }
     } catch (e) {
 
-            print("errorrrrrrrrrrrrrrrrrrrrrrrrrtt $e");
+            ;
 
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -512,7 +511,7 @@ print("======================================${response.body}");
         },
       );
 
-      print("response.body expenceeeeeeeeeeeeeee${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         Navigator.push(
@@ -534,7 +533,7 @@ print("======================================${response.body}");
         );
       }
     } catch (e) {
-      print("errorrrrrrrrrrrrrrrrrrrrrrrrr $e");
+      ;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -577,7 +576,7 @@ print("======================================${response.body}");
         },
       );
 
-      print("response.body expenceeeeeeeeeeeeeee${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         Navigator.push(
@@ -599,7 +598,7 @@ print("======================================${response.body}");
         );
       }
     } catch (e) {
-            print("errorrrrrrrrrrrrrrrrrrrrrrrrryuuuuuuuuuuu $e");
+            ;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -980,7 +979,7 @@ print("======================================${response.body}");
                         .firstWhere((item) => item['name'] == newValue)['id'];
                   });
 
-                  print("Selected Purpose ID: $selectedPurposeId");
+                  ;
                 }
               },
             ),
@@ -1094,8 +1093,7 @@ print("======================================${response.body}");
                                                 });
 
                                                 // Call a function to process selected EMI if needed
-                                                print(
-                                                    "Selected EMI: $selectedEmiName (ID: $selectedEmiId)");
+                                           
                                               },
                                               buttonStyleData:
                                                   const ButtonStyleData(

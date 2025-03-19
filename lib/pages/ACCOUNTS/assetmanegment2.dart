@@ -64,7 +64,7 @@ class _AssetManegment2State extends State<AssetManegment2> {
         });
       }
     } catch (error) {
-      print('Error fetching assets: $error');
+      ;
     }
   }
 
@@ -99,7 +99,7 @@ class _AssetManegment2State extends State<AssetManegment2> {
         });
       }
     } catch (error) {
-      print('Error fetching liabilities: $error');
+      ;
     }
   }
 

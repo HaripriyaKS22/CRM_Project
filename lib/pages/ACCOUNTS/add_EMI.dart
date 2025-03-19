@@ -116,8 +116,8 @@ class _add_EmiState extends State<add_Emi> {
       );
 
       List<Map<String, dynamic>> emiDataList = [];
-      print(response.statusCode);
-      print("emiiiiiiiiiiiiiiiiiiiiiiiiiiiiii${response.body}");
+      
+      ;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -169,8 +169,7 @@ void adddepartment(BuildContext context) async {
       },
     );
 
-    print(response.statusCode);
-    print("addddddddddddd emiiiiiiii${response.body}");
+    ;
 
     if (response.statusCode == 201) {
       Navigator.push(

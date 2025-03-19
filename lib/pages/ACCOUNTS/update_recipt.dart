@@ -188,12 +188,12 @@ Future<void> getreciptlist() async {
       },
     );
 
-    print("response recipttt${response.body}");
-    print("response${response.statusCode}");
+    ;
+    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
-print("parsed$parsed");
+;
 setState(() {
 
     remark.text=parsed['remark']?? '';

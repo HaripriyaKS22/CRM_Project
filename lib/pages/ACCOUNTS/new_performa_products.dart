@@ -63,7 +63,6 @@ Future<void> initdata() async {
   
 
    warehouse = await getwarehouseFromPrefs();
-  print('warehouse'+warehouse.toString());
 
   // if(warehouse=="0"){
     
@@ -308,7 +307,6 @@ dep= await getdepFromPrefs();
 
       setState(() {
         products = productList;
-        print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
         filteredProducts=products;
       });
     }
@@ -323,7 +321,6 @@ dep= await getdepFromPrefs();
  
 dep= await getdepFromPrefs();
  
-print('depppppppppppppppppp$dep');
   try {
     final response = await http.get(
       Uri.parse("$api/api/warehouse/products/$warehouse/"),
@@ -371,7 +368,6 @@ print('depppppppppppppppppp$dep');
 
       setState(() {
         products = productList;
-        print('product>>>>>>>>>>>>>>>>>>>>>>'+products.toString());
         filteredProducts=products;
       });
     }
@@ -585,7 +581,6 @@ void showSizeDialog2(BuildContext context, List variants) {
                   valueListenable: selectedProductNotifier,
                   builder: (context, selectedProduct, child) {
                     if (selectedProduct != null) {
-                                          print('urlllllllllllllllll$api${selectedProduct['image']}');
 
                       return Column(
                         children: [
@@ -649,7 +644,6 @@ void showSizeDialog2(BuildContext context, List variants) {
                   itemCount: variants.length,
                   itemBuilder: (context, index) {
                     var variant = variants[index];
-                    print('variant${variant['image']}');
                     return ListTile(
                       leading: variant['image'] != null && variant['image'].isNotEmpty
                           ? Image.network(
@@ -1037,8 +1031,7 @@ Padding(
       itemCount: filteredProducts.length,
       itemBuilder: (context, index) {
         final product = filteredProducts[index];
-        print('product${product['image']}');
-        print("===============================[[[[[[[[[==========$product");
+        
         final isExpanded = expandedProducts[product['id']] ?? false;
     
         return Padding(

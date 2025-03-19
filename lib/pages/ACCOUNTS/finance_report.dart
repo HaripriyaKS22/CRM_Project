@@ -108,7 +108,7 @@ Future<void> getFinancialReport() async {
                 }) ??
             0.0;
 
-        print("Today's Payments for $bankName: $todayPayments");
+        ;
         totalTodayPayments += todayPayments;
 
         // Handle `banks` for today's expenses
@@ -125,7 +125,7 @@ Future<void> getFinancialReport() async {
                 }) ??
             0.0;
 
-        print("Today's Expenses for $bankName: $todayBanksAmount");
+        ;
         totalTodayBanksAmount += todayBanksAmount;
 
         // Calculate closing balance
@@ -155,7 +155,7 @@ Future<void> getFinancialReport() async {
 
     }
   } catch (e) {
-    print("Error: $e");
+    ;
   }
 }
 
@@ -419,7 +419,7 @@ Widget build(BuildContext context) {
             itemCount: Finance.length,
             itemBuilder: (context, index) {
               final item = Finance[index]; // Current bank data
-              print("==================================>>>>>>$item");
+              ;
               return Card(
                 color: Colors.white,
                 margin: const EdgeInsets.all(8.0),

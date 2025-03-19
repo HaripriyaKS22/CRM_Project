@@ -80,7 +80,7 @@ class _NewGrvState extends State<NewGrv> {
       String url =
           loadMore && nextPageUrl != null ? nextPageUrl! : "$api/api/orders/";
 
-      print('Fetching from URL: $url'); // Debug print
+      ; // Debug print
 
       final response = await http.get(
         Uri.parse(url),
@@ -93,7 +93,7 @@ class _NewGrvState extends State<NewGrv> {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         nextPageUrl = parsed['next']; // Save next page URL
-        print('Next Page: $nextPageUrl'); // Debug print
+        ; // Debug print
 
         final List data = parsed['results'];
         List<Map<String, dynamic>> orderList = [];
@@ -117,10 +117,10 @@ class _NewGrvState extends State<NewGrv> {
           }
         });
       } else {
-        print('Failed to load orders: ${response.statusCode}');
+        ;
       }
     } catch (error) {
-      print('Error fetching orders: $error');
+      ;
     }
   }
 
@@ -134,7 +134,7 @@ class _NewGrvState extends State<NewGrv> {
           'Authorization': 'Bearer $token',
         },
       );
-      print("==============${response.body}");
+      ;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         if (parsed['items'] != null && (parsed['items'] as List).isNotEmpty) {
@@ -238,8 +238,8 @@ class _NewGrvState extends State<NewGrv> {
             'returnreason': returnreason.text,
           }),
         );
-        print(response.body);
-        print(response.statusCode);
+        ;
+        ;
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: Color.fromARGB(255, 49, 212, 4),

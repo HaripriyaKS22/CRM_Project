@@ -36,7 +36,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
   }
 
   Future<void> fetchorders() async {
-    print("fetchorderssssssssssssssssss");
+    ;
     final token = await getTokenFromPrefs();
     try {
       final response = await http.get(
@@ -46,8 +46,8 @@ class _PostofficeReportState extends State<PostofficeReport> {
           'Authorization': 'Bearer $token',
         },
       );
-print("response.statusCode${response.statusCode}");
-print("response.body....................${response.body}");
+;
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final orderdata=parsed['results'];
@@ -59,14 +59,14 @@ print("response.body....................${response.body}");
             for (var warehouse in orderData['warehouses']) {
               String? parcelService = warehouse['parcel_service'];
               String? postofficeDate = warehouse['postoffice_date'];
-print("postofficeDate----------------------$postofficeDate");
+;
               // Convert selectedDate to String format for comparison
               String selectedDateString = selectedDate != null
                   ? DateFormat('yyyy-MM-dd').format(selectedDate!)
                   : todayDate;
-print("selectedDateString----------------------$selectedDateString");
+;
 if(postofficeDate == selectedDateString){
-  print('yessssssssssssssssss');
+  ;
 }
               if (parcelService != null &&
                   parcelService.isNotEmpty &&
@@ -99,8 +99,8 @@ if(postofficeDate == selectedDateString){
 
         setState(() {
           orders = orderlist;
-          print('parcelData: $parcelData');
-          print('orders: $orders');
+          ;
+          ;
         });
       }
     } catch (e) {
@@ -155,7 +155,7 @@ if(postofficeDate == selectedDateString){
       );
 
       
-print("responseeeeeeeeeeeeeeeeeeee${response.body}");
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
          final orderdata=parsed['results'];
@@ -222,7 +222,7 @@ print("responseeeeeeeeeeeeeeeeeeee${response.body}");
 
 
           });
-          print("parcelDataparcelData$parcelData");
+          ;
 
           orders = orderlist;
           

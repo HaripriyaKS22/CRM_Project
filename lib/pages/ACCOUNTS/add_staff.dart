@@ -525,7 +525,7 @@ Future<void> RegisterUserData(
         'Content-Type': 'application/json',
       });
 
-      print(dynamicStatid);
+      ;
 
       Map<String, dynamic> data = {
         'date_of_birth': selectedDate.toIso8601String().substring(0, 10),
@@ -560,10 +560,10 @@ Future<void> RegisterUserData(
 
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
-      print("rrrrrrrrrrrrrreeeeeesssssss==================$response");
+      ;
 
-      print("=====================>>>>>>>>>>>>>>${responseData.body}");
-      print(responseData.statusCode);
+      ;
+      ;
 
       if (responseData.statusCode == 201) {
         final Map<String, dynamic> responseJson = jsonDecode(responseData.body);

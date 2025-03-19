@@ -229,7 +229,7 @@ void initdata(){
   Future<void> getvariant() async {
     try {
       final token = await gettokenFromPrefs();
-      print('$api/api/products/${widget.id}/variants/');
+      ;
       var response = await http.get(
         Uri.parse('$api/api/products/${widget.id}/variants/'),
         headers: {
@@ -243,7 +243,7 @@ void initdata(){
         final parsed = jsonDecode(response.body);
         var productData = parsed['products']; // Map of the product
         var variantIDs = productData['variantIDs']; // List of variants
-print("productData}}}}}}}}}}}}}}}}}}}}}$productData");
+;
         if (variantIDs is List) {
           setState(() {
             selectedwarehouseId = productData[
@@ -254,7 +254,7 @@ print("productData}}}}}}}}}}}}}}}}}}}}}$productData");
 
 
             selectedwarehouseName = productData['warehouse_name'];
-            print('selectedwarehouseId------------------$selectedwarehouseId');
+            ;
             // Handle response based on widget.type
             if (widget.type == 'single') {
               singleProducts = [productData]; // Single prduct as a list
@@ -282,9 +282,9 @@ print("productData}}}}}}}}}}}}}}}}}}}}}$productData");
               variantProducts = List<Map<String, dynamic>>.from(
                   variantIDs); // List of variants
               singleProducts = [productData]; // Single product as a list
-              print('singleProducts$singleProducts');
+              ;
               // Handle response based on widget.type
-print('variantProducts$variantProducts');
+;
               if (singleProducts.isNotEmpty) {
                 name.text = singleProducts[0]['name']?.toString() ?? '';
                 hsncode.text = singleProducts[0]['hsn_code']?.toString() ?? '';
@@ -302,7 +302,7 @@ print('variantProducts$variantProducts');
                     singleProducts[0]['retail_price']?.toString() ?? '';
                 fami = singleProducts[0]['family'];
 
-                print("fffffffffaaaaaaaaaaaaaaaaaaaaaaaaaaaa$fami");
+                ;
             
 
                 
@@ -448,8 +448,8 @@ print('variantProducts$variantProducts');
       var responseData = await http.Response.fromStream(response);
 
       // Print the response status and body for debugging
-      print("Response status: ${responseData.statusCode}");
-      print("Response body: ${responseData.body}");
+      ;
+      ;
       
 
       if (responseData.statusCode == 200) {

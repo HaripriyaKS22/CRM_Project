@@ -103,7 +103,7 @@ class _staff_listState extends State<staff_list> {
           'Content-Type': 'application/json',
         },
       );
-   print(response.body);
+   ;
       List<Map<String, dynamic>> stafflist = [];
 
       if (response.statusCode == 200) {
@@ -396,7 +396,7 @@ Expanded(
     itemCount: filteredProducts.length,
     itemBuilder: (context, index) {
       final staffData = filteredProducts[index];
-      print("url>>>>>>>>>>>>>>>>>>>>>${staffData['image']}");
+      ;
       return GestureDetector(
         onTap: () {
           Navigator.push(

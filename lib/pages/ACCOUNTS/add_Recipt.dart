@@ -74,7 +74,7 @@ class _add_receiptState extends State<add_receipt> {
       final dep = await getdepFromPrefs();
       final jwt = JWT.decode(token!);
       var name = jwt.payload['name'];
-      print("name is $name");
+      ;
 
       String url = '$api/api/orders/';
       var response = await http.get(
@@ -85,9 +85,9 @@ class _add_receiptState extends State<add_receipt> {
         },
       );
 
-      print(response.statusCode);
-      print("=================== ${response.body}");
-      print(response.body);
+      ;
+      ;
+      ;
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
@@ -107,13 +107,13 @@ class _add_receiptState extends State<add_receipt> {
           orders = newOrders;
           uname.text=name;
           // filteredOrders = newOrders;
-          print("Orders areeeeeeeeee: $orders");
+          ;
         });
       } else {
         throw Exception("Failed to load order data");
       }
     } catch (error) {
-      print("Error fetching orders: $error");
+      ;
     }
   }
 
@@ -142,7 +142,7 @@ class _add_receiptState extends State<add_receipt> {
         });
       }
     } catch (e) {
-      print("Error fetching banks: $e");
+      ;
     }
   }
 
@@ -154,7 +154,7 @@ class _add_receiptState extends State<add_receipt> {
       final token = await getTokenFromPrefs();
       final jwt = JWT.decode(token!);
       var name = jwt.payload['name'];
-      print("name issssssss $name");
+      ;
 
       // Format the selectedDate as a string
       String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
@@ -192,7 +192,7 @@ class _add_receiptState extends State<add_receipt> {
         );
       }
     } catch (e) {
-      print("Error: $e");
+      ;
     }
   }
 
@@ -238,7 +238,7 @@ class _add_receiptState extends State<add_receipt> {
   //     final jwt = JWT.decode(token);
   //     setState(() {
   //       name = jwt.payload['name']; // Extract and set the name
-  //       print("$name");
+  //       ;
   //     });
   //   }
   // }
@@ -381,7 +381,7 @@ class _add_receiptState extends State<add_receipt> {
                                   selectedInvoiceId =
                                       value; // Store the selected invoice ID
 
-                                      print("sssssssssss$selectedInvoiceId");
+                                      ;
                                 });
                               },
                               underline: SizedBox(),
@@ -486,7 +486,7 @@ class _add_receiptState extends State<add_receipt> {
                               onChanged: (value) {
                                 setState(() {
                                   selectedBankId = value; // Store the selected bank ID
-                                  print("seeeeeellllllllllll$selectedBankId");
+                                  ;
                                 });
                               },
                               underline: SizedBox(),
@@ -561,7 +561,7 @@ class _add_receiptState extends State<add_receipt> {
                                 if (pickedDate != null) {
                                   setState(() {
                                     selectedDate = pickedDate; // Update the selected date
-                                    print("dattttttttteeeeeeeeeee$selectedDate");
+                                    ;
                                   });
                                 }
                               },

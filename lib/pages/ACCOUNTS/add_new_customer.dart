@@ -73,7 +73,7 @@ var allocatedstates;
           'Content-Type': 'application/json',
         },
       );
-print("response.body profileeeeeeeeeeeeeeeeeeeeeeee${response.body}");
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -81,7 +81,7 @@ print("response.body profileeeeeeeeeeeeeeeeeeeeeeee${response.body}");
         setState(() {
           
           allocatedstates=productsData['allocated_states'];
-          print("allovatedstatesallovatedstatesallovatedstates$allocatedstates");
+          ;
         });
                 getstates();
 
@@ -125,8 +125,8 @@ print("response.body profileeeeeeeeeeeeeeeeeeeeeeee${response.body}");
         }),
       );
 
-  print(response.body)   ;
-  print(response.statusCode) ;
+     ;
+   ;
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -246,7 +246,7 @@ void logout() async {
 
 
         }
-        print("allocatedstatesallocatedstatesallocatedstates$allocatedstates");
+        ;
         // Filter to keep only allocated states
         if(allocatedstates.isNotEmpty){
       List<Map<String, dynamic>> filteredStates = stateslist
@@ -255,7 +255,7 @@ void logout() async {
         setState(() {
           statess = filteredStates;
 
-          print("statessstatessstatess$statess");
+          ;
         });}
         else{
           setState(() {

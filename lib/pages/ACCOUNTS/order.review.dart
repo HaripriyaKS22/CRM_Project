@@ -66,7 +66,7 @@ var dep;
   Future<void> initData() async {
     await fetchOrderItems();
      dep = await getdepFromPrefs();
-     print("deppppppppppppppppppppppppppppppppp$dep");
+     ;
     if (dep == "BDM") {
       statuses = [
         'Invoice Approved',
@@ -120,7 +120,7 @@ var dep;
   bool ledger=false;
 Future<void> fetchCustomerLedgerDetails() async {
   try {
-    print('Fetching customer ledger details...');
+    ;
     
     final token = await getTokenFromPrefs();
     final response = await http.get(
@@ -131,8 +131,8 @@ Future<void> fetchCustomerLedgerDetails() async {
       },
     );
 
-    print('Response Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
+    ;
+    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -152,7 +152,7 @@ Future<void> fetchCustomerLedgerDetails() async {
       }
       var dif;
       if(receivedPaymentSum>totalAmountSum){
-print('receivedPaymentSum>totalAmountSum');
+;
          dif=receivedPaymentSum-totalAmountSum;
          ledger=true;
 
@@ -168,15 +168,15 @@ print('receivedPaymentSum>totalAmountSum');
         
       });
 
-      print('Total Amount Sum: $totalAmountSum');
-      print('Received Payment Sum: $receivedPaymentSum');
-      print('Difference: $difference');
+      ;
+      ;
+      ;
 
     } else {
-      print('Failed to fetch data.');
+      ;
     }
   } catch (error) {
-    print('Error fetching customer ledger details: $error');
+    ;
   }
 }
 
@@ -387,7 +387,7 @@ Future<void> updateboxstatus( var orderId) async {
   try {
     final token = await getTokenFromPrefs();
 
-print('$api/api/warehouse/detail/$orderId/');
+;
     var response = await http.put(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
@@ -401,8 +401,8 @@ print('$api/api/warehouse/detail/$orderId/');
         },
       ),
     );
-    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-    print('responsessssssssssssssss${response.statusCode}');
+    ;
+    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -422,7 +422,7 @@ fetchOrderItems();
       );
     }
   } catch (error) {
-    print("Error: $error");
+    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating shipping charge'),
@@ -520,7 +520,7 @@ Future<void> getcourierservices() async {
         courierdata = Courierlist;
         
       });
-print('courierdataaaaaaaaa$courierdata');
+;
     }
   } catch (error) {
     
@@ -541,8 +541,8 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
             'order_id': Orderid,
             'phone': ord['customer']['phone'],
           }));
-print(response.statusCode);
-          print("=========================${response.body}");
+;
+          ;
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -562,7 +562,7 @@ print(response.statusCode);
         );
       }
     } catch (e) {
-       print("Error: $e");
+       ;
     }
   }
   Future<void> updatestatus() async {
@@ -647,8 +647,8 @@ print(response.statusCode);
           },
         ),
       );
-print('responsessssssssssssssss${response.body}');
-      print('responsessssssssssssssss${response.statusCode}');
+;
+      ;
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -665,7 +665,7 @@ print('responsessssssssssssssss${response.body}');
         );
       }
     } catch (error) {
-      print("Error: $error");
+      ;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error updating '),
@@ -696,8 +696,8 @@ Future<void> updateshippeddate(DateTime pickedDate, var orderId) async {
         },
       ),
     );
-    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-    print('responsessssssssssssssss${response.statusCode}');
+    ;
+    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -717,7 +717,7 @@ fetchOrderItems();
       );
     }
   } catch (error) {
-    print("Error: $error");
+    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating '),
@@ -744,8 +744,8 @@ Future<void> updateparcel(var parcel , var orderId) async {
         },
       ),
     );
-    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-    print('responsessssssssssssssss${response.statusCode}');
+    ;
+    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -765,7 +765,7 @@ fetchOrderItems();
       );
     }
   } catch (error) {
-    print("Error: $error");
+    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating '),
@@ -791,8 +791,8 @@ Future<void> updatetrackid(var track , var orderId) async {
         },
       ),
     );
-    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-    print('responsessssssssssssssss${response.statusCode}');
+    ;
+    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -812,7 +812,7 @@ fetchOrderItems();
       );
     }
   } catch (error) {
-    print("Error: $error");
+    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating '),
@@ -1077,8 +1077,8 @@ fetchOrderItems();
           ),
         );
 
-        print('responsessssssssssssssss${response.body}');
-        print('responsessssssssssssssss${response.statusCode}');
+        ;
+        ;
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1245,7 +1245,7 @@ Future<void> deletebox( var orderId) async {
   try {
     final token = await getTokenFromPrefs();
 
-print('$api/api/warehouse/detail/$orderId/');
+;
     var response = await http.delete(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
@@ -1254,8 +1254,8 @@ print('$api/api/warehouse/detail/$orderId/');
       },
       
     );
-    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-    print('responsessssssssssssssss${response.statusCode}');
+    ;
+    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1276,7 +1276,7 @@ print('$api/api/warehouse/detail/$orderId/');
     fetchOrderItems();
 
   } catch (error) {
-    print("Error: $error");
+    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating shipping charge'),
@@ -1290,11 +1290,11 @@ print('$api/api/warehouse/detail/$orderId/');
   double totalDiscount = 0.0; // Define at the class level
  Future<void> fetchOrderItems() async {
   try {
-    print('urllllllllllllllll$api/api/order/${widget.id}/items/');
+    ;
     final token = await getTokenFromPrefs();
 
     if (token == null) {
-      print("Token is null. Cannot proceed.");
+      ;
       return;
     }
 
@@ -1304,9 +1304,9 @@ print('$api/api/warehouse/detail/$orderId/');
       createdBy = name;
     });
 
-    print("Decoded Token Payload: ${jwt.payload}");
-    print("User ID: $createdBy");
-    print('$api/api/order/${widget.id}/items/');
+    ;
+    ;
+    ;
 
     var response = await http.get(
       Uri.parse('$api/api/order/${widget.id}/items/'),
@@ -1316,20 +1316,20 @@ print('$api/api/warehouse/detail/$orderId/');
       },
     );
 
-    print("Response reviewwwwwwwwwww: ${response.body}");
+    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
       ord = parsed['order'] ?? {};
-      print("Order Data: $ord");
+      ;
 codamount.text = ord['cod_amount']?.toString() ?? '';
       shippingmethod.text = ord['shipping_mode'] ?? '';
 
       List<dynamic> itemsData = parsed['items'] ?? [];
       List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
 
-      print("Warehouse Data: $warehouseData");
+      ;
 
       getaddress(ord['customer']?['id']);
 
@@ -1393,9 +1393,9 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
 
       for (var receipt in parsed['order']['recived_payment'] ?? []) {
         paymentReceiptsSum += double.tryParse(receipt['amount'].toString()) ?? 0.0;
-        print("Payment Receipt Sum: $paymentReceiptsSum");
+        ;
       }
-print("Payment Receipt Sum: $paymentReceiptsSum");
+;
 double remainingAmount;
 if(calculatedNetAmount>paymentReceiptsSum){
        remainingAmount = calculatedNetAmount - paymentReceiptsSum;
@@ -1415,18 +1415,18 @@ else{
         Balance = remainingAmount;
         paymentreceipt=remainingAmount;
       });
-print("Itemssssssssssssssssssssssssss: $items");
-      print("Net Amount Before Tax: $netAmountBeforeTax");
-      print("Total Tax Amount: $totalTaxAmount");
-      print("Payable Amount: $payableAmount");
-      print("Total Discount: $totalDiscount");
-      print("Remaining Amount: $remainingAmount");
-      print("BALANCE: $Balance");
+;
+      ;
+      ;
+      ;
+      ;
+      ;
+      ;
     } else {
-      print("Failed to fetch data. Status Code: ${response.statusCode}");
+      ;
     }
   } catch (error) {
-    print("Error: $error");
+    ;
   }
 }
 Future<void> updatemsg(var orderId) async {
@@ -1445,9 +1445,8 @@ Future<void> updatemsg(var orderId) async {
           },
         ),
       );
-      print(
-          'responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-      print('responsessssssssssssssss${response.statusCode}');
+  
+      ;
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1465,7 +1464,7 @@ Future<void> updatemsg(var orderId) async {
         );
       }
     } catch (error) {
-      print("Error: $error");
+      ;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error in send message'),
@@ -1620,7 +1619,7 @@ Future<void> updatemsg(var orderId) async {
     );
     if (picked != null) {
       updateshippeddate( picked, orderId);
-      print("Selected date for order $orderId: $picked");
+      ;
     }
   }
 
@@ -3207,7 +3206,7 @@ Text(
                   String trackingId = trackingIdController.text.trim();
                   if (trackingId.isNotEmpty) {
                 updatetrackid(trackingId,order['id']);
-                    print('Tracking ID submitted: $trackingId');
+                    ;
                     Navigator.of(context).pop(); // Close the dialog
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

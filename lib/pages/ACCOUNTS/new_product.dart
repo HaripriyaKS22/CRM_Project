@@ -287,8 +287,8 @@ double landingPriceValue = 0.0;
 
       // Print the response status and body for debugging
       
-      print(responseData.statusCode);
-      print(responseData.body);
+      ;
+      ;
 
       if (responseData.statusCode == 201) {
         // Parse the response body
@@ -328,7 +328,7 @@ double landingPriceValue = 0.0;
   Future<void> updateProductImage(
       BuildContext scaffoldContext, File newImage) async {
     final token = await gettokenFromPrefs();
-print("globalProductId$globalProductId");
+;
     try {
       var request = http.MultipartRequest(
         'PUT',
@@ -361,8 +361,8 @@ print("globalProductId$globalProductId");
 
       // Print the response status and body for debugging
       
-      print(responseData.statusCode);
-      print("responseData.body${responseData.body}");
+      ;
+      ;
 
       if (responseData.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

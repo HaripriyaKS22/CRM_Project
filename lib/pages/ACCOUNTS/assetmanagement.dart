@@ -53,7 +53,7 @@ class _AssetManegmentState extends State<AssetManegment> {
       },
     );
 
-    print("===============rrrrrrr================${response.body}");
+    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -105,7 +105,7 @@ class _AssetManegmentState extends State<AssetManegment> {
       });
     }
   } catch (error) {
-    print('Error fetching assets: $error');
+    ;
   }
 }
 
@@ -121,7 +121,7 @@ class _AssetManegmentState extends State<AssetManegment> {
           'Content-Type': 'application/json',
         },
       );
-    print("===============rrrrrrreeeeeeeeeeeeeeeeeee================${response.body}");
+    ;
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -145,7 +145,7 @@ class _AssetManegmentState extends State<AssetManegment> {
         });
       }
     } catch (error) {
-      print('Error fetching expenses: $error');
+      ;
     }
   }
 

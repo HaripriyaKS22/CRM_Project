@@ -288,10 +288,10 @@ Future<String?> getdepartment() async {
 }
 Future<void> updateverifiedby( var orderId,selectedManagerId) async {
   try {
-    print('selectedManagerId in functionnnnnnnnnnnnnnnnnn: $selectedManagerId');
+    ;
     final token = await getTokenFromPrefs();
 
-print('$api/api/warehouse/detail/$orderId/');
+;
     var response = await http.put(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
@@ -305,8 +305,8 @@ print('$api/api/warehouse/detail/$orderId/');
         },
       ),
     );
-    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-    print('responsessssssssssssssss${response.statusCode}');
+    ;
+    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -326,7 +326,7 @@ fetchOrderItems();
       );
     }
   } catch (error) {
-    print("Error: $error");
+    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating shipping charge'),
@@ -341,7 +341,7 @@ Future<void> updateboxstatus( var orderId) async {
   try {
     final token = await getTokenFromPrefs();
 
-print('$api/api/warehouse/detail/$orderId/');
+;
     var response = await http.put(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
@@ -355,8 +355,8 @@ print('$api/api/warehouse/detail/$orderId/');
         },
       ),
     );
-    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-    print('responsessssssssssssssss${response.statusCode}');
+    ;
+    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -376,7 +376,7 @@ fetchOrderItems();
       );
     }
   } catch (error) {
-    print("Error: $error");
+    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating shipping charge'),
@@ -390,10 +390,10 @@ fetchOrderItems();
 
 Future<void> deletebox( var orderId) async {
   try {
-    print('selectedManagerId in functionnnnnnnnnnnnnnnnnn: $selectedManagerId');
+    ;
     final token = await getTokenFromPrefs();
 
-print('$api/api/warehouse/detail/$orderId/');
+;
     var response = await http.delete(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
@@ -402,8 +402,8 @@ print('$api/api/warehouse/detail/$orderId/');
       },
       
     );
-    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-    print('responsessssssssssssssss${response.statusCode}');
+    ;
+    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -424,7 +424,7 @@ print('$api/api/warehouse/detail/$orderId/');
     fetchOrderItems();
 
   } catch (error) {
-    print("Error: $error");
+    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating shipping charge'),
@@ -446,7 +446,7 @@ print('$api/api/warehouse/detail/$orderId/');
       );
       
       List<Map<String, dynamic>> managerlist = [];
-print('https://rising-regression-canada-intensity.trycloudflare.com/${response.body}');
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -525,7 +525,7 @@ void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails)
                   setState(() {
                     selectedManagerName = newValue!['name'];
                     selectedManagerId = newValue['id'];
-                    print('selectedManagerId: $selectedManagerId');
+                    ;
 
                   });
                 },
@@ -630,8 +630,8 @@ void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails)
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      print("ress>>>>>>>>>>>>>stta>>>>${response.statusCode}");
-print("resssssssssssssssssssssssssss>>>>>>>>>>>>>>>>>>${response.body}");
+      ;
+;
       // Handle response based on status code
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -1023,7 +1023,7 @@ var dep;
           selectedManagerId = name;
         });
         
-        print('$api/api/order/${widget.id}/items/');
+        ;
         var response = await http.get(
           Uri.parse('$api/api/order/${widget.id}/items/'),
           headers: {
@@ -1032,7 +1032,7 @@ var dep;
           },
         );
 
-                print('Token:resssssssssssssssssssssss??????? ${response.body}');
+                ;
 
   
         if (response.statusCode == 200) {
@@ -1854,8 +1854,8 @@ var dep;
                                   setState(() {
                                     selectedManagerName = newValue!['name'];
                                     selectedManagerId = newValue['id'];
-                                    print(selectedManagerId);
-                                    print(selectedManagerName);
+                                    ;
+                                    ;
 
                                   });
                                 }

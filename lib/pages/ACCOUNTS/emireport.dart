@@ -32,7 +32,7 @@ class _EmiReportState extends State<EmiReport> {
   Future<void> getEmiReport() async {
     final token = await getToken();
 
-    print('$api/apis/emiexpense/${widget.emid}/');
+    ;
     try {
       final response = await http.get(
         Uri.parse('$api/apis/emiexpense/${widget.emid}/'),
@@ -41,7 +41,7 @@ class _EmiReportState extends State<EmiReport> {
           'Authorization': 'Bearer $token',
         },
       );
-print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${response.body}");
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 

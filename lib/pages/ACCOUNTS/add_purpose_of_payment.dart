@@ -49,7 +49,7 @@ class _add_purpose_of_paymentState extends State<add_purpose_of_payment> {
           'Content-Type': 'application/json',
         },
       );
-print("======================================${response.body}");
+;
       List<Map<String, dynamic>> purposelist = [];
 
       if (response.statusCode == 200) {
@@ -82,8 +82,8 @@ print("======================================${response.body}");
         },
       );
 
-      print(response.statusCode);
-      print("==================>>>>>>>>>>>>>>>>>>${response.body}");
+      ;
+      ;
 
       if (response.statusCode == 201) {
         Navigator.push(

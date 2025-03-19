@@ -68,7 +68,7 @@ var warehouse;
     await fetchProductList();
     setState(() {
       filteredProducts = products;
-      print("filteredProducts${filteredProducts}");
+      ;
     });
   }
 
@@ -186,7 +186,7 @@ void logout() async {
         'Authorization': 'Bearer $token',
       },
     );
-print(response.body);
+;
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -201,7 +201,7 @@ print(response.body);
             orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
 var imageurl='${api}${productData['image']}';
         // Add the product data to the list
-        print('productData${ imageurl}');
+        ;
         productList.add({
           'id': productData['id'],
           'name': productData['name'],
@@ -226,7 +226,7 @@ var imageurl='${api}${productData['image']}';
       });
     }
   } catch (error) {
-    print("error");
+    ;
     
   }
 }
@@ -311,7 +311,7 @@ else {
                                           setState(() {
                                             selectpurchasetype = newValue!;
                                             _filterProductsByPurchaseType(selectpurchasetype);
-                                            print(selectpurchasetype);
+                                            ;
                                           });
                                         },
                                         items: purchasetype

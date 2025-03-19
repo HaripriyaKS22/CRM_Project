@@ -54,8 +54,8 @@ Future<void> uploadExcel(BuildContext scaffoldContext) async {
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
 
-    print('Response Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
+    ;
+    ;
 
     if (response.statusCode == 201) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -73,7 +73,7 @@ Future<void> uploadExcel(BuildContext scaffoldContext) async {
       );
     }
   } catch (e) {
-    print('Upload error: $e');
+    ;
 
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(

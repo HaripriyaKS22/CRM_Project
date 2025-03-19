@@ -48,7 +48,7 @@ class _add_categoriesState extends State<add_categories> {
           'Content-Type': 'application/json',
         },
       );
-print("======================================${response.body}");
+;
       List<Map<String, dynamic>> categorylist = [];
 
       if (response.statusCode == 200) {
@@ -81,8 +81,6 @@ print("======================================${response.body}");
         },
       );
 
-      print(response.statusCode);
-      print(response.body);
 
       if (response.statusCode == 201) {
         Navigator.push(

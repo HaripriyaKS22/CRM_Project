@@ -158,7 +158,7 @@ var allocatedstates;
           Warehouses = warehouselist;
         });
 
-        print('WarehousesWarehouses$Warehouses');
+        ;
       }
     } catch (e) {}
   }
@@ -172,7 +172,7 @@ var allocatedstates;
       final token = await gettokenFromPrefs();
       warehouse = await getwarehouseFromPrefs();
 
-      print("warehouse$warehouse");
+      ;
 
       // Build the base body object
       Map<String, dynamic> requestBody = {
@@ -208,7 +208,7 @@ var allocatedstates;
         },
         body: jsonEncode(requestBody),
       );
-      print("requestBodyYYYYYYYYYYYYYYYYYYYYYYYYY${response.body}");
+      ;
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -329,7 +329,7 @@ var allocatedstates;
       );
 
       List<Map<String, dynamic>> companylist = [];
-      print("response.body${response.body}");
+      ;
       if (response.statusCode == 200) {
         final Data = jsonDecode(response.body);
         final productsData = Data['data'];
@@ -638,15 +638,15 @@ var allocatedstates;
   }
 
   Future<void> getcustomer2() async {
-    print("getcustomer22222222222222222");
+    ;
     try {
       // final dep = await getdepFromPrefs();
       final token = await gettokenFromPrefs();
 
       final jwt = JWT.decode(token!);
       var name = jwt.payload['name'];
-      print("Name: $name");
-      print("Decoded Token Payload: ${jwt.payload}");
+      ;
+      ;
 
       List<Map<String, dynamic>> managerlist = [];
 
@@ -658,7 +658,7 @@ var allocatedstates;
         },
       );
 
-      print("Customer data responseeeeeeeee: ${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -677,12 +677,12 @@ var allocatedstates;
           customer = newCustomers;
         });
 
-        print("ccccccccccuuuuuuuuussssssssss============$customer");
+        ;
       } else {
         throw Exception("Failed to load customer data");
       }
     } catch (error) {
-      print("Error fetching customerssssssssssssss: $error");
+      ;
     }
   }
 
@@ -693,8 +693,8 @@ var allocatedstates;
 
       final jwt = JWT.decode(token!);
       var name = jwt.payload['name'];
-      print("Name: $name");
-      print("Decoded Token Payload: ${jwt.payload}");
+      ;
+      ;
 
       var response = await http.get(
         Uri.parse('$api/api/customers/'),
@@ -704,7 +704,7 @@ var allocatedstates;
         },
       );
 
-      print("Customer data response: ${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -724,14 +724,14 @@ var allocatedstates;
         // Update UI
         setState(() {
           customer = newCustomers;
-          print("Customer data: $customer");
+          ;
           filteredProducts = newCustomers;
         });
       } else {
         throw Exception("Failed to load customer data");
       }
     } catch (error) {
-      print("Error fetching customers: $error");
+      ;
     }
   }
 
@@ -774,14 +774,14 @@ if(allocatedstates.isNotEmpty){
       }
     }
   } catch (error) {
-    print("Error fetching states: $error");
+    ;
   }
 }
 
   List<Map<String, dynamic>> addres = [];
 
   Future<void> getaddress(var id) async {
-    print("id$id");
+    ;
     try {
       final token = await gettokenFromPrefs();
 
@@ -818,7 +818,7 @@ if(allocatedstates.isNotEmpty){
         });
       }
     } catch (error) {
-      print(error);
+      ;
     }
   }
 
@@ -865,7 +865,7 @@ if(allocatedstates.isNotEmpty){
           'Content-Type': 'application/json',
         },
       );
-print("response.body profileeeeeeeeeeeeeeeeeeeeeeee${response.body}");
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -874,7 +874,7 @@ print("response.body profileeeeeeeeeeeeeeeeeeeeeeee${response.body}");
           famid = productsData['family'];
           staffid = productsData['id'];
           allocatedstates=productsData['allocated_states'];
-          print("allovatedstatesallovatedstatesallovatedstates$allocatedstates");
+          ;
         });
         getstate();
       }

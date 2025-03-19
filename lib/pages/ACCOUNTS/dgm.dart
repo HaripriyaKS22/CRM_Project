@@ -35,7 +35,7 @@ class _DgmState extends State<Dgm> {
 
   Future<void> updatecheckedby() async {
     try {
-      print('$api/warehouse/update-checked-by/${widget.shipped_date}/');
+      ;
       final token = await gettokenFromPrefs();
       final jwt = JWT.decode(token!);
       var id = jwt.payload['id']; // Expected to be an int
@@ -51,8 +51,8 @@ class _DgmState extends State<Dgm> {
           },
         ),
       );
-      print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
-      print('responsessssssssssssssss${response.statusCode}');
+      ;
+      ;
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -69,7 +69,7 @@ class _DgmState extends State<Dgm> {
         );
       }
     } catch (error) {
-      print("Error: $error");
+      ;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error updating shipping charge'),
@@ -89,7 +89,7 @@ class _DgmState extends State<Dgm> {
           'Content-Type': 'application/json',
         },
       );
-      print('response serviceeeeeeeeeeeeeeeeeeee: $response');
+      ;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         if (parsed.containsKey('data')) {
@@ -100,11 +100,10 @@ class _DgmState extends State<Dgm> {
                 }));
           });
 
-          print('courierdata: $courierdata');
+          ;
         }
       }
     } catch (error) {
-      debugPrint("Error fetching courier services: $error");
     }
   }
 
@@ -119,7 +118,7 @@ class _DgmState extends State<Dgm> {
           'Content-Type': 'application/json',
         },
       );
-print("response dgmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm${response.body}");
+;
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         Map<String, List<dynamic>> resultsByFamily = {};
@@ -127,7 +126,7 @@ print("response dgmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm${response.body}");
         Map<String, int> totalOrdersByFamily = {};
         Map<String, int> totalBoxesByFamily = {};
 
-        print("Data received: $data");
+        ;
         for (var family in data['results']) {
           for (var order in family['orders']) {
             for (var warehouse in order['warehouses']) {
@@ -152,7 +151,7 @@ print("response dgmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm${response.body}");
               totalBoxesByFamily[familyName] = totalBoxesByFamily[familyName]! + orderBoxesCount;
 
               for (var warehouse in order['warehouses']) {
-                print('Warehouse: $warehouse');
+                ;
 
                 // Initialize parcel service counts for the order
                 Map<String, int> parcelServiceCountForOrder = {};
@@ -188,12 +187,11 @@ print("response dgmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm${response.body}");
           parcelServiceCountsByFamily = parcelServiceCounts;
           this.totalOrdersByFamily = totalOrdersByFamily;
           this.totalBoxesByFamily = totalBoxesByFamily;
-          print('Table Data: $tableDataByFamily');
-          print('Parcel Service Counts: $parcelServiceCountsByFamily');
+          ;
+          ;
         });
       }
     } catch (e) {
-      debugPrint("Error fetching parcel data: $e");
     }
   }
 

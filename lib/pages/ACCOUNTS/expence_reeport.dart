@@ -240,7 +240,7 @@ Future<void> getexpenselist() async {
         'Content-Type': 'application/json',
       },
     );
-print("expenselistttttttttttttt${response.body}");
+;
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 

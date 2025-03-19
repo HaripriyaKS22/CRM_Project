@@ -109,9 +109,7 @@ class _add_companyState extends State<add_company> {
         },
       );
 
-      print(response.statusCode);
-      print(response.body);
-  
+     
       if (response.statusCode == 201) {
 
         Navigator.push(

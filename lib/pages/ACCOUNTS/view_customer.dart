@@ -69,7 +69,7 @@ class _view_customerState extends State<view_customer> {
     getmanagers();
     getstates();
 
-    print("=============>>>>>>>>>..${widget.customerid}");
+    ;
   }
 
   void initdata() async {
@@ -168,7 +168,7 @@ class _view_customerState extends State<view_customer> {
 
       List<Map<String, dynamic>> managerlist = [];
 
-      print("===================${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -219,7 +219,7 @@ class _view_customerState extends State<view_customer> {
       );
       List<Map<String, dynamic>> managerlist = [];
 
-      print("=============>>>???????>>>>>>>>>>>>>>${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -244,7 +244,7 @@ class _view_customerState extends State<view_customer> {
           selectedManagerName = managerlist[0]['name'];
           selectedManagerId = managerlist[0]['id'];
 
-          print("managerlisttttttttttttttttttttttt: $managerlist");
+          ;
         });
       }
     } catch (error) {}

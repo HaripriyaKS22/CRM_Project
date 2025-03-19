@@ -96,8 +96,8 @@ Future<void> getcustomer() async {
 
     final jwt = JWT.decode(token!);
     var name = jwt.payload['name'];
-    print("Name: $name");
-    print("Decoded Token Payload: ${jwt.payload}");
+    ;
+    ;
 
 
     var response = await http.get(
@@ -108,7 +108,7 @@ Future<void> getcustomer() async {
       },
     );
 
-    print("Customer data responseeeeeeeeeeeeeeeeee: ${response.body}");
+    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -127,14 +127,14 @@ Future<void> getcustomer() async {
       // Update UI
       setState(() {
         customer = newCustomers;
-        print("Customer data: $customer");
+        ;
         filteredProducts = newCustomers;
       });
     } else {
       throw Exception("Failed to load customer data");
     }
   } catch (error) {
-    print("Error fetching customers: $error");
+    ;
   }
 }
   void _filterProducts(String query) {

@@ -166,8 +166,8 @@ final productsData=Data['data'];
   void performaordercreate(
     BuildContext scaffoldContext,
   ) async {
- print("selectedstaffId$selectedCustomerId");
- print("selectcomp::::::::::::::::::::::::::$selectcomp");
+ ;
+ ;
     try {
       final token = await gettokenFromPrefs();
       var response = await http.post(
@@ -190,7 +190,7 @@ final productsData=Data['data'];
           
         }),
       );
-print("rrrrrrrrrrrrrrkkkkkkkkkkkkkk${response.body}");
+;
     
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -598,7 +598,7 @@ print("rrrrrrrrrrrrrrkkkkkkkkkkkkkk${response.body}");
   }
 
 Future<void> getcustomer2() async {
-    print("getcustomer22222222222222222");
+    ;
     try {
 
       
@@ -615,7 +615,7 @@ Future<void> getcustomer2() async {
         },
       );
 
-      print("Customer data responseeeeeeeee: ${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -634,12 +634,12 @@ Future<void> getcustomer2() async {
           customer = newCustomers;
         });
 
-        print("ccccccccccuuuuuuuuussssssssss============$customer");
+        ;
       } else {
         throw Exception("Failed to load customer data");
       }
     } catch (error) {
-      print("Error fetching customerssssssssssssss: $error");
+      ;
     }
   }
 Future<void> getcustomer() async {
@@ -659,7 +659,7 @@ Future<void> getcustomer() async {
         },
       );
 
-      print("Customer data response: ${response.body}");
+      ;
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -688,7 +688,7 @@ Future<void> getcustomer() async {
       }
     }
   } catch (error) {
-    print("Error fetching customers: $error");
+    ;
   }
 }
 
@@ -875,7 +875,7 @@ Future<void> getcustomer() async {
         });
       }
     } catch (error) {
-      print("Error fetching staff: $error");
+      ;
       
     }
   }
@@ -1398,7 +1398,7 @@ void logout() async {
                                                       value)['id'];
                                          
                                             });
-print("customerrrrrrrrrrrrrrrrrrid$selectedCustomerId");
+;
                                             getaddress(selectedCustomerId);
                                           },
                                           buttonStyleData:

@@ -67,8 +67,8 @@ Future<void> fetchOrderData2() async {
           'Content-Type': 'application/json',
         },
       );
-print("resssponse${response.body}");
-print("resssponse${response.statusCode}");
+;
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final data = parsed['data'] as List;
@@ -103,12 +103,12 @@ print("resssponse${response.statusCode}");
           filteredOrders = performaInvoiceList.reversed.toList();
 
         });
-        print("orders ________________________$orders");
+        ;
       } else {
-        print('Failed to load orders: ${response.statusCode}');
+        ;
       }
     } catch (error) {
-      print('Error fetching orders: $error');
+      ;
     }
   }
   Future<void> fetchOrderData() async {
@@ -212,9 +212,9 @@ Future<String?> getdepFromPrefs() async {
       searchQuery = query;
       if (query.isEmpty) {
         filteredOrders = orders;
-        print("filteredOrders$filteredOrders");
+        ;
       } else {
-        print("filteredOrders===$filteredOrders");
+        ;
         filteredOrders = orders.where((order) {
           final customerName =
               order['customer_name']?.toString().toLowerCase() ?? '';

@@ -124,7 +124,7 @@ Future<void> getprofiledata() async {
         // Store the matching family name
         familyName = matchingFamily['name'];
         
-        print("Family Name: $familyName");
+        ;
         });
     fetchOrderData();
 
@@ -175,7 +175,7 @@ Future<void> getprofiledata() async {
     final dep = await getdepFromPrefs();
     final jwt = JWT.decode(token!);
     var name = jwt.payload['name'];
-print("name issssssssssssssssssssssssssssssssssssssssss $name");
+;
     String url = '$api/api/orders/';
     List<Map<String, dynamic>> orderList = [];
 
@@ -187,9 +187,9 @@ print("name issssssssssssssssssssssssssssssssssssssssss $name");
       },
     );
 
-    print(response.statusCode);
-    print("=================== ${response.body}");
-    print(response.body);
+    ;
+    ;
+    ;
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
@@ -231,14 +231,14 @@ print("name issssssssssssssssssssssssssssssssssssssssss $name");
       setState(() {
         orders = newOrders;
 
-        print("orders are$orders");
+        ;
         filteredOrders = newOrders;
       });
     } else {
       throw Exception("Failed to load order data");
     }
   } catch (error) {
-    print("Error fetching orders: $error");
+    ;
   }
 }
   void _filterOrders(String query) {

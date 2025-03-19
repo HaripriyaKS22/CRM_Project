@@ -153,7 +153,7 @@ void _filterOrdersByDateRange() {
           })
           .toList(); // Ensure final result is a List<Map<String, dynamic>>
 
-      print("filteredDataaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$filteredData");
+      ;
 
       // Aggregate totals based on the filtered data
       List<Map<String, dynamic>> aggregatedData = [];
@@ -382,7 +382,7 @@ Future<void> getstatewisereport() async {
         'Content-Type': 'application/json',
       },
     );
-print(response.body);
+;
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 

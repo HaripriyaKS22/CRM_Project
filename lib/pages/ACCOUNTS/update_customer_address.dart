@@ -47,9 +47,9 @@ class _EditaddressState extends State<Editaddress> {
     //  getstate(); 
     customerNameController = TextEditingController(text: widget.customername);
 
-    print("-------------------------------${widget.addresid}");
-    print("-------------------------------${widget.customerid}");
-    print("-------------------------------${widget.customername}");
+    ;
+    ;
+    ;
   }
 
   Future<String?> gettokenFromPrefs() async {
@@ -63,7 +63,7 @@ Widget buildDropdown() {
     onChanged: (String? newValue) {
       setState(() {
         selectedState = newValue;
-        print("Selected State ID: $selectedState");
+        ;
       });
     },
     items: stat.map((state) {
@@ -124,10 +124,10 @@ Future<void> getstate(int stateId) async {
         }
       });
     } else {
-      print('Failed to fetch states');
+      ;
     }
   } catch (error) {
-    print("Error fetching states: $error");
+    ;
   }
 }
 
@@ -146,7 +146,7 @@ Future<void> getaddress() async {
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
-      print("Address Data: $productsData");
+      ;
 
       setState(() {
         name.text = productsData['name'] ?? '';
@@ -163,10 +163,10 @@ Future<void> getaddress() async {
         getstate(stateId);
       });
     } else {
-      print('Failed to fetch address');
+      ;
     }
   } catch (error) {
-    print("Error fetching address: $error");
+    ;
   }
 }
 

@@ -163,9 +163,7 @@ Future<void> fetchCustomerLedgerDetails() async {
           orElse: () => {'name': 'Unknown Company'},
         )['name'];
 
-        print(
-            "Adding Debit Entry: Date: ${entry['order_date']}, Invoice: ${entry['invoice']}/$companyName, Amount: $debitAmount");
-
+    
         entries.add({
           'date': entry['order_date'],
           'invoice': '${entry['invoice']}/$companyName',

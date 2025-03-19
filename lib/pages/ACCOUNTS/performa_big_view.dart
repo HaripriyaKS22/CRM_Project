@@ -380,7 +380,7 @@ class _PerformaInvoice_BigView_ListState
           'Content-Type': 'application/json',
         },
       );
-      print(response.body);
+      ;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
@@ -423,13 +423,13 @@ class _PerformaInvoice_BigView_ListState
 
         setState(() {
           orders = performaInvoiceList;
-          print("orders:$orders");
+          ;
         });
       } else {
         // Handle error response
       }
     } catch (error) {
-      print(error);
+      ;
       // Handle exception
     }
   }

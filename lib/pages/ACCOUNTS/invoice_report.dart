@@ -66,7 +66,7 @@ class _Invoice_ReportState extends State<Invoice_Report> {
   setState(() {}); // Update UI
   try {
     final token = await getTokenFromPrefs();
-print('$api/api/invoice/report/${widget.date}/');
+;
     var response = await http.get(
       Uri.parse('$api/api/invoice/report/${widget.date}/'),
       headers: {
@@ -75,7 +75,7 @@ print('$api/api/invoice/report/${widget.date}/');
       },
     );
 
-    print(response.body);
+    ;
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var salesData = parsed['data'];
@@ -96,20 +96,20 @@ print('$api/api/invoice/report/${widget.date}/');
       for (var reportData in salesData) {
 
 
-        print("reportData$reportData");
+        ;
         List<dynamic> staffOrders = reportData['orders_details'] ?? [];
         int totalApprovedBills = 0;
         double totalApprovedAmount = 0.0;
         int totalRejectedBills = 0;
         double totalRejectedAmount = 0.0;
-print("staffOrders$staffOrders");
+;
         // Iterate through each staff order and classify based on status
         for (var order in staffOrders) {
-          print("orderr>>>>>>.$order");
+          ;
           double orderAmount = (order['total_amount'] ?? 0.0).toDouble();
           if (approvedStatuses.contains(order['status'])) {
             totalApprovedBills++;
-            print("totalApprovedBills$totalApprovedBills");
+            ;
 
             totalApprovedAmount += orderAmount;
           } else if (rejectedStatuses.contains(order['status'])) {
@@ -139,7 +139,7 @@ print("staffOrders$staffOrders");
       setState(() {
         invoicedata = salesReportDataList;
         filteredProducts = salesReportDataList;
-        print("filteredProducts$filteredProducts");
+        ;
         _updateTotals();
       });
     } else {
@@ -178,7 +178,7 @@ double totalBills = 0.0;
     for (var reportData in filteredProducts) {
 
 
-      print("reportData}}}}}}}}}}}$reportData");
+      ;
       tempTotalBills += reportData['total_bills_in_date'];
       tempTotalAmount += reportData['amount'];
       tempApprovedBills += reportData['approved']['bills'];

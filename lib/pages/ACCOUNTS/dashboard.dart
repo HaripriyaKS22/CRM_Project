@@ -71,8 +71,8 @@ Future<void> fetchOrderData() async {
       },
     );
 
-    print("response.body: ${response.body}");
-    print("response.statusCode: ${response.statusCode}");
+    ;
+    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -89,7 +89,7 @@ Future<void> fetchOrderData() async {
             DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
             formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
           } catch (e) {
-            print("Date format error: $e");
+            ;
           }
 
           orderList.add({
@@ -154,18 +154,18 @@ Future<void> fetchOrderData() async {
           orders = orderList;
           filteredOrders = orderList;
           shippedOrders = shippedOrdersToday;
-          print("orders: $shippedOrders");
+          ;
           approvalcount = parsed['invoice_created_count'];
           confirmcount =parsed['invoice_approved_count'];
-          print("approvalcount: $approvalcount");
-          print("confirmcount: $confirmcount");
+          ;
+          ;
         });
       } else {
-        print('No orders found');
+        ;
       }
     }
   } catch (error) {
-    print("Error: $error");
+    ;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching order data: $error')),
@@ -188,7 +188,7 @@ Future<void> fetchOrderData() async {
       },
     );
 
-    print("response.body: ${response.body}");
+    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -216,13 +216,13 @@ Future<void> fetchOrderData() async {
 
         setState(() {
           salesReportList = salesReportDataList;
-          print("salesReportList: $salesReportList");
+          ;
         });
         getTodaysBills();  // Get today's bills count
       }
     } 
   } catch (error) {
-    print('Error: $error');
+    ;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred while fetching data')),
@@ -246,7 +246,7 @@ var totalbills="0";
 setState(() {
   if (todaysReport['total_bills_in_date'] != null) {
       totalbills= todaysReport['total_bills_in_date'].toString();
-      print('totalbills: $totalbills');
+      ;
     } else {
       totalbills= '0'; // Return '0' if no report is found for today
     }
@@ -317,8 +317,8 @@ int grvcount=0;
           'Content-Type': 'application/json',
         },
       );
-print("response.body grvvvvvvvvvvvvv: ${response.body}");
-print("response.statusCode: ${response.statusCode}");
+;
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];

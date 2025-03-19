@@ -469,7 +469,7 @@ Future<void> updateProductImage(
       // Send the request
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
-print("responseData.body${responseData.body}");
+;
       
 
       if (responseData.statusCode == 201) {
@@ -518,7 +518,7 @@ print("responseData.body${responseData.body}");
         );
       }
     } catch (e) {
-      print(e);
+      ;
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Enter valid information'),
@@ -618,7 +618,7 @@ var groupid;
       },
     );
     
-print(response.body);
+;
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productData = parsed['products']; // Map of the product
@@ -636,11 +636,11 @@ print(response.body);
           } else if (widget.type == 'variant') 
           {
             variantProducts = List<Map<String, dynamic>>.from(variantIDs); // List of variants
-            print("variantProducts$variantProducts");
+            ;
             if (variantProducts.isNotEmpty) {
               product.text = variantProducts[0]['name'] ?? '';
               groupid=variantProducts[0]['groupID'];
-              print("groupid$groupid");
+              ;
 
               
             }
@@ -680,7 +680,7 @@ print(response.body);
       },
       body: jsonString,
     );
-print("response.body${response.body}");
+;
     // Debugging output
     
     
@@ -708,7 +708,7 @@ print("response.body${response.body}");
       );
     }
   } catch (e) {
-    print(e);
+    ;
     ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       SnackBar(
         content: Text('Enter valid information: ${e.toString()}'),
@@ -1199,7 +1199,7 @@ Future<String?> getdepFromPrefs() async {
                 'attribute': selectedAttributeName!,
                 'values': selectedValues,
               });
-print("attributesToSend$attributesToSend");
+;
               // Reset input fields
               selectedAttributeName = null;
               selectedValues = [];

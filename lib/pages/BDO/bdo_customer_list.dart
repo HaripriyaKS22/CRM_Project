@@ -96,14 +96,14 @@ Future<String?> getdepFromPrefs() async {
       final token = await gettokenFromPrefs();
       // final id = await getidFromPrefs();
 
-      // print(id);
+      // ;
 
       // final jwt = JWT.decode(token!);
       // var name = jwt.payload['id'];
 
-      // print("tokeniddddddddddddddd$name");
+      // ;
 
-      print("wwwwwwwwwwwwwwww");
+      ;
       
 
       var response = await http.get(
@@ -113,8 +113,8 @@ Future<String?> getdepFromPrefs() async {
           'Content-Type': 'application/json',
         },
       );
-print("rrrrrrrrrreeeeeeeee===========================${response.body}");
-print(response.statusCode);
+;
+;
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -136,7 +136,7 @@ print(response.statusCode);
       }
     } catch (error) {
 
-      print("errorrrrrrrrrrrrrrrrr$error");
+      ;
     }
   }
   void _filterProducts(String query) {
