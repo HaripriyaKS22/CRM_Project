@@ -119,7 +119,10 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
+Future<String?> getdepartment() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
   final List<String> statuses = [
    'Packing under Progress',
    'Ready To Ship',
@@ -1007,16 +1010,17 @@ void showStatusDialog(BuildContext context,var order) {
   }
 
   bool flag = false;
-
+var dep;
   double totalDiscount = 0.0; // Define at the class level
   Future<void> fetchOrderItems() async {
       try {
         
         final token = await getTokenFromPrefs();
+        dep=await getdepartment();
         final jwt = JWT.decode(token!);
-        var name = jwt.payload['name'];
+        var name = jwt.payload['id'];
         setState(() {
-          createdBy = name;
+          selectedManagerId = name;
         });
         
         print('$api/api/order/${widget.id}/items/');
@@ -2019,7 +2023,7 @@ void showStatusDialog(BuildContext context,var order) {
                       TextField(
                         controller: transactionid,
                         decoration: InputDecoration(
-                          labelText: 'Transaction Id',
+                          labelText: 'Tracking Id',
                           labelStyle: TextStyle(fontSize: 13),
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.symmetric(
@@ -2171,8 +2175,17 @@ void showStatusDialog(BuildContext context,var order) {
                               child: GestureDetector(
                                 onTap: (){
 
+
+                                  if(dep!="warehouse")
+                                  {
+                                    
                                    showBoxDetailsDialog(
                                       context, order);
+
+                                  }
+
+
+
 
                                 },
                                 child: Container(
@@ -2437,50 +2450,3 @@ void showStatusDialog(BuildContext context,var order) {
   }
 }
 
-void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Box Details'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Box: ${boxDetails['box'] ?? 'N/A'}'),
-              SizedBox(height: 8),
-              Text('Packed By: ${boxDetails['packed_by'] ?? 'N/A'}'),
-              SizedBox(height: 8),
-              Text('Shipping Charge: ${boxDetails['shipping_charge'] ?? 'N/A'}'),
-              SizedBox(height: 8),
-              Text('Parcel Service: ${boxDetails['parcel_service'] ?? 'N/A'}'),
-              SizedBox(height: 8),
-              Text('Tracking ID: ${boxDetails['tracking_id'] ?? 'N/A'}'),
-              SizedBox(height: 8),
-              Text('Status: ${boxDetails['status'] ?? 'N/A'}'),
-              SizedBox(height: 8),
-              Text('Shipped Date: ${boxDetails['shipped_date'] ?? 'N/A'}'),
-              SizedBox(height: 8),
-              if (boxDetails['image'] != null)
-                Image.network(
-                  '$api${boxDetails['image']}',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.image_not_supported, size: 40, color: Colors.grey);
-                  },
-                ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: Text('Close'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}

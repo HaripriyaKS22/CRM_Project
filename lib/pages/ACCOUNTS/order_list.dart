@@ -71,6 +71,7 @@ class _OrderListState extends State<OrderList> {
   void initState() {
     super.initState();
     fetchOrderData();
+    print("status is${widget.status}");
   }
 
   Future<String?> getTokenFromPrefs() async {

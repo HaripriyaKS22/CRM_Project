@@ -48,6 +48,8 @@ class _OrderReviewState extends State<OrderReview> {
   TextEditingController shippingchargeController = TextEditingController();
    TextEditingController codamount = TextEditingController();
   TextEditingController shippingmethod = TextEditingController();
+            TextEditingController trackingIdController = TextEditingController();
+
 var selectedserviceId;
   List<String> statuses = [];
   @override
@@ -379,7 +381,108 @@ void _showShippingChargeDialog(BuildContext context, Map<String, dynamic> boxDet
       });
     }
   }
+  
 
+Future<void> updateboxstatus( var orderId) async {
+  try {
+    final token = await getTokenFromPrefs();
+
+print('$api/api/warehouse/detail/$orderId/');
+    var response = await http.put(
+      Uri.parse('$api/api/warehouse/detail/$orderId/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(
+        {
+          'status': selectedStatus,
+
+        },
+      ),
+    );
+    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
+    print('responsessssssssssssssss${response.statusCode}');
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shipping charge updated successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+fetchOrderItems();
+
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update shipping charge'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (error) {
+    print("Error: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error updating shipping charge'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+
+
+void showStatusDialog(BuildContext context,var order) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Update Status'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButtonFormField<String>(
+              value: selectedStatus,
+              hint: Text('Select Status'),
+              items: statuses.map((status) {
+                return DropdownMenuItem<String>(
+                    value: status,
+                  child: Text(status),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedStatus = value; // This will store the selected status
+                });
+              },
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await updateboxstatus(order['id']);
+                  Navigator.of(context).pop(); // Close the dialog after saving
+                },
+                label: Text("Save"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Button color
+                  foregroundColor: Colors.white, // Text color
+                ),
+                icon: Icon(Icons.save),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
     List<Map<String, dynamic>> courierdata = [];
 
 Future<void> getcourierservices() async {
@@ -549,14 +652,14 @@ print('responsessssssssssssssss${response.body}');
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Shipping charge updated successfully'),
+            content: Text(' updated successfully'),
             duration: Duration(seconds: 2),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update shipping charge'),
+            content: Text('Failed to update '),
             duration: Duration(seconds: 2),
           ),
         );
@@ -565,7 +668,7 @@ print('responsessssssssssssssss${response.body}');
       print("Error: $error");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error updating shipping charge'),
+          content: Text('Error updating '),
           duration: Duration(seconds: 2),
         ),
       );
@@ -598,7 +701,7 @@ Future<void> updateshippeddate(DateTime pickedDate, var orderId) async {
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Shipping charge updated successfully'),
+          content: Text('updated successfully'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -608,7 +711,7 @@ fetchOrderItems();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to update shipping charge'),
+          content: Text('Failed to update '),
           duration: Duration(seconds: 2),
         ),
       );
@@ -617,7 +720,7 @@ fetchOrderItems();
     print("Error: $error");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Error updating shipping charge'),
+        content: Text('Error updating '),
         duration: Duration(seconds: 2),
       ),
     );
@@ -646,7 +749,7 @@ Future<void> updateparcel(var parcel , var orderId) async {
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Shipping charge updated successfully'),
+          content: Text(' updated successfully'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -656,7 +759,7 @@ fetchOrderItems();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to update shipping charge'),
+          content: Text('Failed to update '),
           duration: Duration(seconds: 2),
         ),
       );
@@ -665,7 +768,54 @@ fetchOrderItems();
     print("Error: $error");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Error updating shipping charge'),
+        content: Text('Error updating '),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
+Future<void> updatetrackid(var track , var orderId) async {
+  try {
+    final token = await getTokenFromPrefs();
+
+
+    var response = await http.put(
+      Uri.parse('$api/api/warehouse/detail/$orderId/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(
+        {
+          'tracking_id': track,
+        },
+      ),
+    );
+    print('responsessssssssssssssss shippeddddddddddddddddddd${response.body}');
+    print('responsessssssssssssssss${response.statusCode}');
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(' updated successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+fetchOrderItems();
+
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update e'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (error) {
+    print("Error: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error updating '),
         duration: Duration(seconds: 2),
       ),
     );
@@ -1255,6 +1405,7 @@ else{
   remainingAmount=paymentReceiptsSum-calculatedNetAmount;
 }
       setState(() {
+
         items = orderList;
         warehouse = warehouseList;
         netAmountBeforeTax = calculatedNetAmount;
@@ -3023,44 +3174,113 @@ Text(
                                     
                                       SizedBox(height: 6),
 
-                                      // Tracking ID
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Tracking ID:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          Text(
-                                            order['tracking_id']?.toString() ??
-                                                'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 6),
+                                  
 
-                                      // Status
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Status:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
+                                     GestureDetector(
+  onTap: () {
+    if (dep != "BDM" && dep != "BDO") {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Enter Tracking ID'),
+            content: TextField(
+              controller: trackingIdController,
+              decoration: InputDecoration(
+                labelText: '${order['tracking_id']}',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Button background color
+                  foregroundColor: Colors.white, // Button text color
+                ),
+                onPressed: () {
+                  String trackingId = trackingIdController.text.trim();
+                  if (trackingId.isNotEmpty) {
+                updatetrackid(trackingId,order['id']);
+                    print('Tracking ID submitted: $trackingId');
+                    Navigator.of(context).pop(); // Close the dialog
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please enter a valid Tracking ID'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  },
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Container(
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 220, 220, 220), // Background color
+          borderRadius: BorderRadius.circular(8), // Rounded corners
+        ),
+        child: Text(
+          'Tracking ID',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Colors.white, // Text color
+          ),
+        ),
+      ),
+      Text(
+        order['tracking_id'] ?? 'N/A',
+        style: TextStyle(fontSize: 14),
+      ),
+    ],
+  ),
+),
+  SizedBox(height: 5,),
+                                       GestureDetector(
+                                        onTap: () {
+                                           showStatusDialog(context,order);
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    decoration: BoxDecoration(
+      color: const Color.fromARGB(255, 220, 220, 220), // Background color
+      borderRadius: BorderRadius.circular(8), // Rounded corners
+    ),
+    child: Text(
+      'Status',
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: Colors.white, // Text color
+      ),
+    ),
+  ),
+                                            Text(
+                                              order['status'] ?? 'N/A',
+                                              style: TextStyle(fontSize: 14),
                                             ),
-                                          ),
-                                          Text(
-                                            order['status'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                       SizedBox(height: 6),
 
