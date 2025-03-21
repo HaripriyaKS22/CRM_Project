@@ -1,1 +1,1 @@
-var api="https://zimbabwe-although-chester-scroll.trycloudflare.com";
+var api="https://bepocart.in";

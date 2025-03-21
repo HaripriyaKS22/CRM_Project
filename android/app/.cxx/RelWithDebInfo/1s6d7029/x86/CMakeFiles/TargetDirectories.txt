@@ -1,0 +1,2 @@
+D:/Downloads/beposoft 10-03-2025/beposoft/android/app/.cxx/RelWithDebInfo/1s6d7029/x86/CMakeFiles/edit_cache.dir
+D:/Downloads/beposoft 10-03-2025/beposoft/android/app/.cxx/RelWithDebInfo/1s6d7029/x86/CMakeFiles/rebuild_cache.dir

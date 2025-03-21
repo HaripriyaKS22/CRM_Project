@@ -71,10 +71,7 @@ Future<void> fetchOrderData() async {
         'Content-Type': 'application/json',
       },
     );
-
-    ;
-    ;
-
+print("response.body${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['results'];  // Corrected: Extracting orders from 'results'
@@ -98,39 +95,13 @@ Future<void> fetchOrderData() async {
             'invoice': productData['invoice'],
             'manage_staff': productData['manage_staff'],
             'customer': {
+              'id': productData['customer']['id'],
               'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
+             
               'address': productData['customer']['address'],
             },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [],
+            
+           
             'status': productData['status'],
             'order_date': formattedOrderDate,
             'total_amount': productData['total_amount'],
@@ -156,8 +127,9 @@ Future<void> fetchOrderData() async {
           orders = orderList;
           filteredOrders = orderList;
           shippedOrders = shippedOrdersToday;
-          ;
+          
           approvalcount = parsed['invoice_created_count'];
+          print("approvalcount$approvalcount");
           confirmcount =parsed['invoice_approved_count'];
           ;
           ;
@@ -168,12 +140,12 @@ Future<void> fetchOrderData() async {
       }
     }
   } catch (error) {
-    ;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching order data: $error')),
-      );
-    });
+    
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Error fetching order data: $error')),
+    //   );
+    // });
   }
 }
 
@@ -470,7 +442,39 @@ int grvcount=0;
               //         MaterialPageRoute(builder: (context) => Graph()));
               //   },
               // ),
+
+               _buildDropdownTile(context, 'Customers', [
+                'Add Customer',
+                'Customers',
+              ]),
+               _buildDropdownTile(context, 'Recipt', [
+                'Add Recipt',
+                'Recipt List',
+              ]),
              
+              _buildDropdownTile(context, 'Proforma Invoice', [
+                'New Proforma Invoice',
+                'Proforma Invoice List',
+              ]),
+              _buildDropdownTile(context, 'Delivery Note',
+                  ['Delivery Note List', 'Daily Goods Movement']),
+              _buildDropdownTile(
+                  context, 'Orders', ['New Orders', 'Orders List']),
+              Divider(),
+              Text("Others"),
+              Divider(),
+              _buildDropdownTile(context, 'Purchase', [
+                'Product List',
+                'Product Add',
+                'Stock',
+              ]),
+              _buildDropdownTile(context, 'Expence', [
+                'Add Expence',
+                'Expence List',
+              ]),
+              _buildDropdownTile(
+                  context, 'GRV', ['Create New GRV', 'GRVs List']),
+           
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Company'),
@@ -660,14 +664,6 @@ int grvcount=0;
                 'Finance Report',
                 'Actual Delivery Report',
               ]),
-              _buildDropdownTile(context, 'Customers', [
-                'Add Customer',
-                'Customers',
-              ]),
-               _buildDropdownTile(context, 'Recipt', [
-                'Add Recipt',
-                'Recipt List',
-              ]),
              
               _buildDropdownTile(context, 'Staff', [
                 'Add Staff',
@@ -677,30 +673,7 @@ int grvcount=0;
               //   'Add Credit Note',
               //   'Credit Note List',
               // ]),
-              _buildDropdownTile(context, 'Proforma Invoice', [
-                'New Proforma Invoice',
-                'Proforma Invoice List',
-              ]),
-              _buildDropdownTile(context, 'Delivery Note',
-                  ['Delivery Note List', 'Daily Goods Movement']),
-              _buildDropdownTile(
-                  context, 'Orders', ['New Orders', 'Orders List']),
-              Divider(),
-              Text("Others"),
-              Divider(),
-              _buildDropdownTile(context, 'Purchase', [
-                'Product List',
-                'Product Add',
-                'Stock',
-              ]),
-              _buildDropdownTile(context, 'Expence', [
-                'Add Expence',
-                'Expence List',
-              ]),
-              _buildDropdownTile(
-                  context, 'GRV', ['Create New GRV', 'GRVs List']),
-              _buildDropdownTile(context, 'Banking Module',
-                  ['Add Bank ', 'List', 'Other Transfer']),
+             
               Divider(),
               
               ListTile(

@@ -208,7 +208,6 @@ var allocatedstates;
         },
         body: jsonEncode(requestBody),
       );
-      print(response.body);
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
