@@ -66,6 +66,7 @@ class _update_product_variantState extends State<update_product_variant> {
       }).toList(),
     );
   }
+
 // Function to remove an image from the list
   void removeImage(int index) {
     setState(() {
@@ -278,7 +279,7 @@ Future<void> updatestock(int id,var stock,var size) async {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(
+        body: jsonEncode(  
           {
            'stock':stock,
            'variant_product':widget.id,

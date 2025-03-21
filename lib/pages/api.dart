@@ -1,1 +1,1 @@
-var api="https://font-weddings-snow-plc.trycloudflare.com";
+var api="https://zimbabwe-although-chester-scroll.trycloudflare.com";
