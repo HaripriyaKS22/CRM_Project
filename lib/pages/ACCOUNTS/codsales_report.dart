@@ -4,6 +4,8 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -224,242 +226,283 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-           title: Text(
-          "COD Sales Report",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: 'Select Family',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1.5),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey, width: 1.5),
-                ),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  hint: Text("Select Family"),
-                  value: selectedFamily,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedFamily = newValue;
-                    });
-                    getCODsaleReport();
-                  },
-                  items: fam.map((family) {
-                    return DropdownMenuItem<String>(
-                      value: family['name'],
-                      child: Text(family['name']),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+             title: Text(
+            "COD Sales Report",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: 'Select Staff',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1.5),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey, width: 1.5),
-                ),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  hint: Text("Select Staff"),
-                  value: selectedStaff,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedStaff = newValue;
-                    });
-                    getCODsaleReport();
-                  },
-                  items: sta.map((staff) {
-                    return DropdownMenuItem<String>(
-                      value: staff['name'],
-                      child: Text(staff['name']),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
           ),
-
-          Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: InputDecorator(
-    decoration: InputDecoration(
-      labelText: 'Select State',
-      border: OutlineInputBorder(),
-      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.blue, width: 1.5),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey, width: 1.5),
-      ),
-    ),
-    child: DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        isExpanded: true,
-        hint: Text("Select State"),
-        value: selectedState,
-        onChanged: (String? newValue) {
-          setState(() {
-            selectedState = newValue;
-          });
-          getCODsaleReport(); // Filter report based on state
-        },
-        items: stat.map((state) {
-          return DropdownMenuItem<String>(
-            value: state['name'],
-            child: Text(state['name']),
-          );
-        }).toList(),
-      ),
-    ),
-  ),
-),
-
-          // Show the total orders and amounts for the selected family
-
-          allCodReportList.isEmpty
-              ? Center(child: CircularProgressIndicator()) // Loading indicator
-              : Expanded(
-                  child: ListView.builder(
-                    itemCount: allCodReportList.length,
-                    itemBuilder: (context, index) {
-                      final report = allCodReportList[index];
-                      return Card(
-                        color: Colors.white,
-                        margin: EdgeInsets.all(8.0),
-                        elevation: 5.0,
-                        child: ListTile(
-                          contentPadding: EdgeInsets.all(16.0),
-                          title: Text(
-                            'Date: ${report['date']}',
-                            style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Divider(color: Colors.grey),
-                              Text(
-                                'Total Orders: ${report['total_orders']}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                'Total Amount: ₹${report['total_amount']}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                'Total Paid Amount: ₹${report['total_paid_amount']}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                'Balance Amount: ₹${report['balance_amount']}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              codsalereport_datewise_view(
-                                                  date: report['date'])));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: Colors.blue,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
-                                ),
-                                child: Text(
-                                  'View',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: 'Select Family',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey, width: 1.5),
                   ),
                 ),
-        ],
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    hint: Text("Select Family"),
+                    value: selectedFamily,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedFamily = newValue;
+                      });
+                      getCODsaleReport();
+                    },
+                    items: fam.map((family) {
+                      return DropdownMenuItem<String>(
+                        value: family['name'],
+                        child: Text(family['name']),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: 'Select Staff',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey, width: 1.5),
+                  ),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    hint: Text("Select Staff"),
+                    value: selectedStaff,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedStaff = newValue;
+                      });
+                      getCODsaleReport();
+                    },
+                    items: sta.map((staff) {
+                      return DropdownMenuItem<String>(
+                        value: staff['name'],
+                        child: Text(staff['name']),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+      
+            Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: InputDecorator(
+      decoration: InputDecoration(
+        labelText: 'Select State',
+        border: OutlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue, width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey, width: 1.5),
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          isExpanded: true,
+          hint: Text("Select State"),
+          value: selectedState,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedState = newValue;
+            });
+            getCODsaleReport(); // Filter report based on state
+          },
+          items: stat.map((state) {
+            return DropdownMenuItem<String>(
+              value: state['name'],
+              child: Text(state['name']),
+            );
+          }).toList(),
+        ),
+      ),
+        ),
+      ),
+      
+            // Show the total orders and amounts for the selected family
+      
+            allCodReportList.isEmpty
+                ? Center(child: CircularProgressIndicator()) // Loading indicator
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: allCodReportList.length,
+                      itemBuilder: (context, index) {
+                        final report = allCodReportList[index];
+                        return Card(
+                          color: Colors.white,
+                          margin: EdgeInsets.all(8.0),
+                          elevation: 5.0,
+                          child: ListTile(
+                            contentPadding: EdgeInsets.all(16.0),
+                            title: Text(
+                              'Date: ${report['date']}',
+                              style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Divider(color: Colors.grey),
+                                Text(
+                                  'Total Orders: ${report['total_orders']}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Total Amount: ₹${report['total_amount']}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Total Paid Amount: ₹${report['total_paid_amount']}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Balance Amount: ₹${report['balance_amount']}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                codsalereport_datewise_view(
+                                                    date: report['date'])));
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.blue,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
+                                  ),
+                                  child: Text(
+                                    'View',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+          ],
+        ),
       ),
     );
   }

@@ -14,10 +14,13 @@ import 'package:beposoft/pages/ACCOUNTS/customer_ledger.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer_singleview.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/navigateback.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -175,383 +178,423 @@ Future<void> getcustomer() async {
     MaterialPageRoute(builder: (context) => login()),
   );
 }
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-       appBar: AppBar(
-        title: Text(
-          "Customer List",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
+    return WillPopScope(
+        onWillPop: () async {
+                  _navigateBack();
 
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+         appBar: AppBar(
+          title: Text(
+            "Customer List",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-        ],
-      ),
-      //  drawer: Drawer(
-      //     child: ListView(
-      //       padding: EdgeInsets.zero,
-      //       children: <Widget>[
-      //         DrawerHeader(
-      //             decoration: BoxDecoration(
-      //               color: Colors.grey[200],
-      //             ),
-      //             child: Row(
-      //               mainAxisAlignment: MainAxisAlignment.center,
-      //               children: [
-      //                 Image.asset(
-      //                   "lib/assets/logo.png",
-      //                   width: 150, // Change width to desired size
-      //                   height: 150, // Change height to desired size
-      //                   fit: BoxFit
-      //                       .contain, // Use BoxFit.contain to maintain aspect ratio
-      //                 ),
-      //               ],
-      //             )),
-      //         ListTile(
-      //           leading: Icon(Icons.dashboard),
-      //           title: Text('Dashboard'),
-      //           onTap: () {
-      //             Navigator.push(context,
-      //                 MaterialPageRoute(builder: (context) => dashboard()));
-      //           },
-      //         ),
-             
-      //         ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('Company'),
-      //           onTap: () {
-      //             Navigator.push(context,
-      //                 MaterialPageRoute(builder: (context) => add_company()));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //         ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('Departments'),
-      //           onTap: () {
-      //             Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                     builder: (context) => add_department()));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //         ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('Supervisors'),
-      //           onTap: () {
-      //             Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                     builder: (context) => add_supervisor()));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //         ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('Family'),
-      //           onTap: () {
-      //             Navigator.push(context,
-      //                 MaterialPageRoute(builder: (context) => add_family()));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //         ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('Bank'),
-      //           onTap: () {
-      //             Navigator.push(context,
-      //                 MaterialPageRoute(builder: (context) => add_bank()));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //         ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('States'),
-      //           onTap: () {
-      //             Navigator.push(context,
-      //                 MaterialPageRoute(builder: (context) => add_state()));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //         ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('Attributes'),
-      //           onTap: () {
-      //             Navigator.push(context,
-      //                 MaterialPageRoute(builder: (context) => add_attribute()));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //         ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('Services'),
-      //           onTap: () {
-      //             Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                     builder: (context) => CourierServices()));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //          ListTile(
-      //           leading: Icon(Icons.person),
-      //           title: Text('Delivery Notes'),
-      //           onTap: () {
-      //             Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                     builder: (context) => WarehouseOrderView(status: null,)));
-      //             // Navigate to the Settings page or perform any other action
-      //           },
-      //         ),
-      //         Divider(),
-      //         _buildDropdownTile(context, 'Reports', [
-      //           'Sales Report',
-      //           'Credit Sales Report',
-      //           'COD Sales Report',
-      //           'Statewise Sales Report',
-      //           'Expence Report',
-      //           'Delivery Report',
-      //           'Product Sale Report',
-      //           'Stock Report',
-      //           'Damaged Stock'
-      //         ]),
-      //         _buildDropdownTile(context, 'Customers', [
-      //           'Add Customer',
-      //           'Customers',
-      //         ]),
-      //         _buildDropdownTile(context, 'Staff', [
-      //           'Add Staff',
-      //           'Staff',
-      //         ]),
-      //         _buildDropdownTile(context, 'Credit Note', [
-      //           'Add Credit Note',
-      //           'Credit Note List',
-      //         ]),
-      //         _buildDropdownTile(context, 'Proforma Invoice', [
-      //           'New Proforma Invoice',
-      //           'Proforma Invoice List',
-      //         ]),
-      //         _buildDropdownTile(context, 'Delivery Note',
-      //             ['Delivery Note List', 'Daily Goods Movement']),
-      //         _buildDropdownTile(
-      //             context, 'Orders', ['New Orders', 'Orders List']),
-      //         Divider(),
-      //         Text("Others"),
-      //         Divider(),
-      //         _buildDropdownTile(context, 'Product', [
-      //           'Product List',
-      //           'Product Add',
-      //           'Stock',
-      //         ]),
-      //         _buildDropdownTile(context, 'Expence', [
-      //           'Add Expence',
-      //           'Expence List',
-      //         ]),
-      //         _buildDropdownTile(
-      //             context, 'GRV', ['Create New GRV', 'GRVs List']),
-      //         _buildDropdownTile(context, 'Banking Module',
-      //             ['Add Bank ', 'List', 'Other Transfer']),
-      //         Divider(),
-      //         ListTile(
-      //           leading: Icon(Icons.settings),
-      //           title: Text('Methods'),
-      //           onTap: () {
-      //             Navigator.push(context,
-      //                 MaterialPageRoute(builder: (context) => Methods()));
-      //           },
-      //         ),
-      //         ListTile(
-      //           leading: Icon(Icons.chat),
-      //           title: Text('Chat'),
-      //           onTap: () {
-      //             Navigator.pop(context); // Close the drawer
-      //           },
-      //         ),
-      //         Divider(),
-      //         ListTile(
-      //           leading: Icon(Icons.exit_to_app),
-      //           title: Text('Logout'),
-      //           onTap: () {
-      //             logout();
-      //           },
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      body:Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-   Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: TextField(
-    controller: searchController,
-    decoration: InputDecoration(
-      hintText: "Search customers...",
-      prefixIcon: Icon(Icons.search),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blue, // Set your desired border color here
-          width: 2.0, // Set the border width
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blue, // Border color when TextField is not focused
-          width: 2.0,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blueAccent, // Border color when TextField is focused
-          width: 2.0,
-        ),
-      ),
-    ),
-    onChanged: _filterProducts,
-  ),
-),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
-    Expanded(
-      child: ListView.builder(
-        itemCount: filteredProducts.length,
-        itemBuilder: (context, index) {
-          final customerData = filteredProducts[index];
-          return Card(
-            color: Colors.white,
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {},
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          customerData['name'] ?? '',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+          ],
+        ),
+        //  drawer: Drawer(
+        //     child: ListView(
+        //       padding: EdgeInsets.zero,
+        //       children: <Widget>[
+        //         DrawerHeader(
+        //             decoration: BoxDecoration(
+        //               color: Colors.grey[200],
+        //             ),
+        //             child: Row(
+        //               mainAxisAlignment: MainAxisAlignment.center,
+        //               children: [
+        //                 Image.asset(
+        //                   "lib/assets/logo.png",
+        //                   width: 150, // Change width to desired size
+        //                   height: 150, // Change height to desired size
+        //                   fit: BoxFit
+        //                       .contain, // Use BoxFit.contain to maintain aspect ratio
+        //                 ),
+        //               ],
+        //             )),
+        //         ListTile(
+        //           leading: Icon(Icons.dashboard),
+        //           title: Text('Dashboard'),
+        //           onTap: () {
+        //             Navigator.push(context,
+        //                 MaterialPageRoute(builder: (context) => dashboard()));
+        //           },
+        //         ),
+               
+        //         ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('Company'),
+        //           onTap: () {
+        //             Navigator.push(context,
+        //                 MaterialPageRoute(builder: (context) => add_company()));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //         ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('Departments'),
+        //           onTap: () {
+        //             Navigator.push(
+        //                 context,
+        //                 MaterialPageRoute(
+        //                     builder: (context) => add_department()));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //         ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('Supervisors'),
+        //           onTap: () {
+        //             Navigator.push(
+        //                 context,
+        //                 MaterialPageRoute(
+        //                     builder: (context) => add_supervisor()));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //         ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('Family'),
+        //           onTap: () {
+        //             Navigator.push(context,
+        //                 MaterialPageRoute(builder: (context) => add_family()));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //         ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('Bank'),
+        //           onTap: () {
+        //             Navigator.push(context,
+        //                 MaterialPageRoute(builder: (context) => add_bank()));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //         ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('States'),
+        //           onTap: () {
+        //             Navigator.push(context,
+        //                 MaterialPageRoute(builder: (context) => add_state()));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //         ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('Attributes'),
+        //           onTap: () {
+        //             Navigator.push(context,
+        //                 MaterialPageRoute(builder: (context) => add_attribute()));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //         ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('Services'),
+        //           onTap: () {
+        //             Navigator.push(
+        //                 context,
+        //                 MaterialPageRoute(
+        //                     builder: (context) => CourierServices()));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //          ListTile(
+        //           leading: Icon(Icons.person),
+        //           title: Text('Delivery Notes'),
+        //           onTap: () {
+        //             Navigator.push(
+        //                 context,
+        //                 MaterialPageRoute(
+        //                     builder: (context) => WarehouseOrderView(status: null,)));
+        //             // Navigate to the Settings page or perform any other action
+        //           },
+        //         ),
+        //         Divider(),
+        //         _buildDropdownTile(context, 'Reports', [
+        //           'Sales Report',
+        //           'Credit Sales Report',
+        //           'COD Sales Report',
+        //           'Statewise Sales Report',
+        //           'Expence Report',
+        //           'Delivery Report',
+        //           'Product Sale Report',
+        //           'Stock Report',
+        //           'Damaged Stock'
+        //         ]),
+        //         _buildDropdownTile(context, 'Customers', [
+        //           'Add Customer',
+        //           'Customers',
+        //         ]),
+        //         _buildDropdownTile(context, 'Staff', [
+        //           'Add Staff',
+        //           'Staff',
+        //         ]),
+        //         _buildDropdownTile(context, 'Credit Note', [
+        //           'Add Credit Note',
+        //           'Credit Note List',
+        //         ]),
+        //         _buildDropdownTile(context, 'Proforma Invoice', [
+        //           'New Proforma Invoice',
+        //           'Proforma Invoice List',
+        //         ]),
+        //         _buildDropdownTile(context, 'Delivery Note',
+        //             ['Delivery Note List', 'Daily Goods Movement']),
+        //         _buildDropdownTile(
+        //             context, 'Orders', ['New Orders', 'Orders List']),
+        //         Divider(),
+        //         Text("Others"),
+        //         Divider(),
+        //         _buildDropdownTile(context, 'Product', [
+        //           'Product List',
+        //           'Product Add',
+        //           'Stock',
+        //         ]),
+        //         _buildDropdownTile(context, 'Expence', [
+        //           'Add Expence',
+        //           'Expence List',
+        //         ]),
+        //         _buildDropdownTile(
+        //             context, 'GRV', ['Create New GRV', 'GRVs List']),
+        //         _buildDropdownTile(context, 'Banking Module',
+        //             ['Add Bank ', 'List', 'Other Transfer']),
+        //         Divider(),
+        //         ListTile(
+        //           leading: Icon(Icons.settings),
+        //           title: Text('Methods'),
+        //           onTap: () {
+        //             Navigator.push(context,
+        //                 MaterialPageRoute(builder: (context) => Methods()));
+        //           },
+        //         ),
+        //         ListTile(
+        //           leading: Icon(Icons.chat),
+        //           title: Text('Chat'),
+        //           onTap: () {
+        //             Navigator.pop(context); // Close the drawer
+        //           },
+        //         ),
+        //         Divider(),
+        //         ListTile(
+        //           leading: Icon(Icons.exit_to_app),
+        //           title: Text('Logout'),
+        //           onTap: () {
+        //             logout();
+        //           },
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        body:Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+         Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+      controller: searchController,
+      decoration: InputDecoration(
+        hintText: "Search customers...",
+        prefixIcon: Icon(Icons.search),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blue, // Set your desired border color here
+            width: 2.0, // Set the border width
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blue, // Border color when TextField is not focused
+            width: 2.0,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blueAccent, // Border color when TextField is focused
+            width: 2.0,
+          ),
+        ),
+      ),
+      onChanged: _filterProducts,
+        ),
+      ),
+      
+      Expanded(
+        child: ListView.builder(
+          itemCount: filteredProducts.length,
+          itemBuilder: (context, index) {
+            final customerData = filteredProducts[index];
+            return Card(
+              color: Colors.white,
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            customerData['name'] ?? '',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Created on: ${customerData['created_at']}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(Icons.more_vert,color:Colors.blue),
+                      onSelected: (value) {
+                        if (value == 'View') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => view_customer(customerid:customerData['id']),
+                            ),
+                          );
+                        } else if (value == 'Add Address') {
+                         Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => add_address(customerid:customerData['id'],name:customerData['name']),
+                            ),
+                          );
+                        }
+                        else if (value == 'View Ledger') {
+                         Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CustomerLedger(customerid:customerData['id'],customerName:customerData['name']),
+                            ),
+                          );
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        PopupMenuItem<String>(
+                          value: 'View',
+                          child: Text('View'),
                         ),
-                        SizedBox(height: 2),
-                        Text(
-                          'Created on: ${customerData['created_at']}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
+                        PopupMenuItem<String>(
+                          value: 'Add Address',
+                          child: Text('Add Address'),
+                        ),
+                         PopupMenuItem<String>(
+                          value: 'View Ledger',
+                          child: Text('View Ledger'),
                         ),
                       ],
                     ),
-                  ),
-                  PopupMenuButton<String>(
-                    icon: Icon(Icons.more_vert,color:Colors.blue),
-                    onSelected: (value) {
-                      if (value == 'View') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => view_customer(customerid:customerData['id']),
-                          ),
-                        );
-                      } else if (value == 'Add Address') {
-                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => add_address(customerid:customerData['id'],name:customerData['name']),
-                          ),
-                        );
-                      }
-                      else if (value == 'View Ledger') {
-                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CustomerLedger(customerid:customerData['id'],customerName:customerData['name']),
-                          ),
-                        );
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<String>(
-                        value: 'View',
-                        child: Text('View'),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'Add Address',
-                        child: Text('Add Address'),
-                      ),
-                       PopupMenuItem<String>(
-                        value: 'View Ledger',
-                        child: Text('View Ledger'),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
-    ),
-  ],
-)
-
+        ],
+      )
+      
+      ),
     );
   }
 

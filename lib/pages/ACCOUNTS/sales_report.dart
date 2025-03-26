@@ -12,6 +12,8 @@ import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
@@ -554,303 +556,344 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          "Sales Report",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(
+            "Sales Report",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+                if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+              
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.calendar_today),
+              onPressed: () => _selectSingleDate(context),
+            ),
+            IconButton(
+              icon: Icon(Icons.date_range),
+              onPressed: () => _selectDateRange(context),
+            ),
+          ],
         ),
-        
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
+       
+        body: Column(
+          children: [
+      
+      
+           Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 0.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blue, width: 1.0),
+        borderRadius: BorderRadius.circular(30.0),
+      ),
+      child: DropdownButton<String>(
+        value: selectedFamily,
+        hint: Text('Select Family'),
+        isExpanded: true,
+        underline: SizedBox(), // Removes the default underline
+        items: fam.map((family) {
+          return DropdownMenuItem<String>(
+            value: family['name'],
+            child: Text(family['name']),
+          );
+        }).toList(),
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedFamily = newValue;
+      
+            if (selectedFamily == null || selectedFamily!.isEmpty) {
+              // Reset to the original data if no value is selected
+              filterdata = List.from(filterdata);
+            } else {
+              // Filter the data based on family__name
+              filterdata = filterdata.where((data) {
+                final staffOrders = data['staff_orders'] as List<dynamic>;
+                return staffOrders.any((order) =>
+                    order['family__name'].toString().toLowerCase() ==
+                    selectedFamily!.toLowerCase());
+              }).toList();
             }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
+          });
+        },
+      ),
         ),
-        actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () => _selectSingleDate(context),
-          ),
-          IconButton(
-            icon: Icon(Icons.date_range),
-            onPressed: () => _selectDateRange(context),
-          ),
+      ),
+      
+      
+      
+      
+      
+              Padding(
+        padding: const EdgeInsets.all(10),
+        child: Container(
+      height: 49,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blue),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: 20),
+          Container(
+        width: 276,
+        child: InputDecorator(
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 1),
+      ),
+      child: DropdownButton<String>(
+        value: selectedstaff, // Ensure this is a String
+        isExpanded: true,
+        hint: Text(
+          "Select Staff",
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+        underline: Container(), // Removes the underline
+        onChanged: (newValue) {
+          setState(() {
+            selectedstaff = newValue;
+            
+          });
+          _filterDataByStaff(selectedstaff!);
+        },
+        items: sta.map<DropdownMenuItem<String>>((staff) {
+          return DropdownMenuItem<String>(
+            value: staff['name'], // Ensure staff['name'] is a String
+            child: Text(staff['name'], style: TextStyle(fontSize: 12)),
+          );
+        }).toList(),
+        icon: Container(
+          alignment: Alignment.centerRight,
+          child: Icon(Icons.arrow_drop_down),
+        ),
+      ),
+        ),
+      ),
         ],
       ),
-     
-      body: Column(
-        children: [
-
-
-         Padding(
-  padding: const EdgeInsets.all(12.0),
-  child: Container(
-    padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 0.0),
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.blue, width: 1.0),
-      borderRadius: BorderRadius.circular(30.0),
-    ),
-    child: DropdownButton<String>(
-      value: selectedFamily,
-      hint: Text('Select Family'),
-      isExpanded: true,
-      underline: SizedBox(), // Removes the default underline
-      items: fam.map((family) {
-        return DropdownMenuItem<String>(
-          value: family['name'],
-          child: Text(family['name']),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {
-        setState(() {
-          selectedFamily = newValue;
-
-          if (selectedFamily == null || selectedFamily!.isEmpty) {
-            // Reset to the original data if no value is selected
-            filterdata = List.from(filterdata);
-          } else {
-            // Filter the data based on family__name
-            filterdata = filterdata.where((data) {
-              final staffOrders = data['staff_orders'] as List<dynamic>;
-              return staffOrders.any((order) =>
-                  order['family__name'].toString().toLowerCase() ==
-                  selectedFamily!.toLowerCase());
-            }).toList();
-          }
-        });
-      },
-    ),
-  ),
-),
-
-
-
-
-
-            Padding(
-  padding: const EdgeInsets.all(10),
-  child: Container(
-    height: 49,
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.blue),
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Row(
-      children: [
-        SizedBox(width: 20),
-        Container(
-  width: 276,
-  child: InputDecorator(
-    decoration: InputDecoration(
-      border: InputBorder.none,
-      contentPadding: EdgeInsets.symmetric(horizontal: 1),
-    ),
-    child: DropdownButton<String>(
-      value: selectedstaff, // Ensure this is a String
-      isExpanded: true,
-      hint: Text(
-        "Select Staff",
-        style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
       ),
-      underline: Container(), // Removes the underline
-      onChanged: (newValue) {
-        setState(() {
-          selectedstaff = newValue;
-          
-        });
-        _filterDataByStaff(selectedstaff!);
-      },
-      items: sta.map<DropdownMenuItem<String>>((staff) {
-        return DropdownMenuItem<String>(
-          value: staff['name'], // Ensure staff['name'] is a String
-          child: Text(staff['name'], style: TextStyle(fontSize: 12)),
-        );
-      }).toList(),
-      icon: Container(
-        alignment: Alignment.centerRight,
-        child: Icon(Icons.arrow_drop_down),
-      ),
-    ),
-  ),
-),
-      ],
-    ),
-  ),
-),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: getSalesReport,
-              child: Stack(
-                children: [
-                  // Main content: Sales report list
-                SingleChildScrollView(
-                padding: EdgeInsets.only(bottom: 260),
-                child: Column(
-                  children: filterdata.map((reportData) {
-                    // Handle case where 'filteredOrders' might be null
-                    List<dynamic> orders = reportData['filteredOrders'] ?? [];
-              
-                    return Card(
-                      color: Colors.white,
-                      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                      elevation: 8,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Date: ${reportData['date']}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-                Divider(color: Colors.grey),
-                SizedBox(height: 8),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: getSalesReport,
+                child: Stack(
+                  children: [
+                    // Main content: Sales report list
+                  SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: 260),
+                  child: Column(
+                    children: filterdata.map((reportData) {
+                      // Handle case where 'filteredOrders' might be null
+                      List<dynamic> orders = reportData['filteredOrders'] ?? [];
                 
-                _buildRow('Total Bills:', reportData['total_bills_in_date']?? 0),
-                _buildRow('Total Amount:', reportData['amount']?? 0),
-                _buildRow('Approved Bills:', reportData['approved']['bills'] ?? 0),
-                _buildRow('Approved Amount:', reportData['approved']['amount'] ?? 0.0),
-                _buildRow('Rejected Bills:', reportData['rejected']['bills'] ?? 0),
-                _buildRow('Rejected Amount:', reportData['rejected']['amount'] ?? 0.0),
-                SizedBox(height: 12),
-                ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
+                      return Card(
+                        color: Colors.white,
+                        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Date: ${reportData['date']}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              Invoice_Report(date: reportData['date']),
+                  ),
+                  Divider(color: Colors.grey),
+                  SizedBox(height: 8),
+                  
+                  _buildRow('Total Bills:', reportData['total_bills_in_date']?? 0),
+                  _buildRow('Total Amount:', reportData['amount']?? 0),
+                  _buildRow('Approved Bills:', reportData['approved']['bills'] ?? 0),
+                  _buildRow('Approved Amount:', reportData['approved']['amount'] ?? 0.0),
+                  _buildRow('Rejected Bills:', reportData['rejected']['bills'] ?? 0),
+                  _buildRow('Rejected Amount:', reportData['rejected']['amount'] ?? 0.0),
+                  SizedBox(height: 12),
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                Invoice_Report(date: reportData['date']),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Report",
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      ),
+                    ),
+                  // Text(
+                  //   'Orders:',
+                  //   style: TextStyle(fontWeight: FontWeight.bold),
+                  // ),
+                  // // Safely map over orders
+                  // ...orders.map((order) {
+                  //   return Padding(
+                  //     padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  //     child: _buildRow('Invoice: ${order['invoice']}', 'Amount: ${order['total_amount']}'),
+                  //   );
+                  // }).toList(),
+                ],
+                          ),
                         ),
                       );
-                    },
-                    child: Text(
-                      "Report",
-                      style: TextStyle(fontSize: 14, color: Colors.white),
-                    ),
+                    }).toList(),
                   ),
-                // Text(
-                //   'Orders:',
-                //   style: TextStyle(fontWeight: FontWeight.bold),
-                // ),
-                // // Safely map over orders
-                // ...orders.map((order) {
-                //   return Padding(
-                //     padding: const EdgeInsets.symmetric(vertical: 4.0),
-                //     child: _buildRow('Invoice: ${order['invoice']}', 'Amount: ${order['total_amount']}'),
-                //   );
-                // }).toList(),
-              ],
+                ),
+                
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Material(
+                        elevation: 12,
+                        color: const Color.fromARGB(255, 12, 80, 163),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            color: const Color.fromARGB(255, 12, 80, 163),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Total Report Summary',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Divider(
+                                color: Colors.white.withOpacity(0.5),
+                                thickness: 1,
+                                indent: 0,
+                                endIndent: 0,
+                              ),
+                              _buildRowWithTwoColumns('Total Bills:', totalBills,
+                                  'Total Amount:', totalAmount),
+                              _buildRowWithTwoColumns('Approved Bills:', approvedBills,
+                                  'Approved Amount:', approvedAmount),
+                              _buildRowWithTwoColumns('Rejected Bills:', rejectedBills,
+                                  'Rejected Amount:', rejectedAmount),
+                            ],
+                          ),
                         ),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ],
                 ),
               ),
-              
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Material(
-                      elevation: 12,
-                      color: const Color.fromARGB(255, 12, 80, 163),
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                          color: const Color.fromARGB(255, 12, 80, 163),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Total Report Summary',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Divider(
-                              color: Colors.white.withOpacity(0.5),
-                              thickness: 1,
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-                            _buildRowWithTwoColumns('Total Bills:', totalBills,
-                                'Total Amount:', totalAmount),
-                            _buildRowWithTwoColumns('Approved Bills:', approvedBills,
-                                'Approved Amount:', approvedAmount),
-                            _buildRowWithTwoColumns('Rejected Bills:', rejectedBills,
-                                'Rejected Amount:', rejectedAmount),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:beposoft/pages/ACCOUNTS/Today_shipped_orders.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_EMI.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_category.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_purpose_of_payment.dart';
@@ -11,6 +12,7 @@ import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/todays_orders_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/uploadbulkorders.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_product_approval.dart';
@@ -55,6 +57,7 @@ class _admin_dashboardState extends State<admin_dashboard> {
     fetchproformaData();
      getSalesReport();
    fetchOrderData();
+   fetchshippedorders();
   }
 
 int approval=0;
@@ -148,7 +151,57 @@ print("response.body${response.body}");
     // });
   }
 }
+int todayShippedCount = 0;
+Future<void> fetchshippedorders() async {
+  try {
+    final token = await getTokenFromPrefs();
+    
+    String url = '$api/api/orders/';
 
+    var response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final List ordersData = responseData['results'];
+
+      DateTime currentDate = DateTime.now();
+      String today = DateFormat('yyyy-MM-dd').format(currentDate);
+
+      int shippedTodayCount = 0;
+
+      for (var orderData in ordersData) {
+        String rawOrderDate = orderData['order_date'] ?? "";
+        try {
+          DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+          String formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
+
+          if (formattedOrderDate == today && orderData['status'] == "Shipped") {
+            shippedTodayCount++;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      // Now you can use `shippedTodayCount` as needed
+      print('Shipped Orders Today: $shippedTodayCount');
+
+      setState(() {
+        todayShippedCount = shippedTodayCount; // ← Make sure to define this in your state
+      });
+    } else {
+      throw Exception("Failed to load order data");
+    }
+  } catch (error) {
+    print('Error fetching order count: $error');
+  }
+}
 
 
  Future<void> getSalesReport() async {
@@ -164,8 +217,7 @@ print("response.body${response.body}");
       },
     );
 
-    ;
-
+    
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
@@ -466,7 +518,7 @@ int grvcount=0;
               _buildDropdownTile(context, 'Purchase', [
                 'Product List',
                 'Product Add',
-                'Stock',
+               
               ]),
               _buildDropdownTile(context, 'Expence', [
                 'Add Expence',
@@ -742,7 +794,7 @@ int grvcount=0;
                         onTap: () {
                            Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderList(status: null,)),
+          MaterialPageRoute(builder: (context) => today_OrderList(status: null,)),
         );
                           
 
@@ -785,14 +837,13 @@ int grvcount=0;
                           onTap: () {
                          Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderList(status: "Shipped",)),
+          MaterialPageRoute(builder: (context) => today_shipped_OrderList(status: "Shipped",)),
         );
                       },
                         child: _buildGridItem(
                           Icons.local_shipping,
                           'Todays Shipped Orders',
-                          shippedOrders
-                              .length, // Pass the length of today's shipped orders
+                          todayShippedCount
                         ),
                       ),
                       GestureDetector(

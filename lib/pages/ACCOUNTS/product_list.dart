@@ -16,6 +16,8 @@ import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -234,20 +236,10 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(246, 255, 255, 255),
-      appBar: AppBar(
-        title: Text(
-          "Product List",
-          style: TextStyle(color: Colors.grey, fontSize: 14),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
+
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
@@ -260,201 +252,258 @@ else if(dep=="BDM" ){
               MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
             );
 }
-else if(dep=="ADMIN" ){
+else if(dep=="warehouse" ){
    Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => admin_dashboard()), // Replace AnotherPage with your target page
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
-else {
-    Navigator.pushReplacement(
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(246, 255, 255, 255),
+        appBar: AppBar(
+          title: Text(
+            "Product List",
+            style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async{
+                      final dep= await getdepFromPrefs();
+     if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
             );
 
 }
-           
-          },
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}
+      else {
+      Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+              );
+      
+      }
+             
+            },
+          ),
+         
         ),
-       
-      ),
-       
-     body: Container(
-       child: Column(
-         children: [
-
-
-           Container(
-                              width: 340,
-                              height: 49,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: Row(
-                                children: [
-                                  SizedBox(width: 20),
-                                  Container(
-                                    width: 276,
-                                    child: InputDecorator(
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: '',
-                                        contentPadding:
-                                            EdgeInsets.symmetric(horizontal: 1),
-                                      ),
-                                      child: DropdownButton<String>(
-                                        value: selectpurchasetype,
-                                        underline:
-                                            Container(), // This removes the underline
-                                        onChanged: (String? newValue) {
-                                          setState(() {
-                                            selectpurchasetype = newValue!;
-                                            _filterProductsByPurchaseType(selectpurchasetype);
-                                            ;
-                                          });
-                                        },
-                                        items: purchasetype
-                                            .map<DropdownMenuItem<String>>(
-                                                (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                        icon: Container(
-                                          padding: EdgeInsets.only(
-                                              left:
-                                                  137), // Adjust padding as needed
-                                          alignment: Alignment.centerRight,
-                                          child: Icon(Icons
-                                              .arrow_drop_down), // Dropdown arrow icon
+         
+       body: Container(
+         child: Column(
+           children: [
+      
+      
+             Container(
+                                width: 340,
+                                height: 49,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 20),
+                                    Container(
+                                      width: 276,
+                                      child: InputDecorator(
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          hintText: '',
+                                          contentPadding:
+                                              EdgeInsets.symmetric(horizontal: 1),
+                                        ),
+                                        child: DropdownButton<String>(
+                                          value: selectpurchasetype,
+                                          underline:
+                                              Container(), // This removes the underline
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              selectpurchasetype = newValue!;
+                                              _filterProductsByPurchaseType(selectpurchasetype);
+                                              ;
+                                            });
+                                          },
+                                          items: purchasetype
+                                              .map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            );
+                                          }).toList(),
+                                          icon: Container(
+                                            padding: EdgeInsets.only(
+                                                left:
+                                                    137), // Adjust padding as needed
+                                            alignment: Alignment.centerRight,
+                                            child: Icon(Icons
+                                                .arrow_drop_down), // Dropdown arrow icon
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: TextField(
-    controller: searchController,
-    decoration: InputDecoration(
-      hintText: "Search products...",
-      prefixIcon: Icon(Icons.search),
-      fillColor: Colors.white, // Set your desired background color
-      filled: true, // Enable background color
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.grey,
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+      controller: searchController,
+      decoration: InputDecoration(
+        hintText: "Search products...",
+        prefixIcon: Icon(Icons.search),
+        fillColor: Colors.white, // Set your desired background color
+        filled: true, // Enable background color
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.grey,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blue,
+            width: 2.0,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.grey,
+            width: 1.0,
+          ),
         ),
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blue,
-          width: 2.0,
+      onChanged: (query) {
+        _filterProducts(query); // Filter the products as the user types
+      },
         ),
       ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.grey,
-          width: 1.0,
-        ),
-      ),
-    ),
-    onChanged: (query) {
-      _filterProducts(query); // Filter the products as the user types
-    },
-  ),
-),
-
-
-
-           Expanded(
-             child: RefreshIndicator(
-              onRefresh: fetchProductList,
-               child: ListView.builder(
-                 itemCount: filteredProducts.length, // Show filtered products
-                 itemBuilder: (context, index) {
-                   final product = filteredProducts[index];
-                   return Padding(
-                 padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                 child: Container(
-                   height: 80,
-                   decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0), // Add border radius here
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3), // changes position of shadow
-                  ),
-                ],
-                   ),
-                   child: ListTile(
-                leading: product['image'] != null && product['image'].isNotEmpty
-                    ? Image.network(
-                        '${product['image']}', // Display product image
-                        width: 50, // Set width for the image
-                        height: 50, // Set height for the image
-                        fit: BoxFit.cover, // Adjust the image aspect ratio
-                        errorBuilder: (context, error, stackTrace) => Icon(Icons.error), // Handle image load error
-                      )
-                    : Icon(Icons.image_not_supported), // Placeholder if no image
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "${product['name']}",
-                        style: TextStyle(fontSize: 14),
-                        maxLines: 1, // Ensures the text only takes up one line
-                        overflow: TextOverflow.ellipsis, // Adds ellipsis if the text is too long
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => add_product_variant(id: product['id'], type: product['type']),
-                          ),
-                        );
-                      },
-                      label: Text(
-                        "View",
-                        style: TextStyle(color: Colors.white, fontSize: 10), // White text with smaller font size
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // Blue background color
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
-                        minimumSize: const Size(60, 24), // Set a smaller minimum size
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                        ),
-                      ),
+      
+      
+      
+             Expanded(
+               child: RefreshIndicator(
+                onRefresh: fetchProductList,
+                 child: ListView.builder(
+                   itemCount: filteredProducts.length, // Show filtered products
+                   itemBuilder: (context, index) {
+                     final product = filteredProducts[index];
+                     return Padding(
+                   padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                   child: Container(
+                     height: 80,
+                     decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0), // Add border radius here
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3), // changes position of shadow
                     ),
                   ],
-                ),
+                     ),
+                     child: ListTile(
+                  leading: product['image'] != null && product['image'].isNotEmpty
+                      ? Image.network(
+                          '${product['image']}', // Display product image
+                          width: 50, // Set width for the image
+                          height: 50, // Set height for the image
+                          fit: BoxFit.cover, // Adjust the image aspect ratio
+                          errorBuilder: (context, error, stackTrace) => Icon(Icons.error), // Handle image load error
+                        )
+                      : Icon(Icons.image_not_supported), // Placeholder if no image
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "${product['name']}",
+                          style: TextStyle(fontSize: 14),
+                          maxLines: 1, // Ensures the text only takes up one line
+                          overflow: TextOverflow.ellipsis, // Adds ellipsis if the text is too long
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => add_product_variant(id: product['id'], type: product['type']),
+                            ),
+                          );
+                        },
+                        label: Text(
+                          "View",
+                          style: TextStyle(color: Colors.white, fontSize: 10), // White text with smaller font size
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue, // Blue background color
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
+                          minimumSize: const Size(60, 24), // Set a smaller minimum size
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                     ),
                    ),
+                 );
+                 
+                   },
                  ),
-               );
-               
-                 },
                ),
              ),
-           ),
-           SizedBox(height: 20,)
-         ],
+             SizedBox(height: 20,)
+           ],
+         ),
        ),
-     ),
-
+      
+      ),
     );
   }
 }

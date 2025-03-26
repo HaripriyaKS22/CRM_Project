@@ -13,6 +13,8 @@ import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -228,237 +230,279 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Sold Product Report",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.calendar_today),
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "Sold Product Report",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
             onPressed: () async {
-              await _selectDateRange(context); // Select date range when clicked
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+              
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
             },
           ),
-        ],
-      ),
-      
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: "Search products...",
-                prefixIcon: Icon(Icons.search),
-                fillColor: Colors.white, 
-                filled: true, 
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: Colors.grey,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: Colors.blue,
-                    width: 2.0,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: Colors.grey,
-                    width: 1.0,
-                  ),
-                ),
-              ),
-              onChanged: (query) {
-                _filterProducts(query); 
+          actions: [
+            IconButton(
+              icon: Icon(Icons.calendar_today),
+              onPressed: () async {
+                await _selectDateRange(context); // Select date range when clicked
               },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Container(
-              height: 59,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                children: [
-                  SizedBox(width: 20),
-                  Container(
-                    width: 276,
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                      ),
-                      child: DropdownButton<String>(
-                        value: selectedstaff,
-                        isExpanded: true,
-                        hint: Text(
-                          "Select Staff",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        underline: Container(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedstaff = newValue;
-                            _filterProducts(searchController.text); 
-                          });
-                        },
-                        items: sta.map<DropdownMenuItem<String>>((staff) {
-                          return DropdownMenuItem<String>( 
-                            value: staff['name'],
-                            child: Text(staff['name'], style: TextStyle(fontSize: 12)),
-                          );
-                        }).toList(),
-                        icon: Container(
-                          alignment: Alignment.centerRight,
-                          child: Icon(Icons.arrow_drop_down),
-                        ),
-                      ),
+          ],
+        ),
+        
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: "Search products...",
+                  prefixIcon: Icon(Icons.search),
+                  fillColor: Colors.white, 
+                  filled: true, 
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: Colors.grey,
                     ),
                   ),
-                ],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                      width: 2.0,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                  ),
+                ),
+                onChanged: (query) {
+                  _filterProducts(query); 
+                },
               ),
             ),
-          ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _refreshData, // Trigger the refresh
-              child: filteredProducts.isEmpty
-                  ? Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      itemCount: filteredProducts.length,
-                      itemBuilder: (context, index) {
-                        var order = filteredProducts[index];
-                        String date = order['date'];
-                        int stock = order['stock'];
-
-                        return Card(
-                          color: Colors.white,
-                          margin: EdgeInsets.all(8),
-                          elevation: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '$date  (${order['product']})',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue),
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  'Stock: $stock',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color.fromARGB(255, 164, 164, 164),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Container(
+                height: 59,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Container(
+                      width: 276,
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                        ),
+                        child: DropdownButton<String>(
+                          value: selectedstaff,
+                          isExpanded: true,
+                          hint: Text(
+                            "Select Staff",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          underline: Container(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedstaff = newValue;
+                              _filterProducts(searchController.text); 
+                            });
+                          },
+                          items: sta.map<DropdownMenuItem<String>>((staff) {
+                            return DropdownMenuItem<String>( 
+                              value: staff['name'],
+                              child: Text(staff['name'], style: TextStyle(fontSize: 12)),
+                            );
+                          }).toList(),
+                          icon: Container(
+                            alignment: Alignment.centerRight,
+                            child: Icon(Icons.arrow_drop_down),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refreshData, // Trigger the refresh
+                child: filteredProducts.isEmpty
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        itemCount: filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          var order = filteredProducts[index];
+                          String date = order['date'];
+                          int stock = order['stock'];
+      
+                          return Card(
+                            color: Colors.white,
+                            margin: EdgeInsets.all(8),
+                            elevation: 5,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$date  (${order['product']})',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue),
                                   ),
-                                ),
-                                
-                                Card(
-                                  color: Colors.white,
-                                  margin: EdgeInsets.symmetric(vertical: 5),
-                                  elevation: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Order: ${order['order']}',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              Divider(),
-                                              Text(
-                                                'Staff: ${order['manage_staff']}',
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              Divider(),
-                                              Text(
-                                                'Product: ${order['product']}',
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              Text('Total Sold: ${order['total_sold']}'),
-                                              Text('Amount: ${order['total_amount']}'),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                                  SizedBox(height: 10),
+                                  Text(
+                                    'Stock: $stock',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color.fromARGB(255, 164, 164, 164),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  
+                                  Card(
+                                    color: Colors.white,
+                                    margin: EdgeInsets.symmetric(vertical: 5),
+                                    elevation: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Order: ${order['order']}',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                Divider(),
+                                                Text(
+                                                  'Staff: ${order['manage_staff']}',
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                Divider(),
+                                                Text(
+                                                  'Product: ${order['product']}',
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                Text('Total Sold: ${order['total_sold']}'),
+                                                Text('Amount: ${order['total_amount']}'),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

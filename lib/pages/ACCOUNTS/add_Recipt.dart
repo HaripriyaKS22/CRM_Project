@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:intl/intl.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
@@ -242,411 +244,454 @@ class _add_receiptState extends State<add_receipt> {
   //     });
   //   }
   // }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
-      appBar: AppBar(
-        title: Text(
-          "Add Bank",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
+    return WillPopScope(
+        onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Color.fromARGB(242, 255, 255, 255),
+        appBar: AppBar(
+          title: Text(
+            "Add Bank",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-          child: Container(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 15,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 10, top: 10, left: 10),
-              child: Container(
-                width: 600,
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 34, 165, 246),
-                  border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      "Add Receipt",
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    SizedBox(
-                      height: 13,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25, left: 15, right: 15),
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border:
-                        Border.all(color: Color.fromARGB(255, 202, 202, 202)),
-                  ),
-                  width: 700,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Select Invoice",
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 5),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              value: selectedInvoiceId,
-                              hint: Text(
-                                'Select Invoice',
-                                style: TextStyle(fontSize: 12.0),
-                              ),
-                              items: orders.map((order) {
-                                return DropdownMenuItem<String>(
-                                  value: order['id'].toString(),
-                                  child: Text(
-                                    '${order['invoice']} - ${order['customer']}',
-                                    style: TextStyle(fontSize: 12.0),
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedInvoiceId =
-                                      value; // Store the selected invoice ID
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
-                                      ;
-                                });
-                              },
-                              underline: SizedBox(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Amount",
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Container(
-                            child: TextField(
-                              controller: amount,
-                              decoration: InputDecoration(
-                                labelText: 'Amount',
-                                labelStyle: TextStyle(
-                                  fontSize: 12.0, // Set your desired font size
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 8.0), // Set vertical padding
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Transaction Id",
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Container(
-                            child: TextField(
-                              controller: transactionid,
-                              decoration: InputDecoration(
-                                labelText: 'Transaction Id',
-                                labelStyle: TextStyle(
-                                  fontSize: 12.0, // Set your desired font size
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 8.0), // Set vertical padding
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Bank",
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 5),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              value: selectedBankId,
-                              hint: Text(
-                                'Select Bank',
-                                style: TextStyle(fontSize: 12.0),
-                              ),
-                              items: bank.map((bankItem) {
-                                return DropdownMenuItem<String>(
-                                  value: bankItem['id'].toString(),
-                                  child: Text(
-                                    '${bankItem['name']}',
-                                    style: TextStyle(fontSize: 12.0),
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedBankId = value; // Store the selected bank ID
-                                  ;
-                                });
-                              },
-                              underline: SizedBox(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          "Remark",
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Container(
-                            child: TextField(
-                              controller:Remark ,
-                              decoration: InputDecoration(
-                                labelText: 'Remark',
-                                labelStyle: TextStyle(
-                                  fontSize: 12.0, // Set your desired font size
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 8.0), // Set vertical padding
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Date",
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Container(
-                            child: TextField(
-                              controller: TextEditingController(
-                                  text: DateFormat('yyyy-MM-dd').format(selectedDate)), // Default date
-                              readOnly: true, // Make the field read-only
-                              decoration: InputDecoration(
-                                labelText: 'Date',
-                                labelStyle: TextStyle(
-                                  fontSize: 12.0, // Set your desired font size
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 8.0), // Set vertical padding
-                              ),
-                              onTap: () async {
-                                DateTime? pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: selectedDate,
-                                  firstDate: DateTime(2000), // Earliest date
-                                  lastDate: DateTime(2100), // Latest date
-                                );
-                                if (pickedDate != null) {
-                                  setState(() {
-                                    selectedDate = pickedDate; // Update the selected date
-                                    ;
-                                  });
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "Name",
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Container(
-                            child: TextField(
-                              controller: TextEditingController(
-                                  text: uname.text), // Display the name extracted from JWT
-                              readOnly: true, // Make the field non-editable
-                              decoration: InputDecoration(
-                                labelText: 'Name',
-                                labelStyle: TextStyle(
-                                  fontSize: 12.0, // Set your desired font size
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 8.0), // Set vertical padding
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 20,
-                              ),
-                              SizedBox(
-                                width: 270,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                     AddReceipt(context);
-                                  },
-                                  style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 64, 176, 251),
-                                    ),
-                                    shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            10), // Set your desired border radius
-                                      ),
-                                    ),
-                                    fixedSize: MaterialStateProperty.all<Size>(
-                                      Size(95,
-                                          15), // Set your desired width and heigh
-                                    ),
-                                  ),
-                                  child: Text("Submit",
-                                      style: TextStyle(color: Colors.white)),
-                                ),
-                              ),
-                            ]),
-                        SizedBox(
-                          height: 20,
-                        )
-                      ],
-                    ),
-                  )),
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+} else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {},
             ),
           ],
         ),
-      )),
+        body: SingleChildScrollView(
+            child: Container(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 15,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10, top: 10, left: 10),
+                child: Container(
+                  width: 600,
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 34, 165, 246),
+                    border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "Add Receipt",
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      SizedBox(
+                        height: 13,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 25, left: 15, right: 15),
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      border:
+                          Border.all(color: Color.fromARGB(255, 202, 202, 202)),
+                    ),
+                    width: 700,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Select Invoice",
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 5),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: selectedInvoiceId,
+                                hint: Text(
+                                  'Select Invoice',
+                                  style: TextStyle(fontSize: 12.0),
+                                ),
+                                items: orders.map((order) {
+                                  return DropdownMenuItem<String>(
+                                    value: order['id'].toString(),
+                                    child: Text(
+                                      '${order['invoice']} - ${order['customer']}',
+                                      style: TextStyle(fontSize: 12.0),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedInvoiceId =
+                                        value; // Store the selected invoice ID
+      
+                                        ;
+                                  });
+                                },
+                                underline: SizedBox(),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Amount",
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                              child: TextField(
+                                controller: amount,
+                                decoration: InputDecoration(
+                                  labelText: 'Amount',
+                                  labelStyle: TextStyle(
+                                    fontSize: 12.0, // Set your desired font size
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 8.0), // Set vertical padding
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Transaction Id",
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                              child: TextField(
+                                controller: transactionid,
+                                decoration: InputDecoration(
+                                  labelText: 'Transaction Id',
+                                  labelStyle: TextStyle(
+                                    fontSize: 12.0, // Set your desired font size
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 8.0), // Set vertical padding
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Bank",
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 5),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: selectedBankId,
+                                hint: Text(
+                                  'Select Bank',
+                                  style: TextStyle(fontSize: 12.0),
+                                ),
+                                items: bank.map((bankItem) {
+                                  return DropdownMenuItem<String>(
+                                    value: bankItem['id'].toString(),
+                                    child: Text(
+                                      '${bankItem['name']}',
+                                      style: TextStyle(fontSize: 12.0),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedBankId = value; // Store the selected bank ID
+                                    ;
+                                  });
+                                },
+                                underline: SizedBox(),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            "Remark",
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                              child: TextField(
+                                controller:Remark ,
+                                decoration: InputDecoration(
+                                  labelText: 'Remark',
+                                  labelStyle: TextStyle(
+                                    fontSize: 12.0, // Set your desired font size
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 8.0), // Set vertical padding
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Date",
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                              child: TextField(
+                                controller: TextEditingController(
+                                    text: DateFormat('yyyy-MM-dd').format(selectedDate)), // Default date
+                                readOnly: true, // Make the field read-only
+                                decoration: InputDecoration(
+                                  labelText: 'Date',
+                                  labelStyle: TextStyle(
+                                    fontSize: 12.0, // Set your desired font size
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 8.0), // Set vertical padding
+                                ),
+                                onTap: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: selectedDate,
+                                    firstDate: DateTime(2000), // Earliest date
+                                    lastDate: DateTime(2100), // Latest date
+                                  );
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      selectedDate = pickedDate; // Update the selected date
+                                      ;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Name",
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                              child: TextField(
+                                controller: TextEditingController(
+                                    text: uname.text), // Display the name extracted from JWT
+                                readOnly: true, // Make the field non-editable
+                                decoration: InputDecoration(
+                                  labelText: 'Name',
+                                  labelStyle: TextStyle(
+                                    fontSize: 12.0, // Set your desired font size
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 8.0), // Set vertical padding
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                SizedBox(
+                                  width: 270,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                       AddReceipt(context);
+                                    },
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 64, 176, 251),
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10), // Set your desired border radius
+                                        ),
+                                      ),
+                                      fixedSize: MaterialStateProperty.all<Size>(
+                                        Size(95,
+                                            15), // Set your desired width and heigh
+                                      ),
+                                    ),
+                                    child: Text("Submit",
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              ]),
+                          SizedBox(
+                            height: 20,
+                          )
+                        ],
+                      ),
+                    )),
+              ),
+            ],
+          ),
+        )),
+      ),
     );
   }
 }

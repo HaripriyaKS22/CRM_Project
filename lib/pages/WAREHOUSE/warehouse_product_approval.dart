@@ -17,6 +17,8 @@ import 'package:beposoft/pages/ACCOUNTS/view_cart.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -948,7 +950,39 @@ List<String> extractStringList(List<dynamic> list, String key) {
   }
   return [];
 }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -958,35 +992,35 @@ List<String> extractStringList(List<dynamic> list, String key) {
           "Product List",
           style: TextStyle(color: Colors.grey, fontSize: 14),
         ),
- leading: IconButton(
+     leading: IconButton(
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async {
             final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
+           if(dep=="BDO" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+    
+    }
+    else if(dep=="BDM" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+    }
+    else if(dep=="warehouse" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+    }
+    else if(dep=="Warehouse Admin" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+    }
             
             else {
               Navigator.pushReplacement(
@@ -998,7 +1032,7 @@ List<String> extractStringList(List<dynamic> list, String key) {
             }
           },
         ),
-
+    
         
           actions: [
           // Cart icon with badge
@@ -1038,11 +1072,11 @@ List<String> extractStringList(List<dynamic> list, String key) {
      body: Container(
        child: Column(
          children: [
-
+    
           
-Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: TextField(
+    Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
     controller: searchController,
     decoration: InputDecoration(
       hintText: "Search products...",
@@ -1073,13 +1107,13 @@ Padding(
     onChanged: (query) {
       _filterProducts(query); // Filter the products as the user types
     },
-  ),
-),
-
-
-
+      ),
+    ),
+    
+    
+    
      Expanded(
-  child: RefreshIndicator(
+      child: RefreshIndicator(
     onRefresh: () {
       return fetchProductList();
     },
@@ -1242,13 +1276,13 @@ Padding(
         );
       },
     ),
-  ),
-),
-
+      ),
+    ),
+    
          ],
        ),
      ),
-
+    
     );
   }
 }

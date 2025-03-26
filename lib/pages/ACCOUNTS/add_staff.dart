@@ -8,6 +8,8 @@ import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_staff.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:beposoft/pages/api.dart';
@@ -707,1355 +709,1404 @@ Future<void> RegisterUserData(
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Color.fromARGB(242, 255, 255, 255),
-        appBar: AppBar(
-          title: Text(
-            "Add Staff",
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back), // Custom back arrow
-            onPressed: () async {
-              final dep = await getdepFromPrefs();
-              if (dep == "BDO") {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          bdo_dashbord()), // Replace AnotherPage with your target page
-                );
-              } else if (dep == "BDM") {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          bdm_dashbord()), // Replace AnotherPage with your target page
-                );
-              } else {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          dashboard()), // Replace AnotherPage with your target page
-                );
-              }
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: Image.asset('lib/assets/profile.png'),
-              onPressed: () {},
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+          backgroundColor: Color.fromARGB(242, 255, 255, 255),
+          appBar: AppBar(
+            title: Text(
+              "Add Staff",
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
-          ],
-        ),
-        body: Builder(builder: (BuildContext scaffoldContext) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: Container(
-                  width: double.infinity,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 15),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 1),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(
-                                color: Color.fromARGB(255, 202, 202, 202)),
-                          ),
-                          width: MediaQuery.of(context).size.width * 0.9,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  decoration: BoxDecoration(
-                                    color: const Color.fromARGB(255, 2, 65, 96),
-                                    border: Border.all(
-                                        color:
-                                            Color.fromARGB(255, 202, 202, 202)),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      SizedBox(height: 10),
-                                      Text(
-                                        "Add STAFF",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      SizedBox(height: 13),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: name,
-                                    decoration: InputDecoration(
-                                      labelText: 'name',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: username,
-                                    decoration: InputDecoration(
-                                      labelText: 'username',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: email,
-                                    decoration: InputDecoration(
-                                      labelText: 'Email',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: phone,
-                                    decoration: InputDecoration(
-                                      labelText: 'Phone',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: alternate_number,
-                                    decoration: InputDecoration(
-                                      labelText: 'Alternate Number',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: password,
-                                    decoration: InputDecoration(
-                                      labelText: 'Password',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    border: Border.all(color: Colors.grey),
-                                  ),
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                  child: DropdownButton<int>(
-                                    isExpanded: true,
-                                    value: selectedDepartmentId,
-                                    hint: Text('Select a department'),
-                                    underline:
-                                        SizedBox(), // Remove the default underline
-                                    onChanged: (int? newValue) {
-                                      setState(() {
-                                        selectedDepartmentId = newValue;
-                                        selectedDepartmentName = dep.firstWhere(
-                                            (element) =>
-                                                element['id'] ==
-                                                newValue)['name'];
-                                      });
-                                    },
-                                    items: dep.map<DropdownMenuItem<int>>(
-                                        (department) {
-                                      return DropdownMenuItem<int>(
-                                        value: department['id'],
-                                        child: Text(department['name']),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    border: Border.all(color: Colors.grey),
-                                  ),
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                  child: DropdownButton<int>(
-                                    isExpanded: true,
-                                    value: selectedmanagerId,
-                                    hint: Text('Select a Manager'),
-                                    underline:
-                                        SizedBox(), // Remove the default underline
-                                    onChanged: (int? newValue) {
-                                      setState(() {
-                                        selectedmanagerId = newValue;
-                                        selectedmanagerName =
-                                            manager.firstWhere((element) =>
-                                                element['id'] ==
-                                                newValue)['name'];
-                                      });
-                                    },
-                                    items: manager
-                                        .map<DropdownMenuItem<int>>((manager) {
-                                      return DropdownMenuItem<int>(
-                                        value: manager['id'],
-                                        child: Text(manager['name']),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-
-                                GestureDetector(
-                                  onTap: () {
-                                    imageSelect();
-                                  },
-                                  child: Container(
-                                    height: 55,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back), // Custom back arrow
+              onPressed: () async {
+                final dep = await getdepFromPrefs();
+                if(dep=="BDO" ){
+                    Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+                              );
+      
+                  }
+                  else if(dep=="BDM" ){
+                    Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+                              );
+                  }
+                  else if(dep=="warehouse" ){
+                    Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+                              );
+                  }
+                  else if(dep=="Warehouse Admin" ){
+                    Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+                              );
+                  } else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            dashboard()), // Replace AnotherPage with your target page
+                  );
+                }
+              },
+            ),
+            actions: [
+              IconButton(
+                icon: Image.asset('lib/assets/profile.png'),
+                onPressed: () {},
+              ),
+            ],
+          ),
+          body: Builder(builder: (BuildContext scaffoldContext) {
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: Container(
+                    width: double.infinity,
+                    child: Column(
+                      children: [
+                        SizedBox(height: 15),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 1),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10.0),
+                              border: Border.all(
+                                  color: Color.fromARGB(255, 202, 202, 202)),
+                            ),
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Color.fromARGB(255, 224, 223, 223),
+                                      color: const Color.fromARGB(255, 2, 65, 96),
+                                      border: Border.all(
+                                          color:
+                                              Color.fromARGB(255, 202, 202, 202)),
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                    child: Column(
                                       children: [
-                                        Image.asset(
-                                          'lib/assets/upload.png', // Replace 'upload_icon.png' with your image asset path
-                                          width:
-                                              24, // Adjust the width of the image
-                                          height:
-                                              24, // Adjust the height of the image
-                                          color: Color.fromARGB(255, 2, 2,
-                                              2), // Adjust the color of the image
-                                        ),
-                                        SizedBox(
-                                            width:
-                                                10), // Spacer between icon and text
+                                        SizedBox(height: 10),
                                         Text(
-                                          "Select Profile Image",
+                                          "Add STAFF",
                                           style: TextStyle(
-                                              color: const Color.fromARGB(
-                                                  255, 116, 116, 116)),
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        SizedBox(height: 13),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: name,
+                                      decoration: InputDecoration(
+                                        labelText: 'name',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: username,
+                                      decoration: InputDecoration(
+                                        labelText: 'username',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: email,
+                                      decoration: InputDecoration(
+                                        labelText: 'Email',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: phone,
+                                      decoration: InputDecoration(
+                                        labelText: 'Phone',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: alternate_number,
+                                      decoration: InputDecoration(
+                                        labelText: 'Alternate Number',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: password,
+                                      decoration: InputDecoration(
+                                        labelText: 'Password',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: DropdownButton<int>(
+                                      isExpanded: true,
+                                      value: selectedDepartmentId,
+                                      hint: Text('Select a department'),
+                                      underline:
+                                          SizedBox(), // Remove the default underline
+                                      onChanged: (int? newValue) {
+                                        setState(() {
+                                          selectedDepartmentId = newValue;
+                                          selectedDepartmentName = dep.firstWhere(
+                                              (element) =>
+                                                  element['id'] ==
+                                                  newValue)['name'];
+                                        });
+                                      },
+                                      items: dep.map<DropdownMenuItem<int>>(
+                                          (department) {
+                                        return DropdownMenuItem<int>(
+                                          value: department['id'],
+                                          child: Text(department['name']),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: DropdownButton<int>(
+                                      isExpanded: true,
+                                      value: selectedmanagerId,
+                                      hint: Text('Select a Manager'),
+                                      underline:
+                                          SizedBox(), // Remove the default underline
+                                      onChanged: (int? newValue) {
+                                        setState(() {
+                                          selectedmanagerId = newValue;
+                                          selectedmanagerName =
+                                              manager.firstWhere((element) =>
+                                                  element['id'] ==
+                                                  newValue)['name'];
+                                        });
+                                      },
+                                      items: manager
+                                          .map<DropdownMenuItem<int>>((manager) {
+                                        return DropdownMenuItem<int>(
+                                          value: manager['id'],
+                                          child: Text(manager['name']),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+      
+                                  GestureDetector(
+                                    onTap: () {
+                                      imageSelect();
+                                    },
+                                    child: Container(
+                                      height: 55,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Color.fromARGB(255, 224, 223, 223),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Image.asset(
+                                            'lib/assets/upload.png', // Replace 'upload_icon.png' with your image asset path
+                                            width:
+                                                24, // Adjust the width of the image
+                                            height:
+                                                24, // Adjust the height of the image
+                                            color: Color.fromARGB(255, 2, 2,
+                                                2), // Adjust the color of the image
+                                          ),
+                                          SizedBox(
+                                              width:
+                                                  10), // Spacer between icon and text
+                                          Text(
+                                            "Select Profile Image",
+                                            style: TextStyle(
+                                                color: const Color.fromARGB(
+                                                    255, 116, 116, 116)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+      
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: DropdownButton<int>(
+                                      isExpanded: true,
+                                      value: selectedwarehouseId,
+                                      hint: Text('Select a Warehouse'),
+                                      underline:
+                                          SizedBox(), // Remove the default underline
+                                      onChanged: (int? newValue) {
+                                        setState(() {
+                                          selectedwarehouseId = newValue;
+                                          selectedwarehouseName =
+                                              Warehouses.firstWhere((element) =>
+                                                  element['id'] ==
+                                                  newValue)['name'];
+                                        });
+                                      },
+                                      items:
+                                          Warehouses.map<DropdownMenuItem<int>>(
+                                              (Warehouses) {
+                                        return DropdownMenuItem<int>(
+                                          value: Warehouses['id'],
+                                          child: Text(Warehouses['name']),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    "Date Of Birth",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    width: constraints.maxWidth *
+                                        0.9, // Adjusted width based on screen size
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.grey, width: 1.0),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 30),
+                                              Text(
+                                                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Color.fromARGB(
+                                                        255, 116, 116, 116)),
+                                              ),
+                                              SizedBox(width: 162),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _selectDate(context);
+                                                },
+                                                child: Icon(Icons.date_range),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    border: Border.all(color: Colors.grey),
+                                  SizedBox(
+                                    height: 10,
                                   ),
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                  child: DropdownButton<int>(
-                                    isExpanded: true,
-                                    value: selectedwarehouseId,
-                                    hint: Text('Select a Warehouse'),
-                                    underline:
-                                        SizedBox(), // Remove the default underline
-                                    onChanged: (int? newValue) {
-                                      setState(() {
-                                        selectedwarehouseId = newValue;
-                                        selectedwarehouseName =
-                                            Warehouses.firstWhere((element) =>
-                                                element['id'] ==
-                                                newValue)['name'];
-                                      });
-                                    },
-                                    items:
-                                        Warehouses.map<DropdownMenuItem<int>>(
-                                            (Warehouses) {
-                                      return DropdownMenuItem<int>(
-                                        value: Warehouses['id'],
-                                        child: Text(Warehouses['name']),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  "Date Of Birth",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: constraints.maxWidth *
-                                      0.9, // Adjusted width based on screen size
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        height: 46,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.grey, width: 1.0),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(width: 30),
-                                            Text(
-                                              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Color.fromARGB(
-                                                      255, 116, 116, 116)),
-                                            ),
-                                            SizedBox(width: 162),
-                                            GestureDetector(
-                                              onTap: () {
-                                                _selectDate(context);
-                                              },
-                                              child: Icon(Icons.date_range),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                //    Text("Checkbox Family",
-                                //     style: TextStyle(
-                                //         fontSize: 15, fontWeight: FontWeight.bold)),
-                                // SizedBox(height: 20),
-                                // statess.isEmpty
-                                //     ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
-                                //     : ListView.builder(
-                                //         shrinkWrap: true,
-                                //         itemCount: statess.length,
-                                //         itemBuilder: (context, index) {
-                                //           return CheckboxListTile(
-                                //             title: Text(statess[index]['name']),
-                                //             value: _checkboxValues[index],
-                                //             onChanged: (bool? value) {
-                                //               setState(() {
-                                //                 _checkboxValues[index] =
-                                //                     value ?? false;
-                                //                 if (_checkboxValues[index]) {
-                                //                   _selectedFamily
-                                //                       .add(statess[index]['id']);
-                                //                 } else {
-                                //                   _selectedFamily
-                                //                       .remove(statess[index]['id']);
-                                //                 }
-                                //               });
-                                //             },
-                                //             controlAffinity:
-                                //                 ListTileControlAffinity.leading,
-                                //           );
-                                //         },
-                                //       ),
-                                Padding(
-                                  padding: const EdgeInsets.all(.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        height: 46,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.grey, width: 1.0),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: DropdownButtonHideUnderline(
-                                          child: DropdownButton<
-                                              Map<String, dynamic>>(
-                                            isExpanded: true,
-                                            hint: Text(
-                                              'Select State',
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Theme.of(context)
-                                                      .hintColor),
-                                            ),
-                                            value: statess.isNotEmpty &&
-                                                    selectstate != null
-                                                ? statess.firstWhere(
-                                                    (element) =>
-                                                        element['name'] ==
-                                                        selectstate,
-                                                    orElse: () => statess[
-                                                        0], // Default to first state if not found
-                                                  )
-                                                : null,
-                                            items: statess.isNotEmpty
-                                                ? statess.map<
-                                                    DropdownMenuItem<
-                                                        Map<String, dynamic>>>(
-                                                    (Map<String, dynamic>
-                                                        state) {
-                                                      return DropdownMenuItem<
-                                                          Map<String, dynamic>>(
-                                                        value: state,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            Text(
-                                                              state['name'],
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          14),
-                                                            ),
-                                                            if (stat.contains(
-                                                                state['name']))
-                                                              Icon(
-                                                                Icons.check,
-                                                                color: Colors
-                                                                    .blue, // Indicate selected items
+                                  //    Text("Checkbox Family",
+                                  //     style: TextStyle(
+                                  //         fontSize: 15, fontWeight: FontWeight.bold)),
+                                  // SizedBox(height: 20),
+                                  // statess.isEmpty
+                                  //     ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
+                                  //     : ListView.builder(
+                                  //         shrinkWrap: true,
+                                  //         itemCount: statess.length,
+                                  //         itemBuilder: (context, index) {
+                                  //           return CheckboxListTile(
+                                  //             title: Text(statess[index]['name']),
+                                  //             value: _checkboxValues[index],
+                                  //             onChanged: (bool? value) {
+                                  //               setState(() {
+                                  //                 _checkboxValues[index] =
+                                  //                     value ?? false;
+                                  //                 if (_checkboxValues[index]) {
+                                  //                   _selectedFamily
+                                  //                       .add(statess[index]['id']);
+                                  //                 } else {
+                                  //                   _selectedFamily
+                                  //                       .remove(statess[index]['id']);
+                                  //                 }
+                                  //               });
+                                  //             },
+                                  //             controlAffinity:
+                                  //                 ListTileControlAffinity.leading,
+                                  //           );
+                                  //         },
+                                  //       ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.grey, width: 1.0),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                          ),
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<
+                                                Map<String, dynamic>>(
+                                              isExpanded: true,
+                                              hint: Text(
+                                                'Select State',
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Theme.of(context)
+                                                        .hintColor),
+                                              ),
+                                              value: statess.isNotEmpty &&
+                                                      selectstate != null
+                                                  ? statess.firstWhere(
+                                                      (element) =>
+                                                          element['name'] ==
+                                                          selectstate,
+                                                      orElse: () => statess[
+                                                          0], // Default to first state if not found
+                                                    )
+                                                  : null,
+                                              items: statess.isNotEmpty
+                                                  ? statess.map<
+                                                      DropdownMenuItem<
+                                                          Map<String, dynamic>>>(
+                                                      (Map<String, dynamic>
+                                                          state) {
+                                                        return DropdownMenuItem<
+                                                            Map<String, dynamic>>(
+                                                          value: state,
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Text(
+                                                                state['name'],
+                                                                style:
+                                                                    const TextStyle(
+                                                                        fontSize:
+                                                                            14),
                                                               ),
-                                                          ],
-                                                        ),
-                                                      );
-                                                    },
-                                                  ).toList()
-                                                : [
-                                                    DropdownMenuItem(
-                                                      child: Text(
-                                                          'No states available'),
-                                                      value: null,
-                                                    ),
-                                                  ],
-                                            onChanged: (Map<String, dynamic>?
-                                                newValue) {
-                                              if (newValue != null) {
+                                                              if (stat.contains(
+                                                                  state['name']))
+                                                                Icon(
+                                                                  Icons.check,
+                                                                  color: Colors
+                                                                      .blue, // Indicate selected items
+                                                                ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                    ).toList()
+                                                  : [
+                                                      DropdownMenuItem(
+                                                        child: Text(
+                                                            'No states available'),
+                                                        value: null,
+                                                      ),
+                                                    ],
+                                              onChanged: (Map<String, dynamic>?
+                                                  newValue) {
+                                                if (newValue != null) {
+                                                  setState(() {
+                                                    selectstate =
+                                                        newValue['name'];
+                                                    selectedStateId =
+                                                        newValue['id'];
+                                                    if (!stat.contains(
+                                                            selectstate) &&
+                                                        !dynamicStatid.contains(
+                                                            selectedStateId)) {
+                                                      stat.add(selectstate!);
+                                                      dynamicStatid
+                                                          .add(selectedStateId!);
+                                                    } else {
+                                                      stat.remove(selectstate!);
+                                                      dynamicStatid.remove(
+                                                          selectedStateId);
+                                                    }
+                                                  });
+                                                }
+                                              },
+                                              icon: Icon(Icons.arrow_drop_down),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 10), // Spacing
+                                        // Display selected values
+                                        Wrap(
+                                          spacing: 8.0,
+                                          children: stat.map((value) {
+                                            return Chip(
+                                              label: Text(value),
+                                              deleteIcon: Icon(Icons.close),
+                                              onDeleted: () {
                                                 setState(() {
-                                                  selectstate =
-                                                      newValue['name'];
-                                                  selectedStateId =
-                                                      newValue['id'];
-                                                  if (!stat.contains(
-                                                          selectstate) &&
-                                                      !dynamicStatid.contains(
-                                                          selectedStateId)) {
-                                                    stat.add(selectstate!);
-                                                    dynamicStatid
-                                                        .add(selectedStateId!);
-                                                  } else {
-                                                    stat.remove(selectstate!);
-                                                    dynamicStatid.remove(
-                                                        selectedStateId);
+                                                  int index = stat.indexOf(value);
+                                                  stat.removeAt(index);
+                                                  dynamicStatid.removeAt(index);
+                                                  if (stat.isEmpty) {
+                                                    selectstate =
+                                                        null; // Reset the selected state
                                                   }
                                                 });
-                                              }
-                                            },
-                                            icon: Icon(Icons.arrow_drop_down),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 10), // Spacing
-                                      // Display selected values
-                                      Wrap(
-                                        spacing: 8.0,
-                                        children: stat.map((value) {
-                                          return Chip(
-                                            label: Text(value),
-                                            deleteIcon: Icon(Icons.close),
-                                            onDeleted: () {
-                                              setState(() {
-                                                int index = stat.indexOf(value);
-                                                stat.removeAt(index);
-                                                dynamicStatid.removeAt(index);
-                                                if (stat.isEmpty) {
-                                                  selectstate =
-                                                      null; // Reset the selected state
-                                                }
-                                              });
-                                            },
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                // Text(
-                                //   "State$stat",
-                                //   style: TextStyle(
-                                //     fontSize: 15,
-                                //     fontWeight: FontWeight.bold,
-                                //   ),
-                                // ),
-                                // SizedBox(
-                                //   height: 5,
-                                // ),
-                                // Container(
-                                //   width: double
-                                //       .infinity, // Use full width available
-                                //   height: 49,
-                                //   decoration: BoxDecoration(
-                                //     border: Border.all(color: Colors.grey),
-                                //     borderRadius: BorderRadius.circular(10),
-                                //   ),
-                                //   child: InputDecorator(
-                                //     decoration: InputDecoration(
-                                //       border: InputBorder.none,
-                                //       contentPadding: EdgeInsets.symmetric(
-                                //           horizontal:
-                                //               10), // Adjust padding as needed
-                                //     ),
-                                //     child: DropdownButtonHideUnderline(
-                                //       child:
-                                //           DropdownButton<Map<String, dynamic>>(
-                                //         value: statess.isNotEmpty
-                                //             ? statess.firstWhere(
-                                //                 (element) =>
-                                //                     element['name'] ==
-                                //                     selectstate,
-                                //                 orElse: () => statess[0],
-                                //               )
-                                //             : null,
-                                //         onChanged: statess.isNotEmpty
-                                //             ? (Map<String, dynamic>? newValue) {
-                                //                 setState(() {
-                                //                   selectstate =
-                                //                       newValue!['name'];
-                                //                   selectedStateId = newValue[
-                                //                       'id']; // Store the selected state's ID
-
-                                //                   // Check if the selected state is already in the list
-                                //                   if (!stat.contains(
-                                //                           selectstate) &&
-                                //                       !dynamicStatid.contains(
-                                //                           selectedStateId)) {
-                                //                     stat.add(selectstate!);
-                                //                     dynamicStatid
-                                //                         .add(selectedStateId!);
-                                //                   } else {
-                                //                     stat.remove(selectstate!);
-                                //                     dynamicStatid.remove(
-                                //                         selectedStateId);
-                                //                   }
-
-                                //                 });
-                                //               }
-                                //             : null,
-                                //         items: statess.isNotEmpty
-                                //             ? statess.map<
-                                //                 DropdownMenuItem<
-                                //                     Map<String, dynamic>>>(
-                                //                 (Map<String, dynamic> state) {
-                                //                   return DropdownMenuItem<
-                                //                       Map<String, dynamic>>(
-                                //                     value: state,
-                                //                     child: Text(state['name']),
-                                //                   );
-                                //                 },
-                                //               ).toList()
-                                //             : [
-                                //                 DropdownMenuItem(
-                                //                   child: Text(
-                                //                       'No states available'),
-                                //                   value: null,
-                                //                 ),
-                                //               ],
-                                //         icon: Icon(Icons.arrow_drop_down),
-                                //         isExpanded:
-                                //             true, // Ensure dropdown takes full width
-                                //       ),
-                                //     ),
-                                //   ),
-                                // ),
-                                Text(
-                                  "Gender",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: constraints.maxWidth *
-                                      0.9, // Adjusted width based on screen size
-                                  height: 49,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: 20),
-                                      Container(
-                                        width: constraints.maxWidth *
-                                            0.7, // Adjusted width based on screen size
-                                        child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: '',
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 1),
-                                          ),
-                                          child: DropdownButton<String>(
-                                            value: selectgender,
-                                            underline:
-                                                Container(), // This removes the underline
-                                            onChanged: (String? newValue) {
-                                              setState(() {
-                                                selectgender = newValue!;
-                                              });
-                                            },
-                                            items: gender
-                                                .map<DropdownMenuItem<String>>(
-                                                    (String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                            icon: Container(
-                                              padding: EdgeInsets.only(
-                                                  left: constraints.maxWidth *
-                                                      0.35),
-                                              alignment: Alignment.centerRight,
-                                              child:
-                                                  Icon(Icons.arrow_drop_down),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "Marital status",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: constraints.maxWidth *
-                                      0.9, // Adjusted width based on screen size
-                                  height: 49,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: 20),
-                                      Container(
-                                        width: constraints.maxWidth *
-                                            0.6, // Adjusted width based on screen size
-                                        child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: '',
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 1),
-                                          ),
-                                          child: DropdownButton<String>(
-                                            value: selectmarital,
-                                            underline:
-                                                Container(), // This removes the underline
-                                            onChanged: (String? newValue) {
-                                              setState(() {
-                                                selectmarital = newValue!;
-                                              });
-                                            },
-                                            items: material
-                                                .map<DropdownMenuItem<String>>(
-                                                    (String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                            icon: Container(
-                                              padding: EdgeInsets.only(
-                                                  left: constraints.maxWidth *
-                                                      0.35),
-                                              alignment: Alignment.centerRight,
-                                              child:
-                                                  Icon(Icons.arrow_drop_down),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: driving_license,
-                                    decoration: InputDecoration(
-                                      labelText: 'Driving License',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "License Exp.Date",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: constraints.maxWidth *
-                                      0.9, // Adjusted width based on screen size
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        height: 46,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.grey, width: 1.0),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(width: 30),
-                                            Text(
-                                              '${selecteExp.day}/${selecteExp.month}/${selecteExp.year}',
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Color.fromARGB(
-                                                      255, 116, 116, 116)),
-                                            ),
-                                            SizedBox(width: 162),
-                                            GestureDetector(
-                                              onTap: () {
-                                                _selectDate2(context);
                                               },
-                                              child: Icon(Icons.date_range),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: employment_status,
-                                    decoration: InputDecoration(
-                                      labelText: 'Employment Status',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-
-                                SizedBox(height: 10),
-
-// Show a loading indicator while the data is being fetched
-                                fam.isEmpty
-                                    ? CircularProgressIndicator()
-                                    : DropdownButton<String>(
-                                        isExpanded:
-                                            true, // Ensure dropdown takes full width
-                                        value: _selectedFamily.isEmpty
-                                            ? null
-                                            : _selectedFamily[0]
-                                                .toString(), // Convert value to String
-                                        hint: Text("Select a Family"),
-                                        items: fam
-                                            .map<DropdownMenuItem<String>>(
-                                                (family) {
-                                          return DropdownMenuItem<String>(
-                                            value: family[
-                                                'id'], // Value is now a String
-                                            child: Text(family['name']),
-                                          );
-                                        }).toList(),
-                                        onChanged: (String? newValue) {
-                                          setState(() {
-                                            if (newValue != null) {
-                                              _selectedFamily = [
-                                                int.parse(newValue)
-                                              ]; // Convert String back to int and store it
-                                            }
-                                          });
-                                        },
-                                      ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: designation,
-                                    decoration: InputDecoration(
-                                      labelText: 'Designation',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: grade,
-                                    decoration: InputDecoration(
-                                      labelText: 'Grade',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: address,
-                                    decoration: InputDecoration(
-                                      labelText: 'Address',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: city,
-                                    decoration: InputDecoration(
-                                      labelText: 'City',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  child: TextField(
-                                    controller: Country,
-                                    decoration: InputDecoration(
-                                      labelText: 'Country',
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "Joining Date",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: constraints.maxWidth *
-                                      0.9, // Adjusted width based on screen size
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        height: 46,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.grey, width: 1.0),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(width: 30),
-                                            Text(
-                                              '${selectejoin.day}/${selectejoin.month}/${selectejoin.year}',
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Color.fromARGB(
-                                                      255, 116, 116, 116)),
-                                            ),
-                                            SizedBox(width: 162),
-                                            GestureDetector(
-                                              onTap: () {
-                                                _selectDate3(context);
-                                              },
-                                              child: Icon(Icons.date_range),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "Confirmation Date",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: constraints.maxWidth *
-                                      0.9, // Adjusted width based on screen size
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        height: 46,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.grey, width: 1.0),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(width: 30),
-                                            Text(
-                                              '${selecteconf.day}/${selecteconf.month}/${selecteconf.year}',
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Color.fromARGB(
-                                                      255, 116, 116, 116)),
-                                            ),
-                                            SizedBox(width: 162),
-                                            GestureDetector(
-                                              onTap: () {
-                                                _selectDate4(context);
-                                              },
-                                              child: Icon(Icons.date_range),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "Signature",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    imageSelect1();
-                                  },
-                                  child: Container(
-                                    height: 55,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Color.fromARGB(255, 224, 223, 223),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Image.asset(
-                                          'lib/assets/upload.png', // Replace 'upload_icon.png' with your image asset path
-                                          width:
-                                              24, // Adjust the width of the image
-                                          height:
-                                              24, // Adjust the height of the image
-                                          color: Color.fromARGB(255, 2, 2,
-                                              2), // Adjust the color of the image
-                                        ),
-                                        SizedBox(
-                                            width:
-                                                10), // Spacer between icon and text
-                                        Text(
-                                          "Select Signature",
-                                          style: TextStyle(
-                                              color: const Color.fromARGB(
-                                                  255, 116, 116, 116)),
+                                            );
+                                          }).toList(),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                                Text(
-                                  "Status",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
+      
+                                  // Text(
+                                  //   "State$stat",
+                                  //   style: TextStyle(
+                                  //     fontSize: 15,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  // SizedBox(
+                                  //   height: 5,
+                                  // ),
+                                  // Container(
+                                  //   width: double
+                                  //       .infinity, // Use full width available
+                                  //   height: 49,
+                                  //   decoration: BoxDecoration(
+                                  //     border: Border.all(color: Colors.grey),
+                                  //     borderRadius: BorderRadius.circular(10),
+                                  //   ),
+                                  //   child: InputDecorator(
+                                  //     decoration: InputDecoration(
+                                  //       border: InputBorder.none,
+                                  //       contentPadding: EdgeInsets.symmetric(
+                                  //           horizontal:
+                                  //               10), // Adjust padding as needed
+                                  //     ),
+                                  //     child: DropdownButtonHideUnderline(
+                                  //       child:
+                                  //           DropdownButton<Map<String, dynamic>>(
+                                  //         value: statess.isNotEmpty
+                                  //             ? statess.firstWhere(
+                                  //                 (element) =>
+                                  //                     element['name'] ==
+                                  //                     selectstate,
+                                  //                 orElse: () => statess[0],
+                                  //               )
+                                  //             : null,
+                                  //         onChanged: statess.isNotEmpty
+                                  //             ? (Map<String, dynamic>? newValue) {
+                                  //                 setState(() {
+                                  //                   selectstate =
+                                  //                       newValue!['name'];
+                                  //                   selectedStateId = newValue[
+                                  //                       'id']; // Store the selected state's ID
+      
+                                  //                   // Check if the selected state is already in the list
+                                  //                   if (!stat.contains(
+                                  //                           selectstate) &&
+                                  //                       !dynamicStatid.contains(
+                                  //                           selectedStateId)) {
+                                  //                     stat.add(selectstate!);
+                                  //                     dynamicStatid
+                                  //                         .add(selectedStateId!);
+                                  //                   } else {
+                                  //                     stat.remove(selectstate!);
+                                  //                     dynamicStatid.remove(
+                                  //                         selectedStateId);
+                                  //                   }
+      
+                                  //                 });
+                                  //               }
+                                  //             : null,
+                                  //         items: statess.isNotEmpty
+                                  //             ? statess.map<
+                                  //                 DropdownMenuItem<
+                                  //                     Map<String, dynamic>>>(
+                                  //                 (Map<String, dynamic> state) {
+                                  //                   return DropdownMenuItem<
+                                  //                       Map<String, dynamic>>(
+                                  //                     value: state,
+                                  //                     child: Text(state['name']),
+                                  //                   );
+                                  //                 },
+                                  //               ).toList()
+                                  //             : [
+                                  //                 DropdownMenuItem(
+                                  //                   child: Text(
+                                  //                       'No states available'),
+                                  //                   value: null,
+                                  //                 ),
+                                  //               ],
+                                  //         icon: Icon(Icons.arrow_drop_down),
+                                  //         isExpanded:
+                                  //             true, // Ensure dropdown takes full width
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  Text(
+                                    "Gender",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: constraints.maxWidth *
-                                      0.9, // Adjusted width based on screen size
-                                  height: 49,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
+                                  SizedBox(
+                                    height: 5,
                                   ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: 20),
-                                      Container(
-                                        width: constraints.maxWidth *
-                                            0.6, // Adjusted width based on screen size
-                                        child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: '',
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 1),
-                                          ),
-                                          child: DropdownButton<String>(
-                                            value: approvalstatus,
-                                            underline:
-                                                Container(), // This removes the underline
-                                            onChanged: (String? newValue) {
-                                              setState(() {
-                                                approvalstatus = newValue!;
-                                              });
-                                            },
-                                            items: approval
-                                                .map<DropdownMenuItem<String>>(
-                                                    (String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                            icon: Container(
-                                              padding: EdgeInsets.only(
-                                                  left: constraints.maxWidth *
-                                                      0.1),
-                                              alignment: Alignment.centerRight,
-                                              child:
-                                                  Icon(Icons.arrow_drop_down),
+                                  Container(
+                                    width: constraints.maxWidth *
+                                        0.9, // Adjusted width based on screen size
+                                    height: 49,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(width: 20),
+                                        Container(
+                                          width: constraints.maxWidth *
+                                              0.7, // Adjusted width based on screen size
+                                          child: InputDecorator(
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: '',
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      horizontal: 1),
+                                            ),
+                                            child: DropdownButton<String>(
+                                              value: selectgender,
+                                              underline:
+                                                  Container(), // This removes the underline
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  selectgender = newValue!;
+                                                });
+                                              },
+                                              items: gender
+                                                  .map<DropdownMenuItem<String>>(
+                                                      (String value) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                );
+                                              }).toList(),
+                                              icon: Container(
+                                                padding: EdgeInsets.only(
+                                                    left: constraints.maxWidth *
+                                                        0.35),
+                                                alignment: Alignment.centerRight,
+                                                child:
+                                                    Icon(Icons.arrow_drop_down),
+                                              ),
                                             ),
                                           ),
                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    "Marital status",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    width: constraints.maxWidth *
+                                        0.9, // Adjusted width based on screen size
+                                    height: 49,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(width: 20),
+                                        Container(
+                                          width: constraints.maxWidth *
+                                              0.6, // Adjusted width based on screen size
+                                          child: InputDecorator(
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: '',
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      horizontal: 1),
+                                            ),
+                                            child: DropdownButton<String>(
+                                              value: selectmarital,
+                                              underline:
+                                                  Container(), // This removes the underline
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  selectmarital = newValue!;
+                                                });
+                                              },
+                                              items: material
+                                                  .map<DropdownMenuItem<String>>(
+                                                      (String value) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                );
+                                              }).toList(),
+                                              icon: Container(
+                                                padding: EdgeInsets.only(
+                                                    left: constraints.maxWidth *
+                                                        0.35),
+                                                alignment: Alignment.centerRight,
+                                                child:
+                                                    Icon(Icons.arrow_drop_down),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: driving_license,
+                                      decoration: InputDecoration(
+                                        labelText: 'Driving License',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 15),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() async {
-                                      await RegisterUserData(
-                                          selectedDepartmentId!,
-                                          selectedDate,
-                                          selectgender,
-                                          selectmarital,
-                                          selecteExp,
-                                          selectejoin,
-                                          selecteconf,
-                                          scaffoldContext);
-
-                                      updateStaffImage(staffId, selectedImage,
-                                          selectedImage1, scaffoldContext);
-                                    });
-                                  },
-                                  style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                            Colors.blue),
-                                    shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            10), // Set your desired border radius
+                                  SizedBox(height: 5),
+                                  Text(
+                                    "License Exp.Date",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    width: constraints.maxWidth *
+                                        0.9, // Adjusted width based on screen size
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.grey, width: 1.0),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 30),
+                                              Text(
+                                                '${selecteExp.day}/${selecteExp.month}/${selecteExp.year}',
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Color.fromARGB(
+                                                        255, 116, 116, 116)),
+                                              ),
+                                              SizedBox(width: 162),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _selectDate2(context);
+                                                },
+                                                child: Icon(Icons.date_range),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: employment_status,
+                                      decoration: InputDecoration(
+                                        labelText: 'Employment Status',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
                                       ),
                                     ),
-                                    fixedSize: MaterialStateProperty.all<Size>(
-                                      Size(
-                                          MediaQuery.of(context).size.width *
-                                              0.4,
-                                          50), // Set your desired width and height
+                                  ),
+      
+                                  SizedBox(height: 10),
+      
+      // Show a loading indicator while the data is being fetched
+                                  fam.isEmpty
+                                      ? CircularProgressIndicator()
+                                      : DropdownButton<String>(
+                                          isExpanded:
+                                              true, // Ensure dropdown takes full width
+                                          value: _selectedFamily.isEmpty
+                                              ? null
+                                              : _selectedFamily[0]
+                                                  .toString(), // Convert value to String
+                                          hint: Text("Select a Family"),
+                                          items: fam
+                                              .map<DropdownMenuItem<String>>(
+                                                  (family) {
+                                            return DropdownMenuItem<String>(
+                                              value: family[
+                                                  'id'], // Value is now a String
+                                              child: Text(family['name']),
+                                            );
+                                          }).toList(),
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              if (newValue != null) {
+                                                _selectedFamily = [
+                                                  int.parse(newValue)
+                                                ]; // Convert String back to int and store it
+                                              }
+                                            });
+                                          },
+                                        ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: designation,
+                                      decoration: InputDecoration(
+                                        labelText: 'Designation',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
                                     ),
                                   ),
-                                  child: Text("Submit",
-                                      style: TextStyle(color: Colors.white)),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Available Staff",
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 15, left: 15),
-                        child: Container(
-                          color: Colors.white,
-                          child: Table(
-                            border: TableBorder.all(
-                                color: Color.fromARGB(255, 214, 213, 213)),
-                            columnWidths: {
-                              0: FixedColumnWidth(
-                                  40.0), // Fixed width for the first column (No.)
-                              1: FlexColumnWidth(
-                                  2), // Flex width for the second column (Department Name)
-                              2: FixedColumnWidth(
-                                  50.0), // Fixed width for the third column (Edit)
-                              3: FixedColumnWidth(
-                                  50.0), // Fixed width for the fourth column (Delete)
-                            },
-                            children: [
-                              const TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                ),
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "No.",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: grade,
+                                      decoration: InputDecoration(
+                                        labelText: 'Grade',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "Manager Name",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: address,
+                                      decoration: InputDecoration(
+                                        labelText: 'Address',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "Edit",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: city,
+                                      decoration: InputDecoration(
+                                        labelText: 'City',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
                                     ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: TextField(
+                                      controller: Country,
+                                      decoration: InputDecoration(
+                                        labelText: 'Country',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    "Joining Date",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    width: constraints.maxWidth *
+                                        0.9, // Adjusted width based on screen size
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.grey, width: 1.0),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 30),
+                                              Text(
+                                                '${selectejoin.day}/${selectejoin.month}/${selectejoin.year}',
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Color.fromARGB(
+                                                        255, 116, 116, 116)),
+                                              ),
+                                              SizedBox(width: 162),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _selectDate3(context);
+                                                },
+                                                child: Icon(Icons.date_range),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    "Confirmation Date",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    width: constraints.maxWidth *
+                                        0.9, // Adjusted width based on screen size
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.grey, width: 1.0),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 30),
+                                              Text(
+                                                '${selecteconf.day}/${selecteconf.month}/${selecteconf.year}',
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Color.fromARGB(
+                                                        255, 116, 116, 116)),
+                                              ),
+                                              SizedBox(width: 162),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _selectDate4(context);
+                                                },
+                                                child: Icon(Icons.date_range),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    "Signature",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      imageSelect1();
+                                    },
+                                    child: Container(
+                                      height: 55,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Color.fromARGB(255, 224, 223, 223),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Image.asset(
+                                            'lib/assets/upload.png', // Replace 'upload_icon.png' with your image asset path
+                                            width:
+                                                24, // Adjust the width of the image
+                                            height:
+                                                24, // Adjust the height of the image
+                                            color: Color.fromARGB(255, 2, 2,
+                                                2), // Adjust the color of the image
+                                          ),
+                                          SizedBox(
+                                              width:
+                                                  10), // Spacer between icon and text
+                                          Text(
+                                            "Select Signature",
+                                            style: TextStyle(
+                                                color: const Color.fromARGB(
+                                                    255, 116, 116, 116)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    "Status",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    width: constraints.maxWidth *
+                                        0.9, // Adjusted width based on screen size
+                                    height: 49,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(width: 20),
+                                        Container(
+                                          width: constraints.maxWidth *
+                                              0.6, // Adjusted width based on screen size
+                                          child: InputDecorator(
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: '',
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      horizontal: 1),
+                                            ),
+                                            child: DropdownButton<String>(
+                                              value: approvalstatus,
+                                              underline:
+                                                  Container(), // This removes the underline
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  approvalstatus = newValue!;
+                                                });
+                                              },
+                                              items: approval
+                                                  .map<DropdownMenuItem<String>>(
+                                                      (String value) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                );
+                                              }).toList(),
+                                              icon: Container(
+                                                padding: EdgeInsets.only(
+                                                    left: constraints.maxWidth *
+                                                        0.1),
+                                                alignment: Alignment.centerRight,
+                                                child:
+                                                    Icon(Icons.arrow_drop_down),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 15),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() async {
+                                        await RegisterUserData(
+                                            selectedDepartmentId!,
+                                            selectedDate,
+                                            selectgender,
+                                            selectmarital,
+                                            selecteExp,
+                                            selectejoin,
+                                            selecteconf,
+                                            scaffoldContext);
+      
+                                        updateStaffImage(staffId, selectedImage,
+                                            selectedImage1, scaffoldContext);
+                                      });
+                                    },
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.blue),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10), // Set your desired border radius
+                                        ),
+                                      ),
+                                      fixedSize: MaterialStateProperty.all<Size>(
+                                        Size(
+                                            MediaQuery.of(context).size.width *
+                                                0.4,
+                                            50), // Set your desired width and height
+                                      ),
+                                    ),
+                                    child: Text("Submit",
+                                        style: TextStyle(color: Colors.white)),
                                   ),
                                 ],
                               ),
-                              for (int i = 0; i < sta.length; i++)
-                                TableRow(
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 15),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Available Staff",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 15, left: 15),
+                          child: Container(
+                            color: Colors.white,
+                            child: Table(
+                              border: TableBorder.all(
+                                  color: Color.fromARGB(255, 214, 213, 213)),
+                              columnWidths: {
+                                0: FixedColumnWidth(
+                                    40.0), // Fixed width for the first column (No.)
+                                1: FlexColumnWidth(
+                                    2), // Flex width for the second column (Department Name)
+                                2: FixedColumnWidth(
+                                    50.0), // Fixed width for the third column (Edit)
+                                3: FixedColumnWidth(
+                                    50.0), // Fixed width for the fourth column (Delete)
+                              },
+                              children: [
+                                const TableRow(
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                  ),
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text((i + 1).toString()),
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "No.",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text("${sta[i]['name']}"),
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Manager Name",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      Staff_Update(
-                                                          id: sta[i]['id'])));
-                                        },
-                                        child: Image.asset(
-                                          "lib/assets/edit.jpg",
-                                          width: 20,
-                                          height: 20,
-                                        ),
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Edit",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
                                       ),
                                     ),
                                   ],
                                 ),
-                            ],
+                                for (int i = 0; i < sta.length; i++)
+                                  TableRow(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text((i + 1).toString()),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text("${sta[i]['name']}"),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Staff_Update(
+                                                            id: sta[i]['id'])));
+                                          },
+                                          child: Image.asset(
+                                            "lib/assets/edit.jpg",
+                                            width: 20,
+                                            height: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
-          );
-        }));
+                );
+              },
+            );
+          })),
+    );
   }
 
 

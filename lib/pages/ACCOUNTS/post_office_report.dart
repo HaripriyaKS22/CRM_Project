@@ -3,6 +3,8 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -237,143 +239,182 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Post Office Report",
-          style: TextStyle(color: Colors.grey, fontSize: 14),
-        ),
-
-         leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () => _selectDate(context), // Single date selection
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Post Office Report",
+            style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
-          IconButton(
-            icon: Icon(Icons.date_range),
-            onPressed: () => _selectDateRange(context), // Date range selection
+      
+           leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+            if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
           ),
-        ],
-      ),
-      body: parcelData.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, color: Colors.red, size: 50),
-                  SizedBox(height: 10),
-                  Text(
-                    "data is Fetching....",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            )
-          : RefreshIndicator(
-            onRefresh: fetchorders,
-            child: ListView.builder(
-                itemCount: parcelData.length,
-                
-                itemBuilder: (context, index) {
-                  String parcelService = parcelData.keys.elementAt(index);
-                  double totalWeight =
-                      parcelData[parcelService]!['total_actual_weight'] ?? 0.0;
-                  double totalAmount =
-                      parcelData[parcelService]!['total_parcel_amount'] ?? 0.0;
-                  double average =
-                      totalAmount > 0 ? totalWeight / totalAmount : 0.0;
-            
-                  return Card(
-                    margin: EdgeInsets.all(10),
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.calendar_today),
+              onPressed: () => _selectDate(context), // Single date selection
+            ),
+            IconButton(
+              icon: Icon(Icons.date_range),
+              onPressed: () => _selectDateRange(context), // Date range selection
+            ),
+          ],
+        ),
+        body: parcelData.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red, size: 50),
+                    SizedBox(height: 10),
+                    Text(
+                      "data is Fetching....",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    child: Container(
-                      padding: EdgeInsets.all(15),
-                      decoration: BoxDecoration(
+                  ],
+                ),
+              )
+            : RefreshIndicator(
+              onRefresh: fetchorders,
+              child: ListView.builder(
+                  itemCount: parcelData.length,
+                  
+                  itemBuilder: (context, index) {
+                    String parcelService = parcelData.keys.elementAt(index);
+                    double totalWeight =
+                        parcelData[parcelService]!['total_actual_weight'] ?? 0.0;
+                    double totalAmount =
+                        parcelData[parcelService]!['total_parcel_amount'] ?? 0.0;
+                    double average =
+                        totalAmount > 0 ? totalWeight / totalAmount : 0.0;
+              
+                    return Card(
+                      margin: EdgeInsets.all(10),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        gradient: LinearGradient(
-                          colors: [
-                            const Color.fromARGB(255, 58, 143, 183),
-                            const Color.fromARGB(255, 64, 170, 251)
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color.fromARGB(255, 58, 143, 183),
+                              const Color.fromARGB(255, 64, 170, 251)
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.local_shipping,
+                                    color: Colors.white, size: 28),
+                                SizedBox(width: 10),
+                                Text(
+                                  parcelService.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Divider(color: Colors.white70),
+                            SizedBox(height: 10),
+                            _buildInfoRow("Total Actual Weight", "$totalWeight kg"),
+                            _buildInfoRow("Total Parcel Amount", "₹$totalAmount"),
+                            _buildInfoRow("Average", average.toStringAsFixed(2)),
                           ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.local_shipping,
-                                  color: Colors.white, size: 28),
-                              SizedBox(width: 10),
-                              Text(
-                                parcelService.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Divider(color: Colors.white70),
-                          SizedBox(height: 10),
-                          _buildInfoRow("Total Actual Weight", "$totalWeight kg"),
-                          _buildInfoRow("Total Parcel Amount", "₹$totalAmount"),
-                          _buildInfoRow("Average", average.toStringAsFixed(2)),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-          ),
+                    );
+                  },
+                ),
+            ),
+      ),
     );
   }
 

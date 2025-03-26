@@ -14,6 +14,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/ACCOUNTS/performa_to_Order.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
@@ -372,6 +373,7 @@ class _PerformaInvoice_BigView_ListState
 // Fetch performa list data and map state ID to state name
   Future<void> fetchperformalistData() async {
     try {
+      print('$api/api/perfoma/${widget.invoice}/invoice/');
       final token = await getTokenFromPrefs();
       final response = await http.get(
         Uri.parse('$api/api/perfoma/${widget.invoice}/invoice/'),
@@ -405,10 +407,12 @@ class _PerformaInvoice_BigView_ListState
           'id': parsed['id'],
           'invoice': parsed['invoice'],
           'manage_staff': parsed['manage_staff'],
+          "maneger":parsed['manage_staff_name'],
           'company': parsed['company'],
           'company_name':parsed['company_name'],
           'customer_name': parsed['customer']?['name'] ?? 'Unknown',
           'family': parsed['family'],
+          'family_name':parsed['familyname'],
           'state': stateName, // Use state name instead of ID
           'address': parsed['billing_address']?['address'] ?? 'Unknown',
           'payment_status': parsed['payment_status'],
@@ -521,7 +525,7 @@ class _PerformaInvoice_BigView_ListState
                                       style: const TextStyle(fontSize: 16),
                                     ),
                                     Text(
-                                      'Managed By: ${order['manage_staff']}',
+                                      'Managed By: ${order['maneger']}',
                                       style: const TextStyle(fontSize: 16), 
                                     ),
                                     Text(
@@ -643,7 +647,9 @@ class _PerformaInvoice_BigView_ListState
                     },
                   ),
           ),
-          Padding(
+          
+          
+           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: downloadInvoice,
@@ -658,6 +664,32 @@ class _PerformaInvoice_BigView_ListState
               ),
               child: const Text(
                 'Download Invoice',
+                style: TextStyle(color: Colors.blue),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => proforma_to_order_request(invoice:widget.invoice)
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0), // Border radius
+                  side: const BorderSide(
+                      color: Colors.blue, width: 2.0), // Border color and width
+                ),
+                backgroundColor: Colors.white, // Button background color
+                foregroundColor: Colors.black, // Text color
+              ),
+              child: const Text(
+                'Gerenate Invoice',
                 style: TextStyle(color: Colors.blue),
               ),
             ),

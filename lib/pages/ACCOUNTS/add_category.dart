@@ -8,6 +8,8 @@ import 'package:beposoft/pages/ACCOUNTS/update_company.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
@@ -48,7 +50,7 @@ class _add_categoriesState extends State<add_categories> {
           'Content-Type': 'application/json',
         },
       );
-;
+
       List<Map<String, dynamic>> categorylist = [];
 
       if (response.statusCode == 200) {
@@ -162,7 +164,39 @@ class _add_categoriesState extends State<add_categories> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,28 +206,31 @@ class _add_categoriesState extends State<add_categories> {
             icon: const Icon(Icons.arrow_back), // Custom back arrow
             onPressed: () async {
               final dep = await getdepFromPrefs();
-              if (dep == "BDO") {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          bdo_dashbord()), // Replace AnotherPage with your target page
-                );
-              } else if (dep == "BDM") {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          bdm_dashbord()), // Replace AnotherPage with your target page
-                );
-              } else if (dep == "ADMIN") {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          admin_dashboard()), // Replace AnotherPage with your target page
-                );
-              } else {
+              if(dep=="BDO" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+    
+    }
+    else if(dep=="BDM" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+    }
+    else if(dep=="warehouse" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+    }
+    else if(dep=="Warehouse Admin" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+    } else {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -256,7 +293,7 @@ class _add_categoriesState extends State<add_categories> {
                                   ],
                                 ),
                               ),
-
+    
                               SizedBox(height: 10),
                               Container(
                                 width: constraints.maxWidth * 0.9,
@@ -274,9 +311,9 @@ class _add_categoriesState extends State<add_categories> {
                                   ),
                                 ),
                               ),
-
+    
                               SizedBox(height: 10),
-
+    
                               ElevatedButton(
                                 onPressed: () {
                                   setState(() {
@@ -301,7 +338,7 @@ class _add_categoriesState extends State<add_categories> {
                                 child: Text("Submit",
                                     style: TextStyle(color: Colors.white)),
                               ),
-
+    
                               // Displaying the list of departments as a table
                               SizedBox(height: 10),
                             ],

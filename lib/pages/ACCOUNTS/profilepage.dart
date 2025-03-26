@@ -12,6 +12,8 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -76,32 +78,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         var productsData = parsed['data'];
 
         
-
+print("productsData:$productsData");
         setState(() {
-          imageUrl =
-              "https://az-powerpoint-dishes-toyota.trycloudflare.com${productsData['image'] ?? ''}";
-          eid = productsData['eid'] ?? '';
-          username = productsData['name'] ?? '';
-          family = productsData['family'] ?? '';
-          email = productsData['email'] ?? '';
-          phone = productsData['phone'] ?? '';
-          alternate_number = productsData['alternate_number'] ?? '';
-          date_of_birth = productsData['date_of_birth'] ?? '';
-          gender = productsData['gender'] ?? '';
-          employment_status = productsData['employment_status'] ?? '';
-          designation = productsData['designation'] ?? '';
-          grade = productsData['grade'] ?? '';
-          address = productsData['address'] ?? '';
-          city = productsData['city'] ?? '';
-          join_date = productsData['join_date'] ?? '';
-          confirmation_date = productsData['confirmation_date'] ?? '';
-          termination_date = productsData['termination_date'] ?? '';
-        });
+  imageUrl = "${productsData['image'] ?? ''}";
+
+  eid = productsData['eid']?.toString() ?? '';
+  username = productsData['name'] ?? '';
+  family = productsData['family']?.toString() ?? ''; // also int
+  email = productsData['email'] ?? '';
+  phone = productsData['phone'] ?? '';
+  alternate_number = productsData['alternate_number'] ?? '';
+  date_of_birth = productsData['date_of_birth'] ?? '';
+  gender = productsData['gender'] ?? '';
+  employment_status = productsData['employment_status'] ?? '';
+  designation = productsData['designation'] ?? '';
+  grade = productsData['grade'] ?? '';
+  address = productsData['address'] ?? '';
+  city = productsData['city'] ?? '';
+  join_date = productsData['join_date'] ?? '';
+  confirmation_date = productsData['confirmation_date'] ?? '';
+  termination_date = productsData['termination_date'] ?? '';
+});
+
 
         
       }
     } catch (error) {
-      
+      print("eroooo$error");
     }
   }
 Future<String?> getdepFromPrefs() async {
@@ -157,21 +160,9 @@ void logout() async {
     MaterialPageRoute(builder: (context) => login()),
   );
 }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Profile',
-          style: TextStyle(
-              fontSize: 17, color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
@@ -184,19 +175,62 @@ else if(dep=="BDM" ){
               MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
             );
 }
-
-else {
-    Navigator.pushReplacement(
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
-
 }
-           
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
+  @override
+Widget build(BuildContext context) {
+  return WillPopScope(
+     onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+    child: Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Profile',
+          style: TextStyle(
+              fontSize: 17, color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () async {
+            final dep = await getdepFromPrefs();
+            if (dep == "BDO") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()),
+              );
+            } else if (dep == "BDM") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => dashboard()),
+              );
+            }
           },
         ),
       ),
-        
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -212,7 +246,7 @@ else {
                   ),
                   child: ClipOval(
                     child: Image.network(
-                      imageUrl.isNotEmpty ? imageUrl : 'lib/assets/profile.png',
+                      imageUrl.isNotEmpty ? '$api$imageUrl' : 'lib/assets/profile.png',
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
@@ -247,72 +281,82 @@ else {
               SizedBox(height: 20),
               if (eid.isNotEmpty)
                 buildInfoContainer(Icons.badge, "Employee ID : $eid"),
-              SizedBox(height: 20),
               if (email.isNotEmpty)
-                buildInfoContainer(Icons.email, "Email ID : $email"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child:
+                      buildInfoContainer(Icons.email, "Email ID : $email"),
+                ),
               if (phone.isNotEmpty)
-                buildInfoContainer(Icons.phone, "Phone Number : $phone"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child:
+                      buildInfoContainer(Icons.phone, "Phone Number : $phone"),
+                ),
               if (alternate_number.isNotEmpty)
-                buildInfoContainer(Icons.phone_android,
-                    "Alternate Number : $alternate_number"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(
+                      Icons.phone_android, "Alternate Number : $alternate_number"),
+                ),
               if (date_of_birth.isNotEmpty)
-                buildInfoContainer(Icons.cake, "DOB : $date_of_birth"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child:
+                      buildInfoContainer(Icons.cake, "DOB : $date_of_birth"),
+                ),
               if (gender.isNotEmpty)
-                buildInfoContainer(Icons.transgender, "Gender: $gender"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(Icons.transgender, "Gender: $gender"),
+                ),
               if (employment_status.isNotEmpty)
-                buildInfoContainer(
-                    Icons.work, "Employment Status: $employment_status"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(
+                      Icons.work, "Employment Status: $employment_status"),
+                ),
               if (grade.isNotEmpty)
-                buildInfoContainer(Icons.grade, "Grade: $grade"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(Icons.grade, "Grade: $grade"),
+                ),
               if (address.isNotEmpty)
-                buildInfoContainer(Icons.home, "Address: $address"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(Icons.home, "Address: $address"),
+                ),
               if (city.isNotEmpty)
-                buildInfoContainer(Icons.location_city, "City: $city"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(Icons.location_city, "City: $city"),
+                ),
               if (join_date.isNotEmpty)
-                buildInfoContainer(
-                    Icons.calendar_today, "Joining Date: $join_date"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(
+                      Icons.calendar_today, "Joining Date: $join_date"),
+                ),
               if (confirmation_date.isNotEmpty)
-                buildInfoContainer(Icons.check_circle,
-                    "Confirmation Date: $confirmation_date"),
-              SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(Icons.check_circle,
+                      "Confirmation Date: $confirmation_date"),
+                ),
               if (termination_date.isNotEmpty)
-                buildInfoContainer(
-                    Icons.close, "Termination Date: $termination_date"),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: buildInfoContainer(
+                      Icons.close, "Termination Date: $termination_date"),
+                ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
-      ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget buildInfoContainer(IconData icon, String text) {
     return Container(

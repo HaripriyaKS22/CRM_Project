@@ -10,6 +10,8 @@ import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
@@ -280,7 +282,39 @@ void adddepartment(BuildContext context) async {
       totalAmountWithInterest = totalAmount.isNaN ? 0.0 : totalAmount;
     });
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width; // Get screen width
@@ -297,28 +331,31 @@ void adddepartment(BuildContext context) async {
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async {
             final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            } else {
+            if(dep=="BDO" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+    
+    }
+    else if(dep=="BDM" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+    }
+    else if(dep=="warehouse" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+    }
+    else if(dep=="Warehouse Admin" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+    } else {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -380,9 +417,9 @@ void adddepartment(BuildContext context) async {
                                 ],
                               ),
                             ),
-
+    
                             SizedBox(height: 10),
-
+    
                             Container(
                               width: constraints.maxWidth * 0.9,
                               child: TextField(
@@ -414,7 +451,7 @@ void adddepartment(BuildContext context) async {
                                 ),
                               ),
                             ),
-
+    
                             SizedBox(height: 10),
                             Container(
                               width: constraints.maxWidth * 0.9,
@@ -472,7 +509,7 @@ void adddepartment(BuildContext context) async {
                                 fontSize: 13,
                               ),
                             ),
-
+    
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -513,7 +550,7 @@ void adddepartment(BuildContext context) async {
                                 ),
                               ],
                             ),
-
+    
                             SizedBox(
                               height: 5,
                             ),
@@ -523,7 +560,7 @@ void adddepartment(BuildContext context) async {
                                 fontSize: 13,
                               ),
                             ),
-
+    
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -564,7 +601,7 @@ void adddepartment(BuildContext context) async {
                                 ),
                               ],
                             ),
-
+    
                             SizedBox(height: 15),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -610,7 +647,7 @@ void adddepartment(BuildContext context) async {
                               ],
                             ),
                             SizedBox(height: 10),
-
+    
                             Text(
                               'Total Interest: ₹${totalInterestAmount.toStringAsFixed(2)}',
                               style: TextStyle(
@@ -619,7 +656,7 @@ void adddepartment(BuildContext context) async {
                                   color: Colors.red),
                             ),
                             SizedBox(height: 10),
-
+    
                             Text(
                               'Total Amount: ₹${totalAmountWithInterest.toStringAsFixed(2)}',
                               style: TextStyle(
@@ -723,7 +760,7 @@ void adddepartment(BuildContext context) async {
                                           color: Colors.black87,
                                         ),
                                       ),
-
+    
                                        Text(
                                         'Total Interest: ₹${emi['total_interest']}',
                                         style: TextStyle(
@@ -731,7 +768,7 @@ void adddepartment(BuildContext context) async {
                                           color: Colors.black87,
                                         ),
                                       ),
-
+    
                                        Text(
                                         'Total Payment: ₹${emi['total_payment']}',
                                         style: TextStyle(

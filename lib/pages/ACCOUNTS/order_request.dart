@@ -172,7 +172,7 @@ var allocatedstates;
       final token = await gettokenFromPrefs();
       warehouse = await getwarehouseFromPrefs();
 
-      ;
+      
 
       // Build the base body object
       Map<String, dynamic> requestBody = {
@@ -1281,8 +1281,12 @@ if(allocatedstates.isNotEmpty){
                                                       .firstWhere((item) =>
                                                           item['name'] ==
                                                           value)['id'];
+
+                                                  // Reset the selected address ID when a new customer is selected
+                                                  selectedAddressId = null;
                                                 });
 
+                                                // Fetch the addresses for the newly selected customer
                                                 getaddress(selectedCustomerId);
                                               },
                                               buttonStyleData:
@@ -1425,8 +1429,12 @@ if(allocatedstates.isNotEmpty){
                                                       .firstWhere((item) =>
                                                           item['name'] ==
                                                           value)['id'];
+
+                                                  // Reset the selected address ID when a new customer is selected
+                                                  selectedAddressId = null;
                                                 });
 
+                                                // Fetch the addresses for the newly selected customer
                                                 getaddress(selectedCustomerId);
                                               },
                                               buttonStyleData:
@@ -1819,8 +1827,12 @@ if(allocatedstates.isNotEmpty){
                                                     .firstWhere((item) =>
                                                         item['name'] ==
                                                         value)['id'];
+
+                                                // Reset the selected address ID when a new customer is selected
+                                                selectedAddressId = null;
                                               });
 
+                                              // Fetch the addresses for the newly selected customer
                                               getaddress(selectedCustomerId);
                                             },
                                             buttonStyleData:

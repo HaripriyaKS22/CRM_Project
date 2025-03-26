@@ -18,7 +18,6 @@ import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
-import 'package:beposoft/pages/WAREHOUSE/warehouse_order_request.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -35,15 +34,15 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 
-class Warehouse_Order_Request extends StatefulWidget {
-  var status ;
-  Warehouse_Order_Request({super.key,required this.status});
+class today_OrderList extends StatefulWidget {
+  var status;
+  today_OrderList({super.key, required this.status});
 
   @override
-  State<Warehouse_Order_Request> createState() => _Warehouse_Order_RequestState();
+  State<today_OrderList> createState() => _today_OrderListState();
 }
 
-class _Warehouse_Order_RequestState extends State<Warehouse_Order_Request> {
+class _today_OrderListState extends State<today_OrderList> {
   List<Map<String, dynamic>> orders = [];
   List<Map<String, dynamic>> filteredOrders = [];
   String searchQuery = '';
@@ -73,184 +72,93 @@ class _Warehouse_Order_RequestState extends State<Warehouse_Order_Request> {
   @override
   void initState() {
     super.initState();
-    initdata();
-  
-  }var warehouse;
-  void initdata()async{
-     warehouse = await getwarehouseFromPrefs();
-  
-    await fetchOrderData(warehouse);
-
+    fetchOrderData();
+    ;
   }
-Future<String?> getwarehouseFromPrefs() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int? warehouseId = prefs.getInt('warehouse');
-  
-  // Check if warehouseId is null before converting to String
-  return warehouseId?.toString();
-}
+
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-  Future<void> fetchOrderData(var warehouse) async {
-    try {
-      final token = await getTokenFromPrefs();
-                    final dep= await getdepFromPrefs();
- final jwt = JWT.decode(token!);
-          var name = jwt.payload['name'];
-          
-          
-      var response = await http.get(
-        Uri.parse('$api/api/warehouse/orders/$warehouse/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+ 
+Future<void> fetchOrderData() async {
+  try {
+    final token = await getTokenFromPrefs();
+    final dep = await getdepFromPrefs();
+    final jwt = JWT.decode(token!);
+    var name = jwt.payload['name'];
+    String url = '$api/api/orders/';
+    List<Map<String, dynamic>> orderList = [];
 
-      
+    var response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed;
-        List<Map<String, dynamic>> orderList = [];
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final List ordersData = responseData['results'];
 
-        for (var productData in productsData) {
-          // Parse the date
-          String rawOrderDate = productData['order_date'];
-          String formattedOrderDate =
-              rawOrderDate; // Fallback in case of parsing failure
+      List<Map<String, dynamic>> newOrders = [];
 
-          try {
-            // Try to parse the date in 'yyyy-MM-dd' format
-            DateTime parsedOrderDate =
-                DateFormat('yyyy-MM-dd').parse(rawOrderDate);
-            formattedOrderDate = DateFormat('yyyy-MM-dd')
-                .format(parsedOrderDate); // Convert to desired format
-          } catch (e) {
-            
+      DateTime currentDate = DateTime.now();
+      String today = DateFormat('yyyy-MM-dd').format(currentDate);
+
+      for (var orderData in ordersData) {
+        String rawOrderDate = orderData['order_date'] ?? "";
+        String formattedOrderDate = rawOrderDate;
+        try {
+          DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+          formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
+
+          // Only include orders from today's date
+          if (formattedOrderDate != today) {
+            continue;
           }
-if(widget.status==null){
-if(productData['status']=="Order Request by Warehouse"){
-
-             orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-          
-}
-        }
-        else if(widget.status==productData['status']){
-if(productData['status']=="Order Request by Warehouse"){
-
-
-
-          
-               orderList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer': {
-              'name': productData['customer']['name'],
-              'phone': productData['customer']['phone'],
-              'email': productData['customer']['email'],
-              'address': productData['customer']['address'],
-            },
-            'billing_address': {
-              'name': productData['billing_address']['name'],
-              'email': productData['billing_address']['email'],
-              'zipcode': productData['billing_address']['zipcode'],
-              'address': productData['billing_address']['address'],
-              'phone': productData['billing_address']['phone'],
-              'city': productData['billing_address']['city'],
-              'state': productData['billing_address']['state'],
-            },
-            'bank': {
-              'name': productData['bank']['name'],
-              'account_number': productData['bank']['account_number'],
-              'ifsc_code': productData['bank']['ifsc_code'],
-              'branch': productData['bank']['branch'],
-            },
-            'items': productData['items'] != null
-                ? productData['items'].map((item) {
-                    return {
-                      'id': item['id'],
-                      'name': item['name'],
-                      'quantity': item['quantity'],
-                      'price': item['price'],
-                      'tax': item['tax'],
-                      'discount': item['discount'],
-                      'images': item['images'],
-                    };
-                  }).toList()
-                : [], // Fallback to empty list
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': formattedOrderDate, // Use the formatted string
-          });
-}
-          
-
+        } catch (e) {
+          continue; // skip invalid date formats
         }
 
-        
-        
+        if (widget.status == null || widget.status == orderData['status']) {
+          if (orderData['status'] != "Order Request by Warehouse") {
+            newOrders.add({
+              'id': orderData['id'],
+              'invoice': orderData['invoice'],
+              'manage_staff': orderData['manage_staff'],
+              'customer': {
+                'id': orderData['customer']['id'],
+                'name': orderData['customer']['name'],
+                'phone': orderData['customer']['phone'],
+                'email': orderData['customer']['email'],
+                'address': orderData['customer']['address'],
+              },
+              'status': orderData['status'],
+              'total_amount': orderData['total_amount'],
+              'order_date': formattedOrderDate,
+            });
+          }
         }
-        
-
-        setState(() {
-          orders = orderList;
-          filteredOrders = orderList;
-          
-        });
       }
-    } catch (error) {
-      
+
+      setState(() {
+        orders = newOrders;
+        filteredOrders = newOrders;
+      });
+    } else {
+      throw Exception("Failed to load order data");
     }
+  } catch (error) {
+    // Handle error properly here
   }
+}
 
   void _filterOrders(String query) {
     setState(() {
@@ -337,32 +245,33 @@ if(productData['status']=="Order Request by Warehouse"){
       _filterOrdersByDateRange();
     }
   }
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
 
   Future<void> exportToExcel() async {
     var excel = Excel.createExcel();
@@ -620,15 +529,15 @@ else if(dep=="Warehouse Admin" ){
       },
       child: Scaffold(
         appBar: AppBar(
-         title: Text(
-            "Order Request List",
+          title: Text(
+            "Order List",
             style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back), // Custom back arrow
-            onPressed: () async{
-                      final dep= await getdepFromPrefs();
-        if(dep=="BDO" ){
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+               if(dep=="BDO" ){
          Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
@@ -652,15 +561,14 @@ else if(dep=="Warehouse Admin" ){
                 context,
                 MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
               );
-      }
-      else {
-      Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-              );
-      
-      }
-             
+      } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
             },
           ),
           actions: [
@@ -707,7 +615,6 @@ else if(dep=="Warehouse Admin" ){
             ),
           ],
         ),
-       
         body: Column(
           children: [
             // Search Bar
@@ -799,7 +706,7 @@ else if(dep=="Warehouse Admin" ){
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          OrderRequest(id: order['id'])));
+                                          OrderReview(id: order['id'],customer:order['customer']['id'])));
                             },
                             child: Card(
                               shape: RoundedRectangleBorder(
@@ -853,33 +760,30 @@ else if(dep=="Warehouse Admin" ){
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600),
                                         ),
-                                                                              SizedBox(height: 4.0),
-      
+                                        SizedBox(height: 4.0),
                                         Text(
                                           'Staff: ${order['manage_staff']}',
                                           style: TextStyle(
-                                              fontSize: 13,
-                                              ),
+                                            fontSize: 13,
+                                          ),
                                         ),
-                                        
-                                         SizedBox(height: 4.0),
-                                         Row(
-                                           children: [
-                                             Text(
+                                        SizedBox(height: 4.0),
+                                        Row(
+                                          children: [
+                                            Text(
                                               'Status: ',
                                               style: TextStyle(
-                                                  fontSize: 13,
-                                                  ),
-                                                                                   ),
-                                              Text(
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                            Text(
                                               '${order['status']}',
                                               style: TextStyle(
                                                   fontSize: 13,
-                                                  color: Colors.blue
-                                                  ),
-                                                                                   ),
-                                           ],
-                                         ),
+                                                  color: Colors.blue),
+                                            ),
+                                          ],
+                                        ),
                                         SizedBox(height: 8.0),
                                         Row(
                                           mainAxisAlignment:
@@ -888,8 +792,8 @@ else if(dep=="Warehouse Admin" ){
                                             Text(
                                               'Billing Amount:',
                                               style: TextStyle(
-                                                  fontSize: 13,
-                                                 ),
+                                                fontSize: 13,
+                                              ),
                                             ),
                                             Text(
                                               '\$${order['total_amount']}',

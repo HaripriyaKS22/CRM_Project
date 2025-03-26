@@ -21,6 +21,8 @@ import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -272,270 +274,311 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-  title: Text(
-          "Staff List",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            } 
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-  actions: [
-    PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert), // 3-dot icon
-      onSelected: (value) {
-        // Handle menu item selection
-        switch (value) {
-          case 'Option 1':
-           exportToExcel();
-            break;
-          case 'Option 2':
-           downloadPdf();
-            break;
-         
-          default:
-            // Handle default case
-            break;
-        }
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
       },
-      itemBuilder: (BuildContext context) {
-        return [
-          PopupMenuItem<String>(
-            value: 'Option 1',
-            child: Text('Export Excel'),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+        title: Text(
+            "Staff List",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-          PopupMenuItem<String>(
-            value: 'Option 2',
-            child: Text('Download Pdf'),
-          ),
-          
-        ];
-      },
-    ),
-  ],
-),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
-      body:Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-   Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: TextField(
-    controller: searchController,
-    decoration: InputDecoration(
-      hintText: "Search Staff...",
-      prefixIcon: Icon(Icons.search),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blue, // Set your desired border color here
-          width: 2.0, // Set the border width
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blue, // Border color when TextField is not focused
-          width: 2.0,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blueAccent, // Border color when TextField is focused
-          width: 2.0,
-        ),
-      ),
-    ),
-    onChanged: _filterProducts,
-  ),
-),
-Expanded(
-  child: ListView.builder(
-    itemCount: filteredProducts.length,
-    itemBuilder: (context, index) {
-      final staffData = filteredProducts[index];
-      ;
-      return GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Staff_Update(
-                id:staffData['id'],
-              ),
-            ),
-          );
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+        actions: [
+      PopupMenuButton<String>(
+        icon: Icon(Icons.more_vert), // 3-dot icon
+        onSelected: (value) {
+          // Handle menu item selection
+          switch (value) {
+            case 'Option 1':
+             exportToExcel();
+              break;
+            case 'Option 2':
+             downloadPdf();
+              break;
+           
+            default:
+              // Handle default case
+              break;
+          }
         },
-        child: Card(
-          color: Colors.white,
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        itemBuilder: (BuildContext context) {
+          return [
+            PopupMenuItem<String>(
+              value: 'Option 1',
+              child: Text('Export Excel'),
+            ),
+            PopupMenuItem<String>(
+              value: 'Option 2',
+              child: Text('Download Pdf'),
+            ),
+            
+          ];
+        },
+      ),
+        ],
+      ),
+      
+        body:Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+         Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+      controller: searchController,
+      decoration: InputDecoration(
+        hintText: "Search Staff...",
+        prefixIcon: Icon(Icons.search),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blue, // Set your desired border color here
+            width: 2.0, // Set the border width
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Profile Image with Approval Status circle around it
-                Stack(
-                  clipBehavior: Clip.none, // Allow text to go outside the boundary
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: staffData['image'] != null && staffData['image'].isNotEmpty
-                          ? Image.network(
-                              "$api${staffData['image']}", // Profile image from network
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            )
-                          : Image.asset(
-                              "lib/assets/user.png", // Default profile image
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                    // Circular Approval Status ring around the image
-                    Positioned(
-                      bottom: -4,
-                      right: -4,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: staffData['approval_status'] == 'approved'
-                              ? Colors.green
-                              : Colors.red,
-                        ),
-                        child: Center(
-                          child: Text(
-                            staffData['approval_status'] == 'approved' ? 'A' : 'I',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blue, // Border color when TextField is not focused
+            width: 2.0,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blueAccent, // Border color when TextField is focused
+            width: 2.0,
+          ),
+        ),
+      ),
+      onChanged: _filterProducts,
+        ),
+      ),
+      Expanded(
+        child: ListView.builder(
+      itemCount: filteredProducts.length,
+      itemBuilder: (context, index) {
+        final staffData = filteredProducts[index];
+        ;
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Staff_Update(
+                  id:staffData['id'],
+                ),
+              ),
+            );
+          },
+          child: Card(
+            color: Colors.white,
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Profile Image with Approval Status circle around it
+                  Stack(
+                    clipBehavior: Clip.none, // Allow text to go outside the boundary
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: staffData['image'] != null && staffData['image'].isNotEmpty
+                            ? Image.network(
+                                "$api${staffData['image']}", // Profile image from network
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                "lib/assets/user.png", // Default profile image
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      // Circular Approval Status ring around the image
+                      Positioned(
+                        bottom: -4,
+                        right: -4,
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: staffData['approval_status'] == 'approved'
+                                ? Colors.green
+                                : Colors.red,
+                          ),
+                          child: Center(
+                            child: Text(
+                              staffData['approval_status'] == 'approved' ? 'A' : 'I',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-          children: [
-            // Staff Name - Bold and larger size
-            Flexible(
-        child: Text(
-          staffData['name'] ?? 'No Name',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+                    ],
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+            children: [
+              // Staff Name - Bold and larger size
+              Flexible(
+          child: Text(
+            staffData['name'] ?? 'No Name',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
           ),
-          overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
-        ),
-            ),
-            SizedBox(width: 8),
-            Text(
-        "-",
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: Colors.blueGrey,
-        ),
-            ),
-            SizedBox(width: 8),
-            // Staff Designation - Smaller and lighter weight
-            Flexible(
-        child: Text(
-          staffData['designation'] ?? 'No Designation',
+              ),
+              SizedBox(width: 8),
+              Text(
+          "-",
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
             color: Colors.blueGrey,
           ),
-          overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
-          maxLines: 1,
-        ),
+              ),
+              SizedBox(width: 8),
+              // Staff Designation - Smaller and lighter weight
+              Flexible(
+          child: Text(
+            staffData['designation'] ?? 'No Designation',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Colors.blueGrey,
             ),
-          ],
-        ),
-        
-                      SizedBox(height: 8),
-                      // Staff Email - Grey color for subtlety
-                      Text(
-                        staffData['email'] ?? 'No Email',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
+            overflow: TextOverflow.ellipsis,  // This handles overflow by showing ellipsis
+            maxLines: 1,
+          ),
+              ),
+            ],
+          ),
+          
+                        SizedBox(height: 8),
+                        // Staff Email - Grey color for subtlety
+                        Text(
+                          staffData['email'] ?? 'No Email',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+        );
+      },
         ),
-      );
-    },
-  ),
-),
-
-  ],
-)
-
+      ),
+      
+        ],
+      )
+      
+      ),
     );
   }
 

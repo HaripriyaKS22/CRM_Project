@@ -244,20 +244,10 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-          title: Text(
-          "GRV List",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
+
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
@@ -270,7 +260,6 @@ else if(dep=="BDM" ){
               MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
             );
 }
-
 else if(dep=="warehouse" ){
    Navigator.pushReplacement(
               context,
@@ -282,180 +271,232 @@ else if(dep=="Warehouse Admin" ){
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+            title: Text(
+            "GRV List",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-        ],
-      ),
-   
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search GRV...",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(
-                          color: Colors.blue,
-                          width: 2.0,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(
-                          color: Colors.blue,
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(
-                          color: Colors.blueAccent,
-                          width: 2.0,
-                        ),
-                      ),
-                    ),
-                    onChanged: (query) =>
-                        _filterProducts(query), // Pass the query here
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: DropdownButton<String>(
-                    value: selectedStatus.isEmpty ? null : selectedStatus,
-                    items: statusOptions.map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      if (newValue != null) {
-                        setState(() {
-                          selectedStatus = newValue;
-                        });
-                        _filterProducts(searchController
-                            .text); // Re-filter based on the selected status
-                      }
-                    },
-                    isExpanded: true,
-                    hint: const Text("Search by Status"),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async{
+                      final dep= await getdepFromPrefs();
+      if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+      else {
+      Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+              );
+      
+      }
+             
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {},
+            ),
+          ],
+        ),
+         
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                children: [
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
-                    itemCount: filteredProducts.length,
-                    itemBuilder: (context, index) {
-                      final item = filteredProducts[index];
-
-                      return Card(
-                        elevation: 4,
-                        color: Colors.white,
-                        margin: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Product: ${item['product']}",
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 4),
-                              Text("Invoice: ${item['invoice']}"),
-                              Text("Customer: ${item['customer']}"),
-                              Text("Staff: ${item['staff']}"),
-                              const Divider(color: Colors.blue, thickness: 1),
-                              Text("Return Reason: ${item['returnreason']}"),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("Remark:"),
-                                  DropdownButton<String>(
-                                    key: Key(
-                                        "remark-${item['id']}"), // Unique key for dropdown
-                                    value: item['remark'],
-                                    hint: const Text(
-                                        "Select Remark"), // Display hint when null
-                                    items: remarkOptions.map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                    onChanged: (newValue) {
-                                      if (newValue != null) {
-                                        setState(() {
-                                          item['remark'] = newValue;
-                                        });
-                                        updateGrvItem(item['id'],
-                                            item['status'], newValue);
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("Status:"),
-                                  DropdownButton<String>(
-                                    key: Key(
-                                        "status-${item['id']}"), // Unique key for status dropdown
-                                    value: item['status'],
-                                    items: statusOptions.map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                    onChanged: (newValue) {
-                                      if (newValue != null) {
-                                        setState(() {
-                                          item['status'] = newValue;
-                                        });
-                                        updateGrvItem(item['id'], newValue,
-                                            item['remark'] ?? "");
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const Divider(color: Colors.blue, thickness: 1),
-                              Text("Created At: ${item['order_date']}"),
-                            ],
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: "Search GRV...",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide(
+                            color: Colors.blue,
+                            width: 2.0,
                           ),
                         ),
-                      );
-                    },
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide(
+                            color: Colors.blue,
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide(
+                            color: Colors.blueAccent,
+                            width: 2.0,
+                          ),
+                        ),
+                      ),
+                      onChanged: (query) =>
+                          _filterProducts(query), // Pass the query here
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: DropdownButton<String>(
+                      value: selectedStatus.isEmpty ? null : selectedStatus,
+                      items: statusOptions.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedStatus = newValue;
+                          });
+                          _filterProducts(searchController
+                              .text); // Re-filter based on the selected status
+                        }
+                      },
+                      isExpanded: true,
+                      hint: const Text("Search by Status"),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount: filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredProducts[index];
+      
+                        return Card(
+                          elevation: 4,
+                          color: Colors.white,
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Product: ${item['product']}",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 4),
+                                Text("Invoice: ${item['invoice']}"),
+                                Text("Customer: ${item['customer']}"),
+                                Text("Staff: ${item['staff']}"),
+                                const Divider(color: Colors.blue, thickness: 1),
+                                Text("Return Reason: ${item['returnreason']}"),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text("Remark:"),
+                                    DropdownButton<String>(
+                                      key: Key(
+                                          "remark-${item['id']}"), // Unique key for dropdown
+                                      value: item['remark'],
+                                      hint: const Text(
+                                          "Select Remark"), // Display hint when null
+                                      items: remarkOptions.map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                      onChanged: (newValue) {
+                                        if (newValue != null) {
+                                          setState(() {
+                                            item['remark'] = newValue;
+                                          });
+                                          updateGrvItem(item['id'],
+                                              item['status'], newValue);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text("Status:"),
+                                    DropdownButton<String>(
+                                      key: Key(
+                                          "status-${item['id']}"), // Unique key for status dropdown
+                                      value: item['status'],
+                                      items: statusOptions.map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                      onChanged: (newValue) {
+                                        if (newValue != null) {
+                                          setState(() {
+                                            item['status'] = newValue;
+                                          });
+                                          updateGrvItem(item['id'], newValue,
+                                              item['remark'] ?? "");
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                const Divider(color: Colors.blue, thickness: 1),
+                                Text("Created At: ${item['order_date']}"),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }

@@ -14,9 +14,10 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
-import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -33,20 +34,19 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:excel/excel.dart';
 import 'package:open_file/open_file.dart';
 
-class bdm_OrderList extends StatefulWidget {
-  var status ;
-  bdm_OrderList({super.key,required this.status});
+class bdm_today_OrderList extends StatefulWidget {
+  var status;
+  bdm_today_OrderList({super.key, required this.status});
 
   @override
-  State<bdm_OrderList> createState() => _bdm_OrderListState();
+  State<bdm_today_OrderList> createState() => _bdm_today_OrderListState();
 }
 
-class _bdm_OrderListState extends State<bdm_OrderList> {
+class _bdm_today_OrderListState extends State<bdm_today_OrderList> {
   List<Map<String, dynamic>> orders = [];
   List<Map<String, dynamic>> filteredOrders = [];
   String searchQuery = '';
-  List<Map<String, dynamic>> fam = [];
-
+List<Map<String, dynamic>> fam = [];
   DateTime? selectedDate; // For single date filter
   DateTime? startDate; // For date range filter
   DateTime? endDate; // For date range filter
@@ -61,7 +61,7 @@ class _bdm_OrderListState extends State<bdm_OrderList> {
           title: Text(option),
           onTap: () {
             Navigator.pop(context);
-            d.navigateToSelectedPage3(
+            d.navigateToSelectedPage(
                 context, option); // Navigate to selected page
           },
         );
@@ -74,23 +74,56 @@ class _bdm_OrderListState extends State<bdm_OrderList> {
     super.initState();
     initdata();
   }
-  void initdata() async {
+void initdata() async {
       await  getfamily();
       await getprofiledata();
   }
-
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-Future<String?> getdepFromPrefs() async {
+
+  Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+ String familyName='';
+    Future<void> getfamily() async {
+    try {
+      final token = await getTokenFromPrefs();
 
-var family='';
-String familyName='';
-   
+      var response = await http.get(
+        Uri.parse('$api/api/familys/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+        List<Map<String, dynamic>> familylist = [];
+
+        for (var productData in productsData) {
+          familylist.add({
+            'id': productData['id'].toString(), // Convert the ID to String
+            'name': productData['name'],
+          });
+        }
+
+        setState(() {
+          fam = familylist;
+          
+
+        
+        });
+      }
+    } catch (error) {
+      
+    }
+  }
+  var family='';
 Future<void> getprofiledata() async {
     try {
       final token = await getTokenFromPrefs();
@@ -133,49 +166,12 @@ Future<void> getprofiledata() async {
       
     }
   }
-  Future<void> getfamily() async {
-    try {
-      final token = await getTokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/familys/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-        List<Map<String, dynamic>> familylist = [];
-
-        for (var productData in productsData) {
-          familylist.add({
-            'id': productData['id'].toString(), // Convert the ID to String
-            'name': productData['name'],
-          });
-        }
-
-        setState(() {
-          fam = familylist;
-          
-
-        
-        });
-      }
-    } catch (error) {
-      
-    }
-  }
-
- Future<void> fetchOrderData() async {
+Future<void> fetchOrderData() async {
   try {
     final token = await getTokenFromPrefs();
     final dep = await getdepFromPrefs();
     final jwt = JWT.decode(token!);
     var name = jwt.payload['name'];
-;
     String url = '$api/api/orders/';
     List<Map<String, dynamic>> orderList = [];
 
@@ -187,13 +183,14 @@ Future<void> getprofiledata() async {
       },
     );
 
-   
-
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       final List ordersData = responseData['results'];
-print("orderdata$ordersData");
+
       List<Map<String, dynamic>> newOrders = [];
+
+      DateTime currentDate = DateTime.now();
+      String today = DateFormat('yyyy-MM-dd').format(currentDate);
 
       for (var orderData in ordersData) {
         String rawOrderDate = orderData['order_date'] ?? "";
@@ -201,16 +198,22 @@ print("orderdata$ordersData");
         try {
           DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
           formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
-        } catch (e) {}
+
+          // Only include orders from today's date
+          if (formattedOrderDate != today) {
+            continue;
+          }
+        } catch (e) {
+          continue; // skip invalid date formats
+        }
 
         if (widget.status == null || widget.status == orderData['status']) {
           if (orderData['status'] != "Order Request by Warehouse") {
             if(familyName==orderData['family']){
             newOrders.add({
               'id': orderData['id'],
-              'family':orderData['family'],
               'invoice': orderData['invoice'],
-               'manage_staff': orderData['manage_staff'],
+              'manage_staff': orderData['manage_staff'],
               'customer': {
                 'id': orderData['customer']['id'],
                 'name': orderData['customer']['name'],
@@ -218,7 +221,6 @@ print("orderdata$ordersData");
                 'email': orderData['customer']['email'],
                 'address': orderData['customer']['address'],
               },
-             
               'status': orderData['status'],
               'total_amount': orderData['total_amount'],
               'order_date': formattedOrderDate,
@@ -229,17 +231,16 @@ print("orderdata$ordersData");
 
       setState(() {
         orders = newOrders;
-
-        
         filteredOrders = newOrders;
       });
     } else {
       throw Exception("Failed to load order data");
     }
   } catch (error) {
-    ;
+    // Handle error properly here
   }
 }
+
   void _filterOrders(String query) {
     setState(() {
       searchQuery = query;
@@ -325,32 +326,33 @@ print("orderdata$ordersData");
       _filterOrdersByDateRange();
     }
   }
-void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  });
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token');
 
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
+    // Use a post-frame callback to show the SnackBar after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logged out successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
+    // Wait for the SnackBar to disappear before navigating
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate to the HomePage after the snackbar is shown
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
+    );
+  }
 
   Future<void> exportToExcel() async {
     var excel = Excel.createExcel();
@@ -565,320 +567,337 @@ void logout() async {
     await Printing.sharePdf(
         bytes: await pdf.save(), filename: 'order_list.pdf');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-       title: Text(
-          "Order List",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.calendar_today), // Calendar icon
-            onPressed: () => _selectSingleDate(
-                context), // Call the method to select start date
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Order List",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-          // Icon button to open date range picker
-          IconButton(
-            icon: Icon(Icons.date_range), // Date range icon
-            onPressed: () => _selectDateRange(
-                context), // Call the method to select date range
-          ),
-          PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert), // 3-dot icon
-            onSelected: (value) {
-              // Handle menu item selection
-              switch (value) {
-                case 'Option 1':
-                  exportToExcel();
-                  break;
-                case 'Option 2':
-                  downloadPdf();
-                  break;
-
-                default:
-                  // Handle default case
-                  break;
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+               if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
               }
             },
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem<String>(
-                  value: 'Option 1',
-                  child: Text('Export Excel'),
-                ),
-                PopupMenuItem<String>(
-                  value: 'Option 2',
-                  child: Text('Download Pdf'),
-                ),
-              ];
-            },
           ),
-        ],
-      ),
- 
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                ),
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: _filterOrders,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.calendar_today), // Calendar icon
+              onPressed: () => _selectSingleDate(
+                  context), // Call the method to select start date
             ),
-          ),
-          // Date Filters
-          // Padding(
-          //   padding: const EdgeInsets.all(8.0),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: [
-          //       SizedBox(
-          //         width: 160,
-          //         child: ElevatedButton(
-          //           onPressed: () => _selectSingleDate(context),
-          //           style: ElevatedButton.styleFrom(
-          //             backgroundColor: const Color.fromARGB(
-          //                 255, 2, 65, 96), // Set button color to grey
-          //             shape: RoundedRectangleBorder(
-          //               borderRadius:
-          //                   BorderRadius.circular(8), // Set the border radius
-          //             ),
-          //           ),
-          //           child: Text(
-          //             'Select Date',
-          //             style: TextStyle(color: Colors.white),
-          //           ),
-          //         ),
-          //       ),
-          //       SizedBox(width: 10),
-          //       ElevatedButton(
-          //         onPressed: () => _selectDateRange(context),
-          //         style: ElevatedButton.styleFrom(
-          //           backgroundColor: const Color.fromARGB(
-          //               255, 2, 65, 96), // Set button color to grey
-          //           shape: RoundedRectangleBorder(
-          //             borderRadius:
-          //                 BorderRadius.circular(8), // Set the border radius
-          //           ),
-          //         ),
-          //         child: Text(
-          //           'Select Date Range',
-          //           style: TextStyle(
-          //               color: Colors.white), // Set text color to white
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          // Display Orders
-          Expanded(
-            child: filteredOrders.isEmpty
-                ? Center(
-                    child: Text(
-                      selectedDate != null ||
-                              (startDate != null && endDate != null)
-                          ? 'No orders available in this date range'
-                          : 'No orders available',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: const Color.fromARGB(255, 2, 65, 96)),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: filteredOrders.length,
-                    padding: const EdgeInsets.only(right: 10, left: 10),
-                    itemBuilder: (context, index) {
-                      final order = filteredOrders[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        OrderReview(id: order['id'],customer: order['customer']['id'],)));
-                          },
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            color: Colors.white,
-                            elevation: 4,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Header section with Invoice and Order Date
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(15.0),
-                                      topRight: Radius.circular(15.0),
+            // Icon button to open date range picker
+            IconButton(
+              icon: Icon(Icons.date_range), // Date range icon
+              onPressed: () => _selectDateRange(
+                  context), // Call the method to select date range
+            ),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert), // 3-dot icon
+              onSelected: (value) {
+                // Handle menu item selection
+                switch (value) {
+                  case 'Option 1':
+                    exportToExcel();
+                    break;
+                  case 'Option 2':
+                    downloadPdf();
+                    break;
+      
+                  default:
+                    // Handle default case
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem<String>(
+                    value: 'Option 1',
+                    child: Text('Export Excel'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'Option 2',
+                    child: Text('Download Pdf'),
+                  ),
+                ];
+              },
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                  ),
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: _filterOrders,
+              ),
+            ),
+            // Date Filters
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       SizedBox(
+            //         width: 160,
+            //         child: ElevatedButton(
+            //           onPressed: () => _selectSingleDate(context),
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: const Color.fromARGB(
+            //                 255, 2, 65, 96), // Set button color to grey
+            //             shape: RoundedRectangleBorder(
+            //               borderRadius:
+            //                   BorderRadius.circular(8), // Set the border radius
+            //             ),
+            //           ),
+            //           child: Text(
+            //             'Select Date',
+            //             style: TextStyle(color: Colors.white),
+            //           ),
+            //         ),
+            //       ),
+            //       SizedBox(width: 10),
+            //       ElevatedButton(
+            //         onPressed: () => _selectDateRange(context),
+            //         style: ElevatedButton.styleFrom(
+            //           backgroundColor: const Color.fromARGB(
+            //               255, 2, 65, 96), // Set button color to grey
+            //           shape: RoundedRectangleBorder(
+            //             borderRadius:
+            //                 BorderRadius.circular(8), // Set the border radius
+            //           ),
+            //         ),
+            //         child: Text(
+            //           'Select Date Range',
+            //           style: TextStyle(
+            //               color: Colors.white), // Set text color to white
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // Display Orders
+            Expanded(
+              child: filteredOrders.isEmpty
+                  ? Center(
+                      child: Text(
+                        selectedDate != null ||
+                                (startDate != null && endDate != null)
+                            ? 'No orders available in this date range'
+                            : 'No orders available',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: const Color.fromARGB(255, 2, 65, 96)),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredOrders.length,
+                      padding: const EdgeInsets.only(right: 10, left: 10),
+                      itemBuilder: (context, index) {
+                        final order = filteredOrders[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 3.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          OrderReview(id: order['id'],customer:order['customer']['id'])));
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              color: Colors.white,
+                              elevation: 4,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Header section with Invoice and Order Date
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(15.0),
+                                        topRight: Radius.circular(15.0),
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '#${order['invoice']}',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          DateFormat('dd MMM yy').format(
+                                              DateTime.parse(
+                                                  order['order_date'])),
+                                          style: TextStyle(
+                                              color: Colors.white, fontSize: 14),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        '#${order['invoice']}',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        DateFormat('dd MMM yy').format(
-                                            DateTime.parse(
-                                                order['order_date'])),
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Order details section
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Customer: ${order['customer']['name']}',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600),
+                                  // Order details section
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Customer: ${order['customer']['name']}',
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        SizedBox(height: 4.0),
+                                        Text(
+                                          'Staff: ${order['manage_staff']}',
+                                          style: TextStyle(
+                                            fontSize: 13,
                                           ),
-                                           
-                                        ],
-                                      ),
-                                                                            SizedBox(height: 4.0),
-
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Staff: ${order['manage_staff']}',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                ),
-                                          ),
-                                          SizedBox(width: 5,),
-                                          Text(
-                                            '(${order['family']})',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        ],
-                                      ),
-                                      
-                                       SizedBox(height: 4.0),
-                                       Row(
-                                         children: [
-                                           Text(
-                                            'Status: ',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                ),
-                                                                                 ),
+                                        ),
+                                        SizedBox(height: 4.0),
+                                        Row(
+                                          children: [
                                             Text(
-                                            '${order['status']}',
-                                            style: TextStyle(
+                                              'Status: ',
+                                              style: TextStyle(
                                                 fontSize: 13,
-                                                color: Colors.blue
-                                                ),
-                                                                                 ),
-                                         ],
-                                       ),
-                                      SizedBox(height: 8.0),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Billing Amount:',
-                                            style: TextStyle(
+                                              ),
+                                            ),
+                                            Text(
+                                              '${order['status']}',
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.blue),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 8.0),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Billing Amount:',
+                                              style: TextStyle(
                                                 fontSize: 13,
-                                               ),
-                                          ),
-                                          Text(
-                                            '\$${order['total_amount']}',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.green),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                              ),
+                                            ),
+                                            Text(
+                                              '\$${order['total_amount']}',
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.green),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

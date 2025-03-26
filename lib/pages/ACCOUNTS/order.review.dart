@@ -1359,8 +1359,9 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
         double discount = (item['discount'] ?? 0).toDouble();
         final quantity = int.tryParse(item['quantity'].toString()) ?? 1;
 
-        calculatedNetAmount += excludePrice* quantity;
+      
         calculatedTotalTax += (price_discount - excludePrice)* quantity;
+          calculatedNetAmount += excludePrice* quantity;
         calculatedTotalDiscount += discount * quantity;
         calculatedPayableAmount += price* quantity;
       }
@@ -2113,11 +2114,13 @@ Text(
                                     Row(
                                       children: [
                                        Text(
-  'Total: ${((item["exclude_price"] )  * item["quantity"]).toStringAsFixed(2)}',
+  'Total: ${(((item["exclude_price"] + ((item["rate"] - item["discount"]) - item["exclude_price"])) * item["quantity"]).toStringAsFixed(2))}',
   style: TextStyle(
-      fontSize: 12,
-      color: Colors.black),
+    fontSize: 12,
+    color: Colors.black,
+  ),
 ),
+
                                         Spacer(),
                                       if(dep != "BDM" && dep != "BDO")
 
@@ -2445,13 +2448,14 @@ Text(
                           ),
                         ),
                         Text(
-                          '\$${netAmountBeforeTax.toStringAsFixed(2)}', // Format to 2 decimal places
-                          style: TextStyle(
-                            color: const Color.fromARGB(255, 1, 155, 24),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
+  '\$${(netAmountBeforeTax + totalTaxAmount).toStringAsFixed(2)}',
+  style: TextStyle(
+    color: const Color.fromARGB(255, 1, 155, 24),
+    fontWeight: FontWeight.bold,
+    fontSize: 14,
+  ),
+),
+
                       ],
                     ),
                   ],

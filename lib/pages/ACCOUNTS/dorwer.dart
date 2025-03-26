@@ -100,7 +100,7 @@ class drower{
           MaterialPageRoute(builder: (context) => add_receipt()),
         );
         break;
-      case 'Recipts List':
+      case 'Recipt List':
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => recipt_Report()),

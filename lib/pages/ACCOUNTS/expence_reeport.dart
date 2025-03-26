@@ -4,6 +4,8 @@ import 'package:beposoft/pages/ACCOUNTS/update_expence.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:intl/intl.dart'; 
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
@@ -353,221 +355,260 @@ Future<void> getexpenselist() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
-      appBar: AppBar(
-          title: Text(
-          "Expense Report",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
 
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
+      child: Scaffold(
+        backgroundColor: Color.fromARGB(242, 255, 255, 255),
+        appBar: AppBar(
+            title: Text(
+            "Expense Report",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+         Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
               );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
               );
-            }
-          },
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            // Icon button to open start date picker
+            IconButton(
+              icon: Icon(Icons.calendar_today),  // Calendar icon
+              onPressed: () => _selectSingleDate(context), // Call the method to select start date
+            ),
+            // Icon button to open date range picker
+            IconButton(
+              icon: Icon(Icons.date_range),  // Date range icon
+              onPressed: () => _selectDateRange(context), // Call the method to select date range
+            ),
+          ],
         ),
-        actions: [
-          // Icon button to open start date picker
-          IconButton(
-            icon: Icon(Icons.calendar_today),  // Calendar icon
-            onPressed: () => _selectSingleDate(context), // Call the method to select start date
+      
+      body: Stack(
+        children: [
+      Column(
+        children: [
+          Expanded(
+            child: filteredData.isEmpty
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: filteredData.length,
+                    itemBuilder: (context, index) {
+                      final expense = filteredData[index];
+                      return Card(
+                        color: Colors.white,
+                        elevation: 4,
+                        margin: EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Purpose of Payment: ${expense['purpose_of_payment']?? 'N/A'}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Amount: ₹${expense['amount'] ?? '0'}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            if (expense['name'] != null)
+                              Text(
+                                'Name: ${expense['name'] ?? '0'}',
+                                style: TextStyle(fontSize: 14),
+                            ),
+                              if (expense['quantity'] != null)
+                              Text(
+                                'Quantity: ${expense['quantity'] ?? '0'}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              if (expense['category'] != null)
+                              Text(
+                                'Categoty: ${expense['category'] ?? '0'}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Company: ${expense['company'] ?? '0'}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              // Text(
+                              //   'Bank: ${getNameById(bank, expense['bank'])}',
+                              //   style: TextStyle(fontSize: 14),
+                              // ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Payed By: ${(expense['payed_by'])}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Added By: ${expense['added_by'] ?? 'Unknown'}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Transaction Id: ${expense['transaction_id']}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Expense Date: ${expense['expense_date']?? -1}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            Expense_Update(id: expense['id'])),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                ),
+                                child: const Text(
+                                  "View",
+                                  style: TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
-          // Icon button to open date range picker
-          IconButton(
-            icon: Icon(Icons.date_range),  // Date range icon
-            onPressed: () => _selectDateRange(context), // Call the method to select date range
-          ),
+          SizedBox(height: 100),
         ],
       ),
-    
-    body: Stack(
-  children: [
-    Column(
-      children: [
-        Expanded(
-          child: filteredData.isEmpty
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  itemCount: filteredData.length,
-                  itemBuilder: (context, index) {
-                    final expense = filteredData[index];
-                    return Card(
-                      color: Colors.white,
-                      elevation: 4,
-                      margin: EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Purpose of Payment: ${expense['purpose_of_payment']?? 'N/A'}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Amount: ₹${expense['amount'] ?? '0'}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          if (expense['name'] != null)
-                            Text(
-                              'Name: ${expense['name'] ?? '0'}',
-                              style: TextStyle(fontSize: 14),
-                          ),
-                            if (expense['quantity'] != null)
-                            Text(
-                              'Quantity: ${expense['quantity'] ?? '0'}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            if (expense['category'] != null)
-                            Text(
-                              'Categoty: ${expense['category'] ?? '0'}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Company: ${expense['company'] ?? '0'}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            // Text(
-                            //   'Bank: ${getNameById(bank, expense['bank'])}',
-                            //   style: TextStyle(fontSize: 14),
-                            // ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Payed By: ${(expense['payed_by'])}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Added By: ${expense['added_by'] ?? 'Unknown'}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Transaction Id: ${expense['transaction_id']}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Expense Date: ${expense['expense_date']?? -1}',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          Expense_Update(id: expense['id'])),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                              ),
-                              child: const Text(
-                                "View",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+      Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: Material(
+          elevation: 12,
+          color: const Color.fromARGB(255, 12, 80, 163),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              color: const Color.fromARGB(255, 12, 80, 163),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Total Report Summary',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-        ),
-        SizedBox(height: 100),
-      ],
-    ),
-    Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Material(
-        elevation: 12,
-        color: const Color.fromARGB(255, 12, 80, 163),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            color: const Color.fromARGB(255, 12, 80, 163),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Total Report Summary',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                Divider(
+                  color: Colors.white.withOpacity(0.5),
+                  thickness: 1,
                 ),
-              ),
-              Divider(
-                color: Colors.white.withOpacity(0.5),
-                thickness: 1,
-              ),
-              SizedBox(height: 8),
-              _buildRowWithTwoColumns('Total Amount:', totalAmount),
-            ],
+                SizedBox(height: 8),
+                _buildRowWithTwoColumns('Total Amount:', totalAmount),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  ],
-),
-
+        ],
+      ),
+      
+      ),
     );
   }
 

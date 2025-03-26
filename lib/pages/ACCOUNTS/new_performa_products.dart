@@ -6,10 +6,13 @@ import 'package:beposoft/pages/ACCOUNTS/performa_cart.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async'; // Import for Timer
 
 class CreatePerformaProduct_List extends StatefulWidget {
   const CreatePerformaProduct_List({super.key});
@@ -20,6 +23,7 @@ class CreatePerformaProduct_List extends StatefulWidget {
 
 class _CreatePerformaProduct_ListState extends State<CreatePerformaProduct_List> {
   drower d = drower();
+  Timer? timer; // Declare the timer variable
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {
     return ExpansionTile(
@@ -60,28 +64,18 @@ class _CreatePerformaProduct_ListState extends State<CreatePerformaProduct_List>
 var warehouse;
 Future<void> initdata() async {
   final dep = await getdepFromPrefs();
-  
+  warehouse = await getwarehouseFromPrefs();
 
-   warehouse = await getwarehouseFromPrefs();
+  // Fetch product list based on warehouse
+  await fetchProductListid(warehouse);
 
-  // if(warehouse=="0"){
-    
-  //  await  fetchProductList();
-  //   setState(() {
-  //   filteredProducts = products;
-  // });
-  // }
-  
-    
-  await  fetchProductListid(warehouse);
-   setState(() {
-    filteredProducts = products;
-  });
-  
-
- 
+  // Check if the widget is still mounted before calling setState
+  if (mounted) {
+    setState(() {
+      filteredProducts = products;
+    });
+  }
 }
-
 
 Future<void> _getAndShowVariants(int productId) async {
     await getvariant(productId, "type"); // Call your existing getvariant function
@@ -329,7 +323,7 @@ dep= await getdepFromPrefs();
         'Authorization': 'Bearer $token',
       },
     );
-
+print("response${response.body}");
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -358,6 +352,7 @@ dep= await getdepFromPrefs();
           'exclude_price': productData['exclude_price'],
           'selling_price': productData['selling_price'],
           'stock': productData['stock'],
+          'locked_stock': productData['locked_stock'],
           'created_user': productData['created_user'],
           'family': familyNames, // Add family names here
           'image': productData['image'], // Main product image
@@ -372,7 +367,7 @@ dep= await getdepFromPrefs();
       });
     }
   } catch (error) {
-    
+    print("error$error");
   }
 }
 
@@ -660,7 +655,13 @@ void showSizeDialog2(BuildContext context, List variants) {
                                   color: Colors.grey),
                             ),
                       title: Text(variant['name']),
-                      subtitle: Text("Stock: ${variant['stock']}"),
+                       subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Stock: ${variant['stock']}"),
+          Text("Locked Stock: ${variant['locked_stock']}",style:TextStyle(color: Colors.grey,fontWeight: FontWeight.bold)), // Display Locked Stock
+        ],
+      ),
                       trailing: selectedProductNotifier.value == variant
                           ? Icon(Icons.check_circle, color: Colors.green)
                           : null,
@@ -706,13 +707,21 @@ void showSizeDialog2(BuildContext context, List variants) {
                       var selectedProduct = selectedProductNotifier.value;
                       int quantity = int.tryParse(quantityController.text) ?? 1;
 
-                      // Validate stock
-                      if (quantity > selectedProduct!['stock']) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Quantity exceeds available stock!")),
-                        );
-                        return;
-                      }
+                     // Validate stock
+                      if (quantity > (selectedProduct!['stock'] - selectedProduct['locked_stock'])) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Quantity exceeds available stock!")),
+  );
+  return;
+}
+  if (selectedProduct!['stock']==0) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("No stock Available")),
+  );
+  return;
+}
+
+                      
 
                       // Call add to cart function
                       addtocart(context, selectedProduct['id'], quantity);
@@ -742,7 +751,7 @@ void showSizeDialog2(BuildContext context, List variants) {
 
 
 
-void showSizeDialog3(BuildContext context, mainid, stock) {
+void showSizeDialog3(BuildContext context, mainid, stock,lockedstock) {
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -773,6 +782,16 @@ void showSizeDialog3(BuildContext context, mainid, stock) {
                           child: Text(
                             'Available Stock: $stock',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                          ),
+                        ),
+                      ),
+                       if (lockedstock != null) // Show locked stock info only if a size is selected
+                      Container(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            'Locked Stock: $lockedstock',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: const Color.fromARGB(255, 128, 128, 128)),
                           ),
                         ),
                       ),
@@ -807,7 +826,18 @@ void showSizeDialog3(BuildContext context, mainid, stock) {
                           // Add logic for adding to cart, using selectedSizeId and quantity
                           
                           
-                      
+                       if (quantity > (stock - lockedstock)) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Quantity exceeds available stock!")),
+  );
+  return;
+}
+  if (stock==0) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("No stock Available")),
+  );
+  return;
+}
                           // Call add to cart function
                           addtocart2(context, mainid,quantity);
                       
@@ -853,349 +883,396 @@ List<String> extractStringList(List<dynamic> list, String key) {
   }
   return [];
 }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(246, 255, 255, 255),
-      appBar: AppBar(
-        title: Text(
-          "Product List",
-          style: TextStyle(color: Colors.grey, fontSize: 14),
-        ),
- leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-
-        
-          actions: [
-          // Cart icon with badge
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Stack(
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.shopping_cart, color: Colors.grey),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Performa_Cart()),
-                    );
-                  },
-                ),
-                Positioned(
-                  right: 6,
-                  top: 6,
-                  child: Container(
-                    padding: EdgeInsets.all(2),
-                 
-                    constraints: BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                                   ),
-                ),
-              ],
-            ),
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(246, 255, 255, 255),
+        appBar: AppBar(
+          title: Text(
+            "Product List",
+            style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
-        ],
-       
-      ),
-    
+       leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+              if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
       
-     body: Container(
-       child: Column(
-         children: [
-
-          if(dep=='COO'||dep=='ADMIN'||dep=='Accounts')
-
-
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                      border: Border.all(color: Colors.grey),
-                                    ),
-                                    padding: EdgeInsets.symmetric(horizontal: 12),
-                                    child: DropdownButton<int>(
-                                      isExpanded: true,
-                                      value: selectedwarehouseId,
-                                      hint: Text('Select a Warehouse'),
-                                      underline:
-                                          SizedBox(), // Remove the default underline
-                                      onChanged: (int? newValue) {
-                                        setState(() {
-                                          selectedwarehouseId = newValue;
-                                          selectedwarehouseName =
-                                              Warehouses.firstWhere((element) =>
-                                                  element['id'] ==
-                                                  newValue)['name'];
-                                          fetchProductListid(newValue!);
-                                        });
-
-
-                                      },
-                                      items:
-                                          Warehouses.map<DropdownMenuItem<int>>(
-                                              (Warehouses) {
-                                        return DropdownMenuItem<int>(
-                                          value: Warehouses['id'],
-                                          child: Text(Warehouses['name']),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
           ),
-Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: TextField(
-    controller: searchController,
-    decoration: InputDecoration(
-      hintText: "Search products...",
-      prefixIcon: Icon(Icons.search),
-      fillColor: Colors.white, // Set your desired background color
-      filled: true, // Enable background color
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.grey,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blue,
-          width: 2.0,
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.grey,
-          width: 1.0,
-        ),
-      ),
-    ),
-    onChanged: (query) {
-      _filterProducts(query); // Filter the products as the user types
-    },
-  ),
-),
-
-
-
-     Expanded(
-  child: RefreshIndicator(
-    onRefresh: () {
-      return fetchProductListid(warehouse);
-    },
-    child: ListView.builder(
-      itemCount: filteredProducts.length,
-      itemBuilder: (context, index) {
-        final product = filteredProducts[index];
-        
-        final isExpanded = expandedProducts[product['id']] ?? false;
-    
-        return Padding(
-          padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                height: 90,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: product['image'] != null && product['image'].isNotEmpty
-                      ? Image.network(
-                          '$api${product['image']}',
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                        )
-                      : Icon(Icons.image_not_supported),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${product['name']}",
-                        style: TextStyle(fontSize: 14),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+      
+          
+            actions: [
+            // Cart icon with badge
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Stack(
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.shopping_cart, color: Colors.grey),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Performa_Cart()),
+                      );
+                    },
+                  ),
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: EdgeInsets.all(2),
+                   
+                      constraints: BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
                       ),
-                      if (product['color'] != null && product['color'].isNotEmpty) // Display color if it exists
-                        Text(
-                          "Color: ${product['color']}",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        
+                                     ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+         
+        ),
+      
+        
+       body: Container(
+         child: Column(
+           children: [
+      
+            if(dep=='COO'||dep=='ADMIN'||dep=='Accounts')
+      
+      
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(30.0),
+                                        border: Border.all(color: Colors.grey),
+                                      ),
+                                      padding: EdgeInsets.symmetric(horizontal: 12),
+                                      child: DropdownButton<int>(
+                                        isExpanded: true,
+                                        value: selectedwarehouseId,
+                                        hint: Text('Select a Warehouse'),
+                                        underline:
+                                            SizedBox(), // Remove the default underline
+                                        onChanged: (int? newValue) {
+                                          setState(() {
+                                            selectedwarehouseId = newValue;
+                                            selectedwarehouseName =
+                                                Warehouses.firstWhere((element) =>
+                                                    element['id'] ==
+                                                    newValue)['name'];
+                                            fetchProductListid(newValue!);
+                                          });
+      
+      
+                                        },
+                                        items:
+                                            Warehouses.map<DropdownMenuItem<int>>(
+                                                (Warehouses) {
+                                          return DropdownMenuItem<int>(
+                                            value: Warehouses['id'],
+                                            child: Text(Warehouses['name']),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+            ),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+      controller: searchController,
+      decoration: InputDecoration(
+        hintText: "Search products...",
+        prefixIcon: Icon(Icons.search),
+        fillColor: Colors.white, // Set your desired background color
+        filled: true, // Enable background color
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.grey,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blue,
+            width: 2.0,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.grey,
+            width: 1.0,
+          ),
+        ),
+      ),
+      onChanged: (query) {
+        _filterProducts(query); // Filter the products as the user types
+      },
+        ),
+      ),
+      
+      
+      
+       Expanded(
+        child: RefreshIndicator(
+      onRefresh: () {
+        return fetchProductListid(warehouse);
+      },
+      child: ListView.builder(
+        itemCount: filteredProducts.length,
+        itemBuilder: (context, index) {
+          final product = filteredProducts[index];
+          
+          final isExpanded = expandedProducts[product['id']] ?? false;
+      
+          return Padding(
+            padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color.fromARGB(255, 210, 209, 209).withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
+                      ),
                     ],
                   ),
-                  trailing: ElevatedButton.icon(
-                  onPressed: () {
-    if (product['is_vaiant'] == true) {
-      
-      // Ensure colors are non-null before passing to extractStringList
-      List<String> colors = extractStringList(product['colors'] ?? [], 'color_name');
-      List<Map<String, dynamic>> sizes = extractSizeList(product['sizes'] ?? []);
-      
-      // showSizeDialog(
-      //   context,
-      //   colors,
-      //   sizes,
-      //   product['mainid'],
-      //   product['id'],
-      // );
-    }
-    else if(product['type'] == 'variant'){
-          
-    
-      showSizeDialog2(
-        context,
-        product['variantIDs'] );
-    
-    }
-    else if(product['type']=='single'){
-      
-      showSizeDialog3(
-        context,
-        product['id'],
-        product['stock'],
-        );
-    }
-    
-    },
-    
-                    icon: Icon(
-                      product['type'] == 'single' ? Icons.add : Icons.view_agenda,
-                      size: 14,
-                      color: Colors.white,
+                  child: ListTile(
+                    leading: product['image'] != null && product['image'].isNotEmpty
+                        ? Image.network(
+                            '$api${product['image']}',
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                          )
+                        : Icon(Icons.image_not_supported),
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${product['name']}",
+                          style: TextStyle(fontSize: 14),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (product['color'] != null && product['color'].isNotEmpty) // Display color if it exists
+                          Text(
+                            "Color: ${product['color']}",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          
+                      ],
                     ),
-                    label: Text(
-                      product['type'] == 'single' ? "Add" : "View",
-                      style: TextStyle(color: Colors.white, fontSize: 10),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: product['type'] == 'single' || product['is_vaiant'] == false ? Colors.green : Colors.blue,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      minimumSize: const Size(60, 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                    trailing: ElevatedButton.icon(
+                    onPressed: () {
+      if (product['is_vaiant'] == true) {
+        
+        // Ensure colors are non-null before passing to extractStringList
+        List<String> colors = extractStringList(product['colors'] ?? [], 'color_name');
+        List<Map<String, dynamic>> sizes = extractSizeList(product['sizes'] ?? []);
+        
+        // showSizeDialog(
+        //   context,
+        //   colors,
+        //   sizes,
+        //   product['mainid'],
+        //   product['id'],
+        // );
+      }
+      else if(product['type'] == 'variant'){
+            
+      
+        showSizeDialog2(
+          context,
+          product['variantIDs'] );
+      
+      }
+      else if(product['type']=='single'){
+        
+        showSizeDialog3(
+          context,
+          product['id'],
+          product['stock'],
+          product['locked_stock'],
+          );
+      }
+      
+      },
+      
+                      icon: Icon(
+                        product['type'] == 'single' ? Icons.add : Icons.view_agenda,
+                        size: 14,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        product['type'] == 'single' ? "Add" : "View",
+                        style: TextStyle(color: Colors.white, fontSize: 10),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: product['type'] == 'single' || product['is_vaiant'] == false ? Colors.green : Colors.blue,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        minimumSize: const Size(60, 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              // Display variant list if expanded
-              if (isExpanded && product['variant_products'] != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, left: 10, right: 10),
-                  child: Column(
-                    children: product['variant_products'].map<Widget>((variantProduct) {
-                      return Container(
-                        height: 70,
-                        margin: const EdgeInsets.only(bottom: 6),
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            if (variantProduct['image'] != null && variantProduct['image'].isNotEmpty)
-                              Image.network(
-                                variantProduct['image'],
-                                width: 65,
-                                height: 65,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                              )
-                            else
-                              Icon(Icons.image_not_supported),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                "${variantProduct['name']} - ${variantProduct['color']} - Stock: ${variantProduct['stock']}",
-                                style: TextStyle(fontSize: 12),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                // Display variant list if expanded
+                if (isExpanded && product['variant_products'] != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, left: 10, right: 10),
+                    child: Column(
+                      children: product['variant_products'].map<Widget>((variantProduct) {
+                        return Container(
+                          height: 70,
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 3),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              if (variantProduct['image'] != null && variantProduct['image'].isNotEmpty)
+                                Image.network(
+                                  variantProduct['image'],
+                                  width: 65,
+                                  height: 65,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                                )
+                              else
+                                Icon(Icons.image_not_supported),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  "${variantProduct['name']} - ${variantProduct['color']} - Stock: ${variantProduct['stock']}",
+                                  style: TextStyle(fontSize: 12),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                ),
-            ],
-          ),
-        );
-      },
-    ),
-  ),
-),
-
-         ],
+              ],
+            ),
+          );
+        },
+      ),
+        ),
+      ),
+      
+           ],
+         ),
        ),
-     ),
-
+      
+      ),
     );
+  }
+  
+  @override
+  void dispose() {
+    // Cancel any ongoing operations
+    timer?.cancel();
+    super.dispose();
   }
 }

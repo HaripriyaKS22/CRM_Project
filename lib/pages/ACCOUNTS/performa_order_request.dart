@@ -126,10 +126,19 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<String?> getwarehouseFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? warehouseId = prefs.getInt('warehouse');
+
+    // Check if warehouseId is null before converting to String
+    return warehouseId?.toString();
+  }
+    var warehouse;
 
   List<Map<String, dynamic>> company = [];
 
   Future<void> getcompany() async {
+    print("getcompany");
     try {
       final token = await gettokenFromPrefs();
 
@@ -142,7 +151,7 @@ Future<String?> getdepFromPrefs() async {
       );
     
       List<Map<String, dynamic>> companylist = [];
-
+print("response${response.body}");
       if (response.statusCode == 200) {
         final Data = jsonDecode(response.body);
 final productsData=Data['data'];
@@ -166,9 +175,10 @@ final productsData=Data['data'];
   void performaordercreate(
     BuildContext scaffoldContext,
   ) async {
- ;
- ;
+ 
     try {
+            warehouse = await getwarehouseFromPrefs();
+print("warehouse$warehouse");
       final token = await gettokenFromPrefs();
       var response = await http.post(
         Uri.parse('$api/api/perfoma/invoice/create/'),
@@ -180,6 +190,7 @@ final productsData=Data['data'];
           'manage_staff': selectedstaffId,
           "company": selectedCompanyId,
           "customer": selectedCustomerId,
+          "warehouse_id":warehouse,
           'billing_address': selectedAddressId,
           'order_date':
               "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
@@ -190,7 +201,7 @@ final productsData=Data['data'];
           
         }),
       );
-;
+print("response${response.body}");
     
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

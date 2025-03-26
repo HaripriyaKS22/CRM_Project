@@ -13,6 +13,8 @@ import 'package:beposoft/pages/ACCOUNTS/update_recipt.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
@@ -237,209 +239,252 @@ class _recipt_ReportState extends State<recipt_Report> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          "Recipt Report",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: "Search product...",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: Colors.blue, // Set your desired border color here
-                    width: 2.0, // Set the border width
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: Colors.blue, // Border color when TextField is not focused
-                    width: 2.0,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: Colors.blueAccent, // Border color when TextField is focused
-                    width: 2.0,
-                  ),
-                ),
-              ),
-              onChanged: _filterProducts, // Filtering logic
-            ),
-          ),
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
 
-          // Main content in Stack
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: getreciptReport,
-              child: Stack(
-                children: [
-                  // Main content: Sales report list
-                  SingleChildScrollView(
-                    padding: EdgeInsets.only(bottom: 260),
-                    child: Column(
-                      children: salesReportList.map((reportData) {
-                        return Card(
-                          color: Colors.white,
-                          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                          elevation: 8,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(height: 8),
-                                _buildRow('Receipt:', reportData['payment_receipt']),
-                                _buildRow('Invoice:', reportData['invoice']),
-                                _buildRow('Transaction ID:', reportData['transactionID']),
-                                _buildRow('Amount:', reportData['amount']),
-                                _buildRow('Received At:', reportData['received_at']),
-                                _buildRow('Bank:', reportData['bank_name']),
-                                _buildRow('Created By:', reportData['created_by']),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(
+            "Recipt Report",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+               if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
-                                  ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>update_recipt(id: reportData['id'],))); 
-                // Handle "View" button action
-              },
-              child: Text(
-                "View",
-                style: TextStyle(fontSize: 14, color: Colors.white),
-              ),
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+} else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {},
             ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
+          ],
+        ),
+        body: Column(
+          children: [
+            // Search bar
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: "Search product...",
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: Colors.blue, // Set your desired border color here
+                      width: 2.0, // Set the border width
                     ),
                   ),
-
-                  // Bottom summary card
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Material(
-                      elevation: 12,
-                      color: const Color.fromARGB(255, 12, 80, 163),
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                          color: const Color.fromARGB(255, 12, 80, 163),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Total Report Summary',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: Colors.blue, // Border color when TextField is not focused
+                      width: 2.0,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: Colors.blueAccent, // Border color when TextField is focused
+                      width: 2.0,
+                    ),
+                  ),
+                ),
+                onChanged: _filterProducts, // Filtering logic
+              ),
+            ),
+      
+            // Main content in Stack
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: getreciptReport,
+                child: Stack(
+                  children: [
+                    // Main content: Sales report list
+                    SingleChildScrollView(
+                      padding: EdgeInsets.only(bottom: 260),
+                      child: Column(
+                        children: salesReportList.map((reportData) {
+                          return Card(
+                            color: Colors.white,
+                            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            elevation: 8,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 8),
+                                  _buildRow('Receipt:', reportData['payment_receipt']),
+                                  _buildRow('Invoice:', reportData['invoice']),
+                                  _buildRow('Transaction ID:', reportData['transactionID']),
+                                  _buildRow('Amount:', reportData['amount']),
+                                  _buildRow('Received At:', reportData['received_at']),
+                                  _buildRow('Bank:', reportData['bank_name']),
+                                  _buildRow('Created By:', reportData['created_by']),
+      
+                                    ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>update_recipt(id: reportData['id'],))); 
+                  // Handle "View" button action
+                },
+                child: Text(
+                  "View",
+                  style: TextStyle(fontSize: 14, color: Colors.white),
+                ),
+              ),
+                                ],
                               ),
                             ),
-                            Divider(
-                              color: Colors.white.withOpacity(0.5),
-                              thickness: 1,
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-                            SizedBox(height: 8),
-                            
-                            Row(
-                              children: [
-                                Text('Total Receipts: ', style: TextStyle(color: Colors.white)), // Add this line
-                                Spacer(),
-                                Text('$totalReceipts', style: TextStyle(color: Colors.white)), // Add this line
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text('Total Amount: ', style: TextStyle(color: Colors.white)), // Add this line
-                                Spacer(),
-                                Text('$totalAmount', style: TextStyle(color: Colors.white)), // Add this line
-                              ],
-                            ),
-                          ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
+      
+                    // Bottom summary card
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Material(
+                        elevation: 12,
+                        color: const Color.fromARGB(255, 12, 80, 163),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            color: const Color.fromARGB(255, 12, 80, 163),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Total Report Summary',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Divider(
+                                color: Colors.white.withOpacity(0.5),
+                                thickness: 1,
+                                indent: 0,
+                                endIndent: 0,
+                              ),
+                              SizedBox(height: 8),
+                              
+                              Row(
+                                children: [
+                                  Text('Total Receipts: ', style: TextStyle(color: Colors.white)), // Add this line
+                                  Spacer(),
+                                  Text('$totalReceipts', style: TextStyle(color: Colors.white)), // Add this line
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Total Amount: ', style: TextStyle(color: Colors.white)), // Add this line
+                                  Spacer(),
+                                  Text('$totalAmount', style: TextStyle(color: Colors.white)), // Add this line
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

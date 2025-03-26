@@ -3,6 +3,8 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -342,205 +344,244 @@ Future<void> getFinancialReport2() async {
     
   }
 }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
 
 
   @override
 Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text(
-        'Financial Report',
-        style: TextStyle(color: Color.fromARGB(255, 3, 3, 3), fontSize: 16),
-      ),
-       leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
+  return WillPopScope(
+     onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+    child: Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Financial Report',
+          style: TextStyle(color: Color.fromARGB(255, 3, 3, 3), fontSize: 16),
         ),
-         actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
+         leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+            if(dep=="BDO" ){
+     Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+    
+    }
+    else if(dep=="BDM" ){
+     Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+    }
+    else if(dep=="warehouse" ){
+     Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+    }
+    else if(dep=="Warehouse Admin" ){
+     Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+    }
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
           ),
-          // IconButton(
-          //   icon: Icon(Icons.calendar_today),
-          //   onPressed: () => _selectSingleDate(context),
-          // ),
-          IconButton(
-            icon: Icon(Icons.date_range),
-            onPressed: () => _selectDateRange(context),
-          ),
-        ],
-
-
+           actions: [
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {},
+            ),
+            // IconButton(
+            //   icon: Icon(Icons.calendar_today),
+            //   onPressed: () => _selectSingleDate(context),
+            // ),
+            IconButton(
+              icon: Icon(Icons.date_range),
+              onPressed: () => _selectDateRange(context),
+            ),
+          ],
+    
+    
+      ),
+     body: Finance.isEmpty
+      ? const Center(child: CircularProgressIndicator()) // Show loader while data is being fetched
+      : Stack(
+          children: [
+            ListView.builder(
+              padding: const EdgeInsets.only(bottom: 160), // Add padding to avoid overlapping
+              itemCount: Finance.length,
+              itemBuilder: (context, index) {
+                final item = Finance[index]; // Current bank data
+                ;
+                return Card(
+                  color: Colors.white,
+                  margin: const EdgeInsets.all(8.0),
+                  elevation: 4.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['Bank Name'] ?? 'Unknown Bank',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Opening Balance:',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              '\u{20B9}${item['Opening Balance'] }',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Today Credit:',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+    '\u{20B9}${item['Credit'] ?? '0.0'}',
+    style: const TextStyle(fontSize: 14, color: Colors.blue),
     ),
-   body: Finance.isEmpty
-    ? const Center(child: CircularProgressIndicator()) // Show loader while data is being fetched
-    : Stack(
-        children: [
-          ListView.builder(
-            padding: const EdgeInsets.only(bottom: 160), // Add padding to avoid overlapping
-            itemCount: Finance.length,
-            itemBuilder: (context, index) {
-              final item = Finance[index]; // Current bank data
-              ;
-              return Card(
-                color: Colors.white,
-                margin: const EdgeInsets.all(8.0),
-                elevation: 4.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+    
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Today Debit:',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              '\u{20B9}${item['Debit']  ?? '0.0'}',
+                              style: const TextStyle(fontSize: 14, color: Colors.red),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Closing Balance:',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              '\u{20B9}${item['Closing Balance']}',
+                              style: const TextStyle(fontSize: 14, color: Colors.green),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Material(
+                elevation: 12,
+                color: const Color.fromARGB(255, 12, 80, 163),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    color: Color.fromARGB(255, 12, 80, 163),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        item['Bank Name'] ?? 'Unknown Bank',
-                        style: const TextStyle(
-                          fontSize: 15,
+                      const Text(
+                        'Total Report Summary',
+                        style: TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Opening Balance:',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            '\u{20B9}${item['Opening Balance'] }',
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ],
+                      Divider(
+                        color: Colors.white.withOpacity(0.5),
+                        thickness: 1,
+                        indent: 0,
+                        endIndent: 0,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Today Credit:',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-  '\u{20B9}${item['Credit'] ?? '0.0'}',
-  style: const TextStyle(fontSize: 14, color: Colors.blue),
-),
-
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Today Debit:',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            '\u{20B9}${item['Debit']  ?? '0.0'}',
-                            style: const TextStyle(fontSize: 14, color: Colors.red),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Closing Balance:',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            '\u{20B9}${item['Closing Balance']}',
-                            style: const TextStyle(fontSize: 14, color: Colors.green),
-                          ),
-                        ],
-                      ),
+                      _buildRowWithTwoColumns('Total Opening Blance:', totalAdjustedOpeningBalance,
+                          'Total Closing Balance:', totalClosingBalance),
+                      _buildRowWithTwoColumns('Credits', totalTodayPayments,
+                          'Debit', totalTodayBanksAmount),
+                     
                     ],
                   ),
                 ),
-              );
-            },
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Material(
-              elevation: 12,
-              color: const Color.fromARGB(255, 12, 80, 163),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  color: Color.fromARGB(255, 12, 80, 163),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Total Report Summary',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Divider(
-                      color: Colors.white.withOpacity(0.5),
-                      thickness: 1,
-                      indent: 0,
-                      endIndent: 0,
-                    ),
-                    _buildRowWithTwoColumns('Total Opening Blance:', totalAdjustedOpeningBalance,
-                        'Total Closing Balance:', totalClosingBalance),
-                    _buildRowWithTwoColumns('Credits', totalTodayPayments,
-                        'Debit', totalTodayBanksAmount),
-                   
-                  ],
-                ),
               ),
             ),
-          ),
-        ],
-      ),
-
+          ],
+        ),
+    
+    ),
   );
 }
  Widget _buildRowWithTwoColumns(

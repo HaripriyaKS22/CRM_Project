@@ -293,343 +293,382 @@ class _NewGrvState extends State<NewGrv> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('New GRV'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "warehouse") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        WarehouseDashboard()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "Warehouse Admin") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        WarehouseAdmin()), // Replace AnotherPage with your target page
-              );
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('New GRV'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+              if (dep == "BDO") {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          bdo_dashbord()), // Replace AnotherPage with your target page
+                );
+              } else if (dep == "BDM") {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          bdm_dashbord()), // Replace AnotherPage with your target page
+                );
+              } else if (dep == "warehouse") {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          WarehouseDashboard()), // Replace AnotherPage with your target page
+                );
+              } else if (dep == "Warehouse Admin") {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          WarehouseAdmin()), // Replace AnotherPage with your target page
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            children: [
-              SizedBox(height: 15),
-              Text(
-                "NEW GRV",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2.0,
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Colors.grey),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              children: [
+                SizedBox(height: 15),
+                Text(
+                  "NEW GRV",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return Container(
-                              child: DropdownButtonHideUnderline(
-                                child: Container(
-                                  height: 46,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1.0),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: DropdownButton2<String>(
-                                    isExpanded: true,
-                                    hint: Text(
-                                      'Select Invoice',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Theme.of(context).hintColor),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Container(
+                                child: DropdownButtonHideUnderline(
+                                  child: Container(
+                                    height: 46,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.grey, width: 1.0),
+                                      borderRadius: BorderRadius.circular(8.0),
                                     ),
-                                    items: orders.map((order) {
-                                      return DropdownMenuItem<String>(
-                                        value:
+                                    child: DropdownButton2<String>(
+                                      isExpanded: true,
+                                      hint: Text(
+                                        'Select Invoice',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Theme.of(context).hintColor),
+                                      ),
+                                      items: orders.map((order) {
+                                        return DropdownMenuItem<String>(
+                                          value:
+                                              '${order['invoice']} / ${order['name']}',
+                                          child: Text(
                                             '${order['invoice']} / ${order['name']}',
-                                        child: Text(
-                                          '${order['invoice']} / ${order['name']}',
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    value: selectedValue,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedValue = value;
-                                        final selectedOrder = orders.firstWhere(
-                                          (order) =>
-                                              '${order['invoice']} / ${order['name']}' ==
-                                              value,
-                                          orElse: () => {},
-                                        );
-                                        if (selectedOrder != null) {
-                                          orderId =
-                                              selectedOrder['id'].toString();
-                                          manageStaffName =
-                                              selectedOrder['manage_staff'];
-                                          selectedInvoiceAddress =
-                                              selectedOrder['address'];
-                                          createdAtDate =
-                                              selectedOrder['created_at'];
-                                          fetchOrderItems(orderId);
-                                        }
-                                      });
-                                    },
-                                    buttonStyleData: const ButtonStyleData(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 16),
-                                      height: 40,
-                                    ),
-                                    dropdownStyleData: const DropdownStyleData(
-                                      maxHeight: 200,
-                                    ),
-                                    menuItemStyleData: const MenuItemStyleData(
-                                      height: 40,
-                                    ),
-                                    dropdownSearchData: DropdownSearchData(
-                                      searchController: textEditingController,
-                                      searchInnerWidgetHeight: 50,
-                                      searchInnerWidget: Container(
-                                        height: 50,
-                                        padding: const EdgeInsets.only(
-                                            top: 8,
-                                            bottom: 4,
-                                            right: 8,
-                                            left: 8),
-                                        child: TextFormField(
-                                          expands: true,
-                                          maxLines: null,
-                                          controller: textEditingController,
-                                          decoration: InputDecoration(
-                                            isDense: true,
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 8),
-                                            hintText:
-                                                'Search for an invoice...',
-                                            hintStyle:
-                                                const TextStyle(fontSize: 12),
-                                            border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8)),
+                                            style: const TextStyle(fontSize: 12),
                                           ),
-                                        ),
-                                      ),
-                                      searchMatchFn: (item, searchValue) {
-                                        return item.value
-                                            .toString()
-                                            .toLowerCase()
-                                            .contains(
-                                                searchValue.toLowerCase());
+                                        );
+                                      }).toList(),
+                                      value: selectedValue,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          selectedValue = value;
+                                          final selectedOrder = orders.firstWhere(
+                                            (order) =>
+                                                '${order['invoice']} / ${order['name']}' ==
+                                                value,
+                                            orElse: () => {},
+                                          );
+                                          if (selectedOrder != null) {
+                                            orderId =
+                                                selectedOrder['id'].toString();
+                                            manageStaffName =
+                                                selectedOrder['manage_staff'];
+                                            selectedInvoiceAddress =
+                                                selectedOrder['address'];
+                                            createdAtDate =
+                                                selectedOrder['created_at'];
+                                            fetchOrderItems(orderId);
+                                          }
+                                        });
                                       },
-                                    ),
-                                    onMenuStateChange: (isOpen) {
-                                      if (isOpen && nextPageUrl != null) {
-                                        fetchOrders(
-                                            loadMore:
-                                                true); // Load more when dropdown opens
-                                      }
-                                      if (!isOpen) {
-                                        textEditingController.clear();
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      TextFormField(
-                        controller:
-                            TextEditingController(text: manageStaffName),
-                        decoration: InputDecoration(
-                          labelText: 'Managed by',
-                          suffixIcon: Icon(Icons.lock),
-                          border: OutlineInputBorder(),
-                        ),
-                        enabled: false,
-                      ),
-                      SizedBox(height: 10),
-                      TextFormField(
-                        controller:
-                            TextEditingController(text: selectedInvoiceAddress),
-                        decoration: InputDecoration(
-                          labelText: 'Address',
-                          suffixIcon: Icon(Icons.lock),
-                          border: OutlineInputBorder(),
-                        ),
-                        enabled: false,
-                        maxLines: null, // Makes it flexible for multiple lines
-                      ),
-                      SizedBox(height: 10),
-                      TextFormField(
-                        controller: TextEditingController(text: createdAtDate),
-                        decoration: InputDecoration(
-                          labelText: 'Invoice Date',
-                          suffixIcon: Icon(Icons.lock),
-                          border: OutlineInputBorder(),
-                        ),
-                        enabled: false,
-                      ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: returnreason,
-                        decoration: InputDecoration(
-                          labelText: 'Reason',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                        ),
-                      ),
-                      if (hasItems) // Show order items if they exist
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: orderItems.length,
-                          itemBuilder: (context, index) {
-                            final item = orderItems[index];
-                            return Card(
-                              color: Colors.white,
-                              elevation: 5,
-                              margin: EdgeInsets.all(8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (item['images'] != null &&
-                                        item['images'].isNotEmpty)
-                                      Image.network(
-                                        "$api${item['images']}",
-                                        width: 80,
-                                        height: 80,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Icon(Icons
-                                              .image_not_supported); // Fallback image or icon
-                                        },
+                                      buttonStyleData: const ButtonStyleData(
+                                        padding:
+                                            EdgeInsets.symmetric(horizontal: 16),
+                                        height: 40,
                                       ),
-                                    SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item['name'],
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
+                                      dropdownStyleData: const DropdownStyleData(
+                                        maxHeight: 200,
+                                      ),
+                                      menuItemStyleData: const MenuItemStyleData(
+                                        height: 40,
+                                      ),
+                                      dropdownSearchData: DropdownSearchData(
+                                        searchController: textEditingController,
+                                        searchInnerWidgetHeight: 50,
+                                        searchInnerWidget: Container(
+                                          height: 50,
+                                          padding: const EdgeInsets.only(
+                                              top: 8,
+                                              bottom: 4,
+                                              right: 8,
+                                              left: 8),
+                                          child: TextFormField(
+                                            expands: true,
+                                            maxLines: null,
+                                            controller: textEditingController,
+                                            decoration: InputDecoration(
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 8),
+                                              hintText:
+                                                  'Search for an invoice...',
+                                              hintStyle:
+                                                  const TextStyle(fontSize: 12),
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8)),
                                             ),
                                           ),
-                                          SizedBox(height: 8),
-                                          Text('Rate: ₹${item['rate']}'),
-                                          Text('Quantity: ${item['quantity']}'),
-                                          Text(
-                                              'Discount: ${item['discount']}%'),
-                                          Text(
-                                              'Return Quantity: ${item['return_quantity']}'),
-                                          TextButton(
-                                            onPressed: () =>
-                                                showReturnQuantityDialog(item),
-                                            child:
-                                                Text('Enter Return Quantity'),
-                                          ),
-                                        ],
+                                        ),
+                                        searchMatchFn: (item, searchValue) {
+                                          return item.value
+                                              .toString()
+                                              .toLowerCase()
+                                              .contains(
+                                                  searchValue.toLowerCase());
+                                        },
                                       ),
+                                      onMenuStateChange: (isOpen) {
+                                        if (isOpen && nextPageUrl != null) {
+                                          fetchOrders(
+                                              loadMore:
+                                                  true); // Load more when dropdown opens
+                                        }
+                                        if (!isOpen) {
+                                          textEditingController.clear();
+                                        }
+                                      },
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        )
-                      else
-                        Text('No items available for the selected order.'),
-                    ],
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        TextFormField(
+                          controller:
+                              TextEditingController(text: manageStaffName),
+                          decoration: InputDecoration(
+                            labelText: 'Managed by',
+                            suffixIcon: Icon(Icons.lock),
+                            border: OutlineInputBorder(),
+                          ),
+                          enabled: false,
+                        ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          controller:
+                              TextEditingController(text: selectedInvoiceAddress),
+                          decoration: InputDecoration(
+                            labelText: 'Address',
+                            suffixIcon: Icon(Icons.lock),
+                            border: OutlineInputBorder(),
+                          ),
+                          enabled: false,
+                          maxLines: null, // Makes it flexible for multiple lines
+                        ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          controller: TextEditingController(text: createdAtDate),
+                          decoration: InputDecoration(
+                            labelText: 'Invoice Date',
+                            suffixIcon: Icon(Icons.lock),
+                            border: OutlineInputBorder(),
+                          ),
+                          enabled: false,
+                        ),
+                        SizedBox(height: 10),
+                        TextField(
+                          controller: returnreason,
+                          decoration: InputDecoration(
+                            labelText: 'Reason',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                          ),
+                        ),
+                        if (hasItems) // Show order items if they exist
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: orderItems.length,
+                            itemBuilder: (context, index) {
+                              final item = orderItems[index];
+                              return Card(
+                                color: Colors.white,
+                                elevation: 5,
+                                margin: EdgeInsets.all(8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (item['images'] != null &&
+                                          item['images'].isNotEmpty)
+                                        Image.network(
+                                          "$api${item['images']}",
+                                          width: 80,
+                                          height: 80,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Icon(Icons
+                                                .image_not_supported); // Fallback image or icon
+                                          },
+                                        ),
+                                      SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item['name'],
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text('Rate: ₹${item['rate']}'),
+                                            Text('Quantity: ${item['quantity']}'),
+                                            Text(
+                                                'Discount: ${item['discount']}%'),
+                                            Text(
+                                                'Return Quantity: ${item['return_quantity']}'),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  showReturnQuantityDialog(item),
+                                              child:
+                                                  Text('Enter Return Quantity'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        else
+                          Text('No items available for the selected order.'),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (selectedValue != null && orderItems.isNotEmpty) {
-                    PostGRV();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      backgroundColor: Colors.orange,
-                      content: Text(
-                          'Please select an order and ensure there are items to submit.'),
-                    ));
-                  }
-                },
-                child: Text("Submit"),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                ElevatedButton(
+                  onPressed: () {
+                    if (selectedValue != null && orderItems.isNotEmpty) {
+                      PostGRV();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        backgroundColor: Colors.orange,
+                        content: Text(
+                            'Please select an order and ensure there are items to submit.'),
+                      ));
+                    }
+                  },
+                  child: Text("Submit"),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),

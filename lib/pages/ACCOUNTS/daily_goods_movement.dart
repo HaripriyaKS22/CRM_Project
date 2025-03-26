@@ -163,20 +163,10 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
 
-           title: Text(
-          "Daily Goods Movement",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
@@ -200,217 +190,268 @@ else if(dep=="Warehouse Admin" ){
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
-
-}
-           
-          },
-        ),
-
-        actions: [
-            IconButton(
-              icon: Image.asset('lib/assets/profile.png'),
-               
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));
-                
-              },
-            ),
-          ],
-          
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+      
+             title: Text(
+            "Daily Goods Movement",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-
-  
-      body: Column(
-        children: [
-
-          // Padding(
-          //   padding: const EdgeInsets.all(10),
-          //   child: Container(
-          //           height: 46, 
-          //           decoration: BoxDecoration(
-          //             border: Border.all(
-          //   color: Colors.blue, 
-          //   width: 1.0, 
-          //             ),
-          //             borderRadius: BorderRadius.circular(8.0), 
-          //           ),
-          //           child: Row(
-          //             children: [
-          //   SizedBox(width: 25,),
-          //   Text(
-          //     '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-          //     style: TextStyle(fontSize:12,color:Color.fromARGB(255, 116, 116, 116)),
-          //   ),
-          //   SizedBox(width: 162,),
-          //   GestureDetector(
-          //     onTap: () {
-          //     _selectDate(context);
-          //       
-          //     },
-          //     child: Container(
-          //       padding: const EdgeInsets.only(left: 55),
-          //       child: Icon(Icons.date_range)),
-          //   ),
-          //             ],
-          //           ),
-          //         ),
-          // ),  
-
-           SizedBox(height: 10,),
-             Padding(
-               padding: const EdgeInsets.only(right: 10),
-               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                 children: [
-                   ElevatedButton(
-                     onPressed: () => _selectDateRange(context),
-                     style: ElevatedButton.styleFrom(
-                       backgroundColor: Colors.blue, // Set button color to grey
-                       shape: RoundedRectangleBorder(
-                         borderRadius: BorderRadius.circular(8), // Set the border radius
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async{
+                      final dep= await getdepFromPrefs();
+      if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+      else {
+      Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+              );
+      
+      }
+             
+            },
+          ),
+      
+          actions: [
+              IconButton(
+                icon: Image.asset('lib/assets/profile.png'),
+                 
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));
+                  
+                },
+              ),
+            ],
+            
+            ),
+      
+        
+        body: Column(
+          children: [
+      
+            // Padding(
+            //   padding: const EdgeInsets.all(10),
+            //   child: Container(
+            //           height: 46, 
+            //           decoration: BoxDecoration(
+            //             border: Border.all(
+            //   color: Colors.blue, 
+            //   width: 1.0, 
+            //             ),
+            //             borderRadius: BorderRadius.circular(8.0), 
+            //           ),
+            //           child: Row(
+            //             children: [
+            //   SizedBox(width: 25,),
+            //   Text(
+            //     '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+            //     style: TextStyle(fontSize:12,color:Color.fromARGB(255, 116, 116, 116)),
+            //   ),
+            //   SizedBox(width: 162,),
+            //   GestureDetector(
+            //     onTap: () {
+            //     _selectDate(context);
+            //       
+            //     },
+            //     child: Container(
+            //       padding: const EdgeInsets.only(left: 55),
+            //       child: Icon(Icons.date_range)),
+            //   ),
+            //             ],
+            //           ),
+            //         ),
+            // ),  
+      
+             SizedBox(height: 10,),
+               Padding(
+                 padding: const EdgeInsets.only(right: 10),
+                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                   children: [
+                     ElevatedButton(
+                       onPressed: () => _selectDateRange(context),
+                       style: ElevatedButton.styleFrom(
+                         backgroundColor: Colors.blue, // Set button color to grey
+                         shape: RoundedRectangleBorder(
+                           borderRadius: BorderRadius.circular(8), // Set the border radius
+                         ),
+                       ),
+                       child: Row(
+                         mainAxisSize: MainAxisSize.min, // Ensures the Row takes only as much space as needed
+                         children: [
+                           Icon(
+                             Icons.date_range, // Date range icon
+                             color: Colors.white, // Icon color to match the text
+                           ),
+                           SizedBox(width: 8), // Add some spacing between the icon and text
+                           Text(
+                             'Select Date Range',
+                             style: TextStyle(color: Colors.white), // Set text color to white
+                           ),
+                         ],
                        ),
                      ),
-                     child: Row(
-                       mainAxisSize: MainAxisSize.min, // Ensures the Row takes only as much space as needed
-                       children: [
-                         Icon(
-                           Icons.date_range, // Date range icon
-                           color: Colors.white, // Icon color to match the text
-                         ),
-                         SizedBox(width: 8), // Add some spacing between the icon and text
-                         Text(
-                           'Select Date Range',
-                           style: TextStyle(color: Colors.white), // Set text color to white
-                         ),
-                       ],
-                     ),
-                   ),
-                 ],
+                   ],
+                 ),
                ),
-             ),
-      
-                     
-          Expanded(
-            child: filteredOrders.isEmpty
-                ? Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    padding: EdgeInsets.all(8.0),
-                    itemCount: filteredOrders.length,
-                    itemBuilder: (context, index) {
-                      final item = filteredOrders[index];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 15),
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.blue.shade100, Colors.blue.shade300],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+        
+                       
+            Expanded(
+              child: filteredOrders.isEmpty
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: EdgeInsets.all(8.0),
+                      itemCount: filteredOrders.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredOrders[index];
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 15),
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.blue.shade100, Colors.blue.shade300],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.calendar_today, color: Colors.blue.shade700),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Shipped Date: ${item['shipped_date']}",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue.shade900,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.calendar_today, color: Colors.blue.shade700),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Shipped Date: ${item['shipped_date']}",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue.shade900,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                             SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.add_box, color: Colors.blue.shade700),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Total Boxes: ${item['total_boxes']}",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.blue.shade800,
+                                ],
+                              ),
+                               SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(Icons.add_box, color: Colors.blue.shade700),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Total Boxes: ${item['total_boxes']}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.blue.shade800,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Icon(Icons.fitness_center, color: Colors.blue.shade700),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Total Weight: ${item['total_weight']} kg",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.blue.shade800,
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Icon(Icons.fitness_center, color: Colors.blue.shade700),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Total Weight: ${item['total_weight']} kg",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.blue.shade800,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Icon(Icons.fitness_center_sharp, color: Colors.blue.shade700),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Volume Weight: ${item['total_volume_weight']} kg",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.blue.shade800,
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Icon(Icons.fitness_center_sharp, color: Colors.blue.shade700),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Volume Weight: ${item['total_volume_weight']} kg",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.blue.shade800,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Icon(Icons.attach_money, color: Colors.blue.shade700),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Shipping Charge: ₹${item['total_shipping_charge']}",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.blue.shade800,
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Icon(Icons.attach_money, color: Colors.blue.shade700),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Shipping Charge: ₹${item['total_shipping_charge']}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.blue.shade800,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-SizedBox(height: 10),
-                            ElevatedButton(onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>Dgm(shipped_date: item['shipped_date'])));
-                            }, child: Text("View")),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                                ],
+                              ),
+      SizedBox(height: 10),
+                              ElevatedButton(onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Dgm(shipped_date: item['shipped_date'])));
+                              }, child: Text("View")),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }}

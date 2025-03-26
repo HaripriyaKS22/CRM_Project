@@ -43,6 +43,7 @@ class _View_CartState extends State<View_Cart> {
   }
 var dep;
   Future<void> fetchCartData() async {
+    print("fetching cart data");
     try {
       final token = await getTokenFromPrefs();
       dep= await getdepFromPrefs();
@@ -55,9 +56,7 @@ var dep;
         },
       );
 
-      ;
-      ;
-
+     print("cart data: ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final List<dynamic> cartsData = parsed['data'];

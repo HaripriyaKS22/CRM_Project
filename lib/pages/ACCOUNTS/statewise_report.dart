@@ -14,6 +14,8 @@ import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -513,254 +515,295 @@ Future<void> getstatewisereport() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
 Widget build(BuildContext context) {
-  return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "State Wise Report",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.date_range),
-            onPressed: () => _selectDateRange(context),
+  return WillPopScope(
+     onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+    child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "State Wise Report",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-        ],
-      ),
-       
-    body: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: searchController,
-            decoration: InputDecoration(
-              hintText: "Search...",
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: BorderSide(
-                  color: Colors.blue, // Set your desired border color here
-                  width: 2.0, // Set the border width
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: BorderSide(
-                  color: Colors.blue, // Border color when TextField is not focused
-                  width: 2.0,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: BorderSide(
-                  color: Colors.blueAccent, // Border color when TextField is focused
-                  width: 2.0,
-                ),
-              ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+              if(dep=="BDO" ){
+     Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+    
+    }
+    else if(dep=="BDM" ){
+     Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+    }
+    else if(dep=="warehouse" ){
+     Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+    }
+    else if(dep=="Warehouse Admin" ){
+     Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+    }
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.date_range),
+              onPressed: () => _selectDateRange(context),
             ),
-            onChanged: _filterProducts,
-          ),
+          ],
         ),
+         
+      body: Column(
+        children: [
           Padding(
-                        padding: const EdgeInsets.only(right: 10,left: 10),
-                        child: Container(
-                          
-                          height: 49,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.blue),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 20),
-                              Container(
-                                width: 276,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child: DropdownButton<int>(
-                                    value: selectedstaffId,
-                                      isExpanded: true,
-                                    underline: Container(), // This removes the underline
-                                    onChanged: (int? newValue) {
-                                      setState(() {
-                                        selectedstaffId = newValue!;
-                                        
-                                        _filterOrdersByStaffId();
-                                      });
-                                    },
-                                    items: sta.map<DropdownMenuItem<int>>((staff) {
-                                      return DropdownMenuItem<int>(
-                                        value:staff['id'],
-                                        child: Text(staff['name'],style: TextStyle(fontSize: 12),),
-                                      );
-                                    }).toList(),
-                                    icon: Container(
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: "Search...",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide(
+                    color: Colors.blue, // Set your desired border color here
+                    width: 2.0, // Set the border width
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide(
+                    color: Colors.blue, // Border color when TextField is not focused
+                    width: 2.0,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide(
+                    color: Colors.blueAccent, // Border color when TextField is focused
+                    width: 2.0,
+                  ),
+                ),
+              ),
+              onChanged: _filterProducts,
+            ),
+          ),
+            Padding(
+                          padding: const EdgeInsets.only(right: 10,left: 10),
+                          child: Container(
+                            
+                            height: 49,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blue),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Row(
+                              children: [
+                                SizedBox(width: 20),
+                                Container(
+                                  width: 276,
+                                  child: InputDecorator(
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: '',
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                                    ),
+                                    child: DropdownButton<int>(
+                                      value: selectedstaffId,
+                                        isExpanded: true,
+                                      underline: Container(), // This removes the underline
+                                      onChanged: (int? newValue) {
+                                        setState(() {
+                                          selectedstaffId = newValue!;
+                                          
+                                          _filterOrdersByStaffId();
+                                        });
+                                      },
+                                      items: sta.map<DropdownMenuItem<int>>((staff) {
+                                        return DropdownMenuItem<int>(
+                                          value:staff['id'],
+                                          child: Text(staff['name'],style: TextStyle(fontSize: 12),),
+                                        );
+                                      }).toList(),
+                                      icon: Container(
+                                        alignment: Alignment.centerRight,
+                                        child: Icon(Icons.arrow_drop_down), // Dropdown arrow icon
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RefreshIndicator(
-              onRefresh: getstatewisereport, // Trigger data reload when the user swipes down
-              child: ListView.builder(
-                itemCount: filteredData.length, // Use filteredData here
-                itemBuilder: (context, index) {
-                  final stateData = filteredData[index];
-                  return Card(
-                    color: Colors.white,
-                    elevation: 4, // Adds shadow
-                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15), // Rounded edges
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0), // Padding inside the card
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // State name with a bold header
-                          Text(
-                            stateData["name"],
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black, // Highlight color
+                              ],
                             ),
                           ),
-                          const Divider(), // Separator line
-                          const SizedBox(height: 0), // Space between items
-                          
-                          // Data rows with icons
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Colors.blue,
-                              ),
-                              SizedBox(width: 5),
-                              Text("Completed Orders: ${stateData["completed_orders_count"]} "),
-                              Spacer(),
-                              Text("₹ ${stateData["completed_amount"]}")
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.cancel,
-                                color: Colors.blue,
-                              ),
-                              SizedBox(width: 5),
-                              Text("Cancelled Orders: ${stateData["cancelled_orders_count"]} "),
-                              Spacer(),
-                              Text("₹ ${stateData["cancelled_amount"]}")
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.undo,
-                                color: Colors.blue,
-                              ),
-                              SizedBox(width: 5),
-                              Text("Refunded Orders: ${stateData["refunded_orders_count"]} "),
-                              Spacer(),
-                              Text("₹ ${stateData["refunded_amount"]}")
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.block,
-                                color: Colors.blue,
-                              ),
-                              SizedBox(width: 5),
-                              Text("Returned Orders: ${stateData["returned_orders_count"]} "),
-                              Spacer(),
-                              Text("₹ ${stateData["returned_amount"]}")
-                            ],
-                          ),
-                          SizedBox(height: 2),
-                          Divider(),
-                          SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.summarize,
-                                color: Colors.grey,
-                              ),
-                              SizedBox(width: 5),
-                              Text("Total Orders: ${stateData["total_orders_count"]} "),
-                              Spacer(),
-                              Text("₹ ${stateData["total_amount"]}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
-                            ],
-                          ),
-                        ],
+                        ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RefreshIndicator(
+                onRefresh: getstatewisereport, // Trigger data reload when the user swipes down
+                child: ListView.builder(
+                  itemCount: filteredData.length, // Use filteredData here
+                  itemBuilder: (context, index) {
+                    final stateData = filteredData[index];
+                    return Card(
+                      color: Colors.white,
+                      elevation: 4, // Adds shadow
+                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15), // Rounded edges
                       ),
-                    ),
-                  );
-                },
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0), // Padding inside the card
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // State name with a bold header
+                            Text(
+                              stateData["name"],
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black, // Highlight color
+                              ),
+                            ),
+                            const Divider(), // Separator line
+                            const SizedBox(height: 0), // Space between items
+                            
+                            // Data rows with icons
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(width: 5),
+                                Text("Completed Orders: ${stateData["completed_orders_count"]} "),
+                                Spacer(),
+                                Text("₹ ${stateData["completed_amount"]}")
+                              ],
+                            ),
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(width: 5),
+                                Text("Cancelled Orders: ${stateData["cancelled_orders_count"]} "),
+                                Spacer(),
+                                Text("₹ ${stateData["cancelled_amount"]}")
+                              ],
+                            ),
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.undo,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(width: 5),
+                                Text("Refunded Orders: ${stateData["refunded_orders_count"]} "),
+                                Spacer(),
+                                Text("₹ ${stateData["refunded_amount"]}")
+                              ],
+                            ),
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.block,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(width: 5),
+                                Text("Returned Orders: ${stateData["returned_orders_count"]} "),
+                                Spacer(),
+                                Text("₹ ${stateData["returned_amount"]}")
+                              ],
+                            ),
+                            SizedBox(height: 2),
+                            Divider(),
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.summarize,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(width: 5),
+                                Text("Total Orders: ${stateData["total_orders_count"]} "),
+                                Spacer(),
+                                Text("₹ ${stateData["total_amount"]}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }

@@ -5,6 +5,8 @@ import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:intl/intl.dart'; // Import the intl package for date formatting
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/api.dart';
@@ -335,205 +337,247 @@ class _expence_listState extends State<expence_list> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
-      appBar: AppBar(
-        title: Text(
-          "Expense List",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () => _selectSingleDate(context),
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Color.fromARGB(242, 255, 255, 255),
+        appBar: AppBar(
+          title: Text(
+            "Expense List",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-          IconButton(
-            icon: Icon(Icons.date_range),
-            onPressed: () => _selectDateRange(context),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: .0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 1.0),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: DropdownButton<String>(
-                value: selectedpurpose,
-                hint: Text('Select an option'),
-                isExpanded: true,
-                underline: SizedBox(),
-                items: purposesofpay.map((purpose) {
-                  return DropdownMenuItem<String>(
-                    value: purpose['name'],
-                    child: Text(purpose['name']),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedpurpose = newValue;
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
-                    if (selectedpurpose == null ||
-                        selectedpurpose!.isEmpty ||
-                        selectedpurpose == "Others") {
-                      expensedata = List.from(originalExpensedata);
-                    } else {
-                      expensedata = originalExpensedata.where((expense) {
-                        return expense['purpose_of_payment']
-                            .toString()
-                            .toLowerCase()
-                            .contains(selectedpurpose!.toLowerCase());
-                      }).toList();
-                    }
-                  });
-                },
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+} else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.calendar_today),
+              onPressed: () => _selectSingleDate(context),
+            ),
+            IconButton(
+              icon: Icon(Icons.date_range),
+              onPressed: () => _selectDateRange(context),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: .0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blue, width: 1.0),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: DropdownButton<String>(
+                  value: selectedpurpose,
+                  hint: Text('Select an option'),
+                  isExpanded: true,
+                  underline: SizedBox(),
+                  items: purposesofpay.map((purpose) {
+                    return DropdownMenuItem<String>(
+                      value: purpose['name'],
+                      child: Text(purpose['name']),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedpurpose = newValue;
+      
+                      if (selectedpurpose == null ||
+                          selectedpurpose!.isEmpty ||
+                          selectedpurpose == "Others") {
+                        expensedata = List.from(originalExpensedata);
+                      } else {
+                        expensedata = originalExpensedata.where((expense) {
+                          return expense['purpose_of_payment']
+                              .toString()
+                              .toLowerCase()
+                              .contains(selectedpurpose!.toLowerCase());
+                        }).toList();
+                      }
+                    });
+                  },
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: expensedata.isEmpty
-                ? Center(child: CircularProgressIndicator())
-                : RefreshIndicator(
-                    onRefresh: () async {
-                      await getexpenselist();
-                    },
-                    child: ListView.builder(
-                      itemCount: expensedata.length,
-                      itemBuilder: (context, index) {
-                        final expense = expensedata[index];
-                        return Card(
-                          color: Colors.white,
-                          elevation: 4,
-                          margin: EdgeInsets.all(10),
-                          child: Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Purpose of Payment: ${expense['purpose_of_payment']}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Amount: ₹${expense['amount']}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-
-                                Text(
-                                  'Company: ${expense['company_name'] ?? 'Unknown'}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                Text(
-                                  'Payed By: ${expense['payed_by_name'] ?? 'Unknown'}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-
-                                Text(
-                                  'Bank: ${getNameById(bank, expense['bank'])}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-
-                                // Text(
-                                //   'Payed By: ${getNameById(sta, expense['payed_by'] ?? -1)}',
-                                //   style: TextStyle(fontSize: 14),
-                                // ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'Added By: ${expense['added_by'] ?? 'Unknown'}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                Text(
-                                  'Transaction Id: ${expense['transaction_id']}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Expense Date: ${expense['expense_date']}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                SizedBox(height: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                update_expence(
-                                                    id: expense['id'])));
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 10),
-                                  ),
-                                  child: const Text(
-                                    "View",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+            Expanded(
+              child: expensedata.isEmpty
+                  ? Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        await getexpenselist();
                       },
+                      child: ListView.builder(
+                        itemCount: expensedata.length,
+                        itemBuilder: (context, index) {
+                          final expense = expensedata[index];
+                          return Card(
+                            color: Colors.white,
+                            elevation: 4,
+                            margin: EdgeInsets.all(10),
+                            child: Padding(
+                              padding: const EdgeInsets.all(15),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Purpose of Payment: ${expense['purpose_of_payment']}',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Amount: ₹${expense['amount']}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+      
+                                  Text(
+                                    'Company: ${expense['company_name'] ?? 'Unknown'}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  Text(
+                                    'Payed By: ${expense['payed_by_name'] ?? 'Unknown'}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+      
+                                  Text(
+                                    'Bank: ${getNameById(bank, expense['bank'])}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+      
+                                  // Text(
+                                  //   'Payed By: ${getNameById(sta, expense['payed_by'] ?? -1)}',
+                                  //   style: TextStyle(fontSize: 14),
+                                  // ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Added By: ${expense['added_by'] ?? 'Unknown'}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  Text(
+                                    'Transaction Id: ${expense['transaction_id']}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Expense Date: ${expense['expense_date']}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  SizedBox(height: 20),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  update_expence(
+                                                      id: expense['id'])));
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 10),
+                                    ),
+                                    child: const Text(
+                                      "View",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

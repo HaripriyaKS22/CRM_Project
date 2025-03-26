@@ -7,6 +7,8 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -299,694 +301,734 @@ void logout() async {
     return prefs.getString('department');
   }
   // String selectstate = "Kerala";
+  Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
-      appBar: AppBar(
-        title: Text(
-          "Add Customer",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
+    return WillPopScope(
+      onWillPop: () async {
+        // Trigger the navigation logic when the back swipe occurs
+        _navigateBack();
+        return false; // Prevent the default back navigation behavior
+      },
+      child: Scaffold(
+        backgroundColor: Color.fromARGB(242, 255, 255, 255),
+        appBar: AppBar(
+          title: Text(
+            "Add Customer",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-        ],
-      ),
-       
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 30, left: 12, right: 12),
-          child: Container(
-            width: double.infinity,
-            color: Colors.white,
-            child: Column(
-              children: [
-                SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(left: 75),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Add New Customer ",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 15),
-               SizedBox(
-  height: 400, // Increased height to accommodate new dropdown
-  width: 340,
-  child: Card(
-    elevation: 4,
-    child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
-        border: Border.all(color: Color.fromARGB(255, 236, 236, 236)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(13.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // New Dropdown added here
-            Text(
-              "Select Type",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child:DropdownButton<String>(
-  value: categories.contains(selectedCategory) ? selectedCategory : null, // Ensure valid selection
-  isExpanded: true,
-  underline: SizedBox(),
-  onChanged: (String? newValue) {
-    setState(() {
-      selectedCategory = newValue!;
-    });
-  },
-  items: categories.map<DropdownMenuItem<String>>((String category) {
-    return DropdownMenuItem<String>(
-      value: category,
-      child: Text(category),
-    );
-  }).toList(),
-  icon: Icon(Icons.arrow_drop_down),
-),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+            if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
-            ),
-
-            SizedBox(height: 15),
-
-            Text(
-              "GSTIN Number",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              controller: gstno,
-              decoration: InputDecoration(
-                labelText: 'AAA00',
-                prefixIcon: Icon(Icons.numbers),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-              ),
-            ),
-
-            SizedBox(height: 10),
-
-            Text(
-              "Name of Customer",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              controller: name,
-              decoration: InputDecoration(
-                labelText: 'Name of customer',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-              ),
-            ),
-
-            SizedBox(height: 10),
-
-            Text(
-              "Technical Manager",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Container(
-              width: 310,
-              height: 49,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  SizedBox(width: 20),
-                  Flexible(
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 1),
-                      ),
-                      child: DropdownButton<Map<String, dynamic>>(
-                        value: manager.isNotEmpty
-                            ? manager.firstWhere(
-                                (element) => element['id'] == selectedManagerId,
-                                orElse: () => manager[0],
-                              )
-                            : null,
-                        underline: Container(),
-                        onChanged: manager.isNotEmpty
-                            ? (Map<String, dynamic>? newValue) {
-                                setState(() {
-                                  selectedManagerName = newValue!['name'];
-                                  selectedManagerId = newValue['id'];
-                                });
-                              }
-                            : null,
-                        items: manager.isNotEmpty
-                            ? manager.map<DropdownMenuItem<Map<String, dynamic>>>(
-                                (Map<String, dynamic> manager) {
-                                  return DropdownMenuItem<Map<String, dynamic>>(
-                                    value: manager,
-                                    child: Text(manager['name']),
-                                  );
-                                },
-                              ).toList()
-                            : [
-                                DropdownMenuItem(
-                                  child: Text('No managers available'),
-                                  value: null,
-                                ),
-                              ],
-                        icon: Container(
-                          alignment: Alignment.centerRight,
-                          child: Icon(Icons.arrow_drop_down),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {},
             ),
           ],
         ),
-      ),
-    ),
-  ),
-),
-
-
-                SizedBox(height: 5),
-                // SizedBox(
-                //   height: 200,
-                //   width: 340,
-                //   child: Card(
-                //     elevation: 3,
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(10.0),
-                //     ),
-                //     child: Container(
-                //       decoration: BoxDecoration(
-                //         color: Colors.white,
-                //         borderRadius: BorderRadius.circular(10.0),
-                //         border: Border.all(
-                //             color: Color.fromARGB(255, 236, 236, 236)),
-                //       ),
-                //       child: Padding(
-                //         padding: const EdgeInsets.all(10.0),
-                //         child: Column(
-                //           crossAxisAlignment: CrossAxisAlignment.start,
-                //           children: [
-                //             Text("Administrative information ",
-                //                 style: TextStyle(
-                //                     fontSize: 15, fontWeight: FontWeight.bold)),
-                //             SizedBox(height: 20),
-                //             TextField(
-                //               decoration: InputDecoration(
-                //                 labelText: 'Naf code',
-                //                 border: OutlineInputBorder(
-                //                   borderRadius: BorderRadius.circular(10.0),
-                //                   borderSide: BorderSide(color: Colors.grey),
-                //                 ),
-                //                 contentPadding:
-                //                     EdgeInsets.symmetric(vertical: 8.0),
-                //               ),
-                //             ),
-                //             SizedBox(height: 10),
-                //             TextField(
-                //               decoration: InputDecoration(
-                //                 labelText: 'VAT number',
-                //                 border: OutlineInputBorder(
-                //                   borderRadius: BorderRadius.circular(10.0),
-                //                   borderSide: BorderSide(color: Colors.grey),
-                //                 ),
-                //                 contentPadding:
-                //                     EdgeInsets.symmetric(vertical: 8.0),
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                SizedBox(height: 15),
-                // Continue adding form elements here
-                SizedBox(height: 15),
-                SizedBox(
-                  height: 690,
-                  width: 340,
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+         
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 30, left: 12, right: 12),
+            child: Container(
+              width: double.infinity,
+              color: Colors.white,
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 75),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Add New Customer ",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 236, 236, 236)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Client information ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 20),
-                            // Text("Discount : ",
-                            //     style: TextStyle(
-                            //         fontSize: 15, fontWeight: FontWeight.bold)),
-                            // SizedBox(height: 10),
-                            // TextField(
-                            //   decoration: InputDecoration(
-                            //     labelText: 'Discount ',
-                            //     border: OutlineInputBorder(
-                            //       borderRadius: BorderRadius.circular(10.0),
-                            //       borderSide: BorderSide(color: Colors.grey),
-                            //     ),
-                            //     contentPadding:
-                            //         EdgeInsets.symmetric(vertical: 8.0),
-                            //   ),
-                            // ),
-                            // SizedBox(height: 10),
-                            Text("Phone Number * : ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: phone,
-                              decoration: InputDecoration(
-                                labelText: 'Phone Number',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Alternate Number : ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: altphone,
-                              decoration: InputDecoration(
-                                labelText: 'Alternate Number',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Mail Id : ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: email,
-                              decoration: InputDecoration(
-                                labelText: 'Mail Id',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
-                            SizedBox(height: 30),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  height: 1,
-                                  width: 300,
-                                  color: Color.fromARGB(255, 215, 201, 201),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                            Text("Address/Building Name/ Building Number ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 13),
-                            TextField(
-                              controller: address,
-                              decoration: InputDecoration(
-                                labelText: 'Address',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Zip code",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 10),
-                                    Container(
-                                      width: 144,
-                                      child: TextField(
-                                        controller: zipcode,
-                                        decoration: InputDecoration(
-                                          labelText: 'Zip code',
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide:
-                                                BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 8.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  width: 13,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("City",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 10),
-                                    Container(
-                                      width: 144,
-                                      child: TextField(
-                                        controller: city,
-                                        decoration: InputDecoration(
-                                          labelText: 'City',
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide:
-                                                BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 8.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Text("State *:",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                           Container(
-  width: double.infinity, // Use full width available
-  height: 49,
-  decoration: BoxDecoration(
-    border: Border.all(color: Colors.grey),
-    borderRadius: BorderRadius.circular(10),
-  ),
-  child: InputDecorator(
-    decoration: InputDecoration(
-      border: InputBorder.none,
-      contentPadding: EdgeInsets.symmetric(horizontal: 10), // Adjust padding as needed
-    ),
-    child: DropdownButtonHideUnderline(
-      child: DropdownButton<Map<String, dynamic>>(
-        value: statess.isNotEmpty
-            ? statess.firstWhere(
-                (element) => element['name'] == selectstate,
-                orElse: () => statess[0],
-              )
-            : null,
-        onChanged: statess.isNotEmpty
-            ? (Map<String, dynamic>? newValue) {
-                setState(() {
-                  selectstate = newValue!['name'];
-                  selectedStateId = newValue['id']; // Store the selected state's ID
-                  
-                  
-                });
-              }
-            : null,
-        items: statess.isNotEmpty
-            ? statess.map<DropdownMenuItem<Map<String, dynamic>>>(
-                (Map<String, dynamic> state) {
-                  return DropdownMenuItem<Map<String, dynamic>>(
-                    value: state,
-                    child: Text(state['name']),
-                  );
-                },
-              ).toList()
-            : [
-                DropdownMenuItem(
-                  child: Text('No states available'),
-                  value: null,
+                  ),
+                  SizedBox(height: 15),
+                 SizedBox(
+        height: 400, // Increased height to accommodate new dropdown
+        width: 340,
+        child: Card(
+      elevation: 4,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(color: Color.fromARGB(255, 236, 236, 236)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(13.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // New Dropdown added here
+              Text(
+                "Select Type",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
+                child:DropdownButton<String>(
+        value: categories.contains(selectedCategory) ? selectedCategory : null, // Ensure valid selection
+        isExpanded: true,
+        underline: SizedBox(),
+        onChanged: (String? newValue) {
+      setState(() {
+        selectedCategory = newValue!;
+      });
+        },
+        items: categories.map<DropdownMenuItem<String>>((String category) {
+      return DropdownMenuItem<String>(
+        value: category,
+        child: Text(category),
+      );
+        }).toList(),
         icon: Icon(Icons.arrow_drop_down),
-        isExpanded: true, // Ensure dropdown takes full width
       ),
-    ),
-  ),
-),
-
-                            // SizedBox(height: 20),
-                            // Text("Country ",
-                            //     style: TextStyle(
-                            //         fontSize: 15, fontWeight: FontWeight.bold)),
-                            // SizedBox(height: 10),
-                            // TextField(
-                            //   decoration: InputDecoration(
-                            //     labelText: 'Country',
-                            //     border: OutlineInputBorder(
-                            //       borderRadius: BorderRadius.circular(10.0),
-                            //       borderSide: BorderSide(color: Colors.grey),
-                            //     ),
-                            //     contentPadding:
-                            //         EdgeInsets.symmetric(vertical: 8.0),
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                      ),
-                    ),
+      
+              ),
+      
+              SizedBox(height: 15),
+      
+              Text(
+                "GSTIN Number",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: gstno,
+                decoration: InputDecoration(
+                  labelText: 'AAA00',
+                  prefixIcon: Icon(Icons.numbers),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
                   ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 8.0),
                 ),
-                SizedBox(height: 15),
-                SizedBox(
-                  height: 150,
-                  width: 340,
-                  child: Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 236, 236, 236)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Comment ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 20),
-                            TextField(
-                              controller: comment,
-                              decoration: InputDecoration(
-                                labelText: 'Enter',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                              maxLines: null,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+              ),
+      
+              SizedBox(height: 10),
+      
+              Text(
+                "Name of Customer",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: name,
+                decoration: InputDecoration(
+                  labelText: 'Name of customer',
+                  prefixIcon: Icon(Icons.person),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
                   ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 8.0),
                 ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ),
+      
+              SizedBox(height: 10),
+      
+              Text(
+                "Technical Manager",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: 310,
+                height: 49,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
                   children: [
-                    Container(
-                      height: 1,
-                      width: 300,
-                      color: Color.fromARGB(255, 215, 201, 201),
+                    SizedBox(width: 20),
+                    Flexible(
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 1),
+                        ),
+                        child: DropdownButton<Map<String, dynamic>>(
+                          value: manager.isNotEmpty
+                              ? manager.firstWhere(
+                                  (element) => element['id'] == selectedManagerId,
+                                  orElse: () => manager[0],
+                                )
+                              : null,
+                          underline: Container(),
+                          onChanged: manager.isNotEmpty
+                              ? (Map<String, dynamic>? newValue) {
+                                  setState(() {
+                                    selectedManagerName = newValue!['name'];
+                                    selectedManagerId = newValue['id'];
+                                  });
+                                }
+                              : null,
+                          items: manager.isNotEmpty
+                              ? manager.map<DropdownMenuItem<Map<String, dynamic>>>(
+                                  (Map<String, dynamic> manager) {
+                                    return DropdownMenuItem<Map<String, dynamic>>(
+                                      value: manager,
+                                      child: Text(manager['name']),
+                                    );
+                                  },
+                                ).toList()
+                              : [
+                                  DropdownMenuItem(
+                                    child: Text('No managers available'),
+                                    value: null,
+                                  ),
+                                ],
+                          icon: Container(
+                            alignment: Alignment.centerRight,
+                            child: Icon(Icons.arrow_drop_down),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 13),
-                Padding(
-                  padding: const EdgeInsets.only(left: 120),
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Your onPressed logic goes here
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 164, 164, 164),
-                          ),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          fixedSize: MaterialStateProperty.all<Size>(
-                            Size(85, 15),
+              ),
+            ],
+          ),
+        ),
+      ),
+        ),
+      ),
+      
+      
+                  SizedBox(height: 5),
+                  // SizedBox(
+                  //   height: 200,
+                  //   width: 340,
+                  //   child: Card(
+                  //     elevation: 3,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(10.0),
+                  //     ),
+                  //     child: Container(
+                  //       decoration: BoxDecoration(
+                  //         color: Colors.white,
+                  //         borderRadius: BorderRadius.circular(10.0),
+                  //         border: Border.all(
+                  //             color: Color.fromARGB(255, 236, 236, 236)),
+                  //       ),
+                  //       child: Padding(
+                  //         padding: const EdgeInsets.all(10.0),
+                  //         child: Column(
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: [
+                  //             Text("Administrative information ",
+                  //                 style: TextStyle(
+                  //                     fontSize: 15, fontWeight: FontWeight.bold)),
+                  //             SizedBox(height: 20),
+                  //             TextField(
+                  //               decoration: InputDecoration(
+                  //                 labelText: 'Naf code',
+                  //                 border: OutlineInputBorder(
+                  //                   borderRadius: BorderRadius.circular(10.0),
+                  //                   borderSide: BorderSide(color: Colors.grey),
+                  //                 ),
+                  //                 contentPadding:
+                  //                     EdgeInsets.symmetric(vertical: 8.0),
+                  //               ),
+                  //             ),
+                  //             SizedBox(height: 10),
+                  //             TextField(
+                  //               decoration: InputDecoration(
+                  //                 labelText: 'VAT number',
+                  //                 border: OutlineInputBorder(
+                  //                   borderRadius: BorderRadius.circular(10.0),
+                  //                   borderSide: BorderSide(color: Colors.grey),
+                  //                 ),
+                  //                 contentPadding:
+                  //                     EdgeInsets.symmetric(vertical: 8.0),
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  SizedBox(height: 15),
+                  // Continue adding form elements here
+                  SizedBox(height: 15),
+                  SizedBox(
+                    height: 690,
+                    width: 340,
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                              color: Color.fromARGB(255, 236, 236, 236)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Client information ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 20),
+                              // Text("Discount : ",
+                              //     style: TextStyle(
+                              //         fontSize: 15, fontWeight: FontWeight.bold)),
+                              // SizedBox(height: 10),
+                              // TextField(
+                              //   decoration: InputDecoration(
+                              //     labelText: 'Discount ',
+                              //     border: OutlineInputBorder(
+                              //       borderRadius: BorderRadius.circular(10.0),
+                              //       borderSide: BorderSide(color: Colors.grey),
+                              //     ),
+                              //     contentPadding:
+                              //         EdgeInsets.symmetric(vertical: 8.0),
+                              //   ),
+                              // ),
+                              // SizedBox(height: 10),
+                              Text("Phone Number * : ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                              TextField(
+                                controller: phone,
+                                decoration: InputDecoration(
+                                  labelText: 'Phone Number',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text("Alternate Number : ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                              TextField(
+                                controller: altphone,
+                                decoration: InputDecoration(
+                                  labelText: 'Alternate Number',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text("Mail Id : ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                              TextField(
+                                controller: email,
+                                decoration: InputDecoration(
+                                  labelText: 'Mail Id',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
+                                ),
+                              ),
+                              SizedBox(height: 30),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    height: 1,
+                                    width: 300,
+                                    color: Color.fromARGB(255, 215, 201, 201),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 20),
+                              Text("Address/Building Name/ Building Number ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 13),
+                              TextField(
+                                controller: address,
+                                decoration: InputDecoration(
+                                  labelText: 'Address',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Zip code",
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 10),
+                                      Container(
+                                        width: 144,
+                                        child: TextField(
+                                          controller: zipcode,
+                                          decoration: InputDecoration(
+                                            labelText: 'Zip code',
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              borderSide:
+                                                  BorderSide(color: Colors.grey),
+                                            ),
+                                            contentPadding: EdgeInsets.symmetric(
+                                                vertical: 8.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 13,
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("City",
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 10),
+                                      Container(
+                                        width: 144,
+                                        child: TextField(
+                                          controller: city,
+                                          decoration: InputDecoration(
+                                            labelText: 'City',
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              borderSide:
+                                                  BorderSide(color: Colors.grey),
+                                            ),
+                                            contentPadding: EdgeInsets.symmetric(
+                                                vertical: 8.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Text("State *:",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                             Container(
+        width: double.infinity, // Use full width available
+        height: 49,
+        decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey),
+      borderRadius: BorderRadius.circular(10),
+        ),
+        child: InputDecorator(
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 10), // Adjust padding as needed
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<Map<String, dynamic>>(
+          value: statess.isNotEmpty
+              ? statess.firstWhere(
+                  (element) => element['name'] == selectstate,
+                  orElse: () => statess[0],
+                )
+              : null,
+          onChanged: statess.isNotEmpty
+              ? (Map<String, dynamic>? newValue) {
+                  setState(() {
+                    selectstate = newValue!['name'];
+                    selectedStateId = newValue['id']; // Store the selected state's ID
+                    
+                    
+                  });
+                }
+              : null,
+          items: statess.isNotEmpty
+              ? statess.map<DropdownMenuItem<Map<String, dynamic>>>(
+                  (Map<String, dynamic> state) {
+                    return DropdownMenuItem<Map<String, dynamic>>(
+                      value: state,
+                      child: Text(state['name']),
+                    );
+                  },
+                ).toList()
+              : [
+                  DropdownMenuItem(
+                    child: Text('No states available'),
+                    value: null,
+                  ),
+                ],
+          icon: Icon(Icons.arrow_drop_down),
+          isExpanded: true, // Ensure dropdown takes full width
+        ),
+      ),
+        ),
+      ),
+      
+                              // SizedBox(height: 20),
+                              // Text("Country ",
+                              //     style: TextStyle(
+                              //         fontSize: 15, fontWeight: FontWeight.bold)),
+                              // SizedBox(height: 10),
+                              // TextField(
+                              //   decoration: InputDecoration(
+                              //     labelText: 'Country',
+                              //     border: OutlineInputBorder(
+                              //       borderRadius: BorderRadius.circular(10.0),
+                              //       borderSide: BorderSide(color: Colors.grey),
+                              //     ),
+                              //     contentPadding:
+                              //         EdgeInsets.symmetric(vertical: 8.0),
+                              //   ),
+                              // ),
+                            ],
                           ),
                         ),
-                        child: Text("Close",
-                            style: TextStyle(color: Colors.white)),
                       ),
-                      SizedBox(width: 13),
-                     ElevatedButton(
-  onPressed: () {
-    if (selectedManagerId != null && selectedStateId != null) {
-      addcustomer(
-        gstno.text,
-        name.text,
-        selectedManagerId!.toString(),
-        selectedStateId!.toString(),
-        phone.text,
-        altphone.text,
-        email.text,
-        address.text,
-        zipcode.text,
-        city.text,
-        states.text,
-        comment.text,
-        context,
-      );
-    } else {
-      // Show an error message if either ID is null
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Please select both manager and state.'),
-        ),
-      );
-    }
-  },
-  style: ButtonStyle(
-    backgroundColor: MaterialStateProperty.all<Color>(
-      Color.fromARGB(255, 244, 66, 66),
-    ),
-    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-    fixedSize: MaterialStateProperty.all<Size>(
-      Size(95, 15),
-    ),
-  ),
-  child: Text("Submit", style: TextStyle(color: Colors.white)),
-),
-
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  SizedBox(
+                    height: 150,
+                    width: 340,
+                    child: Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                              color: Color.fromARGB(255, 236, 236, 236)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Comment ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 20),
+                              TextField(
+                                controller: comment,
+                                decoration: InputDecoration(
+                                  labelText: 'Enter',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
+                                ),
+                                maxLines: null,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 1,
+                        width: 300,
+                        color: Color.fromARGB(255, 215, 201, 201),
+                      ),
                     ],
                   ),
-                ),
-                SizedBox(height: 35),
-              ],
+                  SizedBox(height: 13),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 120),
+                    child: Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            // Your onPressed logic goes here
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Color.fromARGB(255, 164, 164, 164),
+                            ),
+                            shape:
+                                MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            fixedSize: MaterialStateProperty.all<Size>(
+                              Size(85, 15),
+                            ),
+                          ),
+                          child: Text("Close",
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                        SizedBox(width: 13),
+                       ElevatedButton(
+        onPressed: () {
+      if (selectedManagerId != null && selectedStateId != null) {
+        addcustomer(
+          gstno.text,
+          name.text,
+          selectedManagerId!.toString(),
+          selectedStateId!.toString(),
+          phone.text,
+          altphone.text,
+          email.text,
+          address.text,
+          zipcode.text,
+          city.text,
+          states.text,
+          comment.text,
+          context,
+        );
+      } else {
+        // Show an error message if either ID is null
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Please select both manager and state.'),
+          ),
+        );
+      }
+        },
+        style: ButtonStyle(
+      backgroundColor: MaterialStateProperty.all<Color>(
+        Color.fromARGB(255, 244, 66, 66),
+      ),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      fixedSize: MaterialStateProperty.all<Size>(
+        Size(95, 15),
+      ),
+        ),
+        child: Text("Submit", style: TextStyle(color: Colors.white)),
+      ),
+      
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 35),
+                ],
+              ),
             ),
           ),
         ),

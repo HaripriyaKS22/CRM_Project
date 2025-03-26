@@ -6,6 +6,8 @@ import 'package:beposoft/pages/ACCOUNTS/delivery_report_datewise.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -242,161 +244,210 @@ class _Delivery_ReportState extends State<Delivery_Report> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final totals = calculateTotals();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          "Delivery Report",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.date_range),
-            onPressed: () => _selectDateRange(context),
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(
+            "Delivery Report",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(8.0),
-              itemCount: filteredOrders.length,
-              itemBuilder: (context, index) {
-                final order = filteredOrders[index];
-                return Card(
-                  color: Colors.white,
-                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Shipped Date: ${order['shipped_date']}',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.blue),
-                        ),
-                        Divider(color: Colors.grey),
-                        _buildRow('Total Boxes:', order['total_boxes']),
-                        _buildRow(
-                            'Total Weight:', '${order['total_weight']} kg'),
-                        _buildRow('Volume Weight:',
-                            '${order['total_volume_weight']} kg'),
-                        _buildRow('Shipping Charge:',
-                            '₹${order['total_shipping_charge']}'),
-                              _buildRow('Total Actual Weight:',
-                            '${order['total_actual_weight']} kg'),
-                              _buildRow('Total Parcel Amount:',
-                            '₹${order['total_parcel_amount']}'),
-                        SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          DeliveryReportDatewise(
-                                              date: order['shipped_date'])));
-                              // Handle button press
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue, // Button color
-                              shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(20), // Curved edges
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.date_range),
+              onPressed: () => _selectDateRange(context),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(8.0),
+                itemCount: filteredOrders.length,
+                itemBuilder: (context, index) {
+                  final order = filteredOrders[index];
+                  return Card(
+                    color: Colors.white,
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Shipped Date: ${order['shipped_date']}',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.blue),
+                          ),
+                          Divider(color: Colors.grey),
+                          _buildRow('Total Boxes:', order['total_boxes']),
+                          _buildRow(
+                              'Total Weight:', '${order['total_weight']} kg'),
+                          _buildRow('Volume Weight:',
+                              '${order['total_volume_weight']} kg'),
+                          _buildRow('Shipping Charge:',
+                              '₹${order['total_shipping_charge']}'),
+                                _buildRow('Total Actual Weight:',
+                              '${order['total_actual_weight']} kg'),
+                                _buildRow('Total Parcel Amount:',
+                              '₹${order['total_parcel_amount']}'),
+                          SizedBox(height: 10),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            DeliveryReportDatewise(
+                                                date: order['shipped_date'])));
+                                // Handle button press
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue, // Button color
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(20), // Curved edges
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20, // Horizontal padding
+                                  vertical: 10, // Vertical padding
+                                ),
                               ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20, // Horizontal padding
-                                vertical: 10, // Vertical padding
-                              ),
-                            ),
-                            child: Text(
-                              'View',
-                              style: TextStyle(
-                                color: Colors.white, // Text color
-                                fontWeight: FontWeight.bold, // Text weight
+                              child: Text(
+                                'View',
+                                style: TextStyle(
+                                  color: Colors.white, // Text color
+                                  fontWeight: FontWeight.bold, // Text weight
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Material(
-            elevation: 12,
-            color: const Color.fromARGB(255, 12, 80, 163),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Delivery Report Summary",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.white),
-                  ),
-                  Divider(color: Colors.white70),
-                  _buildRowWithTwoColumns('Total Boxes', totals['total_boxes'],
-                      'Total Weight', '${totals['total_weight']} kg'),
-                  _buildRowWithTwoColumns(
-                      'Volume Weight',
-                      '${totals['total_volume_weight']} kg',
-                      'Shipping Charge',
-                      '₹${totals['total_shipping_charge']}'),
-                ],
+                  );
+                },
               ),
             ),
-          ),
-        ],
+            Material(
+              elevation: 12,
+              color: const Color.fromARGB(255, 12, 80, 163),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Delivery Report Summary",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white),
+                    ),
+                    Divider(color: Colors.white70),
+                    _buildRowWithTwoColumns('Total Boxes', totals['total_boxes'],
+                        'Total Weight', '${totals['total_weight']} kg'),
+                    _buildRowWithTwoColumns(
+                        'Volume Weight',
+                        '${totals['total_volume_weight']} kg',
+                        'Shipping Charge',
+                        '₹${totals['total_shipping_charge']}'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

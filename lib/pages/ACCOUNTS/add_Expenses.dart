@@ -6,6 +6,8 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:beposoft/pages/api.dart';
@@ -608,875 +610,915 @@ int? selectedPurposeId;
       );
     }
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Color.fromARGB(242, 255, 255, 255),
-        appBar: AppBar(
-          title: Text(
-            "Add Expense",
-
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back), // Custom back arrow
-            onPressed: () async {
-              final dep = await getdepFromPrefs();
-              if (dep == "BDO") {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          bdo_dashbord()), // Replace AnotherPage with your target page
-                );
-              } 
-              else if (dep == "BDM") {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          bdm_dashbord()), // Replace AnotherPage with your target page
-                );
-              } 
-              else if (dep == "ADMIN") {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          admin_dashboard()), // Replace AnotherPage with your target page
-                );
-              }
-               else {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          dashboard()), // Replace AnotherPage with your target page
-                );
-              }
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: Image.asset('lib/assets/profile.png'),
-              onPressed: () {},
+    return WillPopScope(
+       onWillPop: () async {
+        // Prevent the swipe-back gesture (and back button)
+        _navigateBack();
+        return false;
+      },
+      child: Scaffold(
+          backgroundColor: Color.fromARGB(242, 255, 255, 255),
+          appBar: AppBar(
+            title: Text(
+              "Add Expense",
+      
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
-          ],
-        ),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: Container(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    SizedBox(height: 15),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 1),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(
-                              color: Color.fromARGB(255, 202, 202, 202)),
-                        ),
-                        width: constraints.maxWidth * 0.9,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: constraints.maxWidth * 0.9,
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(255, 2, 65, 96),
-                                  border: Border.all(
-                                      color:
-                                          Color.fromARGB(255, 202, 202, 202)),
-                                ),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 10),
-                                    Text(
-                                      "New Expence",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10.0),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey, width: 1.0),
-                                        borderRadius: BorderRadius.circular(
-                                            8.0), // Rounded corners
-                                      ),
-                                      child: DropdownButton<int>(
-                                        isExpanded: true,
-                                        underline:
-                                            SizedBox(), // Removes default underline
-                                        hint: Text(
-                                          'Select a company',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600]),
-                                        ),
-                                        value: selectedCompanyId,
-                                        items: company.map((item) {
-                                          return DropdownMenuItem<int>(
-                                            value: item['id'],
-                                            child: Text(item['name']),
-                                          );
-                                        }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedCompanyId = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              
-                              Text(
-                                "Amount",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                ),
-                              ),
-                            
-                              SizedBox(height: 5),
-                              Container(
-                                child: TextField(
-                                  controller: amount,
-                                  decoration: InputDecoration(
-                                    labelText: 'Amount',
-                                    labelStyle: TextStyle(
-                                      fontSize:
-                                          13.0, // Adjust the font size as needed
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                "Select Type",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12.0, vertical: .0),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Colors.grey, width: 1.0),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: DropdownButton<String>(
-                                  value: selectedtype,
-                                  hint: Text('Select an option'),
-                                  isExpanded: true,
-                                  underline:
-                                      SizedBox(), // Removes the default underline
-                                  items: exp.map((String item) {
-                                    return DropdownMenuItem<String>(
-                                      value: item,
-                                      child: Text(item),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedtype = newValue;
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back), // Custom back arrow
+              onPressed: () async {
+                final dep = await getdepFromPrefs();
+               if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
-                              if (selectedtype == 'assets')
-                                Text(
-                                  "Product name",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              if (selectedtype == 'assets') 
-                              SizedBox(height: 5),
-                              if (selectedtype == 'assets')
-                                Container(
-                                  child: TextField(
-                                    controller: proname,
-                                    decoration: InputDecoration(
-                                      labelText: 'Product Name',
-                                      labelStyle: TextStyle(
-                                        fontSize:
-                                            13.0, // Adjust the font size as needed
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                                
-                               if (selectedtype == 'assets') 
-                               SizedBox(height: 5),
-                               if (selectedtype == 'assets')
-                                Text(
-                                  "category",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              if (selectedtype == 'assets') 
-                              SizedBox(height: 5),
-                              if (selectedtype == 'assets')
-                                Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10.0),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey, width: 1.0),
-                                        borderRadius: BorderRadius.circular(
-                                            8.0), // Rounded corners
-                                      ),
-                                      child: DropdownButton<int>(
-                                        isExpanded: true,
-                                        underline:
-                                            SizedBox(), // Removes default underline
-                                        hint: Text(
-                                          'Select a category',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600]),
-                                        ),
-                                        value: selectedCategoryId,
-                                        items: category.map((item) {
-                                          return DropdownMenuItem<int>(
-                                            value: item['id'],
-                                            child: Text(item['name']),
-                                          );
-                                        }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedCategoryId = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              
-                              if (selectedtype == 'assets') 
-                              SizedBox(height: 5),
-
-                              if (selectedtype == 'assets')
-                                Text(
-                                  "Quantity",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              if (selectedtype == 'assets') 
-                              SizedBox(height: 5),
-                              if (selectedtype == 'assets')
-                                Container(
-                                  child: TextField(
-                                    controller: quantity,
-                                    decoration: InputDecoration(
-                                      labelText: 'Quantity',
-                                      labelStyle: TextStyle(
-                                        fontSize:
-                                            13.0, // Adjust the font size as needed
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey),
-                                      ),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                    ),
-                                  ),
-                                ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                           Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Text(
-      "Purpose Of Payment",
-      style: TextStyle(fontSize: 13),
-    ),
-    SizedBox(height: 5),
-    Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey, width: 1.0),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: DropdownButton<String>(
-              value: selectedPurposeName,
-              hint: Text('Select an option'),
-              isExpanded: true,
-              underline: SizedBox(),
-              items: purposesofpay.map((Map<String, dynamic> item) {
-                return DropdownMenuItem<String>(
-                  value: item['name'],
-                  child: Text(item['name']),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != 'add_new') {
-                  setState(() {
-                    selectedPurposeName = newValue;
-                    selectedPurposeId = purposesofpay
-                        .firstWhere((item) => item['name'] == newValue)['id'];
-                  });
-
-                  ;
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}
+                 else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            dashboard()), // Replace AnotherPage with your target page
+                  );
                 }
               },
             ),
-          ),
-          SizedBox(width: 10),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                showAddNewField = !showAddNewField;
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue, // Background color
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0), // Border radius
+            actions: [
+              IconButton(
+                icon: Image.asset('lib/assets/profile.png'),
+                onPressed: () {},
               ),
-            ),
-            child: Text('Add New', style: TextStyle(color: Colors.white)),
+            ],
           ),
-        ],
-      ),
-    ),
-    if (showAddNewField) ...[
-      SizedBox(height: 10),
-      TextField(
-        controller: newPurposeController,
-        decoration: InputDecoration(
-          labelText: 'New Purpose',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-        ),
-      ),
-      SizedBox(height: 10),
-      ElevatedButton(
-        onPressed: () {
-          // Handle adding new purpose
-          addpurpose(context);
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green, // Background color
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0), // Border radius
-          ),
-        ),
-        child: Text('Add', style: TextStyle(color: Colors.white)),
-      ),
-    ],
-  ],
-),
-                              if (selectedPurposeName == 'emi')
-                                SizedBox(
-                                  height: 5,
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: Container(
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 15),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 1),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(
+                                color: Color.fromARGB(255, 202, 202, 202)),
+                          ),
+                          width: constraints.maxWidth * 0.9,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: constraints.maxWidth * 0.9,
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromARGB(255, 2, 65, 96),
+                                    border: Border.all(
+                                        color:
+                                            Color.fromARGB(255, 202, 202, 202)),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "New Expence",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                    ],
+                                  ),
                                 ),
-                              if (selectedPurposeName == 'emi')
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey, width: 1.0),
+                                          borderRadius: BorderRadius.circular(
+                                              8.0), // Rounded corners
+                                        ),
+                                        child: DropdownButton<int>(
+                                          isExpanded: true,
+                                          underline:
+                                              SizedBox(), // Removes default underline
+                                          hint: Text(
+                                            'Select a company',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600]),
+                                          ),
+                                          value: selectedCompanyId,
+                                          items: company.map((item) {
+                                            return DropdownMenuItem<int>(
+                                              value: item['id'],
+                                              child: Text(item['name']),
+                                            );
+                                          }).toList(),
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedCompanyId = value;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                
                                 Text(
-                                  "EMI Plan",
+                                  "Amount",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              
+                                SizedBox(height: 5),
+                                Container(
+                                  child: TextField(
+                                    controller: amount,
+                                    decoration: InputDecoration(
+                                      labelText: 'Amount',
+                                      labelStyle: TextStyle(
+                                        fontSize:
+                                            13.0, // Adjust the font size as needed
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                      ),
+                                      contentPadding:
+                                          EdgeInsets.symmetric(vertical: 8.0),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  "Select Type",
                                   style: TextStyle(
                                     fontSize: 13,
                                   ),
                                 ),
-                              SizedBox(
-                                height: 5,
-                              ),
-
-                              if (selectedPurposeName == 'emi')
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      return Container(
-                                        child: DropdownButtonHideUnderline(
-                                          child: Container(
-                                            height: 46,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.grey,
-                                                  width: 1.0),
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                            ),
-                                            child: DropdownButton2<String>(
-                                              isExpanded: true,
-                                              hint: Text(
-                                                'Select an EMI Plan',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Theme.of(context)
-                                                        .hintColor),
-                                              ),
-                                              items: emiList
-                                                  .map((emi) =>
-                                                      DropdownMenuItem<String>(
-                                                        value: emi['emi_name'],
-                                                        child: Text(
-                                                          emi['emi_name'],
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 12),
-                                                        ),
-                                                      ))
-                                                  .toList(),
-                                              value: selectedEmiName,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  selectedEmiName = value;
-                                                  selectedEmiId = emiList
-                                                      .firstWhere((emi) =>
-                                                          emi['emi_name'] ==
-                                                          value)['id'];
-                                                });
-
-                                                // Call a function to process selected EMI if needed
-                                           
-                                              },
-                                              buttonStyleData:
-                                                  const ButtonStyleData(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 16),
-                                                height: 40,
-                                              ),
-                                              dropdownStyleData:
-                                                  const DropdownStyleData(
-                                                maxHeight: 200,
-                                              ),
-                                              menuItemStyleData:
-                                                  const MenuItemStyleData(
-                                                height: 40,
-                                              ),
-                                              dropdownSearchData:
-                                                  DropdownSearchData(
-                                                searchController:
-                                                    textEditingController,
-                                                searchInnerWidgetHeight: 50,
-                                                searchInnerWidget: Container(
-                                                  height: 50,
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 8,
-                                                          bottom: 4,
-                                                          right: 8,
-                                                          left: 8),
-                                                  child: TextFormField(
-                                                    expands: true,
-                                                    maxLines: null,
-                                                    controller:
-                                                        textEditingController,
-                                                    decoration: InputDecoration(
-                                                      isDense: true,
-                                                      contentPadding:
-                                                          const EdgeInsets
-                                                              .symmetric(
-                                                              horizontal: 10,
-                                                              vertical: 8),
-                                                      hintText:
-                                                          'Search EMI Plan...',
-                                                      hintStyle:
-                                                          const TextStyle(
-                                                              fontSize: 12),
-                                                      border:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8)),
-                                                    ),
-                                                  ),
-                                                ),
-                                                searchMatchFn:
-                                                    (item, searchValue) {
-                                                  return item.value
-                                                      .toString()
-                                                      .toLowerCase()
-                                                      .contains(searchValue
-                                                          .toLowerCase());
-                                                },
-                                              ),
-                                              onMenuStateChange: (isOpen) {
-                                                if (!isOpen) {
-                                                  textEditingController.clear();
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
+                                SizedBox(height: 5),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12.0, vertical: .0),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.grey, width: 1.0),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: selectedtype,
+                                    hint: Text('Select an option'),
+                                    isExpanded: true,
+                                    underline:
+                                        SizedBox(), // Removes the default underline
+                                    items: exp.map((String item) {
+                                      return DropdownMenuItem<String>(
+                                        value: item,
+                                        child: Text(item),
                                       );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedtype = newValue;
+                                      });
                                     },
                                   ),
                                 ),
-
-                              Text(
-                                "Payment Date",
-                                style: TextStyle(
-                                  fontSize: 13,
+                                SizedBox(
+                                  height: 5,
                                 ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
+      
+                                if (selectedtype == 'assets')
+                                  Text(
+                                    "Product name",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                if (selectedtype == 'assets') 
+                                SizedBox(height: 5),
+                                if (selectedtype == 'assets')
                                   Container(
-                                    width: 350, // Set the desired width here
-                                    height: 46, // Set the desired height here
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors
-                                            .grey, // You can set the border color here
-                                        width:
-                                            1.0, // You can adjust the border width here
+                                    child: TextField(
+                                      controller: proname,
+                                      decoration: InputDecoration(
+                                        labelText: 'Product Name',
+                                        labelStyle: TextStyle(
+                                          fontSize:
+                                              13.0, // Adjust the font size as needed
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
                                       ),
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // You can adjust the border radius here
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 30,
-                                        ),
-                                        Text(
-                                          '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Color.fromARGB(
-                                                  255, 116, 116, 116)),
-                                        ),
-                                        SizedBox(
-                                          width: 162,
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            _selectDate(context);
-                                          },
-                                          child: Icon(Icons.date_range),
-                                        ),
-                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
-
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                "Paid By",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-
-                              Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: Container(
-                                  height: 49,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
+                                  
+                                 if (selectedtype == 'assets') 
+                                 SizedBox(height: 5),
+                                 if (selectedtype == 'assets')
+                                  Text(
+                                    "category",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                    ),
                                   ),
-                                  child: Row(
+                                if (selectedtype == 'assets') 
+                                SizedBox(height: 5),
+                                if (selectedtype == 'assets')
+                                  Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Column(
                                     children: [
-                                      SizedBox(width: 20),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
                                       Container(
-                                        width: 270,
-                                        child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: '',
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 1),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey, width: 1.0),
+                                          borderRadius: BorderRadius.circular(
+                                              8.0), // Rounded corners
+                                        ),
+                                        child: DropdownButton<int>(
+                                          isExpanded: true,
+                                          underline:
+                                              SizedBox(), // Removes default underline
+                                          hint: Text(
+                                            'Select a category',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600]),
                                           ),
-                                          child: DropdownButton<int>(
-                                            value: selectedstaffId,
-                                            isExpanded: true,
-                                            underline:
-                                                Container(), // This removes the underline
-                                            hint: Text(
-                                              'Select a Paid by',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey[600]),
-                                            ),
-                                            onChanged: (int? newValue) {
-                                              setState(() {
-                                                selectedstaffId = newValue!;
-                                              });
-                                            },
-                                            items: sta
-                                                .map<DropdownMenuItem<int>>(
-                                                    (staff) {
-                                              return DropdownMenuItem<int>(
-                                                value: staff['id'],
-                                                child: Text(
-                                                  staff['name'],
-                                                  style:
-                                                      TextStyle(fontSize: 12),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            icon: Container(
-                                              alignment: Alignment.centerRight,
-                                              child: Icon(Icons
-                                                  .arrow_drop_down), // Dropdown arrow icon
-                                            ),
-                                          ),
+                                          value: selectedCategoryId,
+                                          items: category.map((item) {
+                                            return DropdownMenuItem<int>(
+                                              value: item['id'],
+                                              child: Text(item['name']),
+                                            );
+                                          }).toList(),
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedCategoryId = value;
+                                            });
+                                          },
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                "Bank",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-
-                              Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: Container(
-                                  height: 49,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: const Color.fromARGB(
-                                            255, 206, 206, 206)),
-                                    borderRadius: BorderRadius.circular(10),
+                                
+                                if (selectedtype == 'assets') 
+                                SizedBox(height: 5),
+      
+                                if (selectedtype == 'assets')
+                                  Text(
+                                    "Quantity",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                    ),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: 20),
-                                      Container(
-                                        width: 270,
-                                        child: InputDecorator(
+                                if (selectedtype == 'assets') 
+                                SizedBox(height: 5),
+                                if (selectedtype == 'assets')
+                                  Container(
+                                    child: TextField(
+                                      controller: quantity,
+                                      decoration: InputDecoration(
+                                        labelText: 'Quantity',
+                                        labelStyle: TextStyle(
+                                          fontSize:
+                                              13.0, // Adjust the font size as needed
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                             Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+      Text(
+        "Purpose Of Payment",
+        style: TextStyle(fontSize: 13),
+      ),
+      SizedBox(height: 5),
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1.0),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: DropdownButton<String>(
+                value: selectedPurposeName,
+                hint: Text('Select an option'),
+                isExpanded: true,
+                underline: SizedBox(),
+                items: purposesofpay.map((Map<String, dynamic> item) {
+                  return DropdownMenuItem<String>(
+                    value: item['name'],
+                    child: Text(item['name']),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  if (newValue != 'add_new') {
+                    setState(() {
+                      selectedPurposeName = newValue;
+                      selectedPurposeId = purposesofpay
+                          .firstWhere((item) => item['name'] == newValue)['id'];
+                    });
+      
+                    ;
+                  }
+                },
+              ),
+            ),
+            SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  showAddNewField = !showAddNewField;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Background color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0), // Border radius
+                ),
+              ),
+              child: Text('Add New', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+      if (showAddNewField) ...[
+        SizedBox(height: 10),
+        TextField(
+          controller: newPurposeController,
+          decoration: InputDecoration(
+            labelText: 'New Purpose',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            // Handle adding new purpose
+            addpurpose(context);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green, // Background color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0), // Border radius
+            ),
+          ),
+          child: Text('Add', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+        ],
+      ),
+                                if (selectedPurposeName == 'emi')
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                if (selectedPurposeName == 'emi')
+                                  Text(
+                                    "EMI Plan",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+      
+                                if (selectedPurposeName == 'emi')
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return Container(
+                                          child: DropdownButtonHideUnderline(
+                                            child: Container(
+                                              height: 46,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.grey,
+                                                    width: 1.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                              ),
+                                              child: DropdownButton2<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Select an EMI Plan',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Theme.of(context)
+                                                          .hintColor),
+                                                ),
+                                                items: emiList
+                                                    .map((emi) =>
+                                                        DropdownMenuItem<String>(
+                                                          value: emi['emi_name'],
+                                                          child: Text(
+                                                            emi['emi_name'],
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize: 12),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                value: selectedEmiName,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    selectedEmiName = value;
+                                                    selectedEmiId = emiList
+                                                        .firstWhere((emi) =>
+                                                            emi['emi_name'] ==
+                                                            value)['id'];
+                                                  });
+      
+                                                  // Call a function to process selected EMI if needed
+                                             
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 16),
+                                                  height: 40,
+                                                ),
+                                                dropdownStyleData:
+                                                    const DropdownStyleData(
+                                                  maxHeight: 200,
+                                                ),
+                                                menuItemStyleData:
+                                                    const MenuItemStyleData(
+                                                  height: 40,
+                                                ),
+                                                dropdownSearchData:
+                                                    DropdownSearchData(
+                                                  searchController:
+                                                      textEditingController,
+                                                  searchInnerWidgetHeight: 50,
+                                                  searchInnerWidget: Container(
+                                                    height: 50,
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 4,
+                                                            right: 8,
+                                                            left: 8),
+                                                    child: TextFormField(
+                                                      expands: true,
+                                                      maxLines: null,
+                                                      controller:
+                                                          textEditingController,
+                                                      decoration: InputDecoration(
+                                                        isDense: true,
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 10,
+                                                                vertical: 8),
+                                                        hintText:
+                                                            'Search EMI Plan...',
+                                                        hintStyle:
+                                                            const TextStyle(
+                                                                fontSize: 12),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8)),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  searchMatchFn:
+                                                      (item, searchValue) {
+                                                    return item.value
+                                                        .toString()
+                                                        .toLowerCase()
+                                                        .contains(searchValue
+                                                            .toLowerCase());
+                                                  },
+                                                ),
+                                                onMenuStateChange: (isOpen) {
+                                                  if (!isOpen) {
+                                                    textEditingController.clear();
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+      
+                                Text(
+                                  "Payment Date",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      width: 350, // Set the desired width here
+                                      height: 46, // Set the desired height here
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors
+                                              .grey, // You can set the border color here
+                                          width:
+                                              1.0, // You can adjust the border width here
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                            8.0), // You can adjust the border radius here
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 30,
+                                          ),
+                                          Text(
+                                            '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                color: Color.fromARGB(
+                                                    255, 116, 116, 116)),
+                                          ),
+                                          SizedBox(
+                                            width: 162,
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              _selectDate(context);
+                                            },
+                                            child: Icon(Icons.date_range),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+      
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  "Paid By",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+      
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Container(
+                                    height: 49,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(width: 20),
+                                        Container(
+                                          width: 270,
+                                          child: InputDecorator(
                                             decoration: InputDecoration(
                                               border: InputBorder.none,
-                                              hintText: 'Select',
+                                              hintText: '',
                                               contentPadding:
                                                   EdgeInsets.symmetric(
                                                       horizontal: 1),
                                             ),
-                                            child: DropdownButtonHideUnderline(
-                                              child: DropdownButton<int>(
-                                                hint: Text(
-                                                  'Select Bank',
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[600]),
-                                                ),
-                                                value: selectedbankId,
-                                                isExpanded: true,
-                                                dropdownColor:
-                                                    const Color.fromARGB(
-                                                        255, 255, 255, 255),
-                                                icon: Icon(
-                                                    Icons.arrow_drop_down,
-                                                    color: const Color.fromARGB(
-                                                        255, 107, 107, 107)),
-                                                onChanged: (int? newValue) {
-                                                  setState(() {
-                                                    selectedbankId =
-                                                        newValue; // Store the selected family ID
-                                                  });
-                                                },
-                                                items: bank
-                                                    .map<DropdownMenuItem<int>>(
-                                                        (bank) {
-                                                  return DropdownMenuItem<int>(
-                                                    value: bank['id'],
-                                                    child: Text(
-                                                      bank['name'],
-                                                      style: TextStyle(
-                                                          color: Colors.black87,
-                                                          fontSize: 12),
-                                                    ),
-                                                  );
-                                                }).toList(),
+                                            child: DropdownButton<int>(
+                                              value: selectedstaffId,
+                                              isExpanded: true,
+                                              underline:
+                                                  Container(), // This removes the underline
+                                              hint: Text(
+                                                'Select a Paid by',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey[600]),
                                               ),
-                                            )),
-                                      ),
-                                    ],
+                                              onChanged: (int? newValue) {
+                                                setState(() {
+                                                  selectedstaffId = newValue!;
+                                                });
+                                              },
+                                              items: sta
+                                                  .map<DropdownMenuItem<int>>(
+                                                      (staff) {
+                                                return DropdownMenuItem<int>(
+                                                  value: staff['id'],
+                                                  child: Text(
+                                                    staff['name'],
+                                                    style:
+                                                        TextStyle(fontSize: 12),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              icon: Container(
+                                                alignment: Alignment.centerRight,
+                                                child: Icon(Icons
+                                                    .arrow_drop_down), // Dropdown arrow icon
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-
-                              Text(
-                                "Transaction Id",
-                                style: TextStyle(
-                                  fontSize: 13,
+      
+                                SizedBox(
+                                  height: 5,
                                 ),
-                              ),
-                              SizedBox(height: 5),
-                              Container(
-                                child: TextField(
-                                  controller: transactionid,
-                                  decoration: InputDecoration(
-                                    labelText: 'No.',
-                                    labelStyle: TextStyle(
-                                      fontSize:
-                                          13.0, // Adjust the font size as needed
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
-                                  ),
+                                Text(
+                                  "Bank",
+                                  style: TextStyle(fontSize: 12),
                                 ),
-                              ),
-                              SizedBox(height: 5),
-
-                              Text(
-                                "Description",
-                                style: TextStyle(
-                                  fontSize: 13,
+                                SizedBox(
+                                  height: 5,
                                 ),
-                              ),
-                              SizedBox(height: 5),
-                              Container(
-                                child: TextField(
-                                  controller: description,
-                                  decoration: InputDecoration(
-                                    labelText: 'Description',
-                                    labelStyle: TextStyle(
-                                      fontSize:
-                                          13.0, // Adjust the font size as needed
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey),
-                                    ),
-                                    contentPadding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
-                                  ),
-                                ),
-                              ),
-
-                              SizedBox(height: 15),
-                              ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    if (selectedtype == 'expenses') {
-                                      if (selectedPurposeName == 'emi') {
-                                        addexpense();
-                                      } else {
-                                        addexpensetwo();
-                                      }
-                                    } else {
-                                      addexpensethree();
-                                    }
-                                  });
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                    Colors.blue,
-                                  ),
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
+      
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Container(
+                                    height: 49,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: const Color.fromARGB(
+                                              255, 206, 206, 206)),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                  ),
-                                  fixedSize: MaterialStateProperty.all<Size>(
-                                    Size(constraints.maxWidth * 0.4, 50),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(width: 20),
+                                        Container(
+                                          width: 270,
+                                          child: InputDecorator(
+                                              decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                hintText: 'Select',
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 1),
+                                              ),
+                                              child: DropdownButtonHideUnderline(
+                                                child: DropdownButton<int>(
+                                                  hint: Text(
+                                                    'Select Bank',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey[600]),
+                                                  ),
+                                                  value: selectedbankId,
+                                                  isExpanded: true,
+                                                  dropdownColor:
+                                                      const Color.fromARGB(
+                                                          255, 255, 255, 255),
+                                                  icon: Icon(
+                                                      Icons.arrow_drop_down,
+                                                      color: const Color.fromARGB(
+                                                          255, 107, 107, 107)),
+                                                  onChanged: (int? newValue) {
+                                                    setState(() {
+                                                      selectedbankId =
+                                                          newValue; // Store the selected family ID
+                                                    });
+                                                  },
+                                                  items: bank
+                                                      .map<DropdownMenuItem<int>>(
+                                                          (bank) {
+                                                    return DropdownMenuItem<int>(
+                                                      value: bank['id'],
+                                                      child: Text(
+                                                        bank['name'],
+                                                        style: TextStyle(
+                                                            color: Colors.black87,
+                                                            fontSize: 12),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              )),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                child: Text("Submit",
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-
-                              // Displaying the list of departments as a table
-                              SizedBox(height: 10),
-                            ],
+      
+                                Text(
+                                  "Transaction Id",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Container(
+                                  child: TextField(
+                                    controller: transactionid,
+                                    decoration: InputDecoration(
+                                      labelText: 'No.',
+                                      labelStyle: TextStyle(
+                                        fontSize:
+                                            13.0, // Adjust the font size as needed
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                      ),
+                                      contentPadding:
+                                          EdgeInsets.symmetric(vertical: 8.0),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+      
+                                Text(
+                                  "Description",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Container(
+                                  child: TextField(
+                                    controller: description,
+                                    decoration: InputDecoration(
+                                      labelText: 'Description',
+                                      labelStyle: TextStyle(
+                                        fontSize:
+                                            13.0, // Adjust the font size as needed
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                      ),
+                                      contentPadding:
+                                          EdgeInsets.symmetric(vertical: 8.0),
+                                    ),
+                                  ),
+                                ),
+      
+                                SizedBox(height: 15),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      if (selectedtype == 'expenses') {
+                                        if (selectedPurposeName == 'emi') {
+                                          addexpense();
+                                        } else {
+                                          addexpensetwo();
+                                        }
+                                      } else {
+                                        addexpensethree();
+                                      }
+                                    });
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                      Colors.blue,
+                                    ),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    fixedSize: MaterialStateProperty.all<Size>(
+                                      Size(constraints.maxWidth * 0.4, 50),
+                                    ),
+                                  ),
+                                  child: Text("Submit",
+                                      style: TextStyle(color: Colors.white)),
+                                ),
+      
+                                // Displaying the list of departments as a table
+                                SizedBox(height: 10),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 15),
-                  ],
+                      SizedBox(height: 15),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
-        ));
+              );
+            },
+          )),
+    );
   }
 }

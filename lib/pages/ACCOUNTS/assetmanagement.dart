@@ -7,6 +7,8 @@ import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
@@ -153,7 +155,39 @@ class _AssetManegmentState extends State<AssetManegment> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+   if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
 
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+}else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double totalLiabilities = expensedata.fold<double>(
@@ -172,28 +206,31 @@ class _AssetManegmentState extends State<AssetManegment> {
           icon: const Icon(Icons.arrow_back), // Custom back arrow
           onPressed: () async {
             final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            } else {
+          if(dep=="BDO" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+    
+    }
+    else if(dep=="BDM" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+    }
+    else if(dep=="warehouse" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+    }
+    else if(dep=="Warehouse Admin" ){
+       Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+    }else {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -221,11 +258,11 @@ class _AssetManegmentState extends State<AssetManegment> {
               child: Column(
                 children: [
                   Card(
-  color: const Color.fromARGB(255, 247, 253, 202),
-  elevation: 4,
-  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-  margin: EdgeInsets.all(10),
-  child: Padding(
+      color: const Color.fromARGB(255, 247, 253, 202),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      margin: EdgeInsets.all(10),
+      child: Padding(
     padding: const EdgeInsets.all(12.0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,12 +311,12 @@ class _AssetManegmentState extends State<AssetManegment> {
         ),
       ],
     ),
-  ),
-),
-
+      ),
+    ),
+    
                 Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
     if (assets.isNotEmpty)
       Card(
         elevation: 4,
@@ -300,7 +337,7 @@ class _AssetManegmentState extends State<AssetManegment> {
                 final index = entry.key;
                 final category = entry.value;
                 bool isExpanded = category['isExpanded'] ?? false;
-
+    
                 return Column(
                   children: [
                     ListTile(
@@ -328,7 +365,7 @@ class _AssetManegmentState extends State<AssetManegment> {
                       },
                     ),
                    if (isExpanded)
-  Padding(
+      Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16.0),
     child: Column(
       children: (category['products'] as List<dynamic>? ?? []).map<Widget>((product) {
@@ -343,9 +380,9 @@ class _AssetManegmentState extends State<AssetManegment> {
         );
       }).toList(),
     ),
-  ),
-
-
+      ),
+    
+    
                   ],
                 );
               }).toList(),
@@ -357,7 +394,7 @@ class _AssetManegmentState extends State<AssetManegment> {
                   children: [
                     Text(
                       'Stock: ${assets.fold<int>(0, (sum, item) => sum + (item['totalStock'] as num).toInt())}',
-
+    
                       style: TextStyle(fontWeight: FontWeight.bold)),
                     SizedBox(width: 20),
                     Text(
@@ -372,9 +409,9 @@ class _AssetManegmentState extends State<AssetManegment> {
           ),
         ),
       ),
-  ],
-),
-
+      ],
+    ),
+    
                   if (expensedata.isNotEmpty) ...[
                     Card(
                       elevation: 4,
@@ -419,7 +456,7 @@ class _AssetManegmentState extends State<AssetManegment> {
                                   ...expensedata.asMap().entries.map((entry) {
                                     final index = entry.key;
                                     final liability = entry.value;
-
+    
                                     return DataRow(
                                       color: MaterialStateColor.resolveWith((states) =>
                                           index % 2 == 0
