@@ -4,8 +4,11 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/view_staff.dart';
 import 'package:beposoft/pages/BDM/bdm_customer_list.dart';
+import 'package:beposoft/pages/BDM/bdm_grv_list.dart';
 import 'package:beposoft/pages/BDM/bdm_order_list.dart';
+import 'package:beposoft/pages/BDM/bdm_staff_list.dart';
 import 'package:beposoft/pages/BDM/bdm_today_order_list.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:intl/intl.dart';
@@ -39,6 +42,7 @@ class _bdm_dashbordState extends State<bdm_dashbord> {
   List<Map<String, dynamic>> orders = [];
   List<Map<String, dynamic>> filteredOrders = [];
   List<Map<String, dynamic>> shippedOrders = [];
+  List<Map<String, dynamic>> fam = [];
 
   String? username = '';
   @override
@@ -50,6 +54,8 @@ class _bdm_dashbordState extends State<bdm_dashbord> {
     getSalesReport();
     fetchOrderData();
     getcustomer();
+    getfamily();
+    getprofiledata();
   }
 
 int approval=0;
@@ -57,6 +63,89 @@ int confirm=0;
 int customers=0;
   List<Map<String, dynamic>> customer = [];
   List<Map<String, dynamic>> filteredProducts = [];
+
+var family='';
+String familyName='';
+   
+Future<void> getprofiledata() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/profile/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        
+
+        setState(() {
+         
+          family = productsData['family'].toString() ?? '';
+          
+
+
+             var matchingFamily = fam.firstWhere(
+          (element) => element['id'].toString() == family,
+          orElse: () => {'id': null, 'name': 'Unknown'},
+        );
+
+        // Store the matching family name
+        familyName = matchingFamily['name'];
+        
+        print("familllllll$familyName");
+        });
+    fetchbdmOrderData();
+
+      }
+    } catch (error) {
+      
+    }
+  }
+  Future<void> getfamily() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/familys/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+        List<Map<String, dynamic>> familylist = [];
+
+        for (var productData in productsData) {
+          familylist.add({
+            'id': productData['id'].toString(), // Convert the ID to String
+            'name': productData['name'],
+          });
+        }
+
+        setState(() {
+          fam = familylist;
+          
+
+        
+        });
+      }
+    } catch (error) {
+      
+    }
+  }
+
+
 
 Future<void> getcustomer() async {
     try {
@@ -101,6 +190,108 @@ Future<void> getcustomer() async {
       
     }
   }
+
+      // Variables to track the totals
+      int totalOrdersToday = 0;
+      int totalOrdersInvoiceCreated = 0;
+      int Shippedorders=0;
+        // Variables to track the totals
+      int todaysbill = 0;
+      int shippedbills=0;
+
+      int waitingbills = 0;
+  Future<void> fetchbdmOrderData() async {
+  try {
+    final token = await getTokenFromPrefs();
+    
+
+    String url = '$api/api/orders/';
+    List<Map<String, dynamic>> orderList = [];
+
+    var response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final List ordersData = responseData['results'];
+      print("orderdata$ordersData");
+
+      List<Map<String, dynamic>> newOrders = [];
+
+
+
+      DateTime currentDate = DateTime.now();
+      String today = DateFormat('yyyy-MM-dd').format(currentDate);
+
+      for (var orderData in ordersData) {
+        String rawOrderDate = orderData['order_date'] ?? "";
+        String formattedOrderDate = rawOrderDate;
+        try {
+          DateTime parsedOrderDate = DateFormat('yyyy-MM-dd').parse(rawOrderDate);
+          formattedOrderDate = DateFormat('yyyy-MM-dd').format(parsedOrderDate);
+        } catch (e) {}
+
+        
+          if (orderData['status'] != "Order Request by Warehouse") {
+            if (familyName == orderData['family']) {
+              newOrders.add({
+                'id': orderData['id'],
+                'family': orderData['family'],
+                'invoice': orderData['invoice'],
+                'manage_staff': orderData['manage_staff'],
+                'customer': {
+                  'id': orderData['customer']['id'],
+                  'name': orderData['customer']['name'],
+                  'phone': orderData['customer']['phone'],
+                  'email': orderData['customer']['email'],
+                  'address': orderData['customer']['address'],
+                },
+                'status': orderData['status'],
+                'total_amount': orderData['total_amount'],
+                'order_date': formattedOrderDate,
+              });
+
+              // Count orders for today
+              if (formattedOrderDate == today) {
+                totalOrdersToday++;
+              }
+
+              // Count orders with status "Invoice Created"
+              if (orderData['status'] == "Invoice Created") {
+                totalOrdersInvoiceCreated++;
+              }
+               if (formattedOrderDate == today && orderData['status'] == "Shipped") {
+                Shippedorders++;
+              }
+            }
+          }
+        
+      }
+
+      setState(() {
+        orders = newOrders;
+        todaysbill=totalOrdersToday;
+        waitingbills=totalOrdersInvoiceCreated;
+
+        filteredOrders = newOrders;
+      });
+
+      // Print the counts (or use them as needed)
+      print('Total Orders Today: $totalOrdersToday');
+      print('Total Orders with "Invoice Created" status: $totalOrdersInvoiceCreated');
+    } else {
+      throw Exception("Failed to load order data");
+    }
+  } catch (error) {
+    print("Error: $error");
+  }
+}
+
   Future<void> fetchOrderData() async {
     try {
       final token = await getTokenFromPrefs();
@@ -511,10 +702,10 @@ int grv=0;
                 'Add Customer',
                 'Customers',
               ]),
-              _buildDropdownTile(context, 'Staff', [
-                'Add Staff',
-                'Staff',
-              ]),
+              // _buildDropdownTile(context, 'Staff', [
+               
+              //   'Staff',
+              // ]),
              
               _buildDropdownTile(context, 'Proforma Invoice', [
                 'New Proforma Invoice',
@@ -524,6 +715,16 @@ int grv=0;
                   context, 'Orders', ['New Orders', 'Orders List']),
              
               Divider(),
+               ListTile(
+                leading: Icon(Icons.person_2),
+                title: Text('Staff'),
+                onTap: () {
+                 Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => bdm_staff_list(family: familyName,)),
+        );
+                },
+              ),
              
               ListTile(
                 leading: Icon(Icons.chat),
@@ -596,15 +797,15 @@ int grv=0;
                           
 
                         },
-                        child: _buildInfoCard(getTodaysBills(), 'Todays Bills', 0)),
+                        child: _buildInfoCard(todaysbill.toString(), 'Todays Bills', 0)),
                       GestureDetector(
                         onTap: () {
                            Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderList(status: "Invoice Created",)),
+          MaterialPageRoute(builder: (context) => bdm_OrderList(status: "Invoice Created",)),
         );
                         },
-                        child: _buildInfoCard(approval.toString(), 'Waiting For Approval', 0)),
+                        child: _buildInfoCard(waitingbills.toString(), 'Waiting For Approval', 0)),
                      
                     ],
                   ),
@@ -624,14 +825,13 @@ int grv=0;
                           onTap: () {
                          Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdm_OrderList(status: "Shipped",)),
+          MaterialPageRoute(builder: (context) => bdm_today_OrderList(status: "Shipped",)),
         );
                       },
                         child: _buildGridItem(
                           Icons.local_shipping,
                           'Todays Shipped Orders',
-                          shippedOrders
-                              .length, // Pass the length of today's shipped orders
+                        shippedbills
                         ),
                       ),
                       GestureDetector(
@@ -649,7 +849,7 @@ int grv=0;
                       onTap: () {
                          Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => GrvList(status:null,)),
+          MaterialPageRoute(builder: (context) => bdm_GrvList(status:null,family:familyName)),
         );
                       },
                         child: _buildGridItem(

@@ -194,25 +194,25 @@ Future<void> getcustomer() async {
       
 
       var response = await http.get(
-        Uri.parse('$api/api/staff/customers/'),
+        Uri.parse('$api/api/customers/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
-;
-;
+print("resssss custooo${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
         List<Map<String, dynamic>> managerlist = [];
 
         for (var productData in productsData) {
+          if(familyName==productData['family']){
           managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
             'created_at': productData['created_at']
-          });
+          });}
         }
 
         setState(() {

@@ -12,15 +12,16 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
-class GrvList extends StatefulWidget {
+class bdm_GrvList extends StatefulWidget {
   var status;
-  GrvList({super.key,required this.status});
+  var family;
+  bdm_GrvList({super.key,required this.status,required this.family});
 
   @override
-  State<GrvList> createState() => _GrvListState();
+  State<bdm_GrvList> createState() => _bdm_GrvListState();
 }
 
-class _GrvListState extends State<GrvList> {
+class _bdm_GrvListState extends State<bdm_GrvList> {
   List<Map<String, dynamic>> grvlist = [];
   List<String> remarkOptions = ["return", "refund"];
   List<String> statusOptions = ["pending", "approved", "rejected"];
@@ -105,7 +106,8 @@ print("Respo grv ${response.body}");
             'order_date': productData['order_date'],
           });}
           else if(widget.status==productData['status']){
-
+            if(widget.family==productData['family'])
+{
              grvDataList.add({
             'id': productData['id'],
             'product': productData['product'],
@@ -117,7 +119,7 @@ print("Respo grv ${response.body}");
             'status': productData['status'] ?? statusOptions[0],
             'order_date': productData['order_date'],
           });
-
+          }
           }
         }
         setState(() {
