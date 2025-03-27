@@ -313,12 +313,11 @@ var allocatedstates;
       }
     } catch (e) {}
   }
-
+var department='';
   List<Map<String, dynamic>> company = [];
   Future<void> getcompany() async {
     try {
       final token = await gettokenFromPrefs();
-
       var response = await http.get(
         Uri.parse('$api/api/company/data/'),
         headers: {
@@ -738,7 +737,7 @@ var allocatedstates;
 Future<void> getstate() async {
   try {
     final token = await gettokenFromPrefs();
-
+department=(await getdepFromPrefs())!;
     var response = await http.get(
       Uri.parse('$api/api/states/'),
       headers: {
@@ -759,6 +758,7 @@ Future<void> getstate() async {
           'name': productData['name'],
         });
       }
+      if(department=="BDM" || department=="BDO"){
 if(allocatedstates.isNotEmpty){
       // Filter to keep only allocated states
       List<Map<String, dynamic>> filteredStates = statelist
@@ -767,7 +767,7 @@ if(allocatedstates.isNotEmpty){
 
       setState(() {
         stat = filteredStates;
-      });}
+      });}}
       else{
         stat=statelist;
       }

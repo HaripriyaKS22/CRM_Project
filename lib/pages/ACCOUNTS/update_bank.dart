@@ -52,6 +52,10 @@ class _update_bankState extends State<update_bank> {
   List<Map<String, dynamic>> banks = [];
 
   TextEditingController bank = TextEditingController();
+  TextEditingController account_number=TextEditingController();
+TextEditingController branch=TextEditingController();
+TextEditingController ifsc=TextEditingController();
+TextEditingController balance=TextEditingController();
   Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -109,7 +113,7 @@ class _update_bankState extends State<update_bank> {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        
+        print(productsData);
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -120,7 +124,11 @@ class _update_bankState extends State<update_bank> {
 
           if (widget.id == productData['id']) {
             bank.text = productData['name'] ?? '';
-            ;
+            branch.text = productData['branch'] ?? '';
+            ifsc.text = productData['ifsc'] ?? '';
+            balance.text = productData['balance'] ?? '';
+
+            
           }
         }
         setState(() {
@@ -146,6 +154,9 @@ class _update_bankState extends State<update_bank> {
         body: jsonEncode(
           {
             'name': bank.text,
+            'branch': branch.text,
+            'ifsc': ifsc.text,
+            'balance': balance.text,
           },
         ),
       );

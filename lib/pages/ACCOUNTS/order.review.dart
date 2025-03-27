@@ -2368,7 +2368,7 @@ Text(
                           ),
                         ),
                         Text(
-                          '\$${netAmountBeforeTax.toStringAsFixed(2)}', // Format to 2 decimal places
+                          '${netAmountBeforeTax.toStringAsFixed(2)}', // Format to 2 decimal places
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -2391,7 +2391,7 @@ Text(
                           ),
                         ),
                         Text(
-                          '\$${totalDiscount.toStringAsFixed(2)}', // Format to 2 decimal places
+                          '${totalDiscount.toStringAsFixed(2)}', // Format to 2 decimal places
                           style: TextStyle(
                             color: const Color.fromARGB(255, 3, 3, 3),
                             fontWeight: FontWeight.bold,
@@ -2414,7 +2414,7 @@ Text(
                           ),
                         ),
                         Text(
-                          '\$${totalTaxAmount.toStringAsFixed(2)}', // Format to 2 decimal places
+                          '${totalTaxAmount.toStringAsFixed(2)}', // Format to 2 decimal places
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -2438,7 +2438,7 @@ Text(
                           ),
                         ),
                         Text(
-  '\$${(netAmountBeforeTax + totalTaxAmount).toStringAsFixed(2)}',
+  '${(netAmountBeforeTax + totalTaxAmount).toStringAsFixed(2)}',
   style: TextStyle(
     color: const Color.fromARGB(255, 1, 155, 24),
     fontWeight: FontWeight.bold,
@@ -2501,7 +2501,7 @@ Text(
                               ),
                               Text(
                                
-                                    '\$${Balance.toStringAsFixed(2)}',
+                                    '${Balance.toStringAsFixed(2)}',
                                 style: TextStyle(color: Colors.green),
                               )
                             ],
@@ -2527,7 +2527,7 @@ Text(
   ],
 ),
                              Text(
-  '\$${(difference ?? 0).toStringAsFixed(2)}', // Use null-coalescing operator to handle null
+  '${(difference ?? 0).toStringAsFixed(2)}', // Use null-coalescing operator to handle null
 )
                               ],
                             ),

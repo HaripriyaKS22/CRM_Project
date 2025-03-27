@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
 
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -96,6 +97,9 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
           deliverylist.add({
             'invoice_name': productData['invoice'],
             'customer': productData['customer'],
+            'id':productData['id'],
+            'customerid':productData['customer_id'],
+
             'order_date': productData['order_date'],
             'weight': productData['weight'],
             'volume_weight': productData['volume_weight'],
@@ -136,74 +140,86 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
         itemBuilder: (context, index) {
           var delivery = deliverydate[index];
 
-          return Card(
-            elevation: 5,
-            color: Colors.white,
-            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${delivery['invoice_name']}/${delivery['order_date']}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+          return GestureDetector(
+            onTap: () {
+ Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    OrderReview(id:delivery['id'],customer: delivery['customerid'],),
+                              ),
+                            );
+            },
+            child: Card(
+              elevation: 5,
+              color: Colors.white,
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${delivery['invoice_name']}/${delivery['order_date']}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
                         ),
-                      ),
-                      Text(
-                        '${delivery['status']}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: delivery['status'] == 'Delivered'
-                              ? Colors.green
-                              : Colors.red,
+                       
+                      ],
+                    ),
+                     Text(
+                          '${delivery['status']}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: delivery['status'] == 'Shipped'
+                                ? Colors.green
+                                : Colors.red,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Divider(thickness: 1, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Customer: ${delivery['customer']}',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                    Divider(thickness: 1, color: Colors.grey),
+                    SizedBox(height: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Customer: ${delivery['customer']}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                          SizedBox(height: 8),
+                        Text(
+                          'Tracking ID: ${delivery['tracking_id']}',
+                          style: TextStyle(fontSize: 16),
+                        ),
                         SizedBox(height: 8),
-                      Text(
-                        'Tracking ID: ${delivery['tracking_id']}',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Weight: ${delivery['weight']} kg',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Volume Weight: ${delivery['volume_weight']} kg',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Shipping Charge: ₹${delivery['shipping_charge']}',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    
-                    ],
-                  ),
-                ],
+                        Text(
+                          'Weight: ${delivery['weight']} kg',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Volume Weight: ${delivery['volume_weight']} kg',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Shipping Charge: ₹${delivery['shipping_charge']}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );

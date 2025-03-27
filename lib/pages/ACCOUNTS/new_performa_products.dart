@@ -616,7 +616,7 @@ void showSizeDialog2(BuildContext context, List variants) {
                                       ),
                                       Text("Stock: ${selectedProduct['stock']}"),
                                       Text(
-                                          "Price: \$${selectedProduct['selling_price']}"),
+                                          "Price: ${selectedProduct['selling_price']}"),
                                     ],
                                   ),
                                 ),

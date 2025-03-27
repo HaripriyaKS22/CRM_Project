@@ -728,13 +728,7 @@ int grvcount=0;
              
               Divider(),
               
-              ListTile(
-                leading: Icon(Icons.chat),
-                title: Text('Chat'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
+              
               Divider(),
               ListTile(
                 leading: Icon(Icons.exit_to_app),

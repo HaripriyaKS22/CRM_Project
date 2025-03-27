@@ -373,7 +373,27 @@ Future<String?> getdepFromPrefs() async {
               child: Column(
                 children: [
                   cartdata.isEmpty
-                      ? Center(child: CircularProgressIndicator())
+                      ? SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6, // Take up space to center content
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.remove_shopping_cart,
+                          size: 80, color: Colors.grey[400]),
+                      SizedBox(height: 10),
+                      Text(
+                        "Cart is empty",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
                       : ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,

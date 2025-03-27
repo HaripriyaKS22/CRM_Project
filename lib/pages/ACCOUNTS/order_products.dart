@@ -95,12 +95,11 @@ Future<void> initdata() async {
 
  
 }
-void showCustomPopup(BuildContext context, String title, String message) {
-  if (!mounted) return; // Ensure the widget is still in the tree
+void showCustomPopup(String title, String message) {
+  if (!mounted) return;
 
-  // Use the root navigator to ensure the context is valid
   showDialog(
-    context: Navigator.of(context, rootNavigator: true).context,
+    context: context, // 👈 Use context directly
     builder: (BuildContext ctx) {
       return AlertDialog(
         title: Text(title),
@@ -441,14 +440,26 @@ void handleAddToCart(BuildContext context, varid, quantity) async {
   if (!mounted) return; // Prevent invalid context error
 
   if (result == "success") {
-    showCustomPopup(context, "Success", "Product added to cart successfully!");
-  } else if (result == "error") {
-    showCustomPopup(context, "Error", "Failed to add product to cart.");
+showCustomPopup("Success", "Product added to cart successfully!");
+  } else if (result == "failed") {
+showCustomPopup("Success", "Product already in cart!");
   } else {
-    showCustomPopup(context, "Error", "An error occurred while adding to cart.");
+showCustomPopup("Success", "Failed to add Product!");
   }
 }
+void handleAddToCart2(BuildContext context, varid, quantity) async {
+  final result = await addtocart2(varid, quantity);
 
+  if (!mounted) return; // Prevent invalid context error
+
+  if (result == "success") {
+showCustomPopup("Success", "Product added to cart successfully!");
+  } else if (result == "failed") {
+showCustomPopup("Success", "Product already in cart!");
+  } else {
+showCustomPopup("Success", "Failed to add Product!");
+  }
+}
 Future<void> getvariant(int id, var type) async {
   
   try {
@@ -533,7 +544,10 @@ Future<String> addtocart(varid, quantity) async {
     if (response.statusCode == 201) {
       print("added");
       return "success";
-    } else {
+    } else if(response.statusCode == 400) {
+      return "failed";
+    }
+    else{
       return "error";
     }
   } catch (e) {
@@ -542,7 +556,7 @@ Future<String> addtocart(varid, quantity) async {
   }
 }
 
-Future<void> addtocart2(BuildContext context, mainid, quantity) async {
+Future<String> addtocart2( mainid, quantity) async {
 
   print("addtocart222222222222222222222222222222222222222222222222");
   final token = await getTokenFromPrefs();
@@ -561,13 +575,18 @@ Future<void> addtocart2(BuildContext context, mainid, quantity) async {
 
     print("statuscode ${response.statusCode}");
 
-    if (response.statusCode == 201) {
-      showCustomPopup(context, "Success", "Product added to cart successfully!");
-    } else {
-      showCustomPopup(context, "Error", "Failed to add product to cart.");
+      if (response.statusCode == 201) {
+      print("added");
+      return "success";
+    } else if(response.statusCode == 400) {
+      return "failed";
+    }
+    else{
+      return "error";
     }
   } catch (e) {
-    showCustomPopup(context, "Error", "An error occurred while adding to cart.");
+    print("error $e");
+    return "exception";
   }
 }
 void showSizeDialog2(BuildContext context, List variants) {
@@ -867,7 +886,9 @@ void showSizeDialog3(BuildContext context, mainid, stock, lockedStock) {
 
                       
                           // Call add to cart function
-                          addtocart2(context, mainid,quantity);
+                          // addtocart2(context, mainid,quantity);
+                                                handleAddToCart2(context, mainid, quantity);
+
                       
                           // Close the dialog after adding to cart
                           Navigator.of(context).pop();
