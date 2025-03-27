@@ -1289,7 +1289,7 @@ Future<void> deletebox( var orderId) async {
   double totalDiscount = 0.0; // Define at the class level
  Future<void> fetchOrderItems() async {
   try {
-    ;
+    
     final token = await getTokenFromPrefs();
 
     if (token == null) {
@@ -1302,11 +1302,7 @@ Future<void> deletebox( var orderId) async {
     setState(() {
       createdBy = name;
     });
-
-    ;
-    ;
-    ;
-
+print('$api/api/order/${widget.id}/items/');
     var response = await http.get(
       Uri.parse('$api/api/order/${widget.id}/items/'),
       headers: {
@@ -1414,13 +1410,7 @@ else{
         Balance = remainingAmount;
         paymentreceipt=remainingAmount;
       });
-;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
+
     } else {
       ;
     }
@@ -2378,7 +2368,7 @@ Text(
                           ),
                         ),
                         Text(
-                          '\$${payableAmount.toStringAsFixed(2)}', // Format to 2 decimal places
+                          '\$${netAmountBeforeTax.toStringAsFixed(2)}', // Format to 2 decimal places
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,

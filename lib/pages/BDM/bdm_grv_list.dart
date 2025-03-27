@@ -34,7 +34,7 @@ class _bdm_GrvListState extends State<bdm_GrvList> {
   @override
   void initState() {
     super.initState();
-    getGrvList();
+    getprofiledata();
   }
 
   // Get token from SharedPreferences
@@ -42,34 +42,42 @@ class _bdm_GrvListState extends State<bdm_GrvList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
- void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
+   var family='';
 
-  // Use a post-frame callback to show the SnackBar after the current frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (ScaffoldMessenger.of(context).mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logged out successfully'),
-          duration: Duration(seconds: 2),
-        ),
+Future<void> getprofiledata() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/profile/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
+
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        
+
+        setState(() {
+         
+          family = productsData['family'].toString() ?? '';
+          
+
+print("family ______________________${family}");
+        
+        });
+    getGrvList();
+
+      }
+    } catch (error) {
+      
     }
-  });
-
-  // Wait for the SnackBar to disappear before navigating
-  await Future.delayed(Duration(seconds: 2));
-
-  // Navigate to the HomePage after the snackbar is shown
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
-
-  // Fetch GRV list data from the API
+  }
   Future<void> getGrvList() async {
     setState(() {
       isLoading = true;
@@ -93,7 +101,7 @@ print("Respo grv ${response.body}");
         for (var productData in productsData) {
           if(widget.status==null){
 
-          
+          if(family==productData['family']){
           grvDataList.add({
             'id': productData['id'],
             'product': productData['product'],
@@ -104,9 +112,10 @@ print("Respo grv ${response.body}");
             'remark': productData['remark'],
             'status': productData['status'] ?? statusOptions[0],
             'order_date': productData['order_date'],
-          });}
+          });}}
           else if(widget.status==productData['status']){
-            if(widget.family==productData['family'])
+            print("family ${family}");
+            if(family==productData['family'])
 {
              grvDataList.add({
             'id': productData['id'],
@@ -381,121 +390,129 @@ else if(dep=="Warehouse Admin" ){
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: DropdownButton<String>(
-                      value: selectedStatus.isEmpty ? null : selectedStatus,
-                      items: statusOptions.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            selectedStatus = newValue;
-                          });
-                          _filterProducts(searchController
-                              .text); // Re-filter based on the selected status
-                        }
-                      },
-                      isExpanded: true,
-                      hint: const Text("Search by Status"),
+  padding: const EdgeInsets.all(8.0),
+  child: Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.blue),
+      borderRadius: BorderRadius.circular(30.0),
+    ),
+    child: DropdownButton<String>(
+      value: selectedStatus.isEmpty ? null : selectedStatus,
+      items: statusOptions.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        if (newValue != null) {
+          setState(() {
+            selectedStatus = newValue;
+          });
+          _filterProducts(searchController.text); // Re-filter based on the selected status
+        }
+      },
+      isExpanded: true,
+      underline: const SizedBox(), // Removes default underline
+      hint: const Text("Search by Status"),
+    ),
+  ),
+),
+
+                 Expanded(
+  child: filteredProducts.isEmpty
+      ? const Center(
+          child: Text(
+            "No GRV present",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        )
+      : ListView.builder(
+          padding: const EdgeInsets.all(8.0),
+          itemCount: filteredProducts.length,
+          itemBuilder: (context, index) {
+            final item = filteredProducts[index];
+
+            return Card(
+              elevation: 4,
+              color: Colors.white,
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Product: ${item['product']}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(8.0),
-                      itemCount: filteredProducts.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredProducts[index];
-      
-                        return Card(
-                          elevation: 4,
-                          color: Colors.white,
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Product: ${item['product']}",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 4),
-                                Text("Invoice: ${item['invoice']}"),
-                                Text("Customer: ${item['customer']}"),
-                                Text("Staff: ${item['staff']}"),
-                                const Divider(color: Colors.blue, thickness: 1),
-                                Text("Return Reason: ${item['returnreason']}"),
-                                const SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Remark:"),
-                                    DropdownButton<String>(
-                                      key: Key(
-                                          "remark-${item['id']}"), // Unique key for dropdown
-                                      value: item['remark'],
-                                      hint: const Text(
-                                          "Select Remark"), // Display hint when null
-                                      items: remarkOptions.map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                      onChanged: (newValue) {
-                                        if (newValue != null) {
-                                          setState(() {
-                                            item['remark'] = newValue;
-                                          });
-                                          updateGrvItem(item['id'],
-                                              item['status'], newValue);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Status:"),
-                                    DropdownButton<String>(
-                                      key: Key(
-                                          "status-${item['id']}"), // Unique key for status dropdown
-                                      value: item['status'],
-                                      items: statusOptions.map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                      onChanged: (newValue) {
-                                        if (newValue != null) {
-                                          setState(() {
-                                            item['status'] = newValue;
-                                          });
-                                          updateGrvItem(item['id'], newValue,
-                                              item['remark'] ?? "");
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                const Divider(color: Colors.blue, thickness: 1),
-                                Text("Created At: ${item['order_date']}"),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                    const SizedBox(height: 4),
+                    Text("Invoice: ${item['invoice']}"),
+                    Text("Customer: ${item['customer']}"),
+                    Text("Staff: ${item['staff']}"),
+                    const Divider(color: Colors.blue, thickness: 1),
+                    Text("Return Reason: ${item['returnreason']}"),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Remark:"),
+                        DropdownButton<String>(
+                          key: Key("remark-${item['id']}"),
+                          value: item['remark'],
+                          hint: const Text("Select Remark"),
+                          items: remarkOptions.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                item['remark'] = newValue;
+                              });
+                              updateGrvItem(item['id'], item['status'], newValue);
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Status:"),
+                        DropdownButton<String>(
+                          key: Key("status-${item['id']}"),
+                          value: item['status'],
+                          items: statusOptions.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                item['status'] = newValue;
+                              });
+                              updateGrvItem(item['id'], newValue, item['remark'] ?? "");
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const Divider(color: Colors.blue, thickness: 1),
+                    Text("Created At: ${item['order_date']}"),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+),
+
                 ],
               ),
       ),
