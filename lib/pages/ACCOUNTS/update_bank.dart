@@ -124,19 +124,21 @@ TextEditingController balance=TextEditingController();
 
           if (widget.id == productData['id']) {
             bank.text = productData['name'] ?? '';
+            account_number.text = productData['account_number'] ?? '';
             branch.text = productData['branch'] ?? '';
-            ifsc.text = productData['ifsc'] ?? '';
-            balance.text = productData['balance'] ?? '';
-
+            ifsc.text = productData['ifsc_code'] ?? '';
+            balance.text = productData['open_balance'].toString() ?? '';
             
           }
         }
+        
         setState(() {
           banks = banklist;
           
         });
       }
     } catch (e) {
+      print("error$e");
       
     }
   }
@@ -154,9 +156,10 @@ TextEditingController balance=TextEditingController();
         body: jsonEncode(
           {
             'name': bank.text,
+            'account_number': account_number.text,
             'branch': branch.text,
-            'ifsc': ifsc.text,
-            'balance': balance.text,
+            'ifsc_code': ifsc.text,
+            'open_balance': balance.text,
           },
         ),
       );
@@ -170,7 +173,7 @@ TextEditingController balance=TextEditingController();
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => add_family()),
+          MaterialPageRoute(builder: (context) => add_bank()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -339,7 +342,100 @@ TextEditingController balance=TextEditingController();
                                         EdgeInsets.symmetric(vertical: 8.0),
                                   ),
                                 ),
+                                
                               ),
+                                
+                        SizedBox(height: 10,),
+                           Text("Account Number",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                            SizedBox(height: 5,),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Container(
+                        child: TextField(
+                          controller: account_number,
+                          decoration: InputDecoration(
+                            labelText: 'Account Number',
+                            labelStyle: TextStyle(
+                              fontSize: 12.0, // Set your desired font size
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+                          ),
+                        ),
+                      ),
+                    ),
+
+                              SizedBox(height: 10,),
+                           Text("Branch",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                            SizedBox(height: 5,),
+                    
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                child: TextField(
+                                  controller: branch,
+                                  decoration: InputDecoration(
+                                    labelText: 'Branch',
+                                    labelStyle: TextStyle(
+                                      fontSize: 12.0, // Set your desired font size
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide: BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+                                  ),
+                                ),
+                              ),
+                            ),
+  SizedBox(height: 10,),
+                           Text("IFSC Code",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                            SizedBox(height: 5,),
+                    
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                child: TextField(
+                                  controller: ifsc,
+                                  decoration: InputDecoration(
+                                    labelText: 'IFSC Code',
+                                    labelStyle: TextStyle(
+                                      fontSize: 12.0, // Set your desired font size
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide: BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+                                  ),
+                                ),
+                              ),
+                            ),
+       SizedBox(height: 10,),
+       Text("Opening Balance ",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+       SizedBox(height: 5,),
+Padding(
+  padding: const EdgeInsets.only(right: 10),
+  child: Container(
+    child: TextField(
+      controller: balance,
+      decoration: InputDecoration(
+        labelText: 'Opening Balance',
+        labelStyle: TextStyle(
+          fontSize: 12.0, // Set your desired font size
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 8.0), // Set vertical padding
+      ),
+    ),
+  ),
+),
                               SizedBox(height: 15),
                               ElevatedButton(
                                 onPressed: () {

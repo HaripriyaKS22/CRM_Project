@@ -155,6 +155,7 @@ class _view_customerState extends State<view_customer> {
   var managerfetchid;
   var statefetchid;
   Future<void> getcustomers() async {
+    print('customer id is ${widget.customerid}');
     try {
       final token = await gettokenFromPrefs();
 

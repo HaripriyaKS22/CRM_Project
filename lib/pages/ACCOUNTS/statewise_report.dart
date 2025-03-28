@@ -11,6 +11,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/ACCOUNTS/statewise_order_list.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
@@ -384,7 +385,7 @@ Future<void> getstatewisereport() async {
         'Content-Type': 'application/json',
       },
     );
-;
+print("response.body${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
@@ -702,98 +703,106 @@ Widget build(BuildContext context) {
                   itemCount: filteredData.length, // Use filteredData here
                   itemBuilder: (context, index) {
                     final stateData = filteredData[index];
-                    return Card(
-                      color: Colors.white,
-                      elevation: 4, // Adds shadow
-                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15), // Rounded edges
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0), // Padding inside the card
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // State name with a bold header
-                            Text(
-                              stateData["name"],
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // Highlight color
+                    return GestureDetector(
+                      onTap: () {
+                          Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => StatewiseOrderList(state:stateData["name"])));
+                      },
+                      child: Card(
+                        color: Colors.white,
+                        elevation: 4, // Adds shadow
+                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15), // Rounded edges
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0), // Padding inside the card
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // State name with a bold header
+                              Text(
+                                stateData["name"],
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black, // Highlight color
+                                ),
                               ),
-                            ),
-                            const Divider(), // Separator line
-                            const SizedBox(height: 0), // Space between items
-                            
-                            // Data rows with icons
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Colors.blue,
-                                ),
-                                SizedBox(width: 5),
-                                Text("Completed Orders: ${stateData["completed_orders_count"]} "),
-                                Spacer(),
-                                Text("₹ ${stateData["completed_amount"]}")
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.cancel,
-                                  color: Colors.blue,
-                                ),
-                                SizedBox(width: 5),
-                                Text("Cancelled Orders: ${stateData["cancelled_orders_count"]} "),
-                                Spacer(),
-                                Text("₹ ${stateData["cancelled_amount"]}")
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.undo,
-                                  color: Colors.blue,
-                                ),
-                                SizedBox(width: 5),
-                                Text("Refunded Orders: ${stateData["refunded_orders_count"]} "),
-                                Spacer(),
-                                Text("₹ ${stateData["refunded_amount"]}")
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.block,
-                                  color: Colors.blue,
-                                ),
-                                SizedBox(width: 5),
-                                Text("Returned Orders: ${stateData["returned_orders_count"]} "),
-                                Spacer(),
-                                Text("₹ ${stateData["returned_amount"]}")
-                              ],
-                            ),
-                            SizedBox(height: 2),
-                            Divider(),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.summarize,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(width: 5),
-                                Text("Total Orders: ${stateData["total_orders_count"]} "),
-                                Spacer(),
-                                Text("₹ ${stateData["total_amount"]}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
-                              ],
-                            ),
-                          ],
+                              const Divider(), // Separator line
+                              const SizedBox(height: 0), // Space between items
+                              
+                              // Data rows with icons
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(width: 5),
+                                  Text("Completed Orders: ${stateData["completed_orders_count"]} "),
+                                  Spacer(),
+                                  Text("₹ ${stateData["completed_amount"]}")
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.cancel,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(width: 5),
+                                  Text("Cancelled Orders: ${stateData["cancelled_orders_count"]} "),
+                                  Spacer(),
+                                  Text("₹ ${stateData["cancelled_amount"]}")
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.undo,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(width: 5),
+                                  Text("Refunded Orders: ${stateData["refunded_orders_count"]} "),
+                                  Spacer(),
+                                  Text("₹ ${stateData["refunded_amount"]}")
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.block,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(width: 5),
+                                  Text("Returned Orders: ${stateData["returned_orders_count"]} "),
+                                  Spacer(),
+                                  Text("₹ ${stateData["returned_amount"]}")
+                                ],
+                              ),
+                              SizedBox(height: 2),
+                              Divider(),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.summarize,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(width: 5),
+                                  Text("Total Orders: ${stateData["total_orders_count"]} "),
+                                  Spacer(),
+                                  Text("₹ ${stateData["total_amount"]}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

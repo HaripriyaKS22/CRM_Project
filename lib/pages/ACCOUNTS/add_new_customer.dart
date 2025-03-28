@@ -64,6 +64,7 @@ selectedManagerId=id;
         getprofiledata();
   }
 var allocatedstates;
+var family;
 
  Future<void> getprofiledata() async {
     try {
@@ -75,7 +76,7 @@ var allocatedstates;
           'Content-Type': 'application/json',
         },
       );
-;
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -83,7 +84,9 @@ var allocatedstates;
         setState(() {
           
           allocatedstates=productsData['allocated_states'];
-          ;
+          family=productsData['family'];
+          
+          
         });
                 getstates();
 
@@ -188,7 +191,7 @@ void logout() async {
 
   Future<void> getmanagers() async {
     try {
-     
+     var dep=await getdepFromPrefs();
 
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
@@ -204,13 +207,26 @@ void logout() async {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
- 
+ print("productsData is $productsData");
         for (var productData in productsData) {
-          managerlist.add({
+          print("productData is $productData");
+          if(dep=="BDM"&&family==productData['family']){
+            print("family is $family and ${productData['family']}");
+            managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
           });
+
+          }
+          else{
+            managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+          }
+          
         }
+
         setState(() {
           manager = managerlist;
 
