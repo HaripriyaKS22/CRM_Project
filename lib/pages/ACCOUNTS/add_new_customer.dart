@@ -210,13 +210,15 @@ void logout() async {
  print("productsData is $productsData");
         for (var productData in productsData) {
           print("productData is $productData");
-          if(dep=="BDM"&&family==productData['family']){
+          if(dep=="BDM"){
+            print("dep is $dep and ${productData['department']}");
+            if(productData['family']==family){
             print("family is $family and ${productData['family']}");
             managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
           });
-
+            }
           }
           else{
             managerlist.add({

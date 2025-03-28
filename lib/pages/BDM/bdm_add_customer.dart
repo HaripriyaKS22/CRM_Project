@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
 import 'package:beposoft/pages/BDM/bdm_customer_list.dart';
 import 'package:beposoft/pages/BDM/bdm_order_list.dart';
-import 'package:beposoft/pages/BDM/bdm_order_request.dart';
 import 'package:beposoft/pages/BDM/bdm_proforma_invoice.dart';
 
 class bdm_add_new_customer extends StatefulWidget {
@@ -681,39 +680,6 @@ class _bdm_add_new_customerState extends State<bdm_add_new_customer> {
        
   }
 
-
- void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_performa_invoice()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>credit_note_list()),
-        );
-        break;
-        case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_order_request()),
-        );
-        break;
-        case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_OrderList(status: null,)),
-        );
-        break; 
-      default:
-        // Handle default case or unexpected options
-        break;
-    }
-  }
 
   }
 

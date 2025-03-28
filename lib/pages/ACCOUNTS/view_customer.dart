@@ -69,7 +69,7 @@ class _view_customerState extends State<view_customer> {
     getmanagers();
     getstates();
 
-    ;
+    getprofiledata();
   }
 
   void initdata() async {
@@ -206,11 +206,46 @@ class _view_customerState extends State<view_customer> {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
   //   return prefs.getString('token');
   // }
+  Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
 
-  Future<void> getmanagers() async {
+  var family;
+  var staffid;
+
+ Future<void> getprofiledata() async {
     try {
       final token = await gettokenFromPrefs();
 
+      var response = await http.get(
+        Uri.parse("$api/api/profile/"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        setState(() {
+          
+          family=productsData['family'];
+          staffid=productsData['id'];
+          
+          
+        });
+                getstates();
+
+      }
+    } catch (error) {}
+  }
+  Future<void> getmanagers() async {
+    try {
+      final token = await gettokenFromPrefs();
+var dep=await getdepFromPrefs();
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
         headers: {
@@ -227,10 +262,30 @@ class _view_customerState extends State<view_customer> {
         var productsData = parsed['data'];
 
         for (var productData in productsData) {
-          managerlist.add({
+           if(dep=="BDM"){
+            print("dep is $dep and ${productData['department']}");
+            if(productData['family']==family){
+            print("family is $family and ${productData['family']}");
+            managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
           });
+            }
+          }
+          else if(dep=='BDO'){
+            if(staffid==productData['id']){
+              managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+            }
+          }
+          else{
+            managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+          }
         }
 
         // Reorder the list to have the manager with managerfetchid first
@@ -374,7 +429,7 @@ class _view_customerState extends State<view_customer> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        "Add New Customer",
+                        "Update Customer",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),

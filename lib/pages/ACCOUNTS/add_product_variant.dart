@@ -79,15 +79,15 @@ class _add_product_variantState extends State<add_product_variant> {
                 ),
               ),
             ),
-            DataColumn(
-              label: Text(
-                'Delete',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
+            // DataColumn(
+            //   label: Text(
+            //     'Delete',
+            //     style: TextStyle(
+            //       fontWeight: FontWeight.bold,
+            //       fontSize: 14,
+            //     ),
+            //   ),
+            // ),
           ],
           rows: [
             DataRow(
@@ -130,27 +130,27 @@ class _add_product_variantState extends State<add_product_variant> {
                     ),
                   ),
                 ),
-                DataCell(
-                  ElevatedButton(
-                    onPressed: () {
-                      deleteProduct(product['id'], context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      minimumSize: const Size(50, 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    child: const Text(
-                      'Delete',
-                      style: TextStyle(fontSize: 10),
-                    ),
-                  ),
-                ),
+                // DataCell(
+                //   ElevatedButton(
+                //     onPressed: () {
+                //       deleteProduct(product['id'], context);
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       foregroundColor: Colors.white,
+                //       backgroundColor: Colors.red,
+                //       padding: const EdgeInsets.symmetric(
+                //           horizontal: 8, vertical: 4),
+                //       minimumSize: const Size(50, 20),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(8.0),
+                //       ),
+                //     ),
+                //     child: const Text(
+                //       'Delete',
+                //       style: TextStyle(fontSize: 10),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ],

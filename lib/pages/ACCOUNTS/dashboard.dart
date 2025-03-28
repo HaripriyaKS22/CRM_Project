@@ -806,7 +806,7 @@ int grvcount=0;
 
                            Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderList(status: "Waiting For Confirmation",)),
+          MaterialPageRoute(builder: (context) => OrderList(status: "Invoice Approved",)),
         );
                           
 

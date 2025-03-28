@@ -4,7 +4,6 @@ import 'package:beposoft/pages/BDO/bdo_add_customer.dart';
 import 'package:beposoft/pages/BDO/bdo_customer_list.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/BDO/bdo_order_list.dart';
-import 'package:beposoft/pages/BDO/order_request.dart';
 import 'package:beposoft/pages/BDO/performa_invoice.dart';
 import 'package:flutter/material.dart';
 class performa_invoice extends StatefulWidget {
@@ -724,37 +723,5 @@ class _performa_invoiceState extends State<performa_invoice> {
   }
 
 
-   void _navigateToSelectedPage(BuildContext context, String selectedOption) {
-    
-    switch (selectedOption) {
-      case 'Option 1':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => performa_invoice()),
-        );
-        break;
-      case 'Option 2':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>credit_note_list()),
-        );
-        break;
-        case 'Option 3':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdo_order_request()),
-        );
-        break;
-        case 'Option 4':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bod_oredr_list(status: null,)),
-        );
-        break; 
-      default:
-        // Handle default case or unexpected options
-        break;
-    }
-  }
 
 }

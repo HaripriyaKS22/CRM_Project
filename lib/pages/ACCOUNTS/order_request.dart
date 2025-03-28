@@ -873,7 +873,7 @@ if(allocatedstates.isNotEmpty){
           famid = productsData['family'];
           staffid = productsData['id'];
           allocatedstates=productsData['allocated_states'];
-          ;
+          
         });
         getstate();
       }
@@ -912,7 +912,7 @@ if(allocatedstates.isNotEmpty){
   Future<void> getstaff() async {
     try {
       final token = await gettokenFromPrefs();
-
+var dep=await getdepFromPrefs();
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
         headers: {
@@ -929,10 +929,31 @@ if(allocatedstates.isNotEmpty){
 
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
+if(dep=="BDM"){
+            print("dep is $dep and ${productData['department']}");
+            if(productData['family']==famid){
+          
           stafflist.add({
             'id': productData['id'],
             'name': productData['name'],
+          });}}
+          else if(dep=="BDO"){
+            if(staffid==productData['id']){
+               stafflist.add({
+            'id': productData['id'],
+            'name': productData['name'],
           });
+              
+            }
+
+          }
+          else{
+              stafflist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+
+          }
         }
         setState(() {
           sta = stafflist;
