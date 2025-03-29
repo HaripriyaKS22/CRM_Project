@@ -1294,7 +1294,7 @@ Future<void> deletebox( var orderId) async {
     final token = await getTokenFromPrefs();
 
     if (token == null) {
-      ;
+      
       return;
     }
 
@@ -1323,8 +1323,6 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
 
       List<dynamic> itemsData = parsed['items'] ?? [];
       List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
-
-      ;
 
       getaddress(ord['customer']?['id']);
 

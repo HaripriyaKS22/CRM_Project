@@ -63,9 +63,11 @@ class _proforma_invoiceState extends State<proforma_invoice> {
     );
   }
 void logout() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+ SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove('userId');
   await prefs.remove('token');
+
 
   // Use a post-frame callback to show the SnackBar after the current frame
   WidgetsBinding.instance.addPostFrameCallback((_) {
