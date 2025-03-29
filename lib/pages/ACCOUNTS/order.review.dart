@@ -1312,7 +1312,7 @@ print('$api/api/order/${widget.id}/items/');
       },
     );
 
-  
+  print("order itemmmmmmmmmmmmmmmmmmmmmmm${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
@@ -1416,7 +1416,8 @@ else{
       ;
     }
   } catch (error) {
-    ;
+
+    print("eroorrr$error");
   }
 }
 Future<void> updatemsg(var orderId) async {

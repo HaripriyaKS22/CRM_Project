@@ -339,7 +339,7 @@ class _update_stateState extends State<update_state> {
                               ),
 
                               Text(
-                                "state",
+                                "provinece",
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
