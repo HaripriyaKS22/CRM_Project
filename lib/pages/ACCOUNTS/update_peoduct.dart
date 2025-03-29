@@ -613,7 +613,7 @@ void initdata(){
                   height: 15,
                 ),
                 SizedBox(
-                  height: 390,
+                  height: 320,
                   width: 340,
                   child: Card(
                     elevation: 4,
@@ -661,7 +661,7 @@ void initdata(){
                             SizedBox(height: 10),
                             Container(
                               width: 310,
-                              height: 49,
+                              height: 39,
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey),
                                 borderRadius: BorderRadius.circular(10),
@@ -757,85 +757,85 @@ void initdata(){
                                 // Set vertical padding
                               ),
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              "Created User",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 10),
-                            Container(
-                              width: 310,
-                              height: 49,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  SizedBox(width: 20),
-                                  Flexible(
-                                    child: InputDecorator(
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: '',
-                                        contentPadding:
-                                            EdgeInsets.symmetric(horizontal: 1),
-                                      ),
-                                      child:
-                                          DropdownButton<Map<String, dynamic>>(
-                                        value: manager.isNotEmpty
-                                            ? manager.firstWhere(
-                                                (element) =>
-                                                    element['id'] ==
-                                                    selectedManagerId,
-                                                orElse: () => manager[0],
-                                              )
-                                            : null,
-                                        underline: Container(),
-                                        onChanged: manager.isNotEmpty
-                                            ? (Map<String, dynamic>? newValue) {
-                                                setState(() {
-                                                  selectedManagerName =
-                                                      newValue!['name'];
-                                                  selectedManagerId =
-                                                      newValue['id'];
+                            // SizedBox(
+                            //   height: 10,
+                            // ),
+                            // Text(
+                            //   "Created User",
+                            //   style: TextStyle(
+                            //       fontSize: 15, fontWeight: FontWeight.bold),
+                            // ),
+                            // SizedBox(height: 10),
+                            // Container(
+                            //   width: 310,
+                            //   height: 49,
+                            //   decoration: BoxDecoration(
+                            //     border: Border.all(color: Colors.grey),
+                            //     borderRadius: BorderRadius.circular(10),
+                            //   ),
+                            //   child: Row(
+                            //     children: [
+                            //       SizedBox(width: 20),
+                            //       Flexible(
+                            //         child: InputDecorator(
+                            //           decoration: InputDecoration(
+                            //             border: InputBorder.none,
+                            //             hintText: '',
+                            //             contentPadding:
+                            //                 EdgeInsets.symmetric(horizontal: 1),
+                            //           ),
+                            //           child:
+                            //               DropdownButton<Map<String, dynamic>>(
+                            //             value: manager.isNotEmpty
+                            //                 ? manager.firstWhere(
+                            //                     (element) =>
+                            //                         element['id'] ==
+                            //                         selectedManagerId,
+                            //                     orElse: () => manager[0],
+                            //                   )
+                            //                 : null,
+                            //             underline: Container(),
+                            //             onChanged: manager.isNotEmpty
+                            //                 ? (Map<String, dynamic>? newValue) {
+                            //                     setState(() {
+                            //                       selectedManagerName =
+                            //                           newValue!['name'];
+                            //                       selectedManagerId =
+                            //                           newValue['id'];
                                                
-                                                });
-                                              }
-                                            : null,
-                                        items: manager.isNotEmpty
-                                            ? manager.map<
-                                                DropdownMenuItem<
-                                                    Map<String, dynamic>>>(
-                                                (Map<String, dynamic> manager) {
-                                                  return DropdownMenuItem<
-                                                      Map<String, dynamic>>(
-                                                    value: manager,
-                                                    child:
-                                                        Text(manager['name']),
-                                                  );
-                                                },
-                                              ).toList()
-                                            : [
-                                                DropdownMenuItem(
-                                                  child: Text(
-                                                      'No managers available'),
-                                                  value: null,
-                                                ),
-                                              ],
-                                        icon: Container(
-                                          alignment: Alignment.centerRight,
-                                          child: Icon(Icons.arrow_drop_down),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
+                            //                     });
+                            //                   }
+                            //                 : null,
+                            //             items: manager.isNotEmpty
+                            //                 ? manager.map<
+                            //                     DropdownMenuItem<
+                            //                         Map<String, dynamic>>>(
+                            //                     (Map<String, dynamic> manager) {
+                            //                       return DropdownMenuItem<
+                            //                           Map<String, dynamic>>(
+                            //                         value: manager,
+                            //                         child:
+                            //                             Text(manager['name']),
+                            //                       );
+                            //                     },
+                            //                   ).toList()
+                            //                 : [
+                            //                     DropdownMenuItem(
+                            //                       child: Text(
+                            //                           'No managers available'),
+                            //                       value: null,
+                            //                     ),
+                            //                   ],
+                            //             icon: Container(
+                            //               alignment: Alignment.centerRight,
+                            //               child: Icon(Icons.arrow_drop_down),
+                            //             ),
+                            //           ),
+                            //         ),
+                            //       )
+                            //     ],
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -1004,38 +1004,42 @@ void initdata(){
                               height: 10,
                             ),
 
-                            SizedBox(height: 10),
-                            Text("Family",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 20),
-                            fam.isEmpty
-                                ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: fam.length,
-                                    itemBuilder: (context, index) {
-                                      return CheckboxListTile(
-                                        title: Text(fam[index]['name']),
-                                        value: _checkboxValues[index],
-                                        onChanged: (bool? value) {
-                                          setState(() {
-                                            _checkboxValues[index] =
-                                                value ?? false;
-                                            if (_checkboxValues[index]) {
-                                              _selectedFamily
-                                                  .add(fam[index]['id']);
-                                            } else {
-                                              _selectedFamily
-                                                  .remove(fam[index]['id']);
-                                            }
-                                          });
-                                        },
-                                        controlAffinity:
-                                            ListTileControlAffinity.leading,
-                                      );
-                                    },
-                                  ),
+                           SingleChildScrollView(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        "Family",
+        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      ),
+      SizedBox(height: 20),
+      fam.isEmpty
+          ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
+          : ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(), // Prevent nested scrolling
+              itemCount: fam.length,
+              itemBuilder: (context, index) {
+                return CheckboxListTile(
+                  title: Text(fam[index]['name']),
+                  value: _checkboxValues[index],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _checkboxValues[index] = value ?? false;
+                      if (_checkboxValues[index]) {
+                        _selectedFamily.add(fam[index]['id']);
+                      } else {
+                        _selectedFamily.remove(fam[index]['id']);
+                      }
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,
+                );
+              },
+            ),
+    ],
+  ),
+),
                             SizedBox(height: 10),
                             Text("Unit * ",
                                 style: TextStyle(

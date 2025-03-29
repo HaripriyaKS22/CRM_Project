@@ -655,6 +655,7 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
             duration: Duration(seconds: 2),
           ),
         );
+        fetchOrderItems();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1253,8 +1254,8 @@ Future<void> deletebox( var orderId) async {
       },
       
     );
-    ;
-    ;
+    
+    
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1316,7 +1317,7 @@ print('$api/api/order/${widget.id}/items/');
       final parsed = jsonDecode(response.body);
 
       ord = parsed['order'] ?? {};
-      ;
+      print("biliiiiiiiiiiiiiiiiiiiiiiiiii${ord['billing_address']}");
 codamount.text = ord['cod_amount']?.toString() ?? '';
       shippingmethod.text = ord['shipping_mode'] ?? '';
 
@@ -2112,7 +2113,7 @@ Text(
 ),
 
                                         Spacer(),
-                                      if(dep != "BDM" && dep != "BDO")
+                                      if(dep != "BDM" && dep != "BDO" )
 
                                         GestureDetector(
                                           onTap: () {

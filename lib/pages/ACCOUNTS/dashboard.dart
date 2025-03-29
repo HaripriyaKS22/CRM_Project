@@ -251,9 +251,9 @@ Future<void> fetchshippedorders() async {
   } catch (error) {
     ;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred while fetching data')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('An error occurred while fetching data')),
+      //);
     });
   } finally {
     setState(() {});  // End loading state

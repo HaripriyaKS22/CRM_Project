@@ -18,6 +18,8 @@ import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:flutter/material.dart';
@@ -177,191 +179,231 @@ Future<String?> getdepFromPrefs() async {
     MaterialPageRoute(builder: (context) => login()),
   );
 }
+Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+    if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+} else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-       appBar: AppBar(
-        title: Text(
-          "Customer List",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if (dep == "BDO") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdo_dashbord()), // Replace AnotherPage with your target page
-              );
-            } else if (dep == "BDM") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        bdm_dashbord()), // Replace AnotherPage with your target page
-              );
-            }
-
-            else if (dep == "ADMIN") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        admin_dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-            
-            
-            else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {},
+    return WillPopScope(
+       onWillPop: () async {
+        // Trigger the navigation logic when the back swipe occurs
+        _navigateBack();
+        return false; // Prevent the default back navigation behavior
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+         appBar: AppBar(
+          title: Text(
+            "Customer List",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
-        ],
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async {
+              final dep = await getdepFromPrefs();
+             if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      } 
+              
+              else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          dashboard()), // Replace AnotherPage with your target page
+                );
+              }
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {},
+            ),
+          ],
+        ),
+        
+        body:Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+         Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+      controller: searchController,
+      decoration: InputDecoration(
+        hintText: "Search customers...",
+        prefixIcon: Icon(Icons.search),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blue, // Set your desired border color here
+            width: 2.0, // Set the border width
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blue, // Border color when TextField is not focused
+            width: 2.0,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(
+            color: Colors.blueAccent, // Border color when TextField is focused
+            width: 2.0,
+          ),
+        ),
+      ),
+      onChanged: _filterProducts,
+        ),
       ),
       
-      body:Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-   Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: TextField(
-    controller: searchController,
-    decoration: InputDecoration(
-      hintText: "Search customers...",
-      prefixIcon: Icon(Icons.search),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blue, // Set your desired border color here
-          width: 2.0, // Set the border width
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blue, // Border color when TextField is not focused
-          width: 2.0,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30.0),
-        borderSide: BorderSide(
-          color: Colors.blueAccent, // Border color when TextField is focused
-          width: 2.0,
-        ),
-      ),
-    ),
-    onChanged: _filterProducts,
-  ),
-),
-
-    Expanded(
-      child: ListView.builder(
-        itemCount: filteredProducts.length,
-        itemBuilder: (context, index) {
-          final customerData = filteredProducts[index];
-          return Card(
-            color: Colors.white,
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          customerData['name'] ?? '',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+      Expanded(
+        child: ListView.builder(
+          itemCount: filteredProducts.length,
+          itemBuilder: (context, index) {
+            final customerData = filteredProducts[index];
+            return Card(
+              color: Colors.white,
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            customerData['name'] ?? '',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Created on: ${customerData['created_at']}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(Icons.more_vert,color:Colors.blue),
+                      onSelected: (value) {
+                        if (value == 'View') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => view_customer(customerid:customerData['id']),
+                            ),
+                          );
+                        } else if (value == 'Add Address') {
+                         Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => add_address(customerid:customerData['id'],name:customerData['name']),
+                            ),
+                          );
+                        }
+                        else if (value == 'View Ledger') {
+                         Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CustomerLedger(customerid:customerData['id'],customerName:customerData['name']),
+                            ),
+                          );
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        PopupMenuItem<String>(
+                          value: 'View',
+                          child: Text('View'),
                         ),
-                        SizedBox(height: 2),
-                        Text(
-                          'Created on: ${customerData['created_at']}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
+                        PopupMenuItem<String>(
+                          value: 'Add Address',
+                          child: Text('Add Address'),
+                        ),
+                         PopupMenuItem<String>(
+                          value: 'View Ledger',
+                          child: Text('View Ledger'),
                         ),
                       ],
                     ),
-                  ),
-                  PopupMenuButton<String>(
-                    icon: Icon(Icons.more_vert,color:Colors.blue),
-                    onSelected: (value) {
-                      if (value == 'View') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => view_customer(customerid:customerData['id']),
-                          ),
-                        );
-                      } else if (value == 'Add Address') {
-                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => add_address(customerid:customerData['id'],name:customerData['name']),
-                          ),
-                        );
-                      }
-                      else if (value == 'View Ledger') {
-                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CustomerLedger(customerid:customerData['id'],customerName:customerData['name']),
-                          ),
-                        );
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<String>(
-                        value: 'View',
-                        child: Text('View'),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'Add Address',
-                        child: Text('Add Address'),
-                      ),
-                       PopupMenuItem<String>(
-                        value: 'View Ledger',
-                        child: Text('View Ledger'),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
-    ),
-  ],
-)
-
+        ],
+      )
+      
+      ),
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_request_list.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_product_approval.dart';
 import 'package:intl/intl.dart';
 
 import 'package:beposoft/loginpage.dart';
@@ -438,10 +439,11 @@ int packed=0;
               Divider(),
              
               ListTile(
-                leading: Icon(Icons.chat),
-                title: Text('Chat'),
+                leading: Icon(Icons.check_circle),
+                title: Text('Approve Products'),
                 onTap: () {
-                  Navigator.pop(context); // Close the drawer
+                   Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Approve_products()));
                 },
               ),
               Divider(),

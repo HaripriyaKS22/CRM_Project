@@ -592,18 +592,11 @@ Future<String?> getdepFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('department');
   } 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Order List',
-            style: TextStyle(fontSize: 14, color: Colors.grey)),
-        centerTitle: true,
-         leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-                    final dep= await getdepFromPrefs();
-if(dep=="BDO" ){
+
+
+   Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+    if(dep=="BDO" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
@@ -627,347 +620,397 @@ else if(dep=="Warehouse Admin" ){
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
-}
-else {
-    Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
-            );
+} else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
 
-}
-           
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.calendar_today), // Calendar icon
-            onPressed: () => _selectSingleDate(
-                context), // Call the method to select start date
-          ),
-          // Icon button to open date range picker
-          IconButton(
-            icon: Icon(Icons.date_range), // Date range icon
-            onPressed: () => _selectDateRange(
-                context), // Call the method to select date range
-          ),
-          PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert), // 3-dot icon
-            onSelected: (value) {
-              // Handle menu item selection
-              switch (value) {
-                case 'Option 1':
-                  exportToExcel();
-                  break;
-                case 'Option 2':
-                  downloadPdf();
-                  break;
-
-                default:
-                  // Handle default case
-                  break;
-              }
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        // Trigger the navigation logic when the back swipe occurs
+        _navigateBack();
+        return false; // Prevent the default back navigation behavior
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Order List',
+              style: TextStyle(fontSize: 14, color: Colors.grey)),
+          centerTitle: true,
+           leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async{
+                      final dep= await getdepFromPrefs();
+      if(dep=="BDO" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+              );
+      
+      }
+      else if(dep=="BDM" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="warehouse" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+              );
+      }
+      else if(dep=="Warehouse Admin" ){
+         Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+              );
+      }
+      else {
+      Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
+              );
+      
+      }
+             
             },
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem<String>(
-                  value: 'Option 1',
-                  child: Text('Export Excel'),
-                ),
-                PopupMenuItem<String>(
-                  value: 'Option 2',
-                  child: Text('Download Pdf'),
-                ),
-              ];
-            },
           ),
-        ],
-      ),
-     
-      body: Column(
-        children: [
-          // Search Bar
-          SizedBox(height: 20,),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                ),
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: _filterOrders,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.calendar_today), // Calendar icon
+              onPressed: () => _selectSingleDate(
+                  context), // Call the method to select start date
             ),
-          ),
-          // Date Filters
-          // Padding(
-          //   padding: const EdgeInsets.all(8.0),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: [
-          //       SizedBox(
-          //         width: 160,
-          //         child: ElevatedButton(
-          //           onPressed: () => _selectSingleDate(context),
-          //           style: ElevatedButton.styleFrom(
-          //             backgroundColor: const Color.fromARGB(
-          //                 255, 2, 65, 96), // Set button color to grey
-          //             shape: RoundedRectangleBorder(
-          //               borderRadius:
-          //                   BorderRadius.circular(8), // Set the border radius
-          //             ),
-          //           ),
-          //           child: Text(
-          //             'Select Date',
-          //             style: TextStyle(color: Colors.white),
-          //           ),
-          //         ),
-          //       ),
-          //       SizedBox(width: 10),
-          //       ElevatedButton(
-          //         onPressed: () => _selectDateRange(context),
-          //         style: ElevatedButton.styleFrom(
-          //           backgroundColor: const Color.fromARGB(
-          //               255, 2, 65, 96), // Set button color to grey
-          //           shape: RoundedRectangleBorder(
-          //             borderRadius:
-          //                 BorderRadius.circular(8), // Set the border radius
-          //           ),
-          //         ),
-          //         child: Text(
-          //           'Select Date Range',
-          //           style: TextStyle(
-          //               color: Colors.white), // Set text color to white
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          // Display Orders
-          Expanded(
-            child: filteredOrders.isEmpty
-                ? Center(
-                    child: Text(
-                      selectedDate != null ||
-                              (startDate != null && endDate != null)
-                          ? 'No orders available in this date range'
-                          : 'No orders available',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: const Color.fromARGB(255, 2, 65, 96)),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: filteredOrders.length,
-                    padding: const EdgeInsets.only(right: 10, left: 10),
-                    itemBuilder: (context, index) {
-                      final order = filteredOrders[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        WarehouseOrderReview(id: order['id'])));
-                          },
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            color: Colors.white,
-                            elevation: 4,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Header section with Invoice and Order Date
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(15.0),
-                                      topRight: Radius.circular(15.0),
+            // Icon button to open date range picker
+            IconButton(
+              icon: Icon(Icons.date_range), // Date range icon
+              onPressed: () => _selectDateRange(
+                  context), // Call the method to select date range
+            ),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert), // 3-dot icon
+              onSelected: (value) {
+                // Handle menu item selection
+                switch (value) {
+                  case 'Option 1':
+                    exportToExcel();
+                    break;
+                  case 'Option 2':
+                    downloadPdf();
+                    break;
+      
+                  default:
+                    // Handle default case
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem<String>(
+                    value: 'Option 1',
+                    child: Text('Export Excel'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'Option 2',
+                    child: Text('Download Pdf'),
+                  ),
+                ];
+              },
+            ),
+          ],
+        ),
+       
+        body: Column(
+          children: [
+            // Search Bar
+            SizedBox(height: 20,),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                  ),
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: _filterOrders,
+              ),
+            ),
+            // Date Filters
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       SizedBox(
+            //         width: 160,
+            //         child: ElevatedButton(
+            //           onPressed: () => _selectSingleDate(context),
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: const Color.fromARGB(
+            //                 255, 2, 65, 96), // Set button color to grey
+            //             shape: RoundedRectangleBorder(
+            //               borderRadius:
+            //                   BorderRadius.circular(8), // Set the border radius
+            //             ),
+            //           ),
+            //           child: Text(
+            //             'Select Date',
+            //             style: TextStyle(color: Colors.white),
+            //           ),
+            //         ),
+            //       ),
+            //       SizedBox(width: 10),
+            //       ElevatedButton(
+            //         onPressed: () => _selectDateRange(context),
+            //         style: ElevatedButton.styleFrom(
+            //           backgroundColor: const Color.fromARGB(
+            //               255, 2, 65, 96), // Set button color to grey
+            //           shape: RoundedRectangleBorder(
+            //             borderRadius:
+            //                 BorderRadius.circular(8), // Set the border radius
+            //           ),
+            //         ),
+            //         child: Text(
+            //           'Select Date Range',
+            //           style: TextStyle(
+            //               color: Colors.white), // Set text color to white
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // Display Orders
+            Expanded(
+              child: filteredOrders.isEmpty
+                  ? Center(
+                      child: Text(
+                        selectedDate != null ||
+                                (startDate != null && endDate != null)
+                            ? 'No orders available in this date range'
+                            : 'No orders available',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: const Color.fromARGB(255, 2, 65, 96)),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredOrders.length,
+                      padding: const EdgeInsets.only(right: 10, left: 10),
+                      itemBuilder: (context, index) {
+                        final order = filteredOrders[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 3.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          WarehouseOrderReview(id: order['id'])));
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              color: Colors.white,
+                              elevation: 4,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Header section with Invoice and Order Date
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(15.0),
+                                        topRight: Radius.circular(15.0),
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '#${order['invoice']} ',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          DateFormat('dd MMM yy').format(
+                                              DateTime.parse(
+                                                  order['order_date'])),
+                                          style: TextStyle(
+                                              color: Colors.white, fontSize: 14),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        '#${order['invoice']} ',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        DateFormat('dd MMM yy').format(
-                                            DateTime.parse(
-                                                order['order_date'])),
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Order details section
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          
-                                        },
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              'Status:',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                            Spacer(),
-                                            Text(
-                                              ' ${order['status']}',
-                                              style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(height: 8.0),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Billing Amount:',
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                          Text(
-                                            '\$${order['total_amount']}',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.green),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Warehouse Details Section\
-                                
-                                if (order['warehouse_orders'] != null &&
-                                    order['warehouse_orders'].isNotEmpty)
+                                  // Order details section
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0, vertical: 4.0),
+                                    padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          'Warehouse Details:',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue),
+                                        GestureDetector(
+                                          onTap: () {
+                                            
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                'Status:',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                              Spacer(),
+                                              Text(
+                                                ' ${order['status']}',
+                                                style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w600),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        SizedBox(height: 4.0),
-                                        ...order['warehouse_orders']
-                                            .map<Widget>((warehouse) {
-                                      
-                                          return Card(
-                                            color: const Color.fromARGB(
-                                                240, 255, 255, 255),
-                                            margin: EdgeInsets.symmetric(
-                                                vertical: 4.0),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Row(
-                                                // Changed to Row to place image and details side by side
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Image.network(
-                                                    "${warehouse['image']}",
-                                                    width: 80,
-                                                    height: 80,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (context,
-                                                        error, stackTrace) {
-                                                      return Icon(Icons
-                                                          .image_not_supported); // Fallback image or icon
-                                                    },
-                                                  ),
-
-                                                  SizedBox(
-                                                      width:
-                                                          10), // Spacer between image and text
-                                                  Expanded(
-                                                    child: Column(
-                                                      // Details in a vertical column
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Box: ${warehouse['box']}',
-                                                          style: TextStyle(
-                                                              fontSize: 13),
-                                                        ),
-                                                        Text(
-                                                          'Total Weight: ${warehouse['total_weight']}',
-                                                          style: TextStyle(
-                                                              fontSize: 13),
-                                                        ),
-                                                        Text(
-                                                          'Total Volume Weight: ${warehouse['total_volume_weight']}',
-                                                          style: TextStyle(
-                                                              fontSize: 13),
-                                                        ),
-                                                        
-                                                        Text(
-                                                          'Shipping Charge: \$${warehouse['shipping_charge']}',
-                                                          style: TextStyle(
-                                                              fontSize: 13,
-                                                              color:
-                                                                  Colors.green),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
+                                        SizedBox(height: 8.0),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Billing Amount:',
+                                              style: TextStyle(
+                                                fontSize: 13,
                                               ),
                                             ),
-                                          );
-                                        }).toList(),
+                                            Text(
+                                              '\$${order['total_amount']}',
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.green),
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                   ),
-                              ],
+                                  // Warehouse Details Section\
+                                  
+                                  if (order['warehouse_orders'] != null &&
+                                      order['warehouse_orders'].isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0, vertical: 4.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Warehouse Details:',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue),
+                                          ),
+                                          SizedBox(height: 4.0),
+                                          ...order['warehouse_orders']
+                                              .map<Widget>((warehouse) {
+                                        
+                                            return Card(
+                                              color: const Color.fromARGB(
+                                                  240, 255, 255, 255),
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 4.0),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  // Changed to Row to place image and details side by side
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Image.network(
+                                                      "${warehouse['image']}",
+                                                      width: 80,
+                                                      height: 80,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
+                                                        return Icon(Icons
+                                                            .image_not_supported); // Fallback image or icon
+                                                      },
+                                                    ),
+      
+                                                    SizedBox(
+                                                        width:
+                                                            10), // Spacer between image and text
+                                                    Expanded(
+                                                      child: Column(
+                                                        // Details in a vertical column
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            'Box: ${warehouse['box']}',
+                                                            style: TextStyle(
+                                                                fontSize: 13),
+                                                          ),
+                                                          Text(
+                                                            'Total Weight: ${warehouse['total_weight']}',
+                                                            style: TextStyle(
+                                                                fontSize: 13),
+                                                          ),
+                                                          Text(
+                                                            'Total Volume Weight: ${warehouse['total_volume_weight']}',
+                                                            style: TextStyle(
+                                                                fontSize: 13),
+                                                          ),
+                                                          
+                                                          Text(
+                                                            'Shipping Charge: \$${warehouse['shipping_charge']}',
+                                                            style: TextStyle(
+                                                                fontSize: 13,
+                                                                color:
+                                                                    Colors.green),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

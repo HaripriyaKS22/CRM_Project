@@ -213,6 +213,7 @@ class _view_customerState extends State<view_customer> {
 
   var family;
   var staffid;
+var allocatedstates;
 
  Future<void> getprofiledata() async {
     try {
@@ -231,7 +232,8 @@ class _view_customerState extends State<view_customer> {
         var productsData = parsed['data'];
 
         setState(() {
-          
+                    allocatedstates=productsData['allocated_states'];
+
           family=productsData['family'];
           staffid=productsData['id'];
           
@@ -306,10 +308,10 @@ var dep=await getdepFromPrefs();
     } catch (error) {}
   }
 
-  Future<void> getstates() async {
+ Future<void> getstates() async {
     try {
       final token = await gettokenFromPrefs();
-
+var dep=await getdepFromPrefs();
       var response = await http.get(
         Uri.parse('$api/api/states/'),
         headers: {
@@ -317,39 +319,50 @@ var dep=await getdepFromPrefs();
           'Content-Type': 'application/json',
         },
       );
+  
       List<Map<String, dynamic>> stateslist = [];
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
+     
         for (var productData in productsData) {
           stateslist.add({
             'id': productData['id'],
             'name': productData['name'],
           });
+
+
         }
-
-        // Convert statefetchid to match the type of id in stateslist
-        final convertedStatefetchid =
-            statefetchid is String ? int.tryParse(statefetchid) : statefetchid;
-
-        // Reorder the list to have the state with statefetchid first
-        stateslist.sort((a, b) {
-          if (a['id'] == convertedStatefetchid) return -1;
-          if (b['id'] == convertedStatefetchid) return 1;
-          return 0;
-        });
-
+        
+        // Filter to keep only allocated states
+        if(dep=="BDO"||dep=="BDM"){
+        if(allocatedstates.isNotEmpty){
+      List<Map<String, dynamic>> filteredStates = stateslist
+          .where((state) => allocatedstates.contains(state['id']))
+          .toList();
         setState(() {
-          statess = stateslist;
-          selectstate = stateslist[0]['name'];
-          selectedStateId = stateslist[0]['id'];
-        });
-      }
-    } catch (error) {}
-  }
+          statess = filteredStates;
 
+          
+        });}
+        else{
+          statess=[];
+
+        }
+        }
+        else{
+          setState(() {
+            
+          statess = stateslist;
+          });
+        }
+      }
+    } catch (error) {
+      
+    }
+  }
   drower d = drower();
   Widget _buildDropdownTile(
       BuildContext context, String title, List<String> options) {

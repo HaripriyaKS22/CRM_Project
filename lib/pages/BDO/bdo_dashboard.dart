@@ -236,20 +236,20 @@ Future<void> getcustomer() async {
           salesReportList = salesReportDataList;
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to fetch sales report data'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('Failed to fetch sales report data'),
+        //     duration: Duration(seconds: 2),
+        //   ),
+        // );
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error fetching sales report data'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: Text('Error fetching sales report data'),
+      //     duration: Duration(seconds: 2),
+      //   ),
+      // );
     } finally {
       setState(() {});
     }
@@ -360,20 +360,20 @@ Future<void> getcustomer() async {
         int grvListCount = grvlist.length;
         
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to fetch GRV data'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('Failed to fetch GRV data'),
+        //     duration: Duration(seconds: 2),
+        //   ),
+        // );
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error fetching GRV data'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: Text('Error fetching GRV data'),
+      //     duration: Duration(seconds: 2),
+      //   ),
+      // );
     }
   }
  Future<String?> getusernameFromPrefs() async {

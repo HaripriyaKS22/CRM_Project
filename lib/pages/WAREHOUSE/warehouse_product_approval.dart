@@ -347,7 +347,7 @@ dep= await getdepFromPrefs();
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
       List<Map<String, dynamic>> productList = [];
-
+print(productsData);
       for (var productData in productsData) {
         // Filter products with "approval_status": "Disapproved"
         
@@ -373,7 +373,7 @@ dep= await getdepFromPrefs();
             'family': familyNames, // Add family names here
             'image': productData['image'], // Main product image
           });
-        
+
       }
 
       setState(() {
@@ -605,7 +605,7 @@ Future<void> addtocart2(BuildContext scaffoldContext,mainid,quantity) async{
 // 
 
 void showSizeDialog2(BuildContext context, var products) {
-  ;
+  
   List variants = products['variantIDs'].where((variant) => variant['approval_status'] == "Disapproved").toList();
 
   // Create a ValueNotifier to track the selected product
@@ -1162,6 +1162,15 @@ else if(dep=="Warehouse Admin" ){
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                     Text(
+  "${product['approval_status']}",
+  style: TextStyle(
+    fontSize: 14,
+    color: product['approval_status'] == "Approved" ? Colors.green : Colors.red,
+  ),
+  maxLines: 1,
+  overflow: TextOverflow.ellipsis,
+),
                       if (product['color'] != null && product['color'].isNotEmpty) // Display color if it exists
                         Text(
                           "Color: ${product['color']}",

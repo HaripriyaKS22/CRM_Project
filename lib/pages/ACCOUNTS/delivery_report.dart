@@ -435,13 +435,16 @@ else if(dep=="Warehouse Admin" ){
                           color: Colors.white),
                     ),
                     Divider(color: Colors.white70),
-                    _buildRowWithTwoColumns('Total Boxes', totals['total_boxes'],
-                        'Total Weight', '${totals['total_weight']} kg'),
-                    _buildRowWithTwoColumns(
-                        'Volume Weight',
-                        '${totals['total_volume_weight']} kg',
-                        'Shipping Charge',
-                        '₹${totals['total_shipping_charge']}'),
+                   _buildRowWithTwoColumns(
+  'Total Boxes', totals['total_boxes'],
+  'Total Weight', '${totals['total_weight']?.toStringAsFixed(2)} kg',
+),
+_buildRowWithTwoColumns(
+  'Volume Weight',
+  '${totals['total_volume_weight']?.toStringAsFixed(2)} kg',
+  'Shipping Charge',
+  '₹${totals['total_shipping_charge']}',
+),
                   ],
                 ),
               ),

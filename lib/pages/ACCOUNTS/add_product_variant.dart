@@ -49,7 +49,7 @@ class _add_product_variantState extends State<add_product_variant> {
         final product = singleProducts.first;
 
         return DataTable(
-          columnSpacing: 20,
+          columnSpacing: 45,
           headingRowHeight: 40,
           columns: const <DataColumn>[
             DataColumn(
@@ -161,7 +161,7 @@ class _add_product_variantState extends State<add_product_variant> {
     } else if (widget.type == 'variant') {
       // Display variant products
       return DataTable(
-        columnSpacing: 20,
+        columnSpacing: 45,
         headingRowHeight: 40,
         columns: const <DataColumn>[
           DataColumn(
@@ -191,15 +191,15 @@ class _add_product_variantState extends State<add_product_variant> {
               ),
             ),
           ),
-          DataColumn(
-            label: Text(
-              'Delete',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
+          // DataColumn(
+          //   label: Text(
+          //     'Delete',
+          //     style: TextStyle(
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 14,
+          //     ),
+          //   ),
+          // ),
         ],
         rows: variantProducts.map((variant) {
           return DataRow(
@@ -241,26 +241,26 @@ class _add_product_variantState extends State<add_product_variant> {
                   ),
                 ),
               ),
-              DataCell(
-                ElevatedButton(
-                  onPressed: () {
-                    deleteProduct(variant['id'], context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    minimumSize: const Size(50, 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: const Text(
-                    'Delete',
-                    style: TextStyle(fontSize: 10),
-                  ),
-                ),
-              ),
+              // DataCell(
+              //   ElevatedButton(
+              //     onPressed: () {
+              //       deleteProduct(variant['id'], context);
+              //     },
+              //     style: ElevatedButton.styleFrom(
+              //       foregroundColor: Colors.white,
+              //       backgroundColor: Colors.red,
+              //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              //       minimumSize: const Size(50, 20),
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(8.0),
+              //       ),
+              //     ),
+              //     child: const Text(
+              //       'Delete',
+              //       style: TextStyle(fontSize: 10),
+              //     ),
+              //   ),
+              // ),
             ],
           );
         }).toList(),

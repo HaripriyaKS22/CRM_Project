@@ -53,8 +53,8 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
 
   Future<void> initData() async {
     await fetchOrderItems();
-    await getmanagers();
     await getcourierservices();
+    getprofiledata();
   }
 
   List<Map<String, dynamic>> manager = [];
@@ -73,7 +73,8 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
   final TextEditingController transactionid = TextEditingController();
   final TextEditingController shippingcharge = TextEditingController();
 
-
+  var famid;
+  var staffid;
 
  double? totalVolume; // Variable to store calculated volume
 
@@ -150,6 +151,31 @@ Future<String?> getdepartment() async {
             DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
+  }
+ Future<void> getprofiledata() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse("$api/api/profile/"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+;
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        setState(() {
+          famid = productsData['family'];
+          staffid = productsData['id'];
+          
+        });
+        getmanagers();
+      }
+    } catch (error) {}
   }
 
   Future<void> updatestatus() async {
@@ -402,12 +428,11 @@ Future<void> deletebox( var orderId) async {
       },
       
     );
-    ;
-    ;
+    
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Shipping charge updated successfully'),
+          content: Text('Deleted successfully'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -416,7 +441,7 @@ Future<void> deletebox( var orderId) async {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to update shipping charge'),
+          content: Text('Failed to Delete'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -436,7 +461,8 @@ Future<void> deletebox( var orderId) async {
   Future<void> getmanagers() async {
     try {
       final token = await getTokenFromPrefs();
-    
+    var dep=await getdepartment();
+    print("deppppppppppppppppppppp$dep");
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
         headers: {
@@ -453,10 +479,22 @@ Future<void> deletebox( var orderId) async {
 
      
         for (var productData in productsData) {
+          if(dep=="Warehouse Admin"){
+            print("productData['department']${productData['department_name']}");
+            if(productData['department_name'] == "warehouse"||productData['department_name']=="Warehouse Admin"){
+         
           managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
+          });}}
+          else{
+
+            managerlist.add({
+            'id': productData['id'],
+            'name': productData['name'],
           });
+
+          }
         }
         setState(() {
           manager = managerlist;
@@ -1674,7 +1712,7 @@ var dep;
                       onTap: () {
                         showPopupDialog(context, item);
                       },
-                      child: Card(
+                      child:Card(
                         color: Colors.white,
                         margin: const EdgeInsets.only(bottom: 8.0),
                         shape: RoundedRectangleBorder(
@@ -1693,8 +1731,7 @@ var dep;
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
-                                    image: NetworkImage(
-                                        '$api${item["images"]}'),
+                                    image: NetworkImage('$api${item["images"]}'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -1720,7 +1757,7 @@ var dep;
                                     Row(
                                       children: [
                                         Text(
-                                          'Excluded price: ${item["exclude_price"]}',
+                                          'discount: ${item["discount"]}',
                                           style: TextStyle(
                                               fontSize: 12, color: Colors.grey),
                                         ),
@@ -1736,29 +1773,35 @@ var dep;
                                           )
                                       ],
                                     ),
-                                    Text(
-                                      'Tax Amount: ${item["rate"] - item["exclude_price"]}',
+                                     Text(
+                                      'Rate After Discount: ${item["rate"] - item["discount"]}',
                                       style: TextStyle(
                                           fontSize: 12, color: Colors.grey),
                                     ),
+
+                                   Text(
+  'Tax Amount: ${((item["rate"] - item["discount"]) - item["exclude_price"]).toStringAsFixed(2)}',
+  style: TextStyle(
+      fontSize: 12, color: Colors.grey),
+),
+                                     // ...existing code...
+Text(
+  'Excluded price: ${item["exclude_price"]}',
+  style: TextStyle(
+      fontSize: 12, color: Colors.grey),
+),
+// ...existing code...
                                     Row(
                                       children: [
-                                        Text(
-                                          'Total: ${item["actual_price"] * item["quantity"]}',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black),
-                                        ),
-                                        Spacer(),
-                                        GestureDetector(
-                                          onTap: () {
-                                            removeproduct(item["id"]);
-                                          },
-                                          child: Image.asset(
-                                              height: 25,
-                                              width: 25,
-                                              "lib/assets/delete.png"),
-                                        )
+                                       Text(
+  'Total: ${(((item["exclude_price"] + ((item["rate"] - item["discount"]) - item["exclude_price"])) * item["quantity"]).toStringAsFixed(2))}',
+  style: TextStyle(
+    fontSize: 12,
+    color: Colors.black,
+  ),
+),
+
+                                    
                                       ],
                                     ),
                                   ],

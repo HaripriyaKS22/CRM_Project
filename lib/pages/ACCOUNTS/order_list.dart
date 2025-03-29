@@ -752,7 +752,7 @@ else if(dep=="Warehouse Admin" ){
                                                 ),
                                               ),
                                               Text(
-                                                '\$${order['total_amount']}',
+                                                '${order['total_amount']}',
                                                 style: TextStyle(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.bold,

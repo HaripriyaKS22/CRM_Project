@@ -242,6 +242,7 @@ void logout() async {
 
   Future<void> getstates() async {
     try {
+var dep=await getdepFromPrefs();
 
       var response = await http.get(
         Uri.parse('$api/api/states/'),
@@ -266,8 +267,7 @@ void logout() async {
 
 
         }
-        ;
-        // Filter to keep only allocated states
+          if(dep=="BDO"||dep=="BDM"){
         if(allocatedstates.isNotEmpty){
       List<Map<String, dynamic>> filteredStates = stateslist
           .where((state) => allocatedstates.contains(state['id']))
@@ -275,8 +275,13 @@ void logout() async {
         setState(() {
           statess = filteredStates;
 
-          ;
+          
         });}
+        else{
+          statess=[];
+
+        }
+        }
         else{
           setState(() {
             

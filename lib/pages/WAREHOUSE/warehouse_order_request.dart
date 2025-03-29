@@ -24,6 +24,8 @@ class _OrderRequestState extends State<OrderRequest> {
   var ord;
   List<Map<String, dynamic>> items = [];
   List<Map<String, dynamic>> bank = [];
+    List<Map<String, dynamic>> warehouse = [];
+
   String? selectedBank;
   String? createdBy;
   String? companyname;
@@ -544,118 +546,139 @@ class _OrderRequestState extends State<OrderRequest> {
   }
 
   bool flag = false;
+  double paymentreceipt = 0.0; // Define at the class level
 
   double totalDiscount = 0.0; // Define at the class level
-  Future<void> fetchOrderItems() async {
-    try {
-      
-      final token = await getTokenFromPrefs();
-      final jwt = JWT.decode(token!);
-      var name = jwt.payload['name'];
-      setState(() {
-        createdBy = name;
-      });
-      
-      
-      
-      var response = await http.get(
-        Uri.parse('$api/api/order/${widget.id}/items/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        ord = parsed['order'];
-        
-        List<dynamic> itemsData = parsed['items'];
-        getaddress(ord['customer']['id']);
+ Future<void> fetchOrderItems() async {
+  try {
+    
+    final token = await getTokenFromPrefs();
 
-        List<Map<String, dynamic>> orderList = [];
-        double calculatedNetAmount = 0.0;
-        double calculatedTotalTax = 0.0;
-        double calculatedPayableAmount = 0.0;
-        double calculatedTotalDiscount = 0.0;
-
-        // Process each item and calculate totals
-        for (var item in itemsData) {
-          orderList.add({
-            'id': item['id'],
-            'name': item['name'],
-            'quantity': item['quantity'],
-            'rate': item['rate'],
-            'tax': item['tax'],
-            'discount': item['discount'],
-            'actual_price': item['actual_price'],
-            'exclude_price': item['exclude_price'],
-            'images': item['image'],
-          });
-
-          // Convert values to double for safe calculation
-          double excludePrice = (item['exclude_price'] ?? 0).toDouble();
-          double actualPrice = (item['actual_price'] ?? 0).toDouble();
-          double discount = (item['discount'] ?? 0).toDouble();
-          final quantity = int.tryParse(item['quantity'].toString()) ??
-              1; // Ensure it's an integer
-
-          // Add the exclude_price to net amount
-          calculatedNetAmount += excludePrice;
-
-          // Calculate and add the tax amount for each product
-          double taxAmountForItem = actualPrice - excludePrice;
-          calculatedTotalTax += taxAmountForItem;
-
-          // Add discount amount for each product
-          calculatedTotalDiscount += discount * quantity;
-
-          // Calculate payable amount after subtracting discount
-          double payableForItem = (actualPrice - discount) * quantity;
-          calculatedPayableAmount += payableForItem;
-        }
-
-        // Calculate the sum of payment receipts
-        double paymentReceiptsSum = 0.0;
-        for (var receipt in parsed['order']['recived_payment']) {
-          paymentReceiptsSum +=
-              double.tryParse(receipt['amount'].toString()) ?? 0.0;
-          
-        }
-
-        // Calculate remaining amount after comparing with calculatedPayableAmount
-        double remainingAmount = 0.0;
-        if (paymentReceiptsSum > calculatedPayableAmount) {
-          remainingAmount = paymentReceiptsSum - calculatedPayableAmount;
-          flag = true;
-        } else {
-          remainingAmount = calculatedPayableAmount - paymentReceiptsSum;
-          flag = false;
-        }
-        // getcompany(ord['company']);
-
-        setState(() {
-          items = orderList;
-          netAmountBeforeTax = calculatedNetAmount;
-          totalTaxAmount = calculatedTotalTax;
-          payableAmount = calculatedPayableAmount;
-          totalDiscount = calculatedTotalDiscount;
-          Balance = remainingAmount;
-          
-          
-          
-          
-          
-          
-        });
-      } else {
-        
-      }
-    } catch (error) {
-      
+    if (token == null) {
+      ;
+      return;
     }
-  }
 
+    final jwt = JWT.decode(token);
+    var name = jwt.payload['name'] ?? 'Unknown'; // Provide a default value
+    setState(() {
+      createdBy = name;
+    });
+print('$api/api/order/${widget.id}/items/');
+    var response = await http.get(
+      Uri.parse('$api/api/order/${widget.id}/items/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+  
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+
+      ord = parsed['order'] ?? {};
+      
+
+
+      List<dynamic> itemsData = parsed['items'] ?? [];
+      List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
+
+      ;
+
+      getaddress(ord['customer']?['id']);
+
+      List<Map<String, dynamic>> orderList = [];
+      List<Map<String, dynamic>> warehouseList = [];
+      double calculatedNetAmount = 0.0;
+      double calculatedTotalTax = 0.0;
+      double calculatedPayableAmount = 0.0;
+      double calculatedTotalDiscount = 0.0;
+
+      // Process each item and calculate totals
+      for (var item in itemsData) {
+        orderList.add({
+          'id': item['id'],
+          'name': item['name'] ?? '',
+          'quantity': item['quantity'] ?? 0,
+          'rate': item['rate'] ?? 0.0,
+          'tax': item['tax'] ?? 0.0,
+          'discount': item['discount'] ?? 0.0,
+          'actual_price': item['actual_price'] ?? 0.0,
+          'exclude_price': item['exclude_price'] ?? 0.0,
+          'images': item['image'] ?? '',
+        });
+        double price=(item['rate'] ?? 0).toDouble();
+
+        double price_discount=(item['price_discount'] ?? 0).toDouble();
+        double excludePrice = (item['exclude_price'] ?? 0).toDouble();
+        double actualPrice = (item['actual_price'] ?? 0).toDouble();
+        double discount = (item['discount'] ?? 0).toDouble();
+        final quantity = int.tryParse(item['quantity'].toString()) ?? 1;
+
+      
+        calculatedTotalTax += (price_discount - excludePrice)* quantity;
+          calculatedNetAmount += excludePrice* quantity;
+        calculatedTotalDiscount += discount * quantity;
+        calculatedPayableAmount += price* quantity;
+      }
+
+      // Process each warehouse item
+      for (var warehouse in warehouseData) {
+        warehouseList.add({
+          'id': warehouse['id'],
+          'box': warehouse['box'] ?? '',
+          'weight': warehouse['weight'] ?? '0',
+          'length': warehouse['length'] ?? '0',
+          'breadth': warehouse['breadth'] ?? '0',
+          'height': warehouse['height'] ?? '0',
+          'image': warehouse['image'] ?? '',
+          'parcel_service': warehouse['parcel_service'] ?? '',
+          'tracking_id': warehouse['tracking_id'] ?? '',
+          'shipping_charge': warehouse['shipping_charge'] ?? '0.0',
+          'status': warehouse['status'] ?? '',
+          'shipped_date': warehouse['shipped_date'] ?? '',
+          'actual_weight': warehouse['actual_weight'] ?? '0.0',
+          'parcel_amount': warehouse['parcel_amount'] ?? '0.0',
+          'postoffice_date': warehouse['postoffice_date'] ?? '',
+          'message_status': warehouse['message_status'] ?? '',
+        });
+      }
+
+      double paymentReceiptsSum = 0.0;
+
+      for (var receipt in parsed['order']['recived_payment'] ?? []) {
+        paymentReceiptsSum += double.tryParse(receipt['amount'].toString()) ?? 0.0;
+        ;
+      }
+;
+double remainingAmount;
+if(calculatedNetAmount>paymentReceiptsSum){
+       remainingAmount = calculatedNetAmount - paymentReceiptsSum;
+     
+}
+else{
+  remainingAmount=paymentReceiptsSum-calculatedNetAmount;
+}
+      setState(() {
+
+        items = orderList;
+        warehouse = warehouseList;
+        netAmountBeforeTax = calculatedNetAmount;
+        totalTaxAmount = calculatedTotalTax;
+        payableAmount = calculatedPayableAmount;
+        totalDiscount = calculatedTotalDiscount;
+        Balance = remainingAmount;
+        paymentreceipt=remainingAmount;
+      });
+
+    } else {
+      ;
+    }
+  } catch (error) {
+    ;
+  }
+}
   Future<void> removeproduct(int Id) async {
     final token = await getTokenFromPrefs();
 
@@ -824,13 +847,11 @@ class _OrderRequestState extends State<OrderRequest> {
                   ),
                 ],
               ),
-              height: 140,
+              height: 160,
               child: Column(
                 children: [
                   SizedBox(height: 50),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment
-                        .spaceBetween, // To push content to the sides
                     children: [
                       SizedBox(width: 13),
                       Container(
@@ -857,25 +878,23 @@ class _OrderRequestState extends State<OrderRequest> {
                               color: const Color.fromARGB(255, 0, 0, 0),
                             ),
                           ),
-                          Text(
+                        
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 5,),
+                   Text(
                             ord != null
                                 ? ord['company']['name'] ?? 'Company'
                                 : 'Loading...',
                             style: TextStyle(color: Colors.black),
                           ),
-                        ],
-                      ),
-                      IconButton(
-                        onPressed: () {
-// _launchURL('http://65.1.147.199/invoice/24/'); 
-                                       },
-                        icon: Icon(Icons.download, color: Colors.blue),
-                      ),
-                    ],
-                  ),
+                          SizedBox(height: 5,)
                 ],
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Card(
@@ -1190,7 +1209,7 @@ class _OrderRequestState extends State<OrderRequest> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
-                                    image: NetworkImage('${item["images"]}'),
+                                    image: NetworkImage('$api${item["images"]}'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -1216,7 +1235,7 @@ class _OrderRequestState extends State<OrderRequest> {
                                     Row(
                                       children: [
                                         Text(
-                                          'Excluded price: ${item["exclude_price"]}',
+                                          'discount: ${item["discount"]}',
                                           style: TextStyle(
                                               fontSize: 12, color: Colors.grey),
                                         ),
@@ -1232,29 +1251,35 @@ class _OrderRequestState extends State<OrderRequest> {
                                           )
                                       ],
                                     ),
-                                    Text(
-                                      'Tax Amount: ${item["rate"] - item["exclude_price"]}',
+                                     Text(
+                                      'Rate After Discount: ${item["rate"] - item["discount"]}',
                                       style: TextStyle(
                                           fontSize: 12, color: Colors.grey),
                                     ),
+
+                                   Text(
+  'Tax Amount: ${((item["rate"] - item["discount"]) - item["exclude_price"]).toStringAsFixed(2)}',
+  style: TextStyle(
+      fontSize: 12, color: Colors.grey),
+),
+                                     // ...existing code...
+Text(
+  'Excluded price: ${item["exclude_price"]}',
+  style: TextStyle(
+      fontSize: 12, color: Colors.grey),
+),
+// ...existing code...
                                     Row(
                                       children: [
-                                        Text(
-                                          'Total: ${item["actual_price"] * item["quantity"]}',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black),
-                                        ),
-                                        Spacer(),
-                                        // GestureDetector(
-                                        //   onTap: () {
-                                        //     removeproduct(item["id"]);
-                                        //   },
-                                        //   child: Image.asset(
-                                        //       height: 25,
-                                        //       width: 25,
-                                        //       "lib/assets/delete.png"),
-                                        // )
+                                       Text(
+  'Total: ${(((item["exclude_price"] + ((item["rate"] - item["discount"]) - item["exclude_price"])) * item["quantity"]).toStringAsFixed(2))}',
+  style: TextStyle(
+    fontSize: 12,
+    color: Colors.black,
+  ),
+),
+
+                                     
                                       ],
                                     ),
                                   ],

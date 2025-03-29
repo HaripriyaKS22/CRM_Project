@@ -248,7 +248,19 @@ Future<void> _getAndShowVariants(int productId) async {
 //   }
 // }
 var dep;
+void handleAddToCart2(BuildContext context, varid, quantity) async {
+  final result = await addtocart2(varid, quantity);
 
+  if (!mounted) return; // Prevent invalid context error
+
+  if (result == "success") {
+showCustomPopup("Success", "Product added to cart successfully!");
+  } else if (result == "failed") {
+showCustomPopup("Success", "Product already in cart!");
+  } else {
+showCustomPopup("Success", "Failed to add Product!");
+  }
+}
 Future<void> fetchProductList() async {
   final token = await getTokenFromPrefs();
  
@@ -463,86 +475,104 @@ Future<void> getvariant(int id, var type) async {
   }
 }
 
-Future<void> addtocart(BuildContext scaffoldContext,varid,quantity) async{
-    final token = await getTokenFromPrefs();
- try{
-   final response= await http.post(Uri.parse('$api/api/cart/product/'),
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  },
-  body:jsonEncode(
-    {
-     'product':varid,
-     'quantity':quantity
-    }
-  )
+void showCustomPopup(String title, String message) {
+  if (!mounted) return;
+
+  showDialog(
+    context: context, // 👈 Use context directly
+    builder: (BuildContext ctx) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: Text("OK"),
+          ),
+        ],
+      );
+    },
   );
-   
-   
+}
+void handleAddToCart(BuildContext context, varid, quantity) async {
+  final result = await addtocart(varid, quantity);
+
+  if (!mounted) return; // Prevent invalid context error
+
+  if (result == "success") {
+showCustomPopup("Success", "Product added to cart successfully!");
+  } else if (result == "failed") {
+showCustomPopup("Success", "Product already in cart!");
+  } else {
+showCustomPopup("Success", "Failed to add Product!");
+  }
+}
+Future<String> addtocart(varid, quantity) async {
+  final token = await getTokenFromPrefs();
+  try {
+    final response = await http.post(
+      Uri.parse('$api/api/cart/product/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'product': varid,
+        'quantity': quantity,
+      }),
+    );
+
+    print("statuscode ${response.statusCode}");
+
+    if (response.statusCode == 201) {
+      print("added");
+      return "success";
+    } else if(response.statusCode == 400) {
+      return "failed";
+    }
+    else{
+      return "error";
+    }
+  } catch (e) {
+    print("error $e");
+    return "exception";
+  }
+}
+Future<String> addtocart2( mainid, quantity) async {
+
+  print("addtocart222222222222222222222222222222222222222222222222");
+  final token = await getTokenFromPrefs();
+  try {
+    final response = await http.post(
+      Uri.parse('$api/api/cart/product/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'product': mainid,
+        'quantity': quantity,
+      }),
+    );
+
+    print("statuscode ${response.statusCode}");
 
       if (response.statusCode == 201) {
-       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-             backgroundColor: Colors.green,
-            content: Text(' added Successfully.'),
-          ),
-        );
-        // Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding Bank failed.'),
-          ),
-        );
-      }
- }
- catch(e){
-  
- }
-}
-
-Future<void> addtocart2(BuildContext scaffoldContext,mainid,quantity) async{
-    final token = await getTokenFromPrefs();
- try{
-   final response= await http.post(Uri.parse('$api/api/cart/product/'),
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  },
-  body:jsonEncode(
-    {
-     'product':mainid,
-     'quantity':quantity
+      print("added");
+      return "success";
+    } else if(response.statusCode == 400) {
+      return "failed";
     }
-  )
-  );
-   
-   
-
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-             backgroundColor: Colors.green,
-            content: Text('Bank added Successfully.'),
-          ),
-        );
-        // Navigator.push(context, MaterialPageRoute(builder: (context)=>add_bank()));
-      } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding Bank failed.'),
-          ),
-        );
-      }
- }
- catch(e){
-  
- }
+    else{
+      return "error";
+    }
+  } catch (e) {
+    print("error $e");
+    return "exception";
+  }
 }
-// 
 
 void showSizeDialog2(BuildContext context, List variants) {
   // Create a ValueNotifier to track the selected product
@@ -724,7 +754,7 @@ void showSizeDialog2(BuildContext context, List variants) {
                       
 
                       // Call add to cart function
-                      addtocart(context, selectedProduct['id'], quantity);
+                      handleAddToCart(context, selectedProduct['id'], quantity);
 
                       // Close the dialog
                       Navigator.of(context).pop();
@@ -839,7 +869,7 @@ void showSizeDialog3(BuildContext context, mainid, stock,lockedstock) {
   return;
 }
                           // Call add to cart function
-                          addtocart2(context, mainid,quantity);
+                                                handleAddToCart2(context, mainid, quantity);
                       
                           // Close the dialog after adding to cart
                           Navigator.of(context).pop();

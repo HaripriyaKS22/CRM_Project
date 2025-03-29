@@ -119,6 +119,7 @@ double landingPriceValue = 0.0;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+ 
 
   var image;
   final ImagePicker _picker = ImagePicker();
@@ -834,37 +835,42 @@ else if(dep=="Warehouse Admin" ){
                                 height: 10,
                               ),
       
-                              Text("Checkbox Family",
-                                  style: TextStyle(
-                                      fontSize: 15, fontWeight: FontWeight.bold)),
-                              SizedBox(height: 20),
-                              fam.isEmpty
-                                  ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
-                                  : ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: fam.length,
-                                      itemBuilder: (context, index) {
-                                        return CheckboxListTile(
-                                          title: Text(fam[index]['name']),
-                                          value: _checkboxValues[index],
-                                          onChanged: (bool? value) {
-                                            setState(() {
-                                              _checkboxValues[index] =
-                                                  value ?? false;
-                                              if (_checkboxValues[index]) {
-                                                _selectedFamily
-                                                    .add(fam[index]['id']);
-                                              } else {
-                                                _selectedFamily
-                                                    .remove(fam[index]['id']);
-                                              }
-                                            });
-                                          },
-                                          controlAffinity:
-                                              ListTileControlAffinity.leading,
-                                        );
-                                      },
-                                    ),
+                             SingleChildScrollView(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        "Family",
+        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      ),
+      SizedBox(height: 20),
+      fam.isEmpty
+          ? CircularProgressIndicator() // Show a loading indicator while the data is being fetched
+          : ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(), // Prevent nested scrolling
+              itemCount: fam.length,
+              itemBuilder: (context, index) {
+                return CheckboxListTile(
+                  title: Text(fam[index]['name']),
+                  value: _checkboxValues[index],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _checkboxValues[index] = value ?? false;
+                      if (_checkboxValues[index]) {
+                        _selectedFamily.add(fam[index]['id']);
+                      } else {
+                        _selectedFamily.remove(fam[index]['id']);
+                      }
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,
+                );
+              },
+            ),
+    ],
+  ),
+),
       
                               SizedBox(height: 10),
                               Text("Unit * ",

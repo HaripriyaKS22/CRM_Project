@@ -421,7 +421,7 @@ Future<String?> getdepFromPrefs() async {
                                                   fontWeight: FontWeight.bold),
                                             ),
                                             Text(
-                                              '\$${order['total_amount']}',
+                                              '${order['total_amount']}',
                                               style: const TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
