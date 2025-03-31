@@ -58,11 +58,15 @@ int? selectedPurposeId;
 
     List<Map<String, dynamic>> purposesofpay = [];
 
+  Map<String, dynamic>? emiData;
 
   var departments;
   List<Map<String, dynamic>> fam = [];
   List<Map<String, dynamic>> bank = [];
   String? selectedpurpose;
+  List<Map<String, dynamic>> emiPayments = [];
+  bool isLoading = true;
+  String? errorMessage;
 
   String? selectedtype = 'expenses';
 
@@ -78,7 +82,104 @@ int? selectedPurposeId;
   ];
   final List<String> exp = ['assets', 'expenses'];
   List<Map<String, dynamic>> category = [];
+ Future<void> getEmiReport(var id) async {
+    final token = await gettokenFromPrefs();
 
+    ;
+    try {
+      final response = await http.get(
+        Uri.parse('$api/apis/emiexpense/$id/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+;
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        setState(() {
+          emiData = {
+            'emi_name': parsed['emi_name'],
+            'principal': parsed['principal'],
+            'tenure_months': parsed['tenure_months'],
+            'annual_interest_rate': parsed['annual_interest_rate'],
+            'down_payment': parsed['down_payment'],
+            'total_amount_paid': parsed['total_amount_paid'],
+            'emi_amount': parsed['emi_amount'],
+            'total_interest': parsed['total_interest'],
+            'total_payment': parsed['total_payment'],
+            'startdate': parsed['startdate'],
+            'enddate': parsed['enddate'],
+          };
+
+          List<Map<String, dynamic>> payments =
+              List<Map<String, dynamic>>.from(parsed['emidata']);
+print("emiData: $emiData");
+          // Process missing months
+          emiPayments = fillMissingMonths(payments);
+          
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load data';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'An error occurred: $e';
+        isLoading = false;
+      });
+    }
+  }
+ List<Map<String, dynamic>> fillMissingMonths(
+      List<Map<String, dynamic>> payments) {
+    if (payments.isEmpty) return [];
+
+    List<Map<String, dynamic>> filledPayments = [];
+    payments.sort((a, b) => a['date'].compareTo(b['date'])); // Sort by date
+
+    DateTime startDate = DateTime.parse(payments.first['date']);
+    DateTime endDate = DateTime.parse(payments.last['date']);
+
+    // Ensure the set is explicitly of type Set<String>
+    Set<String> existingMonths =
+        payments.map<String>((p) => p['date'].substring(0, 7)).toSet();
+    Map<String, Map<String, dynamic>> paymentMap = {
+      for (var payment in payments) payment['date']: payment
+    };
+
+    DateTime currentDate = DateTime(startDate.year, startDate.month, 1);
+
+    while (currentDate.isBefore(endDate) ||
+        currentDate.isAtSameMomentAs(endDate)) {
+      String monthKey =
+          "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}";
+
+      // If there's an exact date payment in this month, add it
+      bool found = false;
+      for (var payment in payments) {
+        if (payment['date'].startsWith(monthKey)) {
+          filledPayments.add(payment);
+          found = true;
+        }
+      }
+
+      // If the month is missing, add a "Pending" entry
+      if (!found) {
+        filledPayments.add({
+          'date': monthKey, // Only Year-Month for missing months
+          'amount': 0.0,
+        });
+      }
+
+      currentDate = DateTime(currentDate.year, currentDate.month + 1, 1);
+    }
+
+    return filledPayments;
+  }
  void addpurpose(BuildContext context) async {
     final token = await gettokenFromPrefs();
 
@@ -413,72 +514,86 @@ int? selectedPurposeId;
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
-  void addexpense() async {
-    final token = await gettokenFromPrefs();
+void addexpense() async {
+  final token = await gettokenFromPrefs();
 
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? username = prefs.getString('username');
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
 
-      if (username == null) {
-        return;
-      }
-      var response = await http.post(
-        Uri.parse('$api/api/expense/add/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-        body: {
-          "company": selectedCompanyId.toString(),
-          "payed_by": selectedstaffId.toString(),
-          "bank": selectedbankId.toString(),
-          "purpose_of_payment": selectedPurposeId.toString(),
-          "amount": amount.text,
-          'loan': selectedEmiId.toString(),
-          "expense_date": formatDate(selectedDate),
-          "transaction_id": transactionid.text,
-          "description": description.text,
-          "added_by": username,
-          "asset_types": selectedtype,
-          "name": proname.text,
-          "quantity": quantity.text,
-        },
-      );
+    if (username == null) {
+      return;
+    }
 
-      ;
+    // Parse the amount from the TextEditingController
+    double enteredAmount = double.tryParse(amount.text) ?? 0.0;
 
-      if (response.statusCode == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => add_expence()),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Color.fromARGB(255, 49, 212, 4),
-            content: Text('Expense added successfully'),
-          ),
-        );
-      } else {
+    // Check if emiData exists and validate the total amount
+    if (emiData != null) {
+      double totalAmountPaid = emiData!['total_amount_paid'] ?? 0.0;
+      double totalPayment = emiData!['total_payment'] ?? 0.0;
+
+      if ((totalAmountPaid + enteredAmount) > totalPayment) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.red,
-            content: Text('Failed to add expense. Please try again.'),
+            content: Text('Error: Total amount exceeds the allowed payment.'),
           ),
         );
+        return; // Stop further execution
       }
-    } catch (e) {
+    }
 
-            ;
+    var response = await http.post(
+      Uri.parse('$api/api/expense/add/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        "company": selectedCompanyId.toString(),
+        "payed_by": selectedstaffId.toString(),
+        "bank": selectedbankId.toString(),
+        "purpose_of_payment": selectedPurposeId.toString(),
+        "amount": amount.text,
+        'loan': selectedEmiId.toString(),
+        "expense_date": formatDate(selectedDate),
+        "transaction_id": transactionid.text,
+        "description": description.text,
+        "added_by": username,
+        "asset_types": selectedtype,
+        "name": proname.text,
+        "quantity": quantity.text,
+      },
+    );
 
-
+    if (response.statusCode == 200) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => add_expence()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Color.fromARGB(255, 49, 212, 4),
+          content: Text('Expense added successfully'),
+        ),
+      );
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text('An error occurred. Please try again.'),
+          content: Text('Failed to add expense. Please try again.'),
         ),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('An error occurred. Please try again.'),
+      ),
+    );
   }
+}
 
   void addexpensetwo() async {
     final token = await gettokenFromPrefs();
@@ -1131,6 +1246,7 @@ else if(dep=="Warehouse Admin" ){
                                                         .firstWhere((emi) =>
                                                             emi['emi_name'] ==
                                                             value)['id'];
+                                                            getEmiReport(selectedEmiId);
                                                   });
       
                                                   // Call a function to process selected EMI if needed

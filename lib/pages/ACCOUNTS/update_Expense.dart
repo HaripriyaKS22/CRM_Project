@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:beposoft/loginpage.dart';
@@ -53,6 +52,8 @@ initdata();
     getcompany();
     getstaff();
     getbank();
+    getpurpose();
+    getemi();
   }
 void initdata() async {
     await getexpenselist();
@@ -68,15 +69,179 @@ Future<String?> gettokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+
+    List<Map<String, dynamic>> emiPayments = [];
+  bool isLoading = true;
+  String? errorMessage;
+    Map<String, dynamic>? emiData;
+
+  String? selectedEmiName;
+  int? selectedEmiId;
+  String? selectedPurposeName;
+int? selectedPurposeId;
 var departments;
   List<Map<String, dynamic>> fam = [];
     List<Map<String, dynamic>> bank = [];
 String? selectedpurpose; // Holds the selected value
   final List<String> items = ['water', 'electricity','salary','emi','rent','travel','Others'];
-
+    List<Map<String, dynamic>> purposesofpay = [];
+ bool showAddNewField = false; // State variable to manage visibility
+  TextEditingController newPurposeController = TextEditingController();
  String selectedstaff='';
     int? selectedstaffId;
         int? selectedbankId;
+  List<Map<String, dynamic>> emiList = [];
+ List<Map<String, dynamic>> fillMissingMonths(
+      List<Map<String, dynamic>> payments) {
+    if (payments.isEmpty) return [];
+
+    List<Map<String, dynamic>> filledPayments = [];
+    payments.sort((a, b) => a['date'].compareTo(b['date'])); // Sort by date
+
+    DateTime startDate = DateTime.parse(payments.first['date']);
+    DateTime endDate = DateTime.parse(payments.last['date']);
+
+    // Ensure the set is explicitly of type Set<String>
+    Set<String> existingMonths =
+        payments.map<String>((p) => p['date'].substring(0, 7)).toSet();
+    Map<String, Map<String, dynamic>> paymentMap = {
+      for (var payment in payments) payment['date']: payment
+    };
+
+    DateTime currentDate = DateTime(startDate.year, startDate.month, 1);
+
+    while (currentDate.isBefore(endDate) ||
+        currentDate.isAtSameMomentAs(endDate)) {
+      String monthKey =
+          "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}";
+
+      // If there's an exact date payment in this month, add it
+      bool found = false;
+      for (var payment in payments) {
+        if (payment['date'].startsWith(monthKey)) {
+          filledPayments.add(payment);
+          found = true;
+        }
+      }
+
+      // If the month is missing, add a "Pending" entry
+      if (!found) {
+        filledPayments.add({
+          'date': monthKey, // Only Year-Month for missing months
+          'amount': 0.0,
+        });
+      }
+
+      currentDate = DateTime(currentDate.year, currentDate.month + 1, 1);
+    }
+
+    return filledPayments;
+  }
+void addpurpose(BuildContext context) async {
+    final token = await gettokenFromPrefs();
+
+    try {
+      var response = await http.post(
+        Uri.parse('$api/apis/add/purpose/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+        body: {
+          "name": newPurposeController.text,
+        },
+      );
+
+      ;
+
+      if (response.statusCode == 201) {
+       getpurpose();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Color.fromARGB(255, 49, 212, 4),
+            content: Text('sucess'),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('An error occurred. Please try again.'),
+        ),
+      );
+    }
+  }
+
+   Future<void> getemi() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/apis/emi/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      List<Map<String, dynamic>> emiDataList = [];
+      ;
+      ;
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        for (var productData in productsData) {
+          emiDataList.add({
+            'id': productData['id'],
+            'emi_name': productData['emi_name'],
+            'emi': productData['emi'],
+            'principal': productData['principal'],
+            'annual_interest_rate': productData['annual_interest_rate'],
+            'tenure_months': productData['tenure_months'],
+            'down_payment': productData['down_payment'],
+          });
+        }
+        setState(() {
+          emiList = emiDataList;
+          ;
+        });
+      }
+    } catch (error) {
+      // Handle error
+    }
+  }
+  
+         Future<void> getpurpose() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/apis/add/purpose/'),
+        headers: {
+          'Authorization': ' Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+;
+      List<Map<String, dynamic>> purposelist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        for (var productData in parsed) {
+          purposelist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+          });
+        }
+        setState(() {
+          purposesofpay = purposelist;
+        });
+      }
+    } catch (error) {}
+  }
+
   Future<void> getbank() async{
   final token=await gettokenFromPrefs();
   try{
@@ -241,8 +406,58 @@ String formatDate(DateTime date) {
 }
 
 
+ Future<void> getEmiReport(var id) async {
+    final token = await gettokenFromPrefs();
 
+    ;
+    try {
+      final response = await http.get(
+        Uri.parse('$api/apis/emiexpense/$id/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+;
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
 
+        setState(() {
+          emiData = {
+            'emi_name': parsed['emi_name'],
+            'principal': parsed['principal'],
+            'tenure_months': parsed['tenure_months'],
+            'annual_interest_rate': parsed['annual_interest_rate'],
+            'down_payment': parsed['down_payment'],
+            'total_amount_paid': parsed['total_amount_paid'],
+            'emi_amount': parsed['emi_amount'],
+            'total_interest': parsed['total_interest'],
+            'total_payment': parsed['total_payment'],
+            'startdate': parsed['startdate'],
+            'enddate': parsed['enddate'],
+          };
+
+          List<Map<String, dynamic>> payments =
+              List<Map<String, dynamic>>.from(parsed['emidata']);
+print("emiData: $emiData");
+          // Process missing months
+          emiPayments = fillMissingMonths(payments);
+          
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load data';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'An error occurred: $e';
+        isLoading = false;
+      });
+    }
+  }
 
 
 
@@ -258,16 +473,15 @@ Future<void> getexpenselist() async {
     );
 
     List<Map<String, dynamic>> expenselist = [];
-    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       final productsData = parsed['data'];
-
+print("sssssssssssssss$productsData");
       for (var productData in productsData) {
         // Parse the expense_date string into a DateTime object
         DateTime expenseDate = DateTime.parse(productData['expense_date']);
-        
+
         expenselist.add({
           'id': productData['id'],
           'purpose_of_payment': productData['purpose_of_payment'],
@@ -282,36 +496,33 @@ Future<void> getexpenselist() async {
         });
       }
 
-    final selectedExpense = expenselist.firstWhere(
-  (expense) => expense['id'] == widget.id,
-  orElse: () => {}, // Return an empty map instead of null
-);
-      if (selectedExpense != null) {
+      final selectedExpense = expenselist.firstWhere(
+        (expense) => expense['id'] == widget.id,
+        orElse: () => {}, // Return an empty map instead of null
+      );
+print("selectedExpense$selectedExpense");
+      if (selectedExpense.isNotEmpty) {
         setState(() {
           transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
           purposes.text = selectedExpense['purpose_of_payment'] ?? '';
           amount.text = selectedExpense['amount']?.toString() ?? '';
           description.text = selectedExpense['description'] ?? '';
-
+selectedPurposeId = selectedExpense['purpose_of_payment']?['id'] as int? 
+    ?? (selectedExpense['purpose_of_payment'] is int ? selectedExpense['purpose_of_payment'] as int : null);
           // Parse nested objects (if necessary)
           selectedCompanyId = selectedExpense['company']?['id'] as int? ?? selectedExpense['company'] as int?;
-          
           selectedstaffId = selectedExpense['payed_by']?['id'] as int? ?? selectedExpense['payed_by'] as int?;
-          
           selectedbankId = selectedExpense['bank']?['id'] as int? ?? selectedExpense['bank'] as int?;
-          
-          selectedDate = selectedExpense['expense_date']; // Should already be DateTime
+          selectedDate = selectedExpense['expense_date'] ?? DateTime.now(); // Default to current date if null
         });
       }
     } else {
-      
+      print('Failed to fetch expense list');
     }
   } catch (error) {
-    
+    print('Error: $error');
   }
 }
-
-
 void updateexpense() async {
   
   final token = await gettokenFromPrefs();
@@ -337,7 +548,8 @@ void updateexpense() async {
         "company": selectedCompanyId.toString(),
         "payed_by": selectedstaffId.toString(),
         "bank": selectedbankId.toString(),
-        "purpose_of_payment": selectedpurpose,
+        "purpose_of_payment": selectedPurposeId.toString(),
+        "loan":selectedEmiId.toString(),
         "amount": amount.text,
         "expense_date": formatDate(selectedDate), 
         "transaction_id": transactionid.text,
@@ -346,8 +558,11 @@ void updateexpense() async {
       },
     );
 
+    print('Selected Purpose Name: $selectedPurposeName');
+    print('Selected Bank ID: $selectedbankId');
+    print('Selected Staff ID: $selectedstaffId');
     
-    
+    print(response.body);
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
@@ -370,7 +585,7 @@ void updateexpense() async {
       );
     }
   } catch (e) {
-    
+    print("Error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,
@@ -520,39 +735,232 @@ void updateexpense() async {
           ),
                     SizedBox(height: 5),
 
-          Text(
-            "Purpose Of Payment",
-            style: TextStyle(
-              fontSize: 13,
+        Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+      Text(
+        "Purpose Of Payment",
+        style: TextStyle(fontSize: 13),
+      ),
+      SizedBox(height: 5),
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1.0),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: DropdownButton<String>(
+  value: purposesofpay.any((item) => item['name'] == selectedPurposeName)
+      ? selectedPurposeName
+      : null, // Ensure value is null if no match is found
+  hint: Text('Select an option'),
+  isExpanded: true,
+  underline: SizedBox(),
+  items: purposesofpay.map((Map<String, dynamic> item) {
+    return DropdownMenuItem<String>(
+      value: item['name'], // Use the purpose name as the value
+      child: Text(item['name'] ?? ''), // Ensure name is not null
+    );
+  }).toList(),
+  onChanged: (String? newValue) {
+    setState(() {
+      selectedPurposeName = newValue;
+      selectedPurposeId = purposesofpay
+        .firstWhere(
+          (item) => item['name'] == newValue,
+          orElse: () => {'id': null}, // Return a default map if no match is found
+        )['id'] as int?;
+    });
+  },
+),
+            ),
+            SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  showAddNewField = !showAddNewField;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Background color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0), // Border radius
+                ),
+              ),
+              child: Text('Add New', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+      if (showAddNewField) ...[
+        SizedBox(height: 10),
+        TextField(
+          controller: newPurposeController,
+          decoration: InputDecoration(
+            labelText: 'New Purpose',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
             ),
           ),
-          SizedBox(height: 5),
-     Container(
-  padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: .0),
-  decoration: BoxDecoration(
-    border: Border.all(color: Colors.grey, width: 1.0),
-    borderRadius: BorderRadius.circular(10.0),
-  ),
-  child: DropdownButton<String>(
-    value: selectedpurpose,
-    hint: Text('Select an option'),
-    isExpanded: true,
-    underline: SizedBox(), // Removes the default underline
-    items: items.map((String item) {
-      return DropdownMenuItem<String>(
-        value: item,
-        child: Text(item),
-      );
-    }).toList(),
-    onChanged: (String? newValue) {
-      setState(() {
-        selectedpurpose = newValue;
-      });
-    },
-  ),
-),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            // Handle adding new purpose
+            addpurpose(context);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green, // Background color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0), // Border radius
+            ),
+          ),
+          child: Text('Add', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+        ],
+      ),
 
 
+ if (selectedPurposeName == 'emi')
+                                  Text(
+                                    "EMI Plan",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+      
+                                if (selectedPurposeName == 'emi')
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return Container(
+                                          child: DropdownButtonHideUnderline(
+                                            child: Container(
+                                              height: 46,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.grey,
+                                                    width: 1.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                              ),
+                                              child: DropdownButton2<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Select an EMI Plan',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Theme.of(context)
+                                                          .hintColor),
+                                                ),
+                                                items: emiList
+                                                    .map((emi) =>
+                                                        DropdownMenuItem<String>(
+                                                          value: emi['emi_name'],
+                                                          child: Text(
+                                                            emi['emi_name'],
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize: 12),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                value: selectedEmiName,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    selectedEmiName = value;
+                                                    selectedEmiId = emiList
+                                                        .firstWhere((emi) =>
+                                                            emi['emi_name'] ==
+                                                            value)['id'];
+                                                            getEmiReport(selectedEmiId);
+                                                  });
+      
+                                                  // Call a function to process selected EMI if needed
+                                             
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 16),
+                                                  height: 40,
+                                                ),
+                                                dropdownStyleData:
+                                                    const DropdownStyleData(
+                                                  maxHeight: 200,
+                                                ),
+                                                menuItemStyleData:
+                                                    const MenuItemStyleData(
+                                                  height: 40,
+                                                ),
+                                                dropdownSearchData:
+                                                    DropdownSearchData(
+                                                  searchController:
+                                                      textEditingController,
+                                                  searchInnerWidgetHeight: 50,
+                                                  searchInnerWidget: Container(
+                                                    height: 50,
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 4,
+                                                            right: 8,
+                                                            left: 8),
+                                                    child: TextFormField(
+                                                      expands: true,
+                                                      maxLines: null,
+                                                      controller:
+                                                          textEditingController,
+                                                      decoration: InputDecoration(
+                                                        isDense: true,
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 10,
+                                                                vertical: 8),
+                                                        hintText:
+                                                            'Search EMI Plan...',
+                                                        hintStyle:
+                                                            const TextStyle(
+                                                                fontSize: 12),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8)),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  searchMatchFn:
+                                                      (item, searchValue) {
+                                                    return item.value
+                                                        .toString()
+                                                        .toLowerCase()
+                                                        .contains(searchValue
+                                                            .toLowerCase());
+                                                  },
+                                                ),
+                                                onMenuStateChange: (isOpen) {
+                                                  if (!isOpen) {
+                                                    textEditingController.clear();
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
           SizedBox(
                       height: 5,
                     ),
@@ -637,44 +1045,19 @@ Container(
             hintText: '',
             contentPadding: EdgeInsets.symmetric(horizontal: 1),
           ),
-          child: DropdownButton<Map<String, dynamic>>(
-  value: sta.isNotEmpty
-      ? sta.firstWhere(
-          (element) => element['id'] == selectedstaffId,
-          orElse: () => {'id': null, 'name': 'Select a Staff'}, // Default value
-        )
-      : null,
-  underline: Container(),
-  onChanged: sta.isNotEmpty
-      ? (Map<String, dynamic>? newValue) {
-          setState(() {
-            selectedstaffId = newValue?['id']; // Update the selected ID
-          });
-        }
-      : null,
-  items: sta.isNotEmpty
-      ? sta.map<DropdownMenuItem<Map<String, dynamic>>>(
-          (Map<String, dynamic> staff) {
-            return DropdownMenuItem<Map<String, dynamic>>(
-              value: staff,
-              child: Text(staff['name'], // Display the bank's `name`
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 12,
-                      ),), // Display the name of the staff
-            );
-          },
-        ).toList()
-      : [
-          DropdownMenuItem(
-            child: Text('No staff available'),
-            value: {'id': null, 'name': 'No staff available'}, // Default map
-          ),
-        ],
-  icon: Container(
-    alignment: Alignment.centerRight,
-    child: Icon(Icons.arrow_drop_down),
-  ),
+          child: DropdownButton<int>(
+  value: selectedstaffId,
+  onChanged: (int? newValue) {
+    setState(() {
+      selectedstaffId = newValue;
+    });
+  },
+  items: sta.map<DropdownMenuItem<int>>((staff) {
+    return DropdownMenuItem<int>(
+      value: staff['id'],
+      child: Text(staff['name'] ?? ''), // Ensure name is not null
+    );
+  }).toList(),
 ),
 
         ),
