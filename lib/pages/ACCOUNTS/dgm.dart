@@ -60,6 +60,8 @@ class _DgmState extends State<Dgm> {
             duration: Duration(seconds: 2),
           ),
         );
+            fetchdgmData();
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

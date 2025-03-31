@@ -189,7 +189,6 @@ Future<void> fetchshippedorders() async {
       }
 
       // Now you can use `shippedTodayCount` as needed
-      print('Shipped Orders Today: $shippedTodayCount');
 
       setState(() {
         todayShippedCount = shippedTodayCount; // ← Make sure to define this in your state
@@ -198,7 +197,6 @@ Future<void> fetchshippedorders() async {
       throw Exception("Failed to load order data");
     }
   } catch (error) {
-    print('Error fetching order count: $error');
   }
 }
 

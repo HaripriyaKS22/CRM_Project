@@ -43,7 +43,6 @@ class _Performa_CartState extends State<Performa_Cart> {
   }
 
   Future<void> fetchCartData() async {
-    print("fetching cart data");
     try {
       final token = await getTokenFromPrefs();
       final response = await http.get(

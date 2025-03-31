@@ -138,7 +138,6 @@ Future<String?> getwarehouseFromPrefs() async {
   List<Map<String, dynamic>> company = [];
 
   Future<void> getcompany() async {
-    print("getcompany");
     try {
       final token = await gettokenFromPrefs();
 
@@ -151,7 +150,6 @@ Future<String?> getwarehouseFromPrefs() async {
       );
     
       List<Map<String, dynamic>> companylist = [];
-print("response${response.body}");
       if (response.statusCode == 200) {
         final Data = jsonDecode(response.body);
 final productsData=Data['data'];
@@ -178,7 +176,6 @@ final productsData=Data['data'];
  
     try {
             warehouse = await getwarehouseFromPrefs();
-print("warehouse$warehouse");
       final token = await gettokenFromPrefs();
       var response = await http.post(
         Uri.parse('$api/api/perfoma/invoice/create/'),
@@ -201,7 +198,6 @@ print("warehouse$warehouse");
           
         }),
       );
-print("response${response.body}");
     
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -876,7 +872,6 @@ Future<void> getcustomer() async {
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
          if(dep=="BDM"){
-            print("dep is $dep and ${productData['department']}");
             if(productData['family']==famid){
           
           stafflist.add({

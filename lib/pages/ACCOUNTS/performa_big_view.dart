@@ -373,7 +373,6 @@ class _PerformaInvoice_BigView_ListState
 // Fetch performa list data and map state ID to state name
   Future<void> fetchperformalistData() async {
     try {
-      print('$api/api/perfoma/${widget.invoice}/invoice/');
       final token = await getTokenFromPrefs();
       final response = await http.get(
         Uri.parse('$api/api/perfoma/${widget.invoice}/invoice/'),

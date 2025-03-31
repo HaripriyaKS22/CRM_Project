@@ -1303,7 +1303,6 @@ Future<void> deletebox( var orderId) async {
     setState(() {
       createdBy = name;
     });
-print('$api/api/order/${widget.id}/items/');
     var response = await http.get(
       Uri.parse('$api/api/order/${widget.id}/items/'),
       headers: {
@@ -1312,12 +1311,10 @@ print('$api/api/order/${widget.id}/items/');
       },
     );
 
-  print("order itemmmmmmmmmmmmmmmmmmmmmmm${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
       ord = parsed['order'] ?? {};
-      print("biliiiiiiiiiiiiiiiiiiiiiiiiii${ord['billing_address']}");
 codamount.text = ord['cod_amount']?.toString() ?? '';
       shippingmethod.text = ord['shipping_mode'] ?? '';
 
@@ -1415,7 +1412,6 @@ else{
     }
   } catch (error) {
 
-    print("eroorrr$error");
   }
 }
 Future<void> updatemsg(var orderId) async {

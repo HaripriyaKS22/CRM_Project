@@ -78,7 +78,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         var productsData = parsed['data'];
 
         
-print("productsData:$productsData");
         setState(() {
   imageUrl = "${productsData['image'] ?? ''}";
 
@@ -104,7 +103,6 @@ print("productsData:$productsData");
         
       }
     } catch (error) {
-      print("eroooo$error");
     }
   }
 Future<String?> getdepFromPrefs() async {

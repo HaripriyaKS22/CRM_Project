@@ -451,7 +451,6 @@ Future<void> getstaff() async {
 
       for (var staffData in staffDataList) {
         if (widget.id == staffData['id']) {
-          print("staffData: $staffData");
           // Populate fields with staff details
           name.text = staffData['name'] ?? '';
           username.text = staffData['username'] ?? '';

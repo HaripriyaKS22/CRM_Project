@@ -169,7 +169,6 @@ class _proforma_to_order_requestState extends State<proforma_to_order_request> {
   List<Map<String, dynamic>> perfomaItemsWithImages=[];
  Future<void> fetchperformalistData() async {
     try {
-      print('$api/api/perfoma/${widget.invoice}/invoice/');
       final token = await gettokenFromPrefs();
       final response = await http.get(
         Uri.parse('$api/api/perfoma/${widget.invoice}/invoice/'),
@@ -178,7 +177,6 @@ class _proforma_to_order_requestState extends State<proforma_to_order_request> {
           'Content-Type': 'application/json',
         },
       );
-      print("prttttttttttttt${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
@@ -226,7 +224,6 @@ class _proforma_to_order_requestState extends State<proforma_to_order_request> {
 
         setState(() {
           orders = performaInvoiceList;
-          print("orderssssssssssssssssssss$orders");
         });
         addtocart(perfomaItemsWithImages);
       } else {
@@ -241,7 +238,6 @@ Future<void> addtocart(cartdata) async{
     final token = await gettokenFromPrefs();
  try{
     for (var item in cartdata) {
-      print("essssssssssssssssCartttttttttt${item['id']}");
       
 
    final response= await http.post(Uri.parse('$api/api/cart/product/'),
@@ -257,8 +253,6 @@ Future<void> addtocart(cartdata) async{
   )
   );
    
-   print("essssssssssssssssCartttttttttt${response.body}");
-print("essssssssssssssssCartttttttttt${response.statusCode}");
       if (response.statusCode == 201) {
       //  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       //     SnackBar(
@@ -284,7 +278,6 @@ print("essssssssssssssssCartttttttttt${response.statusCode}");
   void ordercreate(
     BuildContext scaffoldContext,
   ) async {
-    print("ordercreteeeeeeeeeeeeeeeeeeee$orders");
     try {
       final token = await gettokenFromPrefs();
       // warehouse = await getwarehouseFromPrefs();
@@ -315,8 +308,7 @@ print("essssssssssssssssCartttttttttt${response.statusCode}");
         },
         body: jsonEncode(requestBody),
       );
-print("responseeeeeeeeeeeee${response.body}");
-print("responseeeeeeeeeeeee${response.statusCode}");
+
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -337,7 +329,6 @@ print("responseeeeeeeeeeeee${response.statusCode}");
         );
       }
     } catch (e) {
-      print("error$e");
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
           content: Text('Enter valid information'),

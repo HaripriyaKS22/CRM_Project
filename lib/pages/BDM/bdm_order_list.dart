@@ -126,7 +126,6 @@ Future<void> getprofiledata() async {
         // Store the matching family name
         familyName = matchingFamily['name'];
         
-        print("familllllll$familyName");
         });
     fetchOrderData();
 
@@ -194,7 +193,6 @@ Future<void> getprofiledata() async {
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       final List ordersData = responseData['results'];
-print("orderdata$ordersData");
       List<Map<String, dynamic>> newOrders = [];
 
       for (var orderData in ordersData) {

@@ -74,7 +74,6 @@ Future<void> fetchOrderData() async {
         'Content-Type': 'application/json',
       },
     );
-print("response.body${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['results'];  // Corrected: Extracting orders from 'results'
@@ -132,7 +131,6 @@ print("response.body${response.body}");
           shippedOrders = shippedOrdersToday;
           
           approvalcount = parsed['invoice_created_count'];
-          print("approvalcount$approvalcount");
           confirmcount =parsed['invoice_approved_count'];
           ;
           ;
@@ -190,7 +188,6 @@ Future<void> fetchshippedorders() async {
       }
 
       // Now you can use `shippedTodayCount` as needed
-      print('Shipped Orders Today: $shippedTodayCount');
 
       setState(() {
         todayShippedCount = shippedTodayCount; // ← Make sure to define this in your state
@@ -199,7 +196,6 @@ Future<void> fetchshippedorders() async {
       throw Exception("Failed to load order data");
     }
   } catch (error) {
-    print('Error fetching order count: $error');
   }
 }
 

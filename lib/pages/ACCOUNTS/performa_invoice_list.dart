@@ -69,7 +69,6 @@ Future<void> fetchOrderData2() async {
           'Content-Type': 'application/json',
         },
       );
-print("response is ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final data = parsed['data'] as List;
@@ -127,7 +126,6 @@ print("response is ${response.body}");
       if (response.statusCode == 200 && mounted) {
         final parsed = jsonDecode(response.body);
         final data = parsed['data'] as List;
-print("dataaaaaaaaaaaaaaaaaaaaaaaaa$data");
         List<Map<String, dynamic>> performaInvoiceList = [];
 
         for (var productData in data) {

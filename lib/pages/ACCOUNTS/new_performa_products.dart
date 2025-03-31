@@ -335,7 +335,6 @@ dep= await getdepFromPrefs();
         'Authorization': 'Bearer $token',
       },
     );
-print("response${response.body}");
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -379,7 +378,6 @@ print("response${response.body}");
       });
     }
   } catch (error) {
-    print("error$error");
   }
 }
 
@@ -524,10 +522,8 @@ Future<String> addtocart(varid, quantity) async {
       }),
     );
 
-    print("statuscode ${response.statusCode}");
 
     if (response.statusCode == 201) {
-      print("added");
       return "success";
     } else if(response.statusCode == 400) {
       return "failed";
@@ -536,13 +532,11 @@ Future<String> addtocart(varid, quantity) async {
       return "error";
     }
   } catch (e) {
-    print("error $e");
     return "exception";
   }
 }
 Future<String> addtocart2( mainid, quantity) async {
 
-  print("addtocart222222222222222222222222222222222222222222222222");
   final token = await getTokenFromPrefs();
   try {
     final response = await http.post(
@@ -557,10 +551,8 @@ Future<String> addtocart2( mainid, quantity) async {
       }),
     );
 
-    print("statuscode ${response.statusCode}");
 
       if (response.statusCode == 201) {
-      print("added");
       return "success";
     } else if(response.statusCode == 400) {
       return "failed";
@@ -569,7 +561,6 @@ Future<String> addtocart2( mainid, quantity) async {
       return "error";
     }
   } catch (e) {
-    print("error $e");
     return "exception";
   }
 }

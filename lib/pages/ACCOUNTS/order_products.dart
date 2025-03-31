@@ -362,7 +362,6 @@ dep= await getdepFromPrefs();
         'Authorization': 'Bearer $token',
       },
     );
-print("responseeeeeeeeeeeee${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -539,10 +538,8 @@ Future<String> addtocart(varid, quantity) async {
       }),
     );
 
-    print("statuscode ${response.statusCode}");
 
     if (response.statusCode == 201) {
-      print("added");
       return "success";
     } else if(response.statusCode == 400) {
       return "failed";
@@ -551,14 +548,12 @@ Future<String> addtocart(varid, quantity) async {
       return "error";
     }
   } catch (e) {
-    print("error $e");
     return "exception";
   }
 }
 
 Future<String> addtocart2( mainid, quantity) async {
 
-  print("addtocart222222222222222222222222222222222222222222222222");
   final token = await getTokenFromPrefs();
   try {
     final response = await http.post(
@@ -573,10 +568,8 @@ Future<String> addtocart2( mainid, quantity) async {
       }),
     );
 
-    print("statuscode ${response.statusCode}");
 
       if (response.statusCode == 201) {
-      print("added");
       return "success";
     } else if(response.statusCode == 400) {
       return "failed";
@@ -585,12 +578,10 @@ Future<String> addtocart2( mainid, quantity) async {
       return "error";
     }
   } catch (e) {
-    print("error $e");
     return "exception";
   }
 }
 void showSizeDialog2(BuildContext context, List variants) {
-  print(";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;");
   // Create a ValueNotifier to track the selected product
   ValueNotifier<Map<String, dynamic>?> selectedProductNotifier = ValueNotifier(null);
 
@@ -797,7 +788,6 @@ void showSizeDialog2(BuildContext context, List variants) {
 
 
 void showSizeDialog3(BuildContext context, mainid, stock, lockedStock) {
-  print("Stock: $stock, Locked Stock: $lockedStock");
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -1215,14 +1205,12 @@ else if(dep=="Warehouse Admin" ){
       }
       else if(product['type'] == 'variant'){
             
-      print("variant${product['type']}");
         showSizeDialog2(
           context,
           product['variantIDs'] );
       
       }
       else if(product['type']=='single'){
-        print("single${product['type']}");
         
         showSizeDialog3(
           context,

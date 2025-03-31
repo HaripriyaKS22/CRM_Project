@@ -113,7 +113,6 @@ TextEditingController balance=TextEditingController();
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
 
-        print(productsData);
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
           banklist.add({
@@ -138,7 +137,6 @@ TextEditingController balance=TextEditingController();
         });
       }
     } catch (e) {
-      print("error$e");
       
     }
   }

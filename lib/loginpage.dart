@@ -241,18 +241,19 @@ void login(String email, String password, BuildContext context) async {
                         SizedBox(
                           height: 15,
                         ),
-                        TextField(
-                          controller: password,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            prefixIcon: Icon(Icons.lock),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: BorderSide(color: Colors.grey),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                          ),
-                        ),
+                       TextField(
+  controller: password,
+  obscureText: true, // Hides the text while typing
+  decoration: InputDecoration(
+    labelText: 'Password',
+    prefixIcon: Icon(Icons.lock),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10.0),
+      borderSide: BorderSide(color: Colors.grey),
+    ),
+    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+  ),
+),
                         SizedBox(
                           height: 15,
                         ),

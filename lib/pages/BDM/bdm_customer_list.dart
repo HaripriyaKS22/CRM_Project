@@ -202,7 +202,6 @@ Future<void> getcustomer() async {
           'Content-Type': 'application/json',
         },
       );
-print("resssss custooo${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -222,11 +221,9 @@ print("resssss custooo${response.body}");
           filteredProducts =
               List.from(customer); // Show all customers initially
         });
-        print("resssss custooo${customer}");
       }
     } catch (error) {
 
-      print("Error fetching customers: $error");
     }
   }
 

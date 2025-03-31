@@ -100,7 +100,6 @@ Future<void> getprofiledata() async {
         // Store the matching family name
         familyName = matchingFamily['name'];
         
-        print("familllllll$familyName");
         });
     fetchbdmOrderData();
 
@@ -219,7 +218,6 @@ Future<void> getcustomer() async {
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       final List ordersData = responseData['results'];
-      print("orderdata$ordersData");
 
       List<Map<String, dynamic>> newOrders = [];
 
@@ -282,13 +280,11 @@ Future<void> getcustomer() async {
       });
 
       // Print the counts (or use them as needed)
-      print('Total Orders Today: $totalOrdersToday');
-      print('Total Orders with "Invoice Created" status: $totalOrdersInvoiceCreated');
+     
     } else {
       throw Exception("Failed to load order data");
     }
   } catch (error) {
-    print("Error: $error");
   }
 }
 

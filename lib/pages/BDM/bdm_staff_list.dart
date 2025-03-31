@@ -108,7 +108,6 @@ class _bdm_staff_listState extends State<bdm_staff_list> {
       );
    ;
       List<Map<String, dynamic>> stafflist = [];
-print("resssss staff${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];

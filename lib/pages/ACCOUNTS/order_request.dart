@@ -930,7 +930,6 @@ var dep=await getdepFromPrefs();
         for (var productData in productsData) {
           String imageUrl = "${productData['image']}";
 if(dep=="BDM"){
-            print("dep is $dep and ${productData['department']}");
             if(productData['family']==famid){
           
           stafflist.add({

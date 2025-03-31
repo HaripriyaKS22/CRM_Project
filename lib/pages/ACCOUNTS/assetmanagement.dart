@@ -80,6 +80,7 @@ class _AssetManegmentState extends State<AssetManegment> {
             price = double.tryParse(product['amount'].toString()) ?? 0.0;
           }
 
+
           categoryTotalStock += stock;
           categoryTotalPrice += stock * price;
 

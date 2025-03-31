@@ -154,9 +154,7 @@ class _view_customerState extends State<view_customer> {
 
   var managerfetchid;
   var statefetchid;
-  Future<void> getcustomers() async {
-    print('customer id is ${widget.customerid}');
-    try {
+  Future<void> getcustomers() async {    try {
       final token = await gettokenFromPrefs();
 
       var response = await http.get(
@@ -265,9 +263,7 @@ var dep=await getdepFromPrefs();
 
         for (var productData in productsData) {
            if(dep=="BDM"){
-            print("dep is $dep and ${productData['department']}");
             if(productData['family']==family){
-            print("family is $family and ${productData['family']}");
             managerlist.add({
             'id': productData['id'],
             'name': productData['name'],

@@ -99,7 +99,6 @@ Future<void> getbank() async {
     final parsed = jsonDecode(response.body);
 
     if (parsed['message'] == "Token has expired" || parsed['message'] == "Invalid token") {
-      print("invalidddddddddddddddddddd");
       
       await clearToken();
       setState(() {

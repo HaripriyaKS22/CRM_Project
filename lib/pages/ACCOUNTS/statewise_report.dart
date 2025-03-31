@@ -385,7 +385,6 @@ Future<void> getstatewisereport() async {
         'Content-Type': 'application/json',
       },
     );
-print("response.body${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
