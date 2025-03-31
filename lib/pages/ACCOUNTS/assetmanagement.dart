@@ -55,8 +55,6 @@ class _AssetManegmentState extends State<AssetManegment> {
       },
     );
 
-    ;
-
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       List<dynamic> categoriesData = parsed['assets'];
