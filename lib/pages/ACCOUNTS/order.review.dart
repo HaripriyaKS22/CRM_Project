@@ -33,6 +33,8 @@ class _OrderReviewState extends State<OrderReview> {
   String? createdBy;
   String? companyname;
   DateTime selectedDate = DateTime.now();
+    DateTime selectedDate2 = DateTime.now();
+
   TextEditingController amountController = TextEditingController();
   TextEditingController transactionIdController = TextEditingController();
   TextEditingController remarkController = TextEditingController();
@@ -1077,8 +1079,61 @@ fetchOrderItems();
           ),
         );
 
-        ;
-        ;
+        print(response.body);
+      
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text(' updated successfully'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id,customer: widget.customer)),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('Failed to update'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (error) {
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating profile'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    
+  }
+   Future<void> updateorderdate(var picked) async {
+    
+      try {
+        final token = await gettoken();
+
+        var response = await http.put(
+          Uri.parse('$api/api/orders/update/${widget.id}/'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(
+            {
+              'order_date': picked.toString(),
+            },
+          ),
+        );
+
+        
+      
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1112,6 +1167,7 @@ fetchOrderItems();
       }
     
   }
+
 
   List<Map<String, dynamic>> addres = [];
 
@@ -1607,6 +1663,18 @@ Future<void> updatemsg(var orderId) async {
       ;
     }
   }
+    void _showDatePicker2(BuildContext context, int orderId) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      updateorderdate( picked);
+      ;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1731,12 +1799,36 @@ Future<void> updatemsg(var orderId) async {
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
                           ),
-                          Text(
-                            ord != null
-                                ? ord["order_date"] ?? 'Date Not Available'
-                                : '',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
+
+                          if(dep!="BDO")
+                          
+                         GestureDetector(
+  onTap: () {
+    _showDatePicker2(context, ord['id']);
+  },
+  child: Container(
+    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Add padding
+    decoration: BoxDecoration(
+      color: const Color.fromARGB(255, 2, 88, 158), // Set the background color
+      borderRadius: BorderRadius.circular(8), // Optional: Add rounded corners
+    ),
+    child: Text(
+      ord != null && ord["order_date"] != null
+          ? DateFormat('yyyy-MM-dd').format(DateTime.parse(ord["order_date"]))
+          : 'Date Not Available',
+      style: TextStyle(color: Colors.white, fontSize: 14),
+    ),
+  ),
+),
+if(dep=='BDO')
+  Text(
+        ord != null && ord["order_date"] != null
+            ? DateFormat('yyyy-MM-dd').format(DateTime.parse(ord["order_date"]))
+            : 'Date Not Available',
+        style: TextStyle(color: Colors.white, fontSize: 14),
+      ),
+
+
                         ],
                       ),
                     ),

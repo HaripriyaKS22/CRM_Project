@@ -507,14 +507,28 @@ print("selectedExpense$selectedExpense");
           purposes.text = selectedExpense['purpose_of_payment'] ?? '';
           amount.text = selectedExpense['amount']?.toString() ?? '';
           description.text = selectedExpense['description'] ?? '';
-selectedPurposeId = selectedExpense['purpose_of_payment']?['id'] as int? 
-    ?? (selectedExpense['purpose_of_payment'] is int ? selectedExpense['purpose_of_payment'] as int : null);
-          // Parse nested objects (if necessary)
-          selectedCompanyId = selectedExpense['company']?['id'] as int? ?? selectedExpense['company'] as int?;
-          selectedstaffId = selectedExpense['payed_by']?['id'] as int? ?? selectedExpense['payed_by'] as int?;
-          selectedbankId = selectedExpense['bank']?['id'] as int? ?? selectedExpense['bank'] as int?;
+selectedPurposeId = selectedExpense['purpose_of_payment'] is int
+    ? selectedExpense['purpose_of_payment'] as int
+    : null;
+
+selectedCompanyId = selectedExpense['company'] is Map
+    ? selectedExpense['company']['id'] as int
+    : null;
+
+selectedstaffId = selectedExpense['payed_by'] is Map
+    ? selectedExpense['payed_by']['id'] as int
+    : null;
+
+selectedbankId = selectedExpense['bank'] is Map
+    ? selectedExpense['bank']['id'] as int
+    : null;
           selectedDate = selectedExpense['expense_date'] ?? DateTime.now(); // Default to current date if null
         });
+        print("selectedExpense: $selectedExpense");
+print("purpose_of_payment: ${selectedExpense['purpose_of_payment']}");
+print("company: ${selectedExpense['company']}");
+print("payed_by: ${selectedExpense['payed_by']}");
+print("bank: ${selectedExpense['bank']}");
       }
     } else {
       print('Failed to fetch expense list');
