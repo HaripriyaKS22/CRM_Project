@@ -58,12 +58,15 @@ class _AssetManegmentState extends State<AssetManegment> {
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       List<dynamic> categoriesData = parsed['assets'];
-
+print("categoriesData${categoriesData}");
       List<Map<String, dynamic>> categoriesSummary = [];
 
       for (var categoryData in categoriesData) {
         String categoryName = categoryData['category'];
         List<dynamic> products = categoryData['products'];
+print("categoryName${categoryName}");
+print("products${products}");
+
 
         int categoryTotalStock = 0;
         double categoryTotalPrice = 0.0;
@@ -86,7 +89,7 @@ class _AssetManegmentState extends State<AssetManegment> {
 
           productList.add({
             'name': product['name'],
-            'stock': stock,
+            'stock': stock ?? 1,
             'price': price,
           });
         }
@@ -347,6 +350,7 @@ else if(dep=="Warehouse Admin" ){
                               fontSize: 14, fontWeight: FontWeight.bold)),
                       subtitle: Row(
                         children: [
+                          if(category['totalStock'] != 0)
                           Text('Stock: ${category['totalStock']}',
                               style: TextStyle(fontWeight: FontWeight.w500)),
                           SizedBox(width: 20),
@@ -370,10 +374,10 @@ else if(dep=="Warehouse Admin" ){
       children: (category['products'] as List<dynamic>? ?? []).map<Widget>((product) {
         final stock = product['stock'] ?? 0;
         final price = product['price'] ?? 0.0; // <-- correctly referencing 'price'
-        return ListTile(
+       return ListTile(
           dense: true,
           title: Text(product['name'], style: TextStyle(fontSize: 14)),
-          subtitle: Text('Stock: $stock'),
+          subtitle: stock != 0 ? Text('Stock: $stock') : null, // Display stock only if it's not 0
           trailing: Text('₹${price.toStringAsFixed(2)}',
               style: TextStyle(color: Colors.grey.shade700)),
         );

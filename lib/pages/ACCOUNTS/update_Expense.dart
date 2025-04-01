@@ -595,6 +595,79 @@ void updateexpense() async {
   }
 }
 
+void updateexpense2() async {
+  print("update expense2 called");
+  final token = await gettokenFromPrefs();
+
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username'); 
+
+    
+    
+
+    if (username == null) {
+      
+      return;
+    }
+print('$api/api/expense/addexpectemiupdate/${widget.id}/');
+    var response = await http.put(
+      Uri.parse('$api/api/expense/addexpectemiupdate/${widget.id}/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        "company": selectedCompanyId.toString(),
+        "payed_by": selectedstaffId.toString(),
+        "bank": selectedbankId.toString(),
+        "purpose_of_payment": selectedPurposeId.toString(),
+        "amount": amount.text,
+        "expense_date": formatDate(selectedDate), 
+        "transaction_id": transactionid.text,
+        "description": description.text,
+        "added_by": username, 
+      },
+    );
+
+    print('Selected Purpose Name: $selectedPurposeName');
+    print('Selected Bank ID: $selectedbankId');
+    print('Selected Staff ID: $selectedstaffId');
+    
+    print(response.body);
+    print('Response status code: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => expence_list()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Color.fromARGB(255, 49, 212, 4),
+          content: Text('Expense Updated successfully'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Failed to add expense. Please try again.'),
+        ),
+      );
+    }
+  } catch (e) {
+    print("Error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('An error occurred. Please try again.'),
+      ),
+    );
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1185,7 +1258,13 @@ Padding(
             onPressed: () {
               setState(() {
 
-                updateexpense();
+              if(selectedPurposeName=="emi")
+              {
+                  updateexpense();
+              }
+              else{
+                updateexpense2();
+              }
 
               });
             },
