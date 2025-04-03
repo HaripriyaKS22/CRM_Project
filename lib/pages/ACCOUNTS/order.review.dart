@@ -1079,8 +1079,9 @@ fetchOrderItems();
           ),
         );
 
-        print(response.body);
-      
+        
+      print("${response.statusCode}");
+      print("${response.body}");
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1445,7 +1446,7 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
 ;
 double remainingAmount;
 if(calculatedNetAmount>paymentReceiptsSum){
-       remainingAmount = calculatedNetAmount - paymentReceiptsSum;
+       remainingAmount = (calculatedNetAmount+calculatedTotalTax) - paymentReceiptsSum;
      
 }
 else{
@@ -1820,14 +1821,6 @@ Future<void> updatemsg(var orderId) async {
     ),
   ),
 ),
-if(dep=='BDO')
-  Text(
-        ord != null && ord["order_date"] != null
-            ? DateFormat('yyyy-MM-dd').format(DateTime.parse(ord["order_date"]))
-            : 'Date Not Available',
-        style: TextStyle(color: Colors.white, fontSize: 14),
-      ),
-
 
                         ],
                       ),

@@ -71,6 +71,7 @@ Future<String?> gettokenFromPrefs() async {
   }
 
     List<Map<String, dynamic>> emiPayments = [];
+    
   bool isLoading = true;
   String? errorMessage;
     Map<String, dynamic>? emiData;
@@ -85,6 +86,8 @@ var departments;
 String? selectedpurpose; // Holds the selected value
   final List<String> items = ['water', 'electricity','salary','emi','rent','travel','Others'];
     List<Map<String, dynamic>> purposesofpay = [];
+    TextEditingController proname = TextEditingController();
+  TextEditingController quantity = TextEditingController();
  bool showAddNewField = false; // State variable to manage visibility
   TextEditingController newPurposeController = TextEditingController();
  String selectedstaff='';
@@ -107,6 +110,7 @@ String? selectedpurpose; // Holds the selected value
     Map<String, Map<String, dynamic>> paymentMap = {
       for (var payment in payments) payment['date']: payment
     };
+  final List<String> exp = ['assets', 'expenses'];
 
     DateTime currentDate = DateTime(startDate.year, startDate.month, 1);
 
@@ -137,6 +141,10 @@ String? selectedpurpose; // Holds the selected value
 
     return filledPayments;
   }
+    final List<String> exp = ['assets', 'expenses'];
+  List<Map<String, dynamic>> category = [];
+    int? selectedCategoryId;
+
 void addpurpose(BuildContext context) async {
     final token = await gettokenFromPrefs();
 
@@ -170,6 +178,38 @@ void addpurpose(BuildContext context) async {
         ),
       );
     }
+  }
+  String? selectedtype = 'expenses';
+
+    Future<void> getcategory() async {
+    try {
+      final token = await gettokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/apis/add/assetcategory/'),
+        headers: {
+          'Authorization': ' Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+;
+      List<Map<String, dynamic>> categorylist = [];
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+
+        for (var productData in parsed) {
+          categorylist.add({
+            'id': productData['id'],
+            'name': productData['category_name'],
+          });
+        }
+        setState(() {
+          category = categorylist;
+          ;
+        });
+      }
+    } catch (error) {}
   }
 
    Future<void> getemi() async {
@@ -506,6 +546,7 @@ print("selectedExpense$selectedExpense");
           transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
           purposes.text = selectedExpense['purpose_of_payment'] ?? '';
           amount.text = selectedExpense['amount']?.toString() ?? '';
+
           description.text = selectedExpense['description'] ?? '';
 selectedPurposeId = selectedExpense['purpose_of_payment'] is int
     ? selectedExpense['purpose_of_payment'] as int
@@ -564,6 +605,79 @@ void updateexpense() async {
         "bank": selectedbankId.toString(),
         "purpose_of_payment": selectedPurposeId.toString(),
         "loan":selectedEmiId.toString(),
+        "amount": amount.text,
+        "expense_date": formatDate(selectedDate), 
+        "transaction_id": transactionid.text,
+        "description": description.text,
+        "added_by": username, 
+      },
+    );
+
+    print('Selected Purpose Name: $selectedPurposeName');
+    print('Selected Bank ID: $selectedbankId');
+    print('Selected Staff ID: $selectedstaffId');
+    
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => expence_list()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Color.fromARGB(255, 49, 212, 4),
+          content: Text('Expense Updated successfully'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Failed to add expense. Please try again.'),
+        ),
+      );
+    }
+  } catch (e) {
+    print("Error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('An error occurred. Please try again.'),
+      ),
+    );
+  }
+}
+
+
+void updateexpenseasset() async {
+  
+  final token = await gettokenFromPrefs();
+
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username'); 
+
+    
+    
+
+    if (username == null) {
+      
+      return;
+    }
+
+    var response = await http.put(
+      Uri.parse('$api/api/expense/get/${widget.id}/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        "company": selectedCompanyId.toString(),
+        "payed_by": selectedstaffId.toString(),
+        "bank": selectedbankId.toString(),
+        "purpose_of_payment": selectedPurposeId.toString(),
+        
         "amount": amount.text,
         "expense_date": formatDate(selectedDate), 
         "transaction_id": transactionid.text,
@@ -820,7 +934,168 @@ print('$api/api/expense/addexpectemiupdate/${widget.id}/');
               ),
             ),
           ),
-                    SizedBox(height: 5),
+                 SizedBox(height: 5),
+                                Text(
+                                  "Select Type",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12.0, vertical: .0),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.grey, width: 1.0),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: selectedtype,
+                                    hint: Text('Select an option'),
+                                    isExpanded: true,
+                                    underline:
+                                        SizedBox(), // Removes the default underline
+                                    items: exp.map((String item) {
+                                      return DropdownMenuItem<String>(
+                                        value: item,
+                                        child: Text(item),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedtype = newValue;
+                                      });
+                                    },
+                                  ),
+                                ),
+
+                                  if (selectedtype == 'assets')
+                                  Text(
+                                    "Product name",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                if (selectedtype == 'assets') 
+                                SizedBox(height: 5),
+                                if (selectedtype == 'assets')
+                                  Container(
+                                    child: TextField(
+                                      controller: proname,
+                                      decoration: InputDecoration(
+                                        labelText: 'Product Name',
+                                        labelStyle: TextStyle(
+                                          fontSize:
+                                              13.0, // Adjust the font size as needed
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  
+                                 if (selectedtype == 'assets') 
+                                 SizedBox(height: 5),
+                                 if (selectedtype == 'assets')
+                                  Text(
+                                    "category",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                if (selectedtype == 'assets') 
+                                SizedBox(height: 5),
+                                if (selectedtype == 'assets')
+                                  Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey, width: 1.0),
+                                          borderRadius: BorderRadius.circular(
+                                              8.0), // Rounded corners
+                                        ),
+                                        child: DropdownButton<int>(
+                                          isExpanded: true,
+                                          underline:
+                                              SizedBox(), // Removes default underline
+                                          hint: Text(
+                                            'Select a category',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600]),
+                                          ),
+                                          value: selectedCategoryId,
+                                          items: category.map((item) {
+                                            return DropdownMenuItem<int>(
+                                              value: item['id'],
+                                              child: Text(item['name']),
+                                            );
+                                          }).toList(),
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedCategoryId = value;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                
+                                if (selectedtype == 'assets') 
+                                SizedBox(height: 5),
+      
+                                if (selectedtype == 'assets')
+                                  Text(
+                                    "Quantity",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                if (selectedtype == 'assets') 
+                                SizedBox(height: 5),
+                                if (selectedtype == 'assets')
+                                  Container(
+                                    child: TextField(
+                                      controller: quantity,
+                                      decoration: InputDecoration(
+                                        labelText: 'Quantity',
+                                        labelStyle: TextStyle(
+                                          fontSize:
+                                              13.0, // Adjust the font size as needed
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
 
         Column(
         crossAxisAlignment: CrossAxisAlignment.start,

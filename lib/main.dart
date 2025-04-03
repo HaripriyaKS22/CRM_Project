@@ -52,84 +52,91 @@ class _beposoftmainState extends State<beposoftmain> {
     await prefs.setString('token', token);
   }
 
-void check() async {
-  final token = await gettokenFromPrefs();
+  void check() async {
+    final token = await gettokenFromPrefs();
 
-  try {
-    if (token != null) {
-      final jwt = JWT.decode(token);
-      var dep = jwt.payload['active'];
-      
-      
-      
-      setState(() {
-        department = dep;
-        tok = true; // Token is valid
+    try {
+      if (token != null) {
+        final jwt = JWT.decode(token);
+        var dep = jwt.payload['active'];
 
-        
-      });
-    } else {
+        setState(() {
+          department = dep;
+          tok = true; // Token is valid
+        });
+      } else {
+        setState(() {
+          tokenn = false;
+        });
+        navigateToLogin();
+      }
+    } catch (e) {
       setState(() {
         tokenn = false;
       });
       navigateToLogin();
     }
-  } catch (e) {
-    
-    setState(() {
-      tokenn = false;
-    });
-    navigateToLogin();
   }
-}
 
-Future<void> getbank() async {
-  final token = await gettokenFromPrefs();
+  Future<void> getbank() async {
+    final token = await gettokenFromPrefs();
 
-  try {
-    final response = await http.get(
-      Uri.parse('$api/api/banks/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+    try {
+      final response = await http.get(
+        Uri.parse('$api/api/banks/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final parsed = jsonDecode(response.body);
+
+      if (parsed['message'] == "Token has expired" || parsed['message'] == "Invalid token") {
+        await clearToken();
+        setState(() {
+          tokenn = false;
+        });
+        navigateToLogin();
+      }
+    } catch (e) {
+      setState(() {
+        tokenn = false;
+      });
+      navigateToLogin();
+    }
+  }
+
+  Future<void> clearToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+  }
+
+  void navigateToLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => login()),
     );
-
-    
-    final parsed = jsonDecode(response.body);
-
-    if (parsed['message'] == "Token has expired" || parsed['message'] == "Invalid token") {
-      
-      await clearToken();
-      setState(() {
-        tokenn = false;
-      });
-      navigateToLogin();
-    }
-  } catch (e) {
-    
-    setState(() {
-      tokenn = false;
-    });
-    navigateToLogin();
   }
-}
-
-Future<void> clearToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('token');
-}
-
-void navigateToLogin() {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => login()),
-  );
-}
-
 
   @override
   Widget build(BuildContext context) {
+    // Ensure that we only call layout-related code after the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final RenderBox? renderBoxNullable = context.findRenderObject() as RenderBox?;
+        if (renderBoxNullable != null) {
+          final RenderBox renderBox = renderBoxNullable;
+          // Safe to use renderBox here
+        } else {
+          print("RenderBox is null");
+        }
+        // Safe to call localToGlobal or any other method if needed
+      } catch (e) {
+        print("Error occurred during layout: $e");
+      }
+    });
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: tokenn

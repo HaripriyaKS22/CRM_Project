@@ -1,3 +1,3 @@
-var api="https://chicken-native-consist-operating.trycloudflare.com";
+var api="https://permission-shaved-license-shipment.trycloudflare.com";
 
 
