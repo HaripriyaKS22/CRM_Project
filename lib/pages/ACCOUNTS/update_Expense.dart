@@ -252,7 +252,7 @@ void addpurpose(BuildContext context) async {
     }
   }
   
-         Future<void> getpurpose() async {
+  Future<void> getpurpose() async {
     try {
       final token = await gettokenFromPrefs();
 
@@ -263,7 +263,7 @@ void addpurpose(BuildContext context) async {
           'Content-Type': 'application/json',
         },
       );
-;
+
       List<Map<String, dynamic>> purposelist = [];
 
       if (response.statusCode == 200) {
