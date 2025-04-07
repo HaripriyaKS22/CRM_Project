@@ -129,11 +129,9 @@ class _beposoftmainState extends State<beposoftmain> {
           final RenderBox renderBox = renderBoxNullable;
           // Safe to use renderBox here
         } else {
-          print("RenderBox is null");
         }
         // Safe to call localToGlobal or any other method if needed
       } catch (e) {
-        print("Error occurred during layout: $e");
       }
     });
 

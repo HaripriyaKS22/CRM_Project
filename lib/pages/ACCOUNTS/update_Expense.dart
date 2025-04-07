@@ -479,7 +479,6 @@ String formatDate(DateTime date) {
 
           List<Map<String, dynamic>> payments =
               List<Map<String, dynamic>>.from(parsed['emidata']);
-print("emiData: $emiData");
           // Process missing months
           emiPayments = fillMissingMonths(payments);
           
@@ -517,7 +516,6 @@ Future<void> getexpenselist() async {
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       final productsData = parsed['data'];
-print("sssssssssssssss$productsData");
       for (var productData in productsData) {
         // Parse the expense_date string into a DateTime object
         DateTime expenseDate = DateTime.parse(productData['expense_date']);
@@ -540,7 +538,6 @@ print("sssssssssssssss$productsData");
         (expense) => expense['id'] == widget.id,
         orElse: () => {}, // Return an empty map instead of null
       );
-print("selectedExpense$selectedExpense");
       if (selectedExpense.isNotEmpty) {
         setState(() {
           transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
@@ -565,17 +562,11 @@ selectedbankId = selectedExpense['bank'] is Map
     : null;
           selectedDate = selectedExpense['expense_date'] ?? DateTime.now(); // Default to current date if null
         });
-        print("selectedExpense: $selectedExpense");
-print("purpose_of_payment: ${selectedExpense['purpose_of_payment']}");
-print("company: ${selectedExpense['company']}");
-print("payed_by: ${selectedExpense['payed_by']}");
-print("bank: ${selectedExpense['bank']}");
+
       }
     } else {
-      print('Failed to fetch expense list');
     }
   } catch (error) {
-    print('Error: $error');
   }
 }
 void updateexpense() async {
@@ -613,11 +604,7 @@ void updateexpense() async {
       },
     );
 
-    print('Selected Purpose Name: $selectedPurposeName');
-    print('Selected Bank ID: $selectedbankId');
-    print('Selected Staff ID: $selectedstaffId');
-    
-    print(response.body);
+  
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
@@ -640,7 +627,6 @@ void updateexpense() async {
       );
     }
   } catch (e) {
-    print("Error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,
@@ -686,12 +672,7 @@ void updateexpenseasset() async {
       },
     );
 
-    print('Selected Purpose Name: $selectedPurposeName');
-    print('Selected Bank ID: $selectedbankId');
-    print('Selected Staff ID: $selectedstaffId');
-    
-    print(response.body);
-
+ 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       Navigator.push(
@@ -713,7 +694,6 @@ void updateexpenseasset() async {
       );
     }
   } catch (e) {
-    print("Error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,
@@ -724,7 +704,6 @@ void updateexpenseasset() async {
 }
 
 void updateexpense2() async {
-  print("update expense2 called");
   final token = await gettokenFromPrefs();
 
   try {
@@ -738,7 +717,6 @@ void updateexpense2() async {
       
       return;
     }
-print('$api/api/expense/addexpectemiupdate/${widget.id}/');
     var response = await http.put(
       Uri.parse('$api/api/expense/addexpectemiupdate/${widget.id}/'),
       headers: {
@@ -757,12 +735,7 @@ print('$api/api/expense/addexpectemiupdate/${widget.id}/');
       },
     );
 
-    print('Selected Purpose Name: $selectedPurposeName');
-    print('Selected Bank ID: $selectedbankId');
-    print('Selected Staff ID: $selectedstaffId');
-    
-    print(response.body);
-    print('Response status code: ${response.statusCode}');
+   
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
@@ -785,7 +758,6 @@ print('$api/api/expense/addexpectemiupdate/${widget.id}/');
       );
     }
   } catch (e) {
-    print("Error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
-import 'package:beposoft/pages/ACCOUNTS/update_expence.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
@@ -541,7 +541,7 @@ else if(dep=="Warehouse Admin" ){
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            Expense_Update(id: expense['id'])),
+                                            update_expence(id: expense['id'])),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(

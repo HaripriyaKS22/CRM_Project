@@ -91,7 +91,6 @@ var allocatedstates;
  Future<void> getprofiledata() async {
     try {
 username=await getusernameFromPrefs();
-print("username==============$username");
       var response = await http.get(
         Uri.parse("$api/api/profile/"),
         headers: {
@@ -103,7 +102,6 @@ print("username==============$username");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
-        print("productsData==============$productsData");
 
         setState(() {
           
@@ -113,7 +111,6 @@ print("username==============$username");
 
           
         });
-        print("userid==============$userid");
                 getstates();
 
       }

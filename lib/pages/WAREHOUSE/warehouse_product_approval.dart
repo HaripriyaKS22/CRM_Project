@@ -347,7 +347,6 @@ dep= await getdepFromPrefs();
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
       List<Map<String, dynamic>> productList = [];
-print(productsData);
       for (var productData in productsData) {
         // Filter products with "approval_status": "Disapproved"
         

@@ -115,7 +115,6 @@ int? selectedPurposeId;
 
           List<Map<String, dynamic>> payments =
               List<Map<String, dynamic>>.from(parsed['emidata']);
-print("emiData: $emiData");
           // Process missing months
           emiPayments = fillMissingMonths(payments);
           

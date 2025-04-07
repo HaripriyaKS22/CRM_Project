@@ -58,14 +58,11 @@ class _AssetManegmentState extends State<AssetManegment> {
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       List<dynamic> categoriesData = parsed['assets'];
-print("categoriesData${categoriesData}");
       List<Map<String, dynamic>> categoriesSummary = [];
 
       for (var categoryData in categoriesData) {
         String categoryName = categoryData['category'];
         List<dynamic> products = categoryData['products'];
-print("categoryName${categoryName}");
-print("products${products}");
 
 
         int categoryTotalStock = 0;

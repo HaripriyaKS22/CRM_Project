@@ -564,7 +564,6 @@ class _OrderRequestState extends State<OrderRequest> {
     setState(() {
       createdBy = name;
     });
-print('$api/api/order/${widget.id}/items/');
     var response = await http.get(
       Uri.parse('$api/api/order/${widget.id}/items/'),
       headers: {

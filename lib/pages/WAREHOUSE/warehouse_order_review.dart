@@ -462,7 +462,6 @@ Future<void> deletebox( var orderId) async {
     try {
       final token = await getTokenFromPrefs();
     var dep=await getdepartment();
-    print("deppppppppppppppppppppp$dep");
       var response = await http.get(
         Uri.parse('$api/api/staffs/'),
         headers: {
@@ -480,7 +479,6 @@ Future<void> deletebox( var orderId) async {
      
         for (var productData in productsData) {
           if(dep=="Warehouse Admin"){
-            print("productData['department']${productData['department_name']}");
             if(productData['department_name'] == "warehouse"||productData['department_name']=="Warehouse Admin"){
          
           managerlist.add({
