@@ -1,3 +1,3 @@
-var api="https://permission-shaved-license-shipment.trycloudflare.com";
+var api="https://bepocart.in";
 
 
