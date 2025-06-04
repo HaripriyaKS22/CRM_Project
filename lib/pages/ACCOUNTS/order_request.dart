@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ACCOUNTS/add_address.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_company.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_department.dart';
@@ -75,7 +76,7 @@ class _order_requestState extends State<order_request> {
   List<Map<String, dynamic>> fam = [];
   List<Map<String, dynamic>> customer = [];
   List<Map<String, dynamic>> warehousecusomer1 = [];
-
+String? selectedCustomerName;
   List<Map<String, dynamic>> warehousecusomer2 = [];
 
   List<Map<String, dynamic>> variant = [];
@@ -1099,56 +1100,1072 @@ if(dep=="BDM"){
           ),
         ],
       ),
-      body: SingleChildScrollView(
-          child: Column(
-        children: [
-          Container(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          initdata();
+          getaddress(selectedCustomerId);
+        },
+        child: SingleChildScrollView(
             child: Column(
-              children: [
-                SizedBox(
-                  height: 15,
-                ),
-                Text(
-                  "ORDER REQUEST ",
-                  style: TextStyle(
-                      fontSize: 20,
-                      letterSpacing: 9.0,
-                      fontWeight: FontWeight.bold),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 202, 202, 202)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 15,
-                            ),
-
-                            if (dep == "ADMIN" ||
-                                dep == "COO" ||
-                                dep == "Accounts")
+          children: [
+            Container(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Text(
+                    "ORDER REQUEST ",
+                    style: TextStyle(
+                        fontSize: 20,
+                        letterSpacing: 9.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                              color: Color.fromARGB(255, 202, 202, 202)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 15,
+                              ),
+        
+                              if (dep == "ADMIN" ||
+                                  dep == "COO" ||
+                                  dep == "Accounts")
+                                Text(
+                                  "Order Mode",
+                                  style: TextStyle(
+                                      fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+        
+                              SizedBox(
+                                height: 5,
+                              ),
+        
+                              if (dep == "ADMIN" ||
+                                  dep == "COO" ||
+                                  dep == "Accounts")
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: '',
+                                        contentPadding:
+                                            EdgeInsets.symmetric(horizontal: 1),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectedmode,
+                                        underline:
+                                            Container(), // Removes the underline
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectedmode = newValue!;
+                                          });
+                                        },
+                                        items: mode.map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: TextStyle(fontSize: 12),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        icon: Container(
+                                          padding: EdgeInsets.only(left: 140),
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(Icons.arrow_drop_down),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+        
+                              SizedBox(height: 5),
+        
                               Text(
-                                "Order Mode",
+                                "Company ",
                                 style: TextStyle(
                                     fontSize: 12, fontWeight: FontWeight.bold),
                               ),
-
-                            SizedBox(
-                              height: 5,
-                            ),
-
-                            if (dep == "ADMIN" ||
-                                dep == "COO" ||
-                                dep == "Accounts")
+                              SizedBox(
+                                height: 5,
+                              ),
+        
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10.0),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey, width: 1.0),
+                                        borderRadius: BorderRadius.circular(
+                                            8.0), // Rounded corners
+                                      ),
+                                      child: DropdownButton<int>(
+                                        isExpanded: true,
+                                        underline:
+                                            SizedBox(), // Removes default underline
+                                        hint: Text('Select a company'),
+                                        value: selectedCompanyId,
+                                        items: company.map((item) {
+                                          return DropdownMenuItem<int>(
+                                            value: item['id'],
+                                            child: Text(item['name']),
+                                          );
+                                        }).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedCompanyId = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+        
+                              if (selectedmode == "warehouse to warehouse")
+                                SizedBox(height: 5),
+                              if (selectedmode == "warehouse to warehouse")
+                                Text(
+                                  "TO",
+                                  style: TextStyle(
+                                      fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                              SizedBox(
+                                height: 5,
+                              ),
+        
+                              if (dep == "ADMIN" ||
+                                  dep == "COO" ||
+                                  dep == "Accounts")
+                                if (selectedmode == "warehouse to warehouse")
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return Container(
+                                          child: DropdownButtonHideUnderline(
+                                            child: Container(
+                                              height: 46,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.grey,
+                                                    width: 1.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                              ),
+                                              child: DropdownButton2<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Select a warehouse',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Theme.of(context)
+                                                          .hintColor),
+                                                ),
+                                                items: customer
+                                                    .map((item) =>
+                                                        DropdownMenuItem<String>(
+                                                          value: item[
+                                                              'name'], // Use the customer's name as the value
+                                                          child: Text(
+                                                            item['name'],
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize: 12),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                value: selectedValue,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    // Update the selected value with the chosen customer's name
+                                                    selectedValue = value;
+                                                    // Find the corresponding customer ID
+                                                    selectedCustomerId = customer
+                                                        .firstWhere((item) =>
+                                                            item['name'] ==
+                                                            value)['id'];
+        
+                                                    // Reset the selected address ID when a new customer is selected
+                                                    selectedAddressId = null;
+                                                  });
+        
+                                                  // Fetch the addresses for the newly selected customer
+                                                  getaddress(selectedCustomerId);
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 16),
+                                                  height: 40,
+                                                ),
+                                                dropdownStyleData:
+                                                    const DropdownStyleData(
+                                                  maxHeight: 200,
+                                                ),
+                                                menuItemStyleData:
+                                                    const MenuItemStyleData(
+                                                  height: 40,
+                                                ),
+                                                dropdownSearchData:
+                                                    DropdownSearchData(
+                                                  searchController:
+                                                      textEditingController,
+                                                  searchInnerWidgetHeight: 50,
+                                                  searchInnerWidget: Container(
+                                                    height: 50,
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 4,
+                                                            right: 8,
+                                                            left: 8),
+                                                    child: TextFormField(
+                                                      expands: true,
+                                                      maxLines: null,
+                                                      controller:
+                                                          textEditingController,
+                                                      decoration: InputDecoration(
+                                                        isDense: true,
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 10,
+                                                                vertical: 8),
+                                                        hintText:
+                                                            'Search for a warehouse...',
+                                                        hintStyle:
+                                                            const TextStyle(
+                                                                fontSize: 12),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8)),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  searchMatchFn:
+                                                      (item, searchValue) {
+                                                    // Perform case-insensitive search
+                                                    return item.value
+                                                        .toString()
+                                                        .toLowerCase()
+                                                        .contains(searchValue
+                                                            .toLowerCase());
+                                                  },
+                                                ),
+                                                // Clear the search value when the menu is closed
+                                                onMenuStateChange: (isOpen) {
+                                                  if (!isOpen) {
+                                                    textEditingController.clear();
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+        
+                              if (selectedmode == "warehouse to warehouse")
+                                SizedBox(height: 5),
+                              if (selectedmode == "warehouse to warehouse")
+                                Text(
+                                  "From",
+                                  style: TextStyle(
+                                      fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                              SizedBox(
+                                height: 5,
+                              ),
+        
+                              if (dep == "ADMIN" ||
+                                  dep == "COO" ||
+                                  dep == "Accounts")
+                                if (selectedmode == "warehouse to warehouse")
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return Container(
+                                          child: DropdownButtonHideUnderline(
+                                            child: Container(
+                                              height: 46,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.grey,
+                                                    width: 1.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                              ),
+                                              child: DropdownButton2<String>(
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  'Select a warehouse',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Theme.of(context)
+                                                          .hintColor),
+                                                ),
+                                                items: customer
+                                                    .map((item) =>
+                                                        DropdownMenuItem<String>(
+                                                          value: item[
+                                                              'name'], // Use the customer's name as the value
+                                                          child: Text(
+                                                            item['name'],
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize: 12),
+                                                          ),
+                                                        ))
+                                                    .toList(),
+                                                value: selectedValue,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    // Update the selected value with the chosen customer's name
+                                                    selectedValue = value;
+                                                    // Find the corresponding customer ID
+                                                    selectedCustomerId = customer
+                                                        .firstWhere((item) =>
+                                                            item['name'] ==
+                                                            value)['id'];
+        
+                                                    // Reset the selected address ID when a new customer is selected
+                                                    selectedAddressId = null;
+                                                  });
+        
+                                                  // Fetch the addresses for the newly selected customer
+                                                  getaddress(selectedCustomerId);
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 16),
+                                                  height: 40,
+                                                ),
+                                                dropdownStyleData:
+                                                    const DropdownStyleData(
+                                                  maxHeight: 200,
+                                                ),
+                                                menuItemStyleData:
+                                                    const MenuItemStyleData(
+                                                  height: 40,
+                                                ),
+                                                dropdownSearchData:
+                                                    DropdownSearchData(
+                                                  searchController:
+                                                      textEditingController,
+                                                  searchInnerWidgetHeight: 50,
+                                                  searchInnerWidget: Container(
+                                                    height: 50,
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 8,
+                                                            bottom: 4,
+                                                            right: 8,
+                                                            left: 8),
+                                                    child: TextFormField(
+                                                      expands: true,
+                                                      maxLines: null,
+                                                      controller:
+                                                          textEditingController,
+                                                      decoration: InputDecoration(
+                                                        isDense: true,
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 10,
+                                                                vertical: 8),
+                                                        hintText:
+                                                            'Search for a warehouse...',
+                                                        hintStyle:
+                                                            const TextStyle(
+                                                                fontSize: 12),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8)),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  searchMatchFn:
+                                                      (item, searchValue) {
+                                                    // Perform case-insensitive search
+                                                    return item.value
+                                                        .toString()
+                                                        .toLowerCase()
+                                                        .contains(searchValue
+                                                            .toLowerCase());
+                                                  },
+                                                ),
+                                                // Clear the search value when the menu is closed
+                                                onMenuStateChange: (isOpen) {
+                                                  if (!isOpen) {
+                                                    textEditingController.clear();
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+        
+                              if (dep == "ADMIN" ||
+                                  dep == "COO" ||
+                                  dep == "Accounts")
+                                if (selectedmode == "request")
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        border: Border.all(color: Colors.grey),
+                                      ),
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 12),
+                                      child: DropdownButton<int>(
+                                        isExpanded: true,
+                                        value: selectedwarehouseId,
+                                        hint: Text('Select a Warehouse'),
+                                        underline:
+                                            SizedBox(), // Remove the default underline
+                                        onChanged: (int? newValue) {
+                                          setState(() {
+                                            selectedwarehouseId = newValue;
+                                            selectedwarehouseName =
+                                                Warehouses.firstWhere((element) =>
+                                                    element['id'] ==
+                                                    newValue)['name'];
+                                          });
+                                        },
+                                        items:
+                                            Warehouses.map<DropdownMenuItem<int>>(
+                                                (Warehouses) {
+                                          return DropdownMenuItem<int>(
+                                            value: Warehouses['id'],
+                                            child: Text(Warehouses['name']),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "Family",
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+        
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Container(
+                                  height: 49,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: const Color.fromARGB(
+                                            255, 206, 206, 206)),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 20),
+                                      Container(
+                                        width: 280,
+                                        child: InputDecorator(
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: 'Select your class',
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      horizontal: 1),
+                                            ),
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton<int>(
+                                                hint: Text(
+                                                  'Select a Family',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey[600]),
+                                                ),
+                                                value: selectedFamilyId,
+                                                isExpanded: true,
+                                                dropdownColor:
+                                                    const Color.fromARGB(
+                                                        255, 255, 255, 255),
+                                                onChanged: (int? newValue) {
+                                                  setState(() {
+                                                    selectedFamilyId =
+                                                        newValue; // Store the selected family ID
+                                                  });
+                                                },
+                                                items: fam
+                                                    .map<DropdownMenuItem<int>>(
+                                                        (family) {
+                                                  return DropdownMenuItem<int>(
+                                                    value: family['id'],
+                                                    child: Text(
+                                                      family['name'],
+                                                      style: TextStyle(
+                                                          color: Colors.black87,
+                                                          fontSize: 12),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                                icon: Container(
+                                                  alignment:
+                                                      Alignment.centerRight,
+                                                  child:
+                                                      Icon(Icons.arrow_drop_down),
+                                                ),
+                                              ),
+                                            )),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "Manager",
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+        
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Container(
+                                  height: 49,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 20),
+                                      Container(
+                                        width: 276,
+                                        child: InputDecorator(
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: '',
+                                            contentPadding: EdgeInsets.symmetric(
+                                                horizontal: 1),
+                                          ),
+                                          child: DropdownButton<int>(
+                                            value: selectedstaffId,
+                                            isExpanded: true,
+                                            underline:
+                                                Container(), // This removes the underline
+                                            onChanged: (int? newValue) {
+                                              setState(() {
+                                                selectedstaffId = newValue!;
+                                              });
+                                            },
+                                            items: sta.map<DropdownMenuItem<int>>(
+                                                (staff) {
+                                              return DropdownMenuItem<int>(
+                                                value: staff['id'],
+                                                child: Text(
+                                                  staff['name'],
+                                                  style: TextStyle(fontSize: 12),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            icon: Container(
+                                              alignment: Alignment.centerRight,
+                                              child: Icon(Icons
+                                                  .arrow_drop_down), // Dropdown arrow icon
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+        
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "State",
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Container(
+                                  height: 49,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 20),
+                                      Container(
+                                        width: 276,
+                                        child: InputDecorator(
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: '',
+                                            contentPadding: EdgeInsets.symmetric(
+                                                horizontal: 1),
+                                          ),
+                                          child: DropdownButton<int>(
+                                            hint: Text(
+                                              'State',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context)
+                                                      .hintColor),
+                                            ),
+                                            value: selectedstateId,
+                                            isExpanded: true,
+                                            underline:
+                                                Container(), // This removes the underline
+                                            onChanged: (int? newValue) {
+                                              setState(() {
+                                                selectedstateId = newValue!;
+                                              });
+                                            },
+                                            items: stat
+                                                .map<DropdownMenuItem<int>>(
+                                                    (State) {
+                                              return DropdownMenuItem<int>(
+                                                value: State['id'],
+                                                child: Text(State['name']),
+                                              );
+                                            }).toList(),
+                                            icon: Container(
+                                              padding: EdgeInsets.only(
+                                                  left:
+                                                      190), // Adjust padding as needed
+                                              alignment: Alignment.centerRight,
+                                              child: Icon(Icons
+                                                  .arrow_drop_down), // Dropdown arrow icon
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              if (selectedmode == "request" ||
+                                  selectedmode == 'invoice')
+                                Text(
+                                  "Customer",
+                                  style: TextStyle(
+                                      fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                              SizedBox(
+                                height: 5,
+                              ),
+        
+                              if (selectedmode == "request" ||
+                                  selectedmode == 'invoice')
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      return Container(
+                                        child: DropdownButtonHideUnderline(
+                                          child: Container(
+                                            height: 46,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.grey, width: 1.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                            ),
+                                            child: DropdownButton2<String>(
+                                              isExpanded: true,
+                                              hint: Text(
+                                                'Select a Customer',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Theme.of(context)
+                                                        .hintColor),
+                                              ),
+                                              items: customer
+                                                  .map((item) =>
+                                                      DropdownMenuItem<String>(
+                                                        value: item[
+                                                            'name'], // Use the customer's name as the value
+                                                        child: Text(
+                                                          item['name'],
+                                                          style: const TextStyle(
+                                                              fontSize: 12),
+                                                        ),
+                                                      ))
+                                                  .toList(),
+                                              value: selectedValue,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  // Update the selected value with the chosen customer's name
+                                                  selectedValue = value;
+                                                  // Find the corresponding customer ID
+                                                    selectedCustomerName = value;
+                                                  selectedCustomerId = customer
+                                                      .firstWhere((item) =>
+                                                          item['name'] ==
+                                                          value)['id'];
+        
+                                                  // Reset the selected address ID when a new customer is selected
+                                                  selectedAddressId = null;
+                                                });
+        
+                                                // Fetch the addresses for the newly selected customer
+                                                getaddress(selectedCustomerId);
+                                              },
+                                              buttonStyleData:
+                                                  const ButtonStyleData(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 16),
+                                                height: 40,
+                                              ),
+                                              dropdownStyleData:
+                                                  const DropdownStyleData(
+                                                maxHeight: 200,
+                                              ),
+                                              menuItemStyleData:
+                                                  const MenuItemStyleData(
+                                                height: 40,
+                                              ),
+                                              dropdownSearchData:
+                                                  DropdownSearchData(
+                                                searchController:
+                                                    textEditingController,
+                                                searchInnerWidgetHeight: 50,
+                                                searchInnerWidget: Container(
+                                                  height: 50,
+                                                  padding: const EdgeInsets.only(
+                                                      top: 8,
+                                                      bottom: 4,
+                                                      right: 8,
+                                                      left: 8),
+                                                  child: TextFormField(
+                                                    expands: true,
+                                                    maxLines: null,
+                                                    controller:
+                                                        textEditingController,
+                                                    decoration: InputDecoration(
+                                                      isDense: true,
+                                                      contentPadding:
+                                                          const EdgeInsets
+                                                              .symmetric(
+                                                              horizontal: 10,
+                                                              vertical: 8),
+                                                      hintText:
+                                                          'Search for a customer...',
+                                                      hintStyle: const TextStyle(
+                                                          fontSize: 12),
+                                                      border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8)),
+                                                    ),
+                                                  ),
+                                                ),
+                                                searchMatchFn:
+                                                    (item, searchValue) {
+                                                  // Perform case-insensitive search
+                                                  return item.value
+                                                      .toString()
+                                                      .toLowerCase()
+                                                      .contains(searchValue
+                                                          .toLowerCase());
+                                                },
+                                              ),
+                                              // Clear the search value when the menu is closed
+                                              onMenuStateChange: (isOpen) {
+                                                if (!isOpen) {
+                                                  textEditingController.clear();
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+        
+                              SizedBox(height: 8),
+        if (addres.isNotEmpty) ...[
+          Text("Shipping Address",
+        style: TextStyle(
+            fontSize: 12, fontWeight: FontWeight.bold)),
+          SizedBox(height: 5),
+        ] else ...[
+          Row(
+            children: [
+        Text("No Address Found :",
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.red)),
+        SizedBox(width: 10),
+        
+                GestureDetector(
+                  onTap: () {
+                     Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => add_address(customerid: selectedCustomerId ?? 0, name: selectedCustomerName),
+                              ),
+                            );
+                  },
+                  child: Text("Add",
+                            style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.bold, color: const Color.fromARGB(255, 1, 162, 237))),
+                ),
+            ],
+          ),
+          SizedBox(height: 5),
+        ],  if(addres.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Container(
+                                  height: 49,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 20),
+                                      Container(
+                                        width: 276,
+                                        child: InputDecorator(
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: '',
+                                            contentPadding: EdgeInsets.symmetric(
+                                                horizontal: 1),
+                                          ),
+                                          child: DropdownButton<int>(
+                                            hint: Text(
+                                              'Address',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context)
+                                                      .hintColor),
+                                            ),
+                                            value: selectedAddressId,
+                                            isExpanded: true,
+                                            underline:
+                                                Container(), // This removes the underline
+                                            onChanged: (int? newValue) {
+                                              setState(() {
+                                                selectedAddressId = newValue!;
+                                              });
+                                            },
+                                            items: addres
+                                                .map<DropdownMenuItem<int>>(
+                                                    (address) {
+                                              return DropdownMenuItem<int>(
+                                                value: address['id'],
+                                                child: Text(
+                                                    "${address['address']}",
+                                                    style:
+                                                        TextStyle(fontSize: 12)),
+                                              );
+                                            }).toList(),
+                                            selectedItemBuilder:
+                                                (BuildContext context) {
+                                              return addres
+                                                  .map<Widget>((address) {
+                                                return Text(
+                                                  selectedAddressId != null &&
+                                                          selectedAddressId ==
+                                                              address['id']
+                                                      ? "${address['address']}"
+                                                      : "Address",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black),
+                                                );
+                                              }).toList();
+                                            },
+                                            icon: Container(
+                                              alignment: Alignment.centerRight,
+                                              child: Icon(
+                                                Icons.arrow_drop_down,
+                                                color: const Color.fromARGB(
+                                                    255, 151, 150, 150),
+                                              ), // Dropdown arrow icon
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+        
+                              // Display the selected address below the dropdown
+                              if (selectedAddressId != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    " ${addres.firstWhere((address) => address['id'] == selectedAddressId)['address']}",
+                                    style: TextStyle(
+                                        fontSize: 12, color: Colors.black),
+                                  ),
+                                ),
+        
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "Invoice Date",
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+        
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: Container(
+                                      height: 46,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.grey,
+                                          width: 1.0,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 25,
+                                          ),
+                                          Text(
+                                            '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Color.fromARGB(
+                                                    255, 116, 116, 116)),
+                                          ),
+                                          SizedBox(
+                                            width: 162,
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              _selectDate(context);
+                                            },
+                                            child: Container(
+                                                padding: const EdgeInsets.only(
+                                                    left: 35),
+                                                child: Icon(Icons.date_range)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+        
+                              SizedBox(
+                                height: 20,
+                              ),
+                            ],
+                          ),
+                        )),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                              color: Color.fromARGB(255, 202, 202, 202)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text(
+                                "Bank Details ",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text(
+                                "Payment Status ",
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Container(
@@ -1164,16 +2181,17 @@ if(dep=="BDM"){
                                           EdgeInsets.symmetric(horizontal: 1),
                                     ),
                                     child: DropdownButton<String>(
-                                      value: selectedmode,
+                                      value: selectpaystatus,
                                       underline:
                                           Container(), // Removes the underline
                                       onChanged: (String? newValue) {
                                         setState(() {
-                                          selectedmode = newValue!;
+                                          selectpaystatus = newValue!;
                                         });
                                       },
-                                      items: mode.map<DropdownMenuItem<String>>(
-                                          (String value) {
+                                      items: paystatus
+                                          .map<DropdownMenuItem<String>>(
+                                              (String value) {
                                         return DropdownMenuItem<String>(
                                           value: value,
                                           child: Text(
@@ -1183,7 +2201,7 @@ if(dep=="BDM"){
                                         );
                                       }).toList(),
                                       icon: Container(
-                                        padding: EdgeInsets.only(left: 140),
+                                        padding: EdgeInsets.only(left: 240),
                                         alignment: Alignment.centerRight,
                                         child: Icon(Icons.arrow_drop_down),
                                       ),
@@ -1191,1166 +2209,182 @@ if(dep=="BDM"){
                                   ),
                                 ),
                               ),
-
-                            SizedBox(height: 5),
-
-                            Text(
-                              "Company ",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.grey, width: 1.0),
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // Rounded corners
-                                    ),
-                                    child: DropdownButton<int>(
-                                      isExpanded: true,
-                                      underline:
-                                          SizedBox(), // Removes default underline
-                                      hint: Text('Select a company'),
-                                      value: selectedCompanyId,
-                                      items: company.map((item) {
-                                        return DropdownMenuItem<int>(
-                                          value: item['id'],
-                                          child: Text(item['name']),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedCompanyId = value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
+                              SizedBox(
+                                height: 8,
                               ),
-                            ),
-
-                            if (selectedmode == "warehouse to warehouse")
-                              SizedBox(height: 5),
-                            if (selectedmode == "warehouse to warehouse")
                               Text(
-                                "TO",
+                                "Bank",
                                 style: TextStyle(
                                     fontSize: 12, fontWeight: FontWeight.bold),
                               ),
-                            SizedBox(
-                              height: 5,
-                            ),
-
-                            if (dep == "ADMIN" ||
-                                dep == "COO" ||
-                                dep == "Accounts")
-                              if (selectedmode == "warehouse to warehouse")
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      return Container(
-                                        child: DropdownButtonHideUnderline(
-                                          child: Container(
-                                            height: 46,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.grey,
-                                                  width: 1.0),
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                            ),
-                                            child: DropdownButton2<String>(
-                                              isExpanded: true,
-                                              hint: Text(
-                                                'Select a warehouse',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Theme.of(context)
-                                                        .hintColor),
-                                              ),
-                                              items: customer
-                                                  .map((item) =>
-                                                      DropdownMenuItem<String>(
-                                                        value: item[
-                                                            'name'], // Use the customer's name as the value
-                                                        child: Text(
-                                                          item['name'],
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 12),
-                                                        ),
-                                                      ))
-                                                  .toList(),
-                                              value: selectedValue,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  // Update the selected value with the chosen customer's name
-                                                  selectedValue = value;
-                                                  // Find the corresponding customer ID
-                                                  selectedCustomerId = customer
-                                                      .firstWhere((item) =>
-                                                          item['name'] ==
-                                                          value)['id'];
-
-                                                  // Reset the selected address ID when a new customer is selected
-                                                  selectedAddressId = null;
-                                                });
-
-                                                // Fetch the addresses for the newly selected customer
-                                                getaddress(selectedCustomerId);
-                                              },
-                                              buttonStyleData:
-                                                  const ButtonStyleData(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 16),
-                                                height: 40,
-                                              ),
-                                              dropdownStyleData:
-                                                  const DropdownStyleData(
-                                                maxHeight: 200,
-                                              ),
-                                              menuItemStyleData:
-                                                  const MenuItemStyleData(
-                                                height: 40,
-                                              ),
-                                              dropdownSearchData:
-                                                  DropdownSearchData(
-                                                searchController:
-                                                    textEditingController,
-                                                searchInnerWidgetHeight: 50,
-                                                searchInnerWidget: Container(
-                                                  height: 50,
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 8,
-                                                          bottom: 4,
-                                                          right: 8,
-                                                          left: 8),
-                                                  child: TextFormField(
-                                                    expands: true,
-                                                    maxLines: null,
-                                                    controller:
-                                                        textEditingController,
-                                                    decoration: InputDecoration(
-                                                      isDense: true,
-                                                      contentPadding:
-                                                          const EdgeInsets
-                                                              .symmetric(
-                                                              horizontal: 10,
-                                                              vertical: 8),
-                                                      hintText:
-                                                          'Search for a warehouse...',
-                                                      hintStyle:
-                                                          const TextStyle(
-                                                              fontSize: 12),
-                                                      border:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8)),
-                                                    ),
-                                                  ),
-                                                ),
-                                                searchMatchFn:
-                                                    (item, searchValue) {
-                                                  // Perform case-insensitive search
-                                                  return item.value
-                                                      .toString()
-                                                      .toLowerCase()
-                                                      .contains(searchValue
-                                                          .toLowerCase());
-                                                },
-                                              ),
-                                              // Clear the search value when the menu is closed
-                                              onMenuStateChange: (isOpen) {
-                                                if (!isOpen) {
-                                                  textEditingController.clear();
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                            if (selectedmode == "warehouse to warehouse")
-                              SizedBox(height: 5),
-                            if (selectedmode == "warehouse to warehouse")
-                              Text(
-                                "From",
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              SizedBox(
+                                height: 5,
                               ),
-                            SizedBox(
-                              height: 5,
-                            ),
-
-                            if (dep == "ADMIN" ||
-                                dep == "COO" ||
-                                dep == "Accounts")
-                              if (selectedmode == "warehouse to warehouse")
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      return Container(
-                                        child: DropdownButtonHideUnderline(
-                                          child: Container(
-                                            height: 46,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.grey,
-                                                  width: 1.0),
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                            ),
-                                            child: DropdownButton2<String>(
-                                              isExpanded: true,
-                                              hint: Text(
-                                                'Select a warehouse',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Theme.of(context)
-                                                        .hintColor),
-                                              ),
-                                              items: customer
-                                                  .map((item) =>
-                                                      DropdownMenuItem<String>(
-                                                        value: item[
-                                                            'name'], // Use the customer's name as the value
-                                                        child: Text(
-                                                          item['name'],
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 12),
-                                                        ),
-                                                      ))
-                                                  .toList(),
-                                              value: selectedValue,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  // Update the selected value with the chosen customer's name
-                                                  selectedValue = value;
-                                                  // Find the corresponding customer ID
-                                                  selectedCustomerId = customer
-                                                      .firstWhere((item) =>
-                                                          item['name'] ==
-                                                          value)['id'];
-
-                                                  // Reset the selected address ID when a new customer is selected
-                                                  selectedAddressId = null;
-                                                });
-
-                                                // Fetch the addresses for the newly selected customer
-                                                getaddress(selectedCustomerId);
-                                              },
-                                              buttonStyleData:
-                                                  const ButtonStyleData(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 16),
-                                                height: 40,
-                                              ),
-                                              dropdownStyleData:
-                                                  const DropdownStyleData(
-                                                maxHeight: 200,
-                                              ),
-                                              menuItemStyleData:
-                                                  const MenuItemStyleData(
-                                                height: 40,
-                                              ),
-                                              dropdownSearchData:
-                                                  DropdownSearchData(
-                                                searchController:
-                                                    textEditingController,
-                                                searchInnerWidgetHeight: 50,
-                                                searchInnerWidget: Container(
-                                                  height: 50,
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 8,
-                                                          bottom: 4,
-                                                          right: 8,
-                                                          left: 8),
-                                                  child: TextFormField(
-                                                    expands: true,
-                                                    maxLines: null,
-                                                    controller:
-                                                        textEditingController,
-                                                    decoration: InputDecoration(
-                                                      isDense: true,
-                                                      contentPadding:
-                                                          const EdgeInsets
-                                                              .symmetric(
-                                                              horizontal: 10,
-                                                              vertical: 8),
-                                                      hintText:
-                                                          'Search for a warehouse...',
-                                                      hintStyle:
-                                                          const TextStyle(
-                                                              fontSize: 12),
-                                                      border:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8)),
-                                                    ),
-                                                  ),
-                                                ),
-                                                searchMatchFn:
-                                                    (item, searchValue) {
-                                                  // Perform case-insensitive search
-                                                  return item.value
-                                                      .toString()
-                                                      .toLowerCase()
-                                                      .contains(searchValue
-                                                          .toLowerCase());
-                                                },
-                                              ),
-                                              // Clear the search value when the menu is closed
-                                              onMenuStateChange: (isOpen) {
-                                                if (!isOpen) {
-                                                  textEditingController.clear();
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                            if (dep == "ADMIN" ||
-                                dep == "COO" ||
-                                dep == "Accounts")
-                              if (selectedmode == "request")
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      border: Border.all(color: Colors.grey),
-                                    ),
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 12),
-                                    child: DropdownButton<int>(
-                                      isExpanded: true,
-                                      value: selectedwarehouseId,
-                                      hint: Text('Select a Warehouse'),
-                                      underline:
-                                          SizedBox(), // Remove the default underline
-                                      onChanged: (int? newValue) {
-                                        setState(() {
-                                          selectedwarehouseId = newValue;
-                                          selectedwarehouseName =
-                                              Warehouses.firstWhere((element) =>
-                                                  element['id'] ==
-                                                  newValue)['name'];
-                                        });
-                                      },
-                                      items:
-                                          Warehouses.map<DropdownMenuItem<int>>(
-                                              (Warehouses) {
-                                        return DropdownMenuItem<int>(
-                                          value: Warehouses['id'],
-                                          child: Text(Warehouses['name']),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "Family",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                height: 49,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: const Color.fromARGB(
-                                          255, 206, 206, 206)),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 20),
-                                    Container(
-                                      width: 280,
-                                      child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: 'Select your class',
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 1),
-                                          ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton<int>(
-                                              hint: Text(
-                                                'Select a Family',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey[600]),
-                                              ),
-                                              value: selectedFamilyId,
-                                              isExpanded: true,
-                                              dropdownColor:
-                                                  const Color.fromARGB(
-                                                      255, 255, 255, 255),
-                                              onChanged: (int? newValue) {
-                                                setState(() {
-                                                  selectedFamilyId =
-                                                      newValue; // Store the selected family ID
-                                                });
-                                              },
-                                              items: fam
-                                                  .map<DropdownMenuItem<int>>(
-                                                      (family) {
-                                                return DropdownMenuItem<int>(
-                                                  value: family['id'],
-                                                  child: Text(
-                                                    family['name'],
-                                                    style: TextStyle(
-                                                        color: Colors.black87,
-                                                        fontSize: 12),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                              icon: Container(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child:
-                                                    Icon(Icons.arrow_drop_down),
-                                              ),
-                                            ),
-                                          )),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "Manager",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                height: 49,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 20),
-                                    Container(
-                                      width: 276,
-                                      child: InputDecorator(
-                                        decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          hintText: '',
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 1),
-                                        ),
-                                        child: DropdownButton<int>(
-                                          value: selectedstaffId,
-                                          isExpanded: true,
-                                          underline:
-                                              Container(), // This removes the underline
-                                          onChanged: (int? newValue) {
-                                            setState(() {
-                                              selectedstaffId = newValue!;
-                                            });
-                                          },
-                                          items: sta.map<DropdownMenuItem<int>>(
-                                              (staff) {
-                                            return DropdownMenuItem<int>(
-                                              value: staff['id'],
-                                              child: Text(
-                                                staff['name'],
-                                                style: TextStyle(fontSize: 12),
-                                              ),
-                                            );
-                                          }).toList(),
-                                          icon: Container(
-                                            alignment: Alignment.centerRight,
-                                            child: Icon(Icons
-                                                .arrow_drop_down), // Dropdown arrow icon
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "State",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                height: 49,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 20),
-                                    Container(
-                                      width: 276,
-                                      child: InputDecorator(
-                                        decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          hintText: '',
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 1),
-                                        ),
-                                        child: DropdownButton<int>(
-                                          hint: Text(
-                                            'State',
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: Theme.of(context)
-                                                    .hintColor),
-                                          ),
-                                          value: selectedstateId,
-                                          isExpanded: true,
-                                          underline:
-                                              Container(), // This removes the underline
-                                          onChanged: (int? newValue) {
-                                            setState(() {
-                                              selectedstateId = newValue!;
-                                            });
-                                          },
-                                          items: stat
-                                              .map<DropdownMenuItem<int>>(
-                                                  (State) {
-                                            return DropdownMenuItem<int>(
-                                              value: State['id'],
-                                              child: Text(State['name']),
-                                            );
-                                          }).toList(),
-                                          icon: Container(
-                                            padding: EdgeInsets.only(
-                                                left:
-                                                    190), // Adjust padding as needed
-                                            alignment: Alignment.centerRight,
-                                            child: Icon(Icons
-                                                .arrow_drop_down), // Dropdown arrow icon
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            if (selectedmode == "request" ||
-                                selectedmode == 'invoice')
-                              Text(
-                                "Customer",
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                            SizedBox(
-                              height: 5,
-                            ),
-
-                            if (selectedmode == "request" ||
-                                selectedmode == 'invoice')
                               Padding(
                                 padding: const EdgeInsets.only(right: 10),
-                                child: LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    return Container(
-                                      child: DropdownButtonHideUnderline(
-                                        child: Container(
-                                          height: 46,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey, width: 1.0),
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          child: DropdownButton2<String>(
-                                            isExpanded: true,
-                                            hint: Text(
-                                              'Select a Customer',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Theme.of(context)
-                                                      .hintColor),
+                                child: Container(
+                                  height: 49,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: const Color.fromARGB(
+                                            255, 206, 206, 206)),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 20),
+                                      Container(
+                                        width: 280,
+                                        child: InputDecorator(
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: 'Select',
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      horizontal: 1),
                                             ),
-                                            items: customer
-                                                .map((item) =>
-                                                    DropdownMenuItem<String>(
-                                                      value: item[
-                                                          'name'], // Use the customer's name as the value
-                                                      child: Text(
-                                                        item['name'],
-                                                        style: const TextStyle(
-                                                            fontSize: 12),
-                                                      ),
-                                                    ))
-                                                .toList(),
-                                            value: selectedValue,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                // Update the selected value with the chosen customer's name
-                                                selectedValue = value;
-                                                // Find the corresponding customer ID
-                                                selectedCustomerId = customer
-                                                    .firstWhere((item) =>
-                                                        item['name'] ==
-                                                        value)['id'];
-
-                                                // Reset the selected address ID when a new customer is selected
-                                                selectedAddressId = null;
-                                              });
-
-                                              // Fetch the addresses for the newly selected customer
-                                              getaddress(selectedCustomerId);
-                                            },
-                                            buttonStyleData:
-                                                const ButtonStyleData(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 16),
-                                              height: 40,
-                                            ),
-                                            dropdownStyleData:
-                                                const DropdownStyleData(
-                                              maxHeight: 200,
-                                            ),
-                                            menuItemStyleData:
-                                                const MenuItemStyleData(
-                                              height: 40,
-                                            ),
-                                            dropdownSearchData:
-                                                DropdownSearchData(
-                                              searchController:
-                                                  textEditingController,
-                                              searchInnerWidgetHeight: 50,
-                                              searchInnerWidget: Container(
-                                                height: 50,
-                                                padding: const EdgeInsets.only(
-                                                    top: 8,
-                                                    bottom: 4,
-                                                    right: 8,
-                                                    left: 8),
-                                                child: TextFormField(
-                                                  expands: true,
-                                                  maxLines: null,
-                                                  controller:
-                                                      textEditingController,
-                                                  decoration: InputDecoration(
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 10,
-                                                            vertical: 8),
-                                                    hintText:
-                                                        'Search for a customer...',
-                                                    hintStyle: const TextStyle(
-                                                        fontSize: 12),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8)),
-                                                  ),
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton<int>(
+                                                hint: Text(
+                                                  'Select',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey[600]),
                                                 ),
+                                                value: selectedbankId,
+                                                isExpanded: true,
+                                                dropdownColor:
+                                                    const Color.fromARGB(
+                                                        255, 255, 255, 255),
+                                                icon: Icon(Icons.arrow_drop_down,
+                                                    color: const Color.fromARGB(
+                                                        255, 107, 107, 107)),
+                                                onChanged: (int? newValue) {
+                                                  setState(() {
+                                                    selectedbankId =
+                                                        newValue; // Store the selected family ID
+                                                  });
+                                                },
+                                                items: bank
+                                                    .map<DropdownMenuItem<int>>(
+                                                        (bank) {
+                                                  return DropdownMenuItem<int>(
+                                                    value: bank['id'],
+                                                    child: Text(
+                                                      bank['name'],
+                                                      style: TextStyle(
+                                                          color: Colors.black87,
+                                                          fontSize: 12),
+                                                    ),
+                                                  );
+                                                }).toList(),
                                               ),
-                                              searchMatchFn:
-                                                  (item, searchValue) {
-                                                // Perform case-insensitive search
-                                                return item.value
-                                                    .toString()
-                                                    .toLowerCase()
-                                                    .contains(searchValue
-                                                        .toLowerCase());
-                                              },
-                                            ),
-                                            // Clear the search value when the menu is closed
-                                            onMenuStateChange: (isOpen) {
-                                              if (!isOpen) {
-                                                textEditingController.clear();
-                                              }
-                                            },
-                                          ),
-                                        ),
+                                            )),
                                       ),
-                                    );
-                                  },
+                                    ],
+                                  ),
                                 ),
                               ),
-
-                            SizedBox(height: 8),
-                            Text("Shipping Address",
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text(
+                                "Payment Method ",
                                 style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 5),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                height: 49,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 20),
-                                    Container(
-                                      width: 276,
-                                      child: InputDecorator(
-                                        decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          hintText: '',
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 1),
-                                        ),
-                                        child: DropdownButton<int>(
-                                          hint: Text(
-                                            'Address',
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: Theme.of(context)
-                                                    .hintColor),
-                                          ),
-                                          value: selectedAddressId,
-                                          isExpanded: true,
-                                          underline:
-                                              Container(), // This removes the underline
-                                          onChanged: (int? newValue) {
-                                            setState(() {
-                                              selectedAddressId = newValue!;
-                                            });
-                                          },
-                                          items: addres
-                                              .map<DropdownMenuItem<int>>(
-                                                  (address) {
-                                            return DropdownMenuItem<int>(
-                                              value: address['id'],
-                                              child: Text(
-                                                  "${address['address']}",
-                                                  style:
-                                                      TextStyle(fontSize: 12)),
-                                            );
-                                          }).toList(),
-                                          selectedItemBuilder:
-                                              (BuildContext context) {
-                                            return addres
-                                                .map<Widget>((address) {
-                                              return Text(
-                                                selectedAddressId != null &&
-                                                        selectedAddressId ==
-                                                            address['id']
-                                                    ? "${address['address']}"
-                                                    : "Address",
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.black),
-                                              );
-                                            }).toList();
-                                          },
-                                          icon: Container(
-                                            alignment: Alignment.centerRight,
-                                            child: Icon(
-                                              Icons.arrow_drop_down,
-                                              color: const Color.fromARGB(
-                                                  255, 151, 150, 150),
-                                            ), // Dropdown arrow icon
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                    fontSize: 12, fontWeight: FontWeight.bold),
                               ),
-                            ),
-
-                            // Display the selected address below the dropdown
-                            if (selectedAddressId != null)
+                              SizedBox(
+                                height: 5,
+                              ),
                               Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  " ${addres.firstWhere((address) => address['id'] == selectedAddressId)['address']}",
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.black),
-                                ),
-                              ),
-
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "Invoice Date",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: Container(
-                                    height: 46,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.grey,
-                                        width: 1.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 25,
-                                        ),
-                                        Text(
-                                          '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Color.fromARGB(
-                                                  255, 116, 116, 116)),
-                                        ),
-                                        SizedBox(
-                                          width: 162,
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            _selectDate(context);
-                                          },
-                                          child: Container(
-                                              padding: const EdgeInsets.only(
-                                                  left: 35),
-                                              child: Icon(Icons.date_range)),
-                                        ),
-                                      ],
-                                    ),
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(10.0),
                                   ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(
-                              height: 20,
-                            ),
-                          ],
-                        ),
-                      )),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 202, 202, 202)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Bank Details ",
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Payment Status ",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    contentPadding:
-                                        EdgeInsets.symmetric(horizontal: 1),
-                                  ),
-                                  child: DropdownButton<String>(
-                                    value: selectpaystatus,
-                                    underline:
-                                        Container(), // Removes the underline
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectpaystatus = newValue!;
-                                      });
-                                    },
-                                    items: paystatus
-                                        .map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    icon: Container(
-                                      padding: EdgeInsets.only(left: 240),
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(Icons.arrow_drop_down),
+                                  child: InputDecorator(
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 8), // Adjusted padding
                                     ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "Bank",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                height: 49,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: const Color.fromARGB(
-                                          255, 206, 206, 206)),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 20),
-                                    Container(
-                                      width: 280,
-                                      child: InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: 'Select',
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    horizontal: 1),
+                                    child: DropdownButton<String>(
+                                      value: selectpaymethod,
+                                      underline:
+                                          SizedBox(), // Removes the underline
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          selectpaymethod = newValue!;
+                                        });
+                                      },
+                                      items: paymethod
+                                          .map<DropdownMenuItem<String>>(
+                                              (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(
+                                            value,
+                                            style: TextStyle(fontSize: 12),
                                           ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton<int>(
-                                              hint: Text(
-                                                'Select',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey[600]),
-                                              ),
-                                              value: selectedbankId,
-                                              isExpanded: true,
-                                              dropdownColor:
-                                                  const Color.fromARGB(
-                                                      255, 255, 255, 255),
-                                              icon: Icon(Icons.arrow_drop_down,
-                                                  color: const Color.fromARGB(
-                                                      255, 107, 107, 107)),
-                                              onChanged: (int? newValue) {
-                                                setState(() {
-                                                  selectedbankId =
-                                                      newValue; // Store the selected family ID
-                                                });
-                                              },
-                                              items: bank
-                                                  .map<DropdownMenuItem<int>>(
-                                                      (bank) {
-                                                return DropdownMenuItem<int>(
-                                                  value: bank['id'],
-                                                  child: Text(
-                                                    bank['name'],
-                                                    style: TextStyle(
-                                                        color: Colors.black87,
-                                                        fontSize: 12),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                            ),
-                                          )),
+                                        );
+                                      }).toList(),
+                                      icon: Icon(Icons
+                                          .arrow_drop_down), // Default icon without excessive padding
+                                      isExpanded:
+                                          true, // Ensures dropdown expands within its container
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Payment Method ",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 8), // Adjusted padding
-                                  ),
-                                  child: DropdownButton<String>(
-                                    value: selectpaymethod,
-                                    underline:
-                                        SizedBox(), // Removes the underline
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectpaymethod = newValue!;
-                                      });
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      showTotalDialog(context);
+                                      // Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
                                     },
-                                    items: paymethod
-                                        .map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(fontSize: 12),
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                        Colors.blue,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
                                         ),
-                                      );
-                                    }).toList(),
-                                    icon: Icon(Icons
-                                        .arrow_drop_down), // Default icon without excessive padding
-                                    isExpanded:
-                                        true, // Ensures dropdown expands within its container
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    showTotalDialog(context);
-                                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>order_products()));
-                                  },
-                                  style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                      Colors.blue,
-                                    ),
-                                    shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      fixedSize: MaterialStateProperty.all<Size>(
+                                        Size(95, 15),
                                       ),
                                     ),
-                                    fixedSize: MaterialStateProperty.all<Size>(
-                                      Size(95, 15),
-                                    ),
+                                    child: Text("Generate Invoice",
+                                        style: TextStyle(color: Colors.white)),
                                   ),
-                                  child: Text("Generate Invoice",
-                                      style: TextStyle(color: Colors.white)),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                          ],
-                        ),
-                      )),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-              ],
+                              SizedBox(
+                                height: 20,
+                              ),
+                            ],
+                          ),
+                        )),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      )),
+          ],
+        )),
+      ),
     );
   }
 }

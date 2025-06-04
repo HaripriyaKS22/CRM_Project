@@ -1,3 +1,3 @@
-var api="https://does-warner-generous-cooper.trycloudflare.com";
+var api="https://delight-toilet-gaming-api.trycloudflare.com";
 
 

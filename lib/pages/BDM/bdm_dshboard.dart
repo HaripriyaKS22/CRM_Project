@@ -49,7 +49,6 @@ class _bdm_dashbordState extends State<bdm_dashbord> {
   void initState() {
     super.initState();
     _getUsername(); // Get the username when the page loads
-    getGrvList();
     fetchproformaData();
     getSalesReport();
     fetchOrderData();
@@ -90,7 +89,7 @@ Future<void> getprofiledata() async {
          
           family = productsData['family'].toString() ?? '';
           
-
+getGrvList();
 
              var matchingFamily = fam.firstWhere(
           (element) => element['id'].toString() == family,
@@ -275,12 +274,14 @@ Future<void> getcustomer() async {
         orders = newOrders;
         todaysbill=totalOrdersToday;
         waitingbills=totalOrdersInvoiceCreated;
-
+shippedbills=Shippedorders;
         filteredOrders = newOrders;
       });
 
       // Print the counts (or use them as needed)
-     
+     print('shippedbillssssssssssssssssssssss: $shippedbills');
+      print('Total Orders Today: $todaysbill');
+      print('Total Orders with Invoice Created Status: $waitingbills');
     } else {
       throw Exception("Failed to load order data");
     }
@@ -452,6 +453,13 @@ Future<void> getcustomer() async {
       setState(() {});
     }
   }
+bool _isDisposed = false;
+
+@override
+void dispose() {
+  _isDisposed = true;
+  super.dispose();
+}
 
   String getTodaysBills() {
     // Get today's date in the same format as in the response (yyyy-MM-dd)
@@ -471,47 +479,52 @@ Future<void> getcustomer() async {
   }
 
   Future<void> fetchproformaData() async {
-    try {
-      final token = await getTokenFromPrefs();
-      final response = await http.get(
-        Uri.parse('$api/api/perfoma/invoices/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+  try {
+    final token = await getTokenFromPrefs();
+    final response = await http.get(
+      Uri.parse('$api/api/performa/invoice/staff/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        final data = parsed['data'] as List;
+    print(response.body);
 
-        List<Map<String, dynamic>> performaInvoiceList = [];
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      final data = parsed['data'] as List;
 
-        for (var productData in data) {
-          performaInvoiceList.add({
-            'id': productData['id'],
-            'invoice': productData['invoice'],
-            'manage_staff': productData['manage_staff'],
-            'customer_name': productData['customer']['name'],
-            'status': productData['status'],
-            'total_amount': productData['total_amount'],
-            'order_date': productData['order_date'],
-            'created_at': productData['customer']['created_at'],
-          });
-        }
+      List<Map<String, dynamic>> performaInvoiceList = [];
 
+      for (var productData in data) {
+        performaInvoiceList.add({
+          'id': productData['id'],
+          'invoice': productData['invoice'],
+          'manage_staff': productData['manage_staff'],
+          'customer_name': productData['customermame'], // corrected key
+          'status': productData['status'],
+          'total_amount': productData['total_amount'],
+          'order_date': productData['order_date'],
+          'created_at': '', // No such key in your sample, use empty or handle differently
+        });
+      }
+
+      if (mounted) {
         setState(() {
           proforma = performaInvoiceList;
+          print('Proforma Invoice List: $proforma');
         });
-        int proformalistcount = proforma.length;
-        
-      } else {
-        
       }
-    } catch (error) {
-      
+
+    } else {
+      print('Error: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Fetch Error: $error');
   }
+}
+
 
 // Get token from SharedPreferences
   Future<String?> getTokenFromPrefs() async {
@@ -523,25 +536,32 @@ Future<void> getcustomer() async {
     return prefs.getString('username');
   }
 int grv=0;
+var grvpending;
 // Function to fetch GRV data
-  Future<void> getGrvList() async {
-    try {
-      final token = await getTokenFromPrefs();
+Future<void> getGrvList() async {
+  print('Familyyyyyyyyyyyyyyyyyyyyyyyyyyy: $family');
+  try {
+    final token = await getTokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/grvget/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    var response = await http.get(
+      Uri.parse('$api/api/grv/data/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
 
-        List<Map<String, dynamic>> grvDataList = [];
-        for (var productData in productsData) {
+      List<Map<String, dynamic>> grvDataList = [];
+      int grv = 0;
+
+      for (var productData in productsData) {
+        print('${family.toString()} == ${productData['family'].toString()}');
+        if (family.toString() == productData['family'].toString()) {
+          print("enteredddddddddddddddddddddddddddddddddddddddddddd");
           grvDataList.add({
             'id': productData['id'],
             'product': productData['product'],
@@ -553,34 +573,26 @@ int grv=0;
             'status': productData['status'] ?? statusOptions[0],
             'order_date': productData['order_date'],
           });
-          if(productData['status']=="pending"){
-            grv=grv+1;
+          if (productData['status'] == "pending") {
+            grv = grv + 1;
           }
         }
+      }
+
+      if (mounted) {
         setState(() {
           grvlist = grvDataList;
+          grvpending = grv;
         });
-
-        // Get the count of grvlist
-        int grvListCount = grvlist.length;
-        
-      } else {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(
-        //     content: Text('Failed to fetch GRV data'),
-        //     duration: Duration(seconds: 2),
-        //   ),
-        // );
       }
-    } catch (error) {
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(
-      //     content: Text('Error fetching GRV data'),
-      //     duration: Duration(seconds: 2),
-      //   ),
-      // );
+
+      print('grvpendingggggggggggggggggggggg$grvlist');
     }
+  } catch (error) {
+    print('Error fetching GRV data: $error');
   }
+}
+
 
   // Retrieve the username from SharedPreferences
   Future<void> _getUsername() async {
@@ -839,11 +851,11 @@ int grv=0;
                       onTap: () {
                          Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => bdm_GrvList(status:null,family:familyName)),
+          MaterialPageRoute(builder: (context) => bdm_GrvList(status:'pending',family:familyName)),
         );
                       },
                         child: _buildGridItem(
-                            Icons.receipt_long, 'GRV Created', grvlist.length),
+                            Icons.receipt_long, 'GRV Created', grvpending),
                       ),
                       GestureDetector(
                          onTap: () {
