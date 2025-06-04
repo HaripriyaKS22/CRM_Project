@@ -13,6 +13,7 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
+import 'package:new_version_plus/new_version_plus.dart';
 
 void main() {
   runApp(const beposoftmain());
@@ -35,6 +36,7 @@ class _beposoftmainState extends State<beposoftmain> {
     super.initState();
     check();
     getbank();
+    checkForUpdate();
   }
 
   Future<String?> gettokenFromPrefs() async {
@@ -117,6 +119,24 @@ class _beposoftmainState extends State<beposoftmain> {
       context,
       MaterialPageRoute(builder: (context) => login()),
     );
+  }
+
+  void checkForUpdate() async {
+    final newVersion = NewVersionPlus(
+      androidId: '.beposoft', // Replace with your package name
+      iOSId: 'your.ios.bundle.id', // Replace if you have iOS
+    );
+    final status = await newVersion.getVersionStatus();
+    if (status != null && status.canUpdate) {
+      newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status,
+        dialogTitle: 'Update Available',
+        dialogText: 'A new version of the app is available! Please update.',
+        updateButtonText: 'Update',
+        dismissButtonText: 'Later',
+      );
+    }
   }
 
   @override

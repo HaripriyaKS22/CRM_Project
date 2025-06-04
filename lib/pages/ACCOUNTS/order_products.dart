@@ -362,6 +362,7 @@ dep= await getdepFromPrefs();
         'Authorization': 'Bearer $token',
       },
     );
+    print(response.body);
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -400,6 +401,7 @@ dep= await getdepFromPrefs();
       setState(() {
         products = productList;
         filteredProducts=products;
+        print(products);
       });}
     }
   } catch (error) {

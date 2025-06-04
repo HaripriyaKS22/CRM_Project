@@ -56,13 +56,15 @@ class _loginState extends State<login> {
 }
 
 void login(String email, String password, BuildContext context) async {
+  print("Email: $email, Password: $password");
   try {
     var response = await http.post(
       Uri.parse(url),
       body: {"email": email, "password": password},
     );
 
-    
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
@@ -143,6 +145,7 @@ void login(String email, String password, BuildContext context) async {
       );
     }
   } catch (e) {
+    print("Error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(backgroundColor: Colors.red, content: Text('An error occurred. Please try again.')),
     );

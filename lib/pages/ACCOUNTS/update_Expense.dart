@@ -523,8 +523,15 @@ Future<void> getexpenselist() async {
         expenselist.add({
           'id': productData['id'],
           'purpose_of_payment': productData['purpose_of_payment'],
+          'purpose_of_pay': productData['purpose_of_pay'], // For direct use
           'amount': productData['amount'],
+          'loan': productData['loan'], // Handle as a map or ID
+          'loanname': productData['loanname'], // Handle as a map or ID
           'expense_date': expenseDate, // Store as DateTime
+          'name': productData['name'], // For assets
+          'quantity': productData['quantity'], // For assets
+          'categoryname': productData['categoryname'], // For assets
+          'asset_types': productData['asset_types'], // For assets
           'transaction_id': productData['transaction_id'],
           'description': productData['description'],
           'added_by': productData['added_by'],
@@ -538,10 +545,21 @@ Future<void> getexpenselist() async {
         (expense) => expense['id'] == widget.id,
         orElse: () => {}, // Return an empty map instead of null
       );
+      print(selectedExpense);
       if (selectedExpense.isNotEmpty) {
         setState(() {
           transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
-          purposes.text = selectedExpense['purpose_of_payment'] ?? '';
+          selectedPurposeId = selectedExpense['purpose_of_payment'] ?? '';
+          selectedPurposeName=selectedExpense['purpose_of_pay'];
+         selectedtype = selectedExpense['asset_types'] ?? 'expenses';
+          selectedEmiId = selectedExpense['loan'] is int
+              ? selectedExpense['loan'] as int
+              : null;
+              selectedEmiName = selectedExpense['loanname'];
+              proname.text = selectedExpense['name'] ?? '';
+              quantity.text = selectedExpense['quantity'].toString()?? '';
+              
+
           amount.text = selectedExpense['amount']?.toString() ?? '';
 
           description.text = selectedExpense['description'] ?? '';
@@ -567,6 +585,7 @@ selectedbankId = selectedExpense['bank'] is Map
     } else {
     }
   } catch (error) {
+    print('Error fetching expense data: $error');
   }
 }
 void updateexpense() async {
@@ -767,6 +786,72 @@ void updateexpense2() async {
   }
 }
 
+void updateexpense3() async {
+    final token = await gettokenFromPrefs();
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? username = prefs.getString('username');
+
+      if (username == null) {
+        return;
+      }
+      var response = await http.post(
+        Uri.parse('$api/api/expense/addexpectemiupdate/${widget.id}/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+        body: {
+          "company": selectedCompanyId.toString(),
+          "payed_by": selectedstaffId.toString(),
+          "bank": selectedbankId.toString(),
+          "purpose_of_payment": selectedPurposeId.toString(),
+          "amount": amount.text,
+          // 'loan': selectedEmiId.toString(),
+          'category': selectedCategoryId.toString(),
+          "expense_date": formatDate(selectedDate),
+          "transaction_id": transactionid.text,
+          "description": description.text,
+          "added_by": username,
+          "asset_types": selectedtype,
+          "name": proname.text,
+          "quantity": quantity.text,
+        },
+      );
+
+      
+
+      if (response.statusCode == 200) {
+        Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => expence_list()),
+      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Color.fromARGB(255, 49, 212, 4),
+            content: Text('Expense updated successfully'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Failed to add expense. Please try again.'),
+          ),
+        );
+      }
+    } catch (e) {
+            ;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('An error occurred. Please try again.'),
+        ),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -776,7 +861,7 @@ void updateexpense2() async {
       backgroundColor: Color.fromARGB(242, 255, 255, 255),
       appBar: AppBar(
            title: Text(
-          "Add Expense",
+          "Update Expense",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
         leading: IconButton(
@@ -832,7 +917,7 @@ void updateexpense2() async {
               children: [
                 SizedBox(height: 10),
                 Text(
-                  "New Expence",
+                  "Update Expence",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -1089,14 +1174,22 @@ void updateexpense2() async {
               child: DropdownButton<String>(
   value: purposesofpay.any((item) => item['name'] == selectedPurposeName)
       ? selectedPurposeName
-      : null, // Ensure value is null if no match is found
-  hint: Text('Select an option'),
+      : null,
   isExpanded: true,
   underline: SizedBox(),
+  hint: selectedPurposeId != null
+      ? Text(
+          purposesofpay.firstWhere(
+            (item) => item['id'] == selectedPurposeId,
+            orElse: () => {'name': 'Select Purpose'},
+          )['name'] ?? 'Select Purpose',
+          style: TextStyle(color: Colors.grey),
+        )
+      : Text('Select Purpose', style: TextStyle(color: Colors.grey)),
   items: purposesofpay.map((Map<String, dynamic> item) {
     return DropdownMenuItem<String>(
-      value: item['name'], // Use the purpose name as the value
-      child: Text(item['name'] ?? ''), // Ensure name is not null
+      value: item['name'],
+      child: Text(item['name'] ?? ''),
     );
   }).toList(),
   onChanged: (String? newValue) {
@@ -1105,7 +1198,7 @@ void updateexpense2() async {
       selectedPurposeId = purposesofpay
         .firstWhere(
           (item) => item['name'] == newValue,
-          orElse: () => {'id': null}, // Return a default map if no match is found
+          orElse: () => {'id': null},
         )['id'] as int?;
     });
   },
@@ -1519,12 +1612,18 @@ Padding(
             onPressed: () {
               setState(() {
 
+          if(selectedtype == 'expenses') {
+
               if(selectedPurposeName=="emi")
               {
                   updateexpense();
               }
               else{
                 updateexpense2();
+              }}
+
+              else{
+                updateexpense3();
               }
 
               });

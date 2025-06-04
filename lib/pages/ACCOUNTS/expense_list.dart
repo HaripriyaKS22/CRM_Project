@@ -304,7 +304,7 @@ class _expence_listState extends State<expence_list> {
       );
       List<Map<String, dynamic>> expenselist = [];
 
-      ;
+      print(response.body);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final productsDatas = parsed['data'];
@@ -313,6 +313,7 @@ class _expence_listState extends State<expence_list> {
           expenselist.add({
             'id': productData['id'],
             'purpose_of_payment': productData['purpose_of_payment'],
+            'purpose_of_pay': productData['purpose_of_pay'], // For direct use
             'bank': productData['bank']?['id'], // Extract bank ID
             'amount': productData['amount'],
             'company': productData['company']?['id'], // Extract company ID
@@ -322,6 +323,9 @@ class _expence_listState extends State<expence_list> {
             'transaction_id': productData['transaction_id'],
             'expense_date': productData['expense_date'],
             'added_by': productData['added_by'],
+            'asset_types': productData['asset_types'],
+            'name': productData['name'],
+            'loanname': productData['loanname'],
           });
         }
         setState(() {
@@ -497,14 +501,40 @@ else if(dep=="Warehouse Admin" ){
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Purpose of Payment: ${expense['purpose_of_payment']}',
+                                    'Purpose of Payment: ${expense['purpose_of_pay']}',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
                                     ),
                                   ),
-                                  SizedBox(height: 8),
+                                   Row(
+                                     children: [
+                                       Text(
+                                        '${expense['asset_types']?? ''}:',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color.fromARGB(255, 0, 0, 0),
+                                        ),
+                                                                         ),
+                                                                         SizedBox(width: 2),
+                                                                         Text(
+                                                                           '${expense['loanname'] ?? '${expense['name'] ?? ''}'}',
+                                                                           style: TextStyle(
+                                                                             fontSize: 16,
+                                                                             fontWeight: FontWeight.bold,
+                                                                             color: const Color.fromARGB(255, 16, 176, 1),
+                                                                           ),
+                                                                         ),
+                                     ],
+                                   ),
+                                   Divider(
+                                    color: Colors.grey,
+                                    thickness: 1,),
+                                  SizedBox(height: 2),
+                                 
+
                                   Text(
                                     'Amount: ₹${expense['amount']}',
                                     style: TextStyle(fontSize: 14),
@@ -537,7 +567,7 @@ else if(dep=="Warehouse Admin" ){
                                     'Transaction Id: ${expense['transaction_id']}',
                                     style: TextStyle(fontSize: 14),
                                   ),
-                                  SizedBox(height: 8),
+                                 
                                   Text(
                                     'Expense Date: ${expense['expense_date']}',
                                     style: TextStyle(fontSize: 14),

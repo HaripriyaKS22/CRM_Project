@@ -60,7 +60,7 @@ Future<void> getcategory() async {
       },
     );
 
-  
+  print(response.body);
 
     if (response.statusCode == 200) {
       // Decode the JSON response
@@ -80,8 +80,8 @@ Future<void> getcategory() async {
         // Populate the form if the current product matches the widget ID
         if (widget.id == productData['id']) {
           setState(() {
-            name.text = productData['name'] ?? '';
-           
+            name.text = productData['category_name'] ?? '';
+           print(name.text);
           });
         }
       }

@@ -132,6 +132,8 @@ Future<void> getFinancialReport() async {
 
         // Calculate closing balance
         double closingBalance = adjustedOpeningBalance + todayPayments - todayBanksAmount;
+        print("Adjusted Opening Balance: $adjustedOpeningBalance");
+        print("Today's Payments: $closingBalance");
         totalClosingBalance += closingBalance;
 
         // Add to finance list
