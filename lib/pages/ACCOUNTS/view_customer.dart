@@ -102,7 +102,7 @@ class _view_customerState extends State<view_customer> {
     BuildContext context,
   ) async {
     final token = await gettokenFromPrefs();
-
+print("selectedManagerId $selectedManagerId");
     try {
       var response = await http.put(
         Uri.parse("$api/api/customer/update/${widget.customerid}/"),
@@ -113,17 +113,18 @@ class _view_customerState extends State<view_customer> {
         body: jsonEncode({
           "gst": gst,
           "name": name,
-          'manager': selectedManagerId,
+          'manager': int.tryParse(manager) ?? 0, // Ensure manager is an integer
           'phone': phone,
           'alt_phone': altPhone,
           'email': email,
           'address': address,
           'zip_code': zipcode,
           'city': city,
-          'state': state,
+          'state': int.tryParse(state) ?? 0, // Ensure state is an integer
           'comment': comment,
         }),
       );
+      print("response is ${response.body}");
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
@@ -143,6 +144,7 @@ class _view_customerState extends State<view_customer> {
         );
       }
     } catch (e) {
+      print("Error occurred: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -186,12 +188,10 @@ class _view_customerState extends State<view_customer> {
         selectstate = statess.firstWhere(
             (state) => state['id'] == productsData['state'],
             orElse: () => {'name': ''})['name']; // Set selectstate
-
-        selectedManagerName = manager.firstWhere(
-            (manager) => manager['id'] == productsData['manager'],
-            orElse: () => {'name': ''})['name'];
-        comment.text = productsData['comment'] ?? '';
-
+print('productsData[manager] ${productsData['manager']}');
+        selectedManagerName = productsData['manager'];
+           
+print('selectedManagerName $selectedManagerName');
         getstates();
         setState(() {
           customer = managerlist;
@@ -255,8 +255,7 @@ var dep=await getdepFromPrefs();
       );
       List<Map<String, dynamic>> managerlist = [];
 
-      ;
-
+    print("response is ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -295,8 +294,9 @@ var dep=await getdepFromPrefs();
 
         setState(() {
           manager = managerlist;
-          selectedManagerName = managerlist[0]['name'];
-          selectedManagerId = managerlist[0]['id'];
+         // selectedManagerName = managerlist[0]['name'];
+          print("selectedManagerNameeeeeeeeeeeee $selectedManagerName");
+        //  selectedManagerId = managerlist[0]['id'];
 
           ;
         });

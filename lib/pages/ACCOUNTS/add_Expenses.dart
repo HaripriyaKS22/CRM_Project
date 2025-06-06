@@ -796,13 +796,15 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
 }
-                 else {
+                 else 
+                 {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -865,6 +867,7 @@ else if(dep=="Warehouse Admin" ){
                                     ],
                                   ),
                                 ),
+                                
                                 Padding(
                                   padding: const EdgeInsets.only(right: 10),
                                   child: Column(

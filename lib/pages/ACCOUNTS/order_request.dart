@@ -984,7 +984,7 @@ if(dep=="BDM"){
     super.dispose();
   }
 
-  List<String> paystatus = ["Paid", 'COD', 'credit'];
+  List<String> paystatus = ["paid", 'COD', 'credit'];
   List<String> mode = ["request", 'invoice', 'warehouse to warehouse'];
 
   String selectpaystatus = "Paid";
@@ -994,7 +994,7 @@ if(dep=="BDM"){
     '1 Razorpay',
     "Credit Card",
     'Debit Card',
-    'Net Bankng',
+    'Net Banking',
     'PayPal',
     'Cash on Delivery (COD)',
     'Bank Transfer'

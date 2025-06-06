@@ -67,7 +67,6 @@ Future<void> getprofiledata() async {
          
           family = productsData['family'].toString() ?? '';
           
-print('Familyyyyyyyyyyyyyyyyyyyyyyyyyyy: $family');
         
         });
     getGrvList();
@@ -91,10 +90,7 @@ print('Familyyyyyyyyyyyyyyyyyyyyyyyyyyy: $family');
           'Content-Type': 'application/json',
         },
       );
-      print('Familyyyyyyyyyyyyyyyyyyyyyyyyyyy: $family');
-      print('Statusssssssssssssssssssssss: ${widget.status}');
-      // Check if the response is successful
-
+    
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -116,10 +112,9 @@ print('Familyyyyyyyyyyyyyyyyyyyyyyyyyyy: $family');
             'order_date': productData['order_date'],
           });}}
           else if(widget.status==productData['status']){
-            print("${widget.status}==${productData['status']}");
             if(family.toString()==productData['family'].toString())
-{print("fammmmmmmmmmmmmmmmmm");
-print('$family==${productData['family']}');
+                   {
+                    
              grvDataList.add({
             'id': productData['id'],
             'product': productData['product'],

@@ -1,3 +1,3 @@
-var api="https://delight-toilet-gaming-api.trycloudflare.com";
+var api="https://catering-indicate-compliance-amounts.trycloudflare.com";
 
 

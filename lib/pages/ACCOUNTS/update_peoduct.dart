@@ -353,6 +353,7 @@ void initdata(){
         'landing_cost': landingPriceValue,
         'warehouse': selectedwarehouseId,
         'stock': stock.text,
+        'approval_status': 'Disapproved', // Set approval status to 'Disapproved'
       };
 
       // Ensure _selectedFamily is populated correctly and send as a list of numbers

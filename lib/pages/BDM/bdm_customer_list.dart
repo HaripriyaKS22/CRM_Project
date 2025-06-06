@@ -62,7 +62,6 @@ initdata();
   }
 
   void initdata() async{
-    await getfamily();
     await getprofiledata();
 
   }
@@ -124,15 +123,16 @@ String familyName='';
          
           family = productsData['family'].toString() ?? '';
           
+          familyName=productsData['family_name'] ?? '';
 
 
-             var matchingFamily = fam.firstWhere(
-          (element) => element['id'].toString() == family,
-          orElse: () => {'id': null, 'name': 'Unknown'},
-        );
+        //      var matchingFamily = fam.firstWhere(
+        //   (element) => element['id'].toString() == family,
+        //   orElse: () => {'id': null, 'name': 'Unknown'},
+        // );
 
-        // Store the matching family name
-        familyName = matchingFamily['name'];
+        // // Store the matching family name
+        // familyName = matchingFamily['name'];
         
         
         });
@@ -142,42 +142,7 @@ getcustomer();
       
     }
   }
-  Future<void> getfamily() async {
-    try {
-      final token = await gettokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/familys/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-        List<Map<String, dynamic>> familylist = [];
-
-        for (var productData in productsData) {
-          familylist.add({
-            'id': productData['id'].toString(), // Convert the ID to String
-            'name': productData['name'],
-          });
-        }
-
-        setState(() {
-          fam = familylist;
-          
-
-        
-        });
-      }
-    } catch (error) {
-      
-    }
-  }
-
+ 
 Future<void> getcustomer() async {
     try {
       // final dep = await getdepFromPrefs();
