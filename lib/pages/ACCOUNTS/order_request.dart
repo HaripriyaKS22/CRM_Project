@@ -693,8 +693,7 @@ var department='';
 
       final jwt = JWT.decode(token!);
       var name = jwt.payload['name'];
-      ;
-      ;
+      
 
       var response = await http.get(
         Uri.parse('$api/api/customers/'),
@@ -987,7 +986,7 @@ if(dep=="BDM"){
   List<String> paystatus = ["paid", 'COD', 'credit'];
   List<String> mode = ["request", 'invoice', 'warehouse to warehouse'];
 
-  String selectpaystatus = "Paid";
+  String selectpaystatus = "paid";
   String selectedmode = "invoice";
 
   List<String> paymethod = [

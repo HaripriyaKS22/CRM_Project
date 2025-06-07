@@ -501,7 +501,7 @@ Future<void> deletebox( var orderId) async {
         });
       }
     } catch (error) {
-      
+
     }
   }
 void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails) {
@@ -1895,8 +1895,8 @@ Text(
                                   setState(() {
                                     selectedManagerName = newValue!['name'];
                                     selectedManagerId = newValue['id'];
-                                    ;
-                                    ;
+                                    
+                                   
 
                                   });
                                 }

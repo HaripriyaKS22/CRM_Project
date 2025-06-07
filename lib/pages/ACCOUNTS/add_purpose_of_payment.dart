@@ -55,14 +55,20 @@ class _add_purpose_of_paymentState extends State<add_purpose_of_payment> {
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
-        for (var productData in parsed) {
-          purposelist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
+       // ...existing code...
+for (var productData in parsed) {
+  // Only add if 'name' is not null and not empty
+  if (productData['name'] != null && productData['name'].toString().trim().isNotEmpty) {
+    purposelist.add({
+      'id': productData['id'],
+      'name': productData['name'],
+    });
+  }
+}
+// ...existing code...
         setState(() {
           purposes = purposelist;
+          print("Purpose data fetched: $purposes");
         });
       }
     } catch (error) {}
@@ -82,9 +88,7 @@ class _add_purpose_of_paymentState extends State<add_purpose_of_payment> {
         },
       );
 
-      ;
-      ;
-
+    
       if (response.statusCode == 201) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => add_purpose_of_payment()));

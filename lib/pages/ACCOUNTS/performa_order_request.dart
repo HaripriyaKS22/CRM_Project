@@ -701,42 +701,6 @@ Future<void> getcustomer() async {
 
   List<Map<String, dynamic>> stat = [];
 
-  Future<void> getstate() async {
-    try {
-      final token = await gettokenFromPrefs();
-
-      var response = await http.get(
-        Uri.parse('$api/api/states/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      
-      List<Map<String, dynamic>> statelist = [];
-
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
-        var productsData = parsed['data'];
-
-        
-        for (var productData in productsData) {
-          String imageUrl = "${productData['image']}";
-          statelist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
-        }
-        setState(() {
-          stat = statelist;
-          
-        });
-      }
-    } catch (error) {
-      
-    }
-  }
-
   List<Map<String, dynamic>> addres = [];
 
   Future<void> getaddress(var id) async {
@@ -816,6 +780,7 @@ Future<void> getcustomer() async {
     }
   }
   //searchable dropdown
+var allocatedstates;
 
   Future<void> getprofiledata() async {
     try {
@@ -839,14 +804,61 @@ Future<void> getcustomer() async {
         setState(() {
           famid = productsData['family'];
           staffid = productsData['id'];
+          allocatedstates=productsData['allocated_states'];
 
           
         });
+                getstate();
+
       }
     } catch (error) {
       
     }
   }
+  var department='';
+
+Future<void> getstate() async {
+  try {
+    final token = await gettokenFromPrefs();
+department=(await getdepFromPrefs())!;
+    var response = await http.get(
+      Uri.parse('$api/api/states/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    List<Map<String, dynamic>> statelist = [];
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data'];
+
+      for (var productData in productsData) {
+        statelist.add({
+          'id': productData['id'],
+          'name': productData['name'],
+        });
+      }
+      if(department=="BDM" || department=="BDO"){
+if(allocatedstates.isNotEmpty){
+      // Filter to keep only allocated states
+      List<Map<String, dynamic>> filteredStates = statelist
+          .where((state) => allocatedstates.contains(state['id']))
+          .toList();
+
+      setState(() {
+        stat = filteredStates;
+      });}}
+      else{
+        stat=statelist;
+      }
+    }
+  } catch (error) {
+    ;
+  }
+}
 
   List<Map<String, dynamic>> sta = [];
 

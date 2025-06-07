@@ -566,9 +566,12 @@ Future<String> addtocart2( mainid, quantity) async {
 }
 
 void showSizeDialog2(BuildContext context, List variants) {
-  // Create a ValueNotifier to track the selected product
-  ValueNotifier<Map<String, dynamic>?> selectedProductNotifier = ValueNotifier(null);
+  // Filter only approved variants
+  print("variiiiiiiiiiii$variants");
+  List approvedVariants = variants.where((v) => v['approval_status'] == 'Approved').toList();
 
+  ValueNotifier<Map<String, dynamic>?> selectedProductNotifier = ValueNotifier(null);
+  print("variiiiiiiiiiii$approvedVariants");
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -597,7 +600,6 @@ void showSizeDialog2(BuildContext context, List variants) {
                   valueListenable: selectedProductNotifier,
                   builder: (context, selectedProduct, child) {
                     if (selectedProduct != null) {
-
                       return Column(
                         children: [
                           Container(
@@ -653,13 +655,13 @@ void showSizeDialog2(BuildContext context, List variants) {
                   },
                 ),
 
-                // Display the variants
+                // Display the approved variants
                 ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount: variants.length,
+                  itemCount: approvedVariants.length,
                   itemBuilder: (context, index) {
-                    var variant = variants[index];
+                    var variant = approvedVariants[index];
                     return ListTile(
                       leading: variant['image'] != null && variant['image'].isNotEmpty
                           ? Image.network(
@@ -672,22 +674,20 @@ void showSizeDialog2(BuildContext context, List variants) {
                               width: 50,
                               height: 50,
                               color: Colors.grey[300],
-                              child: Icon(Icons.image_not_supported,
-                                  color: Colors.grey),
+                              child: Icon(Icons.image_not_supported, color: Colors.grey),
                             ),
                       title: Text(variant['name']),
-                       subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Stock: ${variant['stock']}"),
-          Text("Locked Stock: ${variant['locked_stock']}",style:TextStyle(color: Colors.grey,fontWeight: FontWeight.bold)), // Display Locked Stock
-        ],
-      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Stock: ${variant['stock']}"),
+                          Text("Locked Stock: ${variant['locked_stock']}", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                       trailing: selectedProductNotifier.value == variant
                           ? Icon(Icons.check_circle, color: Colors.green)
                           : null,
                       onTap: () {
-                        // Update the selected product using ValueNotifier
                         selectedProductNotifier.value = variant;
                       },
                     );
@@ -717,37 +717,30 @@ void showSizeDialog2(BuildContext context, List variants) {
                   child: ElevatedButton(
                     onPressed: () {
                       if (selectedProductNotifier.value == null) {
-                        // Show an error if no product is selected
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Please select a product first!")),
                         );
                         return;
                       }
 
-                      // Get the selected product and entered quantity
                       var selectedProduct = selectedProductNotifier.value;
                       int quantity = int.tryParse(quantityController.text) ?? 1;
 
-                     // Validate stock
                       if (quantity > (selectedProduct!['stock'] - selectedProduct['locked_stock'])) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Quantity exceeds available stock!")),
-  );
-  return;
-}
-  if (selectedProduct!['stock']==0) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("No stock Available")),
-  );
-  return;
-}
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Quantity exceeds available stock!")),
+                        );
+                        return;
+                      }
+                      if (selectedProduct!['stock'] == 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("No stock Available")),
+                        );
+                        return;
+                      }
 
-                      
-
-                      // Call add to cart function
                       handleAddToCart(context, selectedProduct['id'], quantity);
 
-                      // Close the dialog
                       Navigator.of(context).pop();
                     },
                     child: Text("ADD TO CART", style: TextStyle(color: Colors.white)),
@@ -767,7 +760,6 @@ void showSizeDialog2(BuildContext context, List variants) {
     },
   );
 }
-
 
 
 

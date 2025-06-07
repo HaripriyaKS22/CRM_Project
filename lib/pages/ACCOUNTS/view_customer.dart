@@ -602,6 +602,7 @@ var dep=await getdepFromPrefs();
                                                     selectedManagerId =
                                                         newValue['id'];
                                                   });
+                                                  print("Selected manager ID: $selectedManagerId");
                                                 }
                                               : null,
                                           items: manager.isNotEmpty
@@ -877,6 +878,7 @@ var dep=await getdepFromPrefs();
                                               selectstate = newValue!['name'];
                                               selectedStateId = newValue[
                                                   'id']; // Store the selected state's ID
+                                                  print("Selected state ID: $selectedStateId");
                                             });
                                           }
                                         : null,

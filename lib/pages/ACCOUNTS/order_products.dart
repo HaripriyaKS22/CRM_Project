@@ -349,7 +349,6 @@ dep= await getdepFromPrefs();
   }
 }
 
-
  Future<void> fetchProductListid(var warehouse) async {
   final token = await getTokenFromPrefs();
  

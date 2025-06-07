@@ -332,6 +332,7 @@ class _expence_listState extends State<expence_list> {
           expensedata = expenselist;
           originalExpensedata =
               List.from(expenselist); // Update the backup here
+              print("Expense data fetched: $originalExpensedata");
         });
       } else {}
     } catch (error) {}
@@ -468,6 +469,7 @@ else if(dep=="Warehouse Admin" ){
                           selectedpurpose == "Others") {
                         expensedata = List.from(originalExpensedata);
                       } else {
+                        print("Filtering expenses by purpose: $selectedpurpose");
                         expensedata = originalExpensedata.where((expense) {
                           return expense['purpose_of_payment']
                               .toString()
@@ -475,6 +477,7 @@ else if(dep=="Warehouse Admin" ){
                               .contains(selectedpurpose!.toLowerCase());
                         }).toList();
                       }
+                      print("Filtered expenses: $expensedata");
                     });
                   },
                 ),
