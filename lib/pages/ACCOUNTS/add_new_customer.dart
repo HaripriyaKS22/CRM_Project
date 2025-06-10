@@ -129,9 +129,7 @@ var family;
           "customer_status":selectedCategory
         }),
       );
-
-     ;
-   ;
+print(response.body);
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -142,13 +140,29 @@ var family;
         );
         Navigator.push(context, MaterialPageRoute(builder: (context)=>add_new_customer()));
       } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding Customer failed.'),
-          ),
-        );
+  String errorMsg = 'Adding Customer failed.';
+  try {
+    final Map<String, dynamic> errorBody = jsonDecode(response.body);
+    if (errorBody.containsKey('errors')) {
+      final errors = errorBody['errors'] as Map<String, dynamic>;
+      if (errors.isNotEmpty) {
+        // Get the first error message
+        final firstError = errors.values.first;
+        if (firstError is List && firstError.isNotEmpty) {
+          errorMsg = firstError.first.toString();
+        }
       }
+    }
+  } catch (e) {
+    // Ignore JSON parse errors, fallback to default message
+  }
+  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+    SnackBar(
+      backgroundColor: Colors.red,
+      content: Text(errorMsg),
+    ),
+  );
+}
     } catch (e) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(

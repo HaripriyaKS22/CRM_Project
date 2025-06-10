@@ -48,8 +48,8 @@ class _PostofficeReportState extends State<PostofficeReport> {
           'Authorization': 'Bearer $token',
         },
       );
-;
-;
+print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final orderdata=parsed['results'];
@@ -66,9 +66,11 @@ class _PostofficeReportState extends State<PostofficeReport> {
               String selectedDateString = selectedDate != null
                   ? DateFormat('yyyy-MM-dd').format(selectedDate!)
                   : todayDate;
-;
+
+
+              // Check if postofficeDate is not null and matches the selected date
 if(postofficeDate == selectedDateString){
-  ;
+  
 }
               if (parcelService != null &&
                   parcelService.isNotEmpty &&
@@ -101,8 +103,7 @@ if(postofficeDate == selectedDateString){
 
         setState(() {
           orders = orderlist;
-          ;
-          ;
+          print("Orders fetched successfully.$orders");
         });
       }
     } catch (e) {
@@ -156,8 +157,10 @@ if(postofficeDate == selectedDateString){
         },
       );
 
+
       
-;
+print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
          final orderdata=parsed['results'];
@@ -169,12 +172,13 @@ if(postofficeDate == selectedDateString){
         for (var orderData in orderdata) {
           List<Map<String, dynamic>> warehouseList = [];
 
-          if (orderData['warehouse'] != null) {
-            for (var warehouse in orderData['warehouse']) {
+          if (orderData['warehouses'] != null) {
+            for (var warehouse in orderData['warehouses']) {
+              print("Warehouse Data: $warehouse");
               String parcelService = warehouse['parcel_service'] ??
                   ""; // Default to empty string if null
               String? postofficeDate = warehouse['postoffice_date'];
-              String? shippedDateStr = warehouse['shipped_date'];
+              String? shippedDateStr = warehouse['postoffice_date'];
               DateTime? shippedDate;
 
               // Parse the shipped_date to DateTime
@@ -182,6 +186,10 @@ if(postofficeDate == selectedDateString){
                 shippedDate = DateTime.parse(shippedDateStr);
               }
 
+            print("Post Office Date: $postofficeDate");
+            print("Shipped Date: $shippedDate");
+            print("Start Date: $startDate");
+            print("End Date: $endDate");
             
 
               // Check if the shipped_date is within the selected date range
@@ -224,7 +232,7 @@ if(postofficeDate == selectedDateString){
 
 
           });
-          ;
+          
 
           orders = orderlist;
           

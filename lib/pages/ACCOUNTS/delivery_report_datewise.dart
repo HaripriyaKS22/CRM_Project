@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:intl/intl.dart'; // Add this import at the top if not present
 
 import 'package:beposoft/loginpage.dart';
 
@@ -99,6 +100,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
             'customer': productData['customer'],
             'id':productData['id'],
             'customerid':productData['customer_id'],
+            'order_id': productData['order_id'],
 
             'order_date': productData['order_date'],
             'weight': productData['weight'],
@@ -110,6 +112,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
         }
         setState(() {
           deliverydate = deliverylist;
+          print("Delivery List: $deliverydate");
         });
       }
     } catch (error) {
@@ -146,7 +149,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    OrderReview(id:delivery['id'],customer: delivery['customerid'],),
+                                    OrderReview(id:delivery['order_id'],customer: delivery['customerid'],),
                               ),
                             );
             },
@@ -166,7 +169,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${delivery['invoice_name']}/${delivery['order_date']}',
+                          '${delivery['invoice_name']}/${DateFormat('yyyy-MM-dd').format(DateTime.parse(delivery['order_date']))}',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

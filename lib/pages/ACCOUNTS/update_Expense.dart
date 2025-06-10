@@ -225,8 +225,8 @@ void addpurpose(BuildContext context) async {
       );
 
       List<Map<String, dynamic>> emiDataList = [];
-      ;
-      ;
+      print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -252,35 +252,38 @@ void addpurpose(BuildContext context) async {
     }
   }
   
-  Future<void> getpurpose() async {
-    try {
-      final token = await gettokenFromPrefs();
+   Future<void> getpurpose() async {
+  try {
+    final token = await gettokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/apis/add/purpose/'),
-        headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+    var response = await http.get(
+      Uri.parse('$api/apis/add/purpose/'),
+      headers: {
+        'Authorization': ' Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      List<Map<String, dynamic>> purposelist = [];
+    List<Map<String, dynamic>> purposelist = [];
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
 
-        for (var productData in parsed) {
+      for (var productData in parsed) {
+        if (productData['name'] != null) { // Filter out null names
           purposelist.add({
             'id': productData['id'],
             'name': productData['name'],
           });
         }
-        setState(() {
-          purposesofpay = purposelist;
-        });
       }
-    } catch (error) {}
-  }
+      setState(() {
+        purposesofpay = purposelist;
+        print(purposelist);
+      });
+    }
+  } catch (error) {}
+}
 
   Future<void> getbank() async{
   final token=await gettokenFromPrefs();
@@ -512,7 +515,8 @@ Future<void> getexpenselist() async {
     );
 
     List<Map<String, dynamic>> expenselist = [];
-
+print("Response status code: ${response.statusCode}");
+print("Response body::::::::: ${response.body}");
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       final productsData = parsed['data'];
@@ -531,6 +535,7 @@ Future<void> getexpenselist() async {
           'name': productData['name'], // For assets
           'quantity': productData['quantity'], // For assets
           'categoryname': productData['categoryname'], // For assets
+          'category_id': productData['category_id'], // For assets
           'asset_types': productData['asset_types'], // For assets
           'transaction_id': productData['transaction_id'],
           'description': productData['description'],
@@ -547,6 +552,7 @@ Future<void> getexpenselist() async {
       );
       print(selectedExpense);
       if (selectedExpense.isNotEmpty) {
+        print("Selected Expense: ${selectedExpense['category_id']}");
         setState(() {
           transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
           selectedPurposeId = selectedExpense['purpose_of_payment'] ?? '';

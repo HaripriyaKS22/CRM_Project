@@ -215,35 +215,37 @@ int? selectedPurposeId;
   }
   
   Future<void> getpurpose() async {
-    try {
-      final token = await gettokenFromPrefs();
+  try {
+    final token = await gettokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/apis/add/purpose/'),
-        headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-;
-      List<Map<String, dynamic>> purposelist = [];
+    var response = await http.get(
+      Uri.parse('$api/apis/add/purpose/'),
+      headers: {
+        'Authorization': ' Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final parsed = jsonDecode(response.body);
+    List<Map<String, dynamic>> purposelist = [];
 
-        for (var productData in parsed) {
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+
+      for (var productData in parsed) {
+        if (productData['name'] != null) { // Filter out null names
           purposelist.add({
             'id': productData['id'],
             'name': productData['name'],
           });
         }
-        setState(() {
-          purposesofpay = purposelist;
-        });
       }
-    } catch (error) {}
-  }
-
+      setState(() {
+        purposesofpay = purposelist;
+        print(purposelist);
+      });
+    }
+  } catch (error) {}
+}
 
     Future<void> getcategory() async {
     try {
@@ -956,11 +958,10 @@ else if(dep=="Warehouse Admin" ){
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
                                   child: DropdownButton<String>(
-                                    value: selectedtype,
+                                    value: exp.contains(selectedtype) ? selectedtype : null,
                                     hint: Text('Select an option'),
                                     isExpanded: true,
-                                    underline:
-                                        SizedBox(), // Removes the default underline
+                                    underline: SizedBox(),
                                     items: exp.map((String item) {
                                       return DropdownMenuItem<String>(
                                         value: item,
@@ -968,9 +969,11 @@ else if(dep=="Warehouse Admin" ){
                                       );
                                     }).toList(),
                                     onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectedtype = newValue;
-                                      });
+                                      if (newValue != null) {
+                                        setState(() {
+                                          selectedtype = newValue;
+                                        });
+                                      }
                                     },
                                   ),
                                 ),
@@ -1119,7 +1122,9 @@ else if(dep=="Warehouse Admin" ){
           children: [
             Expanded(
               child: DropdownButton<String>(
-                value: selectedPurposeName,
+                value: purposesofpay.any((item) => item['name'] == selectedPurposeName)
+                    ? selectedPurposeName
+                    : null,
                 hint: Text('Select an option'),
                 isExpanded: true,
                 underline: SizedBox(),
@@ -1130,14 +1135,12 @@ else if(dep=="Warehouse Admin" ){
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
-                  if (newValue != 'add_new') {
+                  if (newValue != null && newValue != 'add_new') {
                     setState(() {
                       selectedPurposeName = newValue;
                       selectedPurposeId = purposesofpay
                           .firstWhere((item) => item['name'] == newValue)['id'];
                     });
-      
-                    ;
                   }
                 },
               ),

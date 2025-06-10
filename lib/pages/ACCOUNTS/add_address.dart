@@ -2,8 +2,13 @@ import 'dart:convert';
 
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
+import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_customer_address.dart';
+import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
+import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -293,7 +298,7 @@ void logout() async {
         }),
       );
 
-      
+      print(response.body);
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
@@ -305,13 +310,29 @@ void logout() async {
         );
         Navigator.push(context, MaterialPageRoute(builder: (context)=>add_address(customerid:widget.customerid,name:widget.name)));
       } else {
-        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Adding address failed.'),
-          ),
-        );
+  String errorMsg = 'Adding address failed.';
+  try {
+    final Map<String, dynamic> errorBody = jsonDecode(response.body);
+    if (errorBody.containsKey('errors')) {
+      final errors = errorBody['errors'] as Map<String, dynamic>;
+      if (errors.isNotEmpty) {
+        // Get the first error message
+        final firstError = errors.values.first;
+        if (firstError is List && firstError.isNotEmpty) {
+          errorMsg = firstError.first.toString();
+        }
       }
+    }
+  } catch (e) {
+    // Ignore JSON parse errors, fallback to default message
+  }
+  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+    SnackBar(
+      backgroundColor: Colors.red,
+      content: Text(errorMsg),
+    ),
+  );
+}
     } catch (e) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
@@ -320,451 +341,495 @@ void logout() async {
       );
     }
   }
+  Future<String?> getdepFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('department');
+  }
+ 
+ Future<void> _navigateBack() async {
+    final dep = await getdepFromPrefs();
+    if(dep=="BDO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
+            );
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
+            );
+} else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => dashboard()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromARGB(242, 255, 255, 255),
-      appBar: AppBar(
-         title: Text(
-          "Add Address",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async{
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>customer_list()));
-                       
-          },
-        ),
-        actions: [
-          
-          IconButton(
-            icon: Image.asset('lib/assets/profile.png'),
-            onPressed: () {
-
+    return WillPopScope(
+       onWillPop: () async {
+        // Trigger the navigation logic when the back swipe occurs
+        _navigateBack();
+        return false; // Prevent the default back navigation behavior
+      },
+      child: Scaffold(
+        backgroundColor: Color.fromARGB(242, 255, 255, 255),
+        appBar: AppBar(
+           title: Text(
+            "Add Address",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async{
+Navigator.pop(context);                         
             },
           ),
-        ],
-      ),
-     
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 30, left: 12, right: 12),
-          child: Container(
-            width: double.infinity,
-            color: Colors.white,
-            child: Column(
-              children: [
-                SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(left: 95),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Add Address",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+          actions: [
+            
+            IconButton(
+              icon: Image.asset('lib/assets/profile.png'),
+              onPressed: () {
+      
+              },
+            ),
+          ],
+        ),
+       
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 30, left: 12, right: 12),
+            child: Container(
+              width: double.infinity,
+              color: Colors.white,
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 95),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Add Address",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 15),
-                SizedBox(
-                  height: 230,
-                  width: 340,
-                  child: Card(
-                    elevation: 4,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 236, 236, 236)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(13.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextField(
-                              controller: customer,
-                              decoration: InputDecoration(
-                                labelText: 'Customer Name',
-                                prefixIcon: Icon(Icons.local_offer),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
+                  SizedBox(height: 15),
+                  SizedBox(
+                    height: 230,
+                    width: 340,
+                    child: Card(
+                      elevation: 4,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                              color: Color.fromARGB(255, 236, 236, 236)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(13.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                controller: customer,
+                                decoration: InputDecoration(
+                                  labelText: 'Customer Name',
+                                  prefixIcon: Icon(Icons.local_offer),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
                                 ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Shipping Address Name",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: name,
-                              decoration: InputDecoration(
-                                labelText: 'name',
-                                prefixIcon: Icon(Icons.local_offer),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
+                              SizedBox(height: 10),
+                              Text("Shipping Address Name",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                              TextField(
+                                controller: name,
+                                decoration: InputDecoration(
+                                  labelText: 'name',
+                                  prefixIcon: Icon(Icons.local_offer),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
                                 ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
                               ),
-                            ),
-                            SizedBox(height: 10),
-                          ],
+                              SizedBox(height: 10),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: 15),
-                SizedBox(
-                  height: 650,
-                  width: 340,
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
+                  SizedBox(height: 15),
+                  SizedBox(
+                    height: 650,
+                    width: 340,
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 236, 236, 236)),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 20),
-                            Text("Address/Building Name/ Building Number ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 13),
-                            TextField(
-                              controller: address,
-                              decoration: InputDecoration(
-                                labelText: 'Address',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Zip code",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 10),
-                                    Container(
-                                      width: 144,
-                                      child: TextField(
-                                        controller: zipcode,
-                                        decoration: InputDecoration(
-                                          labelText: 'Zip code',
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide:
-                                                BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 8.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  width: 13,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("City",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 10),
-                                    Container(
-                                      width: 144,
-                                      child: TextField(
-                                        controller: city,
-                                        decoration: InputDecoration(
-                                          labelText: 'City',
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide:
-                                                BorderSide(color: Colors.grey),
-                                          ),
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 8.0),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Text("State *:",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            Container(
-                              width:
-                                  double.infinity, // Use full width available
-                              height: 49,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: InputDecorator(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                              color: Color.fromARGB(255, 236, 236, 236)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 20),
+                              Text("Address/Building Name/ Building Number ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 13),
+                              TextField(
+                                controller: address,
                                 decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal:
-                                          10), // Adjust padding as needed
+                                  labelText: 'Address',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
                                 ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<Map<String, dynamic>>(
-                                    value: statess.isNotEmpty
-                                        ? statess.firstWhere(
-                                            (element) =>
-                                                element['name'] == selectstate,
-                                            orElse: () => statess[0],
-                                          )
-                                        : null,
-                                    onChanged: statess.isNotEmpty
-                                        ? (Map<String, dynamic>? newValue) {
-                                            setState(() {
-                                              selectstate = newValue!['name'];
-                                              selectedStateId = newValue[
-                                                  'id']; // Store the selected state's ID
-                                            
-                                            });
-                                          }
-                                        : null,
-                                    items: statess.isNotEmpty
-                                        ? statess.map<
-                                            DropdownMenuItem<
-                                                Map<String, dynamic>>>(
-                                            (Map<String, dynamic> state) {
-                                              return DropdownMenuItem<
-                                                  Map<String, dynamic>>(
-                                                value: state,
-                                                child: Text(state['name']),
-                                              );
-                                            },
-                                          ).toList()
-                                        : [
-                                            DropdownMenuItem(
-                                              child:
-                                                  Text('No states available'),
-                                              value: null,
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Zip code",
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 10),
+                                      Container(
+                                        width: 144,
+                                        child: TextField(
+                                          controller: zipcode,
+                                          decoration: InputDecoration(
+                                            labelText: 'Zip code',
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              borderSide:
+                                                  BorderSide(color: Colors.grey),
                                             ),
-                                          ],
-                                    icon: Icon(Icons.arrow_drop_down),
-                                    isExpanded:
-                                        true, // Ensure dropdown takes full width
+                                            contentPadding: EdgeInsets.symmetric(
+                                                vertical: 8.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 13,
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("City",
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 10),
+                                      Container(
+                                        width: 144,
+                                        child: TextField(
+                                          controller: city,
+                                          decoration: InputDecoration(
+                                            labelText: 'City',
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              borderSide:
+                                                  BorderSide(color: Colors.grey),
+                                            ),
+                                            contentPadding: EdgeInsets.symmetric(
+                                                vertical: 8.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Text("State *:",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                              Container(
+                                width:
+                                    double.infinity, // Use full width available
+                                height: 49,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal:
+                                            10), // Adjust padding as needed
+                                  ),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<Map<String, dynamic>>(
+                                      value: statess.isNotEmpty
+                                          ? statess.firstWhere(
+                                              (element) =>
+                                                  element['name'] == selectstate,
+                                              orElse: () => statess[0],
+                                            )
+                                          : null,
+                                      onChanged: statess.isNotEmpty
+                                          ? (Map<String, dynamic>? newValue) {
+                                              setState(() {
+                                                selectstate = newValue!['name'];
+                                                selectedStateId = newValue[
+                                                    'id']; // Store the selected state's ID
+                                              
+                                              });
+                                            }
+                                          : null,
+                                      items: statess.isNotEmpty
+                                          ? statess.map<
+                                              DropdownMenuItem<
+                                                  Map<String, dynamic>>>(
+                                              (Map<String, dynamic> state) {
+                                                return DropdownMenuItem<
+                                                    Map<String, dynamic>>(
+                                                  value: state,
+                                                  child: Text(state['name']),
+                                                );
+                                              },
+                                            ).toList()
+                                          : [
+                                              DropdownMenuItem(
+                                                child:
+                                                    Text('No states available'),
+                                                value: null,
+                                              ),
+                                            ],
+                                      icon: Icon(Icons.arrow_drop_down),
+                                      isExpanded:
+                                          true, // Ensure dropdown takes full width
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 20),
-                            Text("Country ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: country,
-                              decoration: InputDecoration(
-                                labelText: 'Country',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
+                              SizedBox(height: 20),
+                              Text("Country ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                              TextField(
+                                controller: country,
+                                decoration: InputDecoration(
+                                  labelText: 'Country',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
                                 ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
                               ),
-                            ),
-                            SizedBox(height: 30),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  height: 1,
-                                  width: 300,
-                                  color: Color.fromARGB(255, 215, 201, 201),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Text("Phone Number * : ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: phone,
-                              decoration: InputDecoration(
-                                labelText: 'Phone Number',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
+                              SizedBox(height: 30),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    height: 1,
+                                    width: 300,
+                                    color: Color.fromARGB(255, 215, 201, 201),
+                                  ),
+                                ],
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Mail Id : ",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            TextField(
-                              controller: email,
-                              decoration: InputDecoration(
-                                labelText: 'Mail Id',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Colors.grey),
+                              SizedBox(height: 10),
+                              Text("Phone Number * : ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                              TextField(
+                                controller: phone,
+                                decoration: InputDecoration(
+                                  labelText: 'Phone Number',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
                                 ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 8.0),
                               ),
-                            ),
-                          ],
+                              SizedBox(height: 10),
+                              Text("Mail Id : ",
+                                  style: TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 10),
+                              TextField(
+                                controller: email,
+                                decoration: InputDecoration(
+                                  labelText: 'Mail Id',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 8.0),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 1,
+                        width: 300,
+                        color: Color.fromARGB(255, 215, 201, 201),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 13),
+                  Padding(
+                    padding: const EdgeInsets.only(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        
+                        SizedBox(width: 13),
+                        SizedBox(
+                          width: 200,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              addaddress(
+                               
+                                name.text,
+                                address.text,
+                                email.text,
+                                phone.text,
+                                zipcode.text,
+                                city.text,
+                                state.text,
+                                country.text,
+                                context,
+                              );
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.blue,
+                              ),
+                              shape:
+                                  MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              fixedSize: MaterialStateProperty.all<Size>(
+                                Size(95, 15),
+                              ),
+                            ),
+                            child: Text("Submit",
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 35),
+      
+      
+      
+              // Display addresses in table format
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      height: 1,
-                      width: 300,
-                      color: Color.fromARGB(255, 215, 201, 201),
+                    Text(
+                      'Customer Addresses',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Customer Name')),
+                          DataColumn(label: Text('Address')),
+                                                  DataColumn(label: Text('Edit')),
+      
+                        ],
+                        rows: addres
+                            .map((address) => DataRow(cells: [
+                                  DataCell(Text(widget.name)),
+                                  DataCell(Text(address['address'])),
+                                    DataCell(
+                                    IconButton(
+                                      icon: Icon(Icons.edit),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => Editaddress(addresid: address['id'],customerid:widget.customerid,customername:widget.name),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ]))
+                            .toList(),
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 13),
-                Padding(
-                  padding: const EdgeInsets.only(),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      
-                      SizedBox(width: 13),
-                      SizedBox(
-                        width: 200,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            addaddress(
-                             
-                              name.text,
-                              address.text,
-                              email.text,
-                              phone.text,
-                              zipcode.text,
-                              city.text,
-                              state.text,
-                              country.text,
-                              context,
-                            );
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.blue,
-                            ),
-                            shape:
-                                MaterialStateProperty.all<RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            fixedSize: MaterialStateProperty.all<Size>(
-                              Size(95, 15),
-                            ),
-                          ),
-                          child: Text("Submit",
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 35),
-
-
-
-            // Display addresses in table format
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Customer Addresses',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Customer Name')),
-                        DataColumn(label: Text('Address')),
-                                                DataColumn(label: Text('Edit')),
-
-                      ],
-                      rows: addres
-                          .map((address) => DataRow(cells: [
-                                DataCell(Text(widget.name)),
-                                DataCell(Text(address['address'])),
-                                  DataCell(
-                                  IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Editaddress(addresid: address['id'],customerid:widget.customerid,customername:widget.name),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ]))
-                          .toList(),
-                    ),
-                  ),
+              ),
                 ],
               ),
-            ),
-              ],
             ),
           ),
         ),

@@ -1,3 +1,3 @@
-var api="https://colours-yellow-nursing-systematic.trycloudflare.com";
+var api="https://wedding-couple-mr-neck.trycloudflare.com";
 
 
