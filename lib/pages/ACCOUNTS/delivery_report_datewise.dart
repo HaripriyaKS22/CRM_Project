@@ -112,7 +112,6 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
         }
         setState(() {
           deliverydate = deliverylist;
-          print("Delivery List: $deliverydate");
         });
       }
     } catch (error) {

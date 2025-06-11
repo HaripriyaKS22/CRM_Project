@@ -102,7 +102,6 @@ class _view_customerState extends State<view_customer> {
     BuildContext context,
   ) async {
     final token = await gettokenFromPrefs();
-print("selectedManagerId $selectedManagerId");
     try {
       var response = await http.put(
         Uri.parse("$api/api/customer/update/${widget.customerid}/"),
@@ -124,7 +123,6 @@ print("selectedManagerId $selectedManagerId");
           'comment': comment,
         }),
       );
-      print("response is ${response.body}");
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
@@ -144,7 +142,6 @@ print("selectedManagerId $selectedManagerId");
         );
       }
     } catch (e) {
-      print("Error occurred: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -188,10 +185,8 @@ print("selectedManagerId $selectedManagerId");
         selectstate = statess.firstWhere(
             (state) => state['id'] == productsData['state'],
             orElse: () => {'name': ''})['name']; // Set selectstate
-print('productsData[manager] ${productsData['manager']}');
         selectedManagerName = productsData['manager'];
            
-print('selectedManagerName $selectedManagerName');
         getstates();
         setState(() {
           customer = managerlist;
@@ -255,7 +250,6 @@ var dep=await getdepFromPrefs();
       );
       List<Map<String, dynamic>> managerlist = [];
 
-    print("response is ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -295,7 +289,6 @@ var dep=await getdepFromPrefs();
         setState(() {
           manager = managerlist;
          // selectedManagerName = managerlist[0]['name'];
-          print("selectedManagerNameeeeeeeeeeeee $selectedManagerName");
         //  selectedManagerId = managerlist[0]['id'];
 
           ;
@@ -602,7 +595,6 @@ var dep=await getdepFromPrefs();
                                                     selectedManagerId =
                                                         newValue['id'];
                                                   });
-                                                  print("Selected manager ID: $selectedManagerId");
                                                 }
                                               : null,
                                           items: manager.isNotEmpty
@@ -878,7 +870,6 @@ var dep=await getdepFromPrefs();
                                               selectstate = newValue!['name'];
                                               selectedStateId = newValue[
                                                   'id']; // Store the selected state's ID
-                                                  print("Selected state ID: $selectedStateId");
                                             });
                                           }
                                         : null,

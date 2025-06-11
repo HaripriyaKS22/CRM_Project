@@ -362,7 +362,6 @@ dep= await getdepFromPrefs();
         'Authorization': 'Bearer $token',
       },
     );
-    print(response.body);
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -401,7 +400,6 @@ dep= await getdepFromPrefs();
       setState(() {
         products = productList;
         filteredProducts=products;
-        print(products);
       });}
     }
   } catch (error) {
@@ -585,11 +583,9 @@ Future<String> addtocart2( mainid, quantity) async {
 }
 void showSizeDialog2(BuildContext context, List variants) {
   // Filter only approved variants
-  print("variiiiiiiiiiii$variants");
   List approvedVariants = variants.where((v) => v['approval_status'] == 'Approved').toList();
 
   ValueNotifier<Map<String, dynamic>?> selectedProductNotifier = ValueNotifier(null);
-  print("variiiiiiiiiiii$approvedVariants");
   showDialog(
     context: context,
     barrierDismissible: true,

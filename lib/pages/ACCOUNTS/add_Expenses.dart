@@ -241,7 +241,6 @@ int? selectedPurposeId;
       }
       setState(() {
         purposesofpay = purposelist;
-        print(purposelist);
       });
     }
   } catch (error) {}

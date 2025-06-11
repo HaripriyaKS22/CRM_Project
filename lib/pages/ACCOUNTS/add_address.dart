@@ -298,7 +298,6 @@ void logout() async {
         }),
       );
 
-      print(response.body);
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

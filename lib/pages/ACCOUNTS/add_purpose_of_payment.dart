@@ -68,7 +68,6 @@ for (var productData in parsed) {
 // ...existing code...
         setState(() {
           purposes = purposelist;
-          print("Purpose data fetched: $purposes");
         });
       }
     } catch (error) {}

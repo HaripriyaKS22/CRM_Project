@@ -142,7 +142,6 @@ Future<void> getprofiledata() async {
         );
       }
     } catch (error) {
-      print(error);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Error fetching GRV data'),

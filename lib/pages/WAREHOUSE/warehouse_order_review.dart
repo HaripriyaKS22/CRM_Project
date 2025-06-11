@@ -694,7 +694,6 @@ void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails)
         );
       }
     } catch (e) {
-      print("object: $e");
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(content: Text('Network error. Please check your connection.')),
       );

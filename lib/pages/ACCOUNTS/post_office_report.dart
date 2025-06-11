@@ -48,8 +48,7 @@ class _PostofficeReportState extends State<PostofficeReport> {
           'Authorization': 'Bearer $token',
         },
       );
-print("Response status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final orderdata=parsed['results'];
@@ -103,7 +102,6 @@ if(postofficeDate == selectedDateString){
 
         setState(() {
           orders = orderlist;
-          print("Orders fetched successfully.$orders");
         });
       }
     } catch (e) {
@@ -158,9 +156,7 @@ if(postofficeDate == selectedDateString){
       );
 
 
-      
-print("Response status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
          final orderdata=parsed['results'];
@@ -174,7 +170,6 @@ print("Response status code: ${response.statusCode}");
 
           if (orderData['warehouses'] != null) {
             for (var warehouse in orderData['warehouses']) {
-              print("Warehouse Data: $warehouse");
               String parcelService = warehouse['parcel_service'] ??
                   ""; // Default to empty string if null
               String? postofficeDate = warehouse['postoffice_date'];
@@ -186,10 +181,6 @@ print("Response status code: ${response.statusCode}");
                 shippedDate = DateTime.parse(shippedDateStr);
               }
 
-            print("Post Office Date: $postofficeDate");
-            print("Shipped Date: $shippedDate");
-            print("Start Date: $startDate");
-            print("End Date: $endDate");
             
 
               // Check if the shipped_date is within the selected date range

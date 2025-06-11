@@ -54,6 +54,7 @@ initdata();
     getbank();
     getpurpose();
     getemi();
+    getcategory();
   }
 void initdata() async {
     await getexpenselist();
@@ -206,7 +207,7 @@ void addpurpose(BuildContext context) async {
         }
         setState(() {
           category = categorylist;
-          ;
+          
         });
       }
     } catch (error) {}
@@ -225,8 +226,7 @@ void addpurpose(BuildContext context) async {
       );
 
       List<Map<String, dynamic>> emiDataList = [];
-      print("Response status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
+     
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -279,7 +279,7 @@ void addpurpose(BuildContext context) async {
       }
       setState(() {
         purposesofpay = purposelist;
-        print(purposelist);
+       
       });
     }
   } catch (error) {}
@@ -515,8 +515,7 @@ Future<void> getexpenselist() async {
     );
 
     List<Map<String, dynamic>> expenselist = [];
-print("Response status code: ${response.statusCode}");
-print("Response body::::::::: ${response.body}");
+
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       final productsData = parsed['data'];
@@ -550,10 +549,10 @@ print("Response body::::::::: ${response.body}");
         (expense) => expense['id'] == widget.id,
         orElse: () => {}, // Return an empty map instead of null
       );
-      print(selectedExpense);
       if (selectedExpense.isNotEmpty) {
-        print("Selected Expense: ${selectedExpense['category_id']}");
+        print("Selected Expense::::::::::::: ${selectedExpense['category_id']}");
         setState(() {
+          selectedCategoryId=selectedExpense['category_id'];
           transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
           selectedPurposeId = selectedExpense['purpose_of_payment'] ?? '';
           selectedPurposeName=selectedExpense['purpose_of_pay'];
@@ -591,7 +590,6 @@ selectedbankId = selectedExpense['bank'] is Map
     } else {
     }
   } catch (error) {
-    print('Error fetching expense data: $error');
   }
 }
 void updateexpense() async {
@@ -802,8 +800,8 @@ void updateexpense3() async {
       if (username == null) {
         return;
       }
-      var response = await http.post(
-        Uri.parse('$api/api/expense/addexpectemiupdate/${widget.id}/'),
+      var response = await http.put(
+        Uri.parse('$api/api/asset/update/${widget.id}/'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -824,7 +822,8 @@ void updateexpense3() async {
           "quantity": quantity.text,
         },
       );
-
+print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
       
 
       if (response.statusCode == 200) {

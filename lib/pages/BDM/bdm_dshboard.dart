@@ -279,9 +279,7 @@ shippedbills=Shippedorders;
       });
 
       // Print the counts (or use them as needed)
-     print('shippedbillssssssssssssssssssssss: $shippedbills');
-      print('Total Orders Today: $todaysbill');
-      print('Total Orders with Invoice Created Status: $waitingbills');
+    
     } else {
       throw Exception("Failed to load order data");
     }
@@ -489,7 +487,6 @@ void dispose() {
       },
     );
 
-    print(response.body);
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -513,15 +510,12 @@ void dispose() {
       if (mounted) {
         setState(() {
           proforma = performaInvoiceList;
-          print('Proforma Invoice List: $proforma');
         });
       }
 
     } else {
-      print('Error: ${response.statusCode}');
     }
   } catch (error) {
-    print('Fetch Error: $error');
   }
 }
 
@@ -539,7 +533,6 @@ int grv=0;
 var grvpending;
 // Function to fetch GRV data
 Future<void> getGrvList() async {
-  print('Familyyyyyyyyyyyyyyyyyyyyyyyyyyy: $family');
   try {
     final token = await getTokenFromPrefs();
 
@@ -559,9 +552,7 @@ Future<void> getGrvList() async {
       int grv = 0;
 
       for (var productData in productsData) {
-        print('${family.toString()} == ${productData['family'].toString()}');
         if (family.toString() == productData['family'].toString()) {
-          print("enteredddddddddddddddddddddddddddddddddddddddddddd");
           grvDataList.add({
             'id': productData['id'],
             'product': productData['product'],
@@ -586,10 +577,8 @@ Future<void> getGrvList() async {
         });
       }
 
-      print('grvpendingggggggggggggggggggggg$grvlist');
     }
   } catch (error) {
-    print('Error fetching GRV data: $error');
   }
 }
 

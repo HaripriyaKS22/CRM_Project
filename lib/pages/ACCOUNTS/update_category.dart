@@ -60,7 +60,6 @@ Future<void> getcategory() async {
       },
     );
 
-  print(response.body);
 
     if (response.statusCode == 200) {
       // Decode the JSON response
@@ -81,7 +80,6 @@ Future<void> getcategory() async {
         if (widget.id == productData['id']) {
           setState(() {
             name.text = productData['category_name'] ?? '';
-           print(name.text);
           });
         }
       }

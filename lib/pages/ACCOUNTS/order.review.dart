@@ -57,8 +57,7 @@ var selectedserviceId;
   @override
   void initState() {
     super.initState();
-    print("Order ID: ${widget.id}");
-    print("Customer ID: ${widget.customer}");
+  
     initData();
     getbank();
     getcourierservices();
@@ -575,12 +574,10 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
 
       String formattedTime = DateFormat("HH:mm").format(DateTime.now());
 
-      print('$api/api/order/status/update/${widget.id}/');
-      print(formattedTime);
-      print(DateTime.now().toIso8601String().split('T')[0],);
+    
 
       var response = await http.put(
-        Uri.parse('$api/api/order/status/update/${widget.id}/'),
+        Uri.parse('$api/api/shipping/${widget.id}/order/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -593,7 +590,8 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
           },
         ),
       );
-print(response.body);
+      print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1368,7 +1366,6 @@ Future<void> deletebox( var orderId) async {
         'Content-Type': 'application/json',
       },
     );
-print(response.body);
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 

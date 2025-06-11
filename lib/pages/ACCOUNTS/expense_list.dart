@@ -304,7 +304,6 @@ class _expence_listState extends State<expence_list> {
       );
       List<Map<String, dynamic>> expenselist = [];
 
-      print(response.body);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final productsDatas = parsed['data'];

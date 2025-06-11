@@ -54,8 +54,7 @@ var dep;
           'Content-Type': 'application/json',
         },
       );
-print("ressssssponse: ${response.body}");
-print("response status code: ${response.statusCode}");
+
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final List<dynamic> cartsData = parsed['data'];

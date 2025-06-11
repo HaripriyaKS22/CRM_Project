@@ -129,7 +129,6 @@ var family;
           "customer_status":selectedCategory
         }),
       );
-print(response.body);
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(

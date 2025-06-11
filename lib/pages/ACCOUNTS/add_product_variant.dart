@@ -406,7 +406,6 @@ Future<void> updateProductImage(
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
 
-      // Print the response status and body for debugging
       
       
 
