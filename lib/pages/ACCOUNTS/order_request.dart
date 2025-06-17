@@ -185,7 +185,7 @@ var allocatedstates;
             "${selectedDate.toLocal().year}-${selectedDate.toLocal().month.toString().padLeft(2, '0')}-${selectedDate.toLocal().day.toString().padLeft(2, '0')}",
         'family': selectedFamilyId,
         'state': selectedstateId,
-        'paymet_status': selectpaystatus,
+        'payment_status': selectpaystatus,
         'total_amount': tot,
         'bank': selectedbankId,
         'payment_method': selectpaymethod,
@@ -2185,6 +2185,8 @@ if(dep=="BDM"){
                                       onChanged: (String? newValue) {
                                         setState(() {
                                           selectpaystatus = newValue!;
+                                          print(
+                                              "Selected Payment Status: $selectpaystatus");
                                         });
                                       },
                                       items: paystatus

@@ -688,7 +688,7 @@ class _PerformaInvoice_BigView_ListState
                 foregroundColor: Colors.black, // Text color
               ),
               child: const Text(
-                'Gerenate Invoice',
+                'Generate Invoice',
                 style: TextStyle(color: Colors.blue),
               ),
             ),

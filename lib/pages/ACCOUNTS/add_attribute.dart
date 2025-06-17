@@ -614,6 +614,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                                   isExpanded: true,
                                   hint: Text("Select Attribute"),
                                   value: selectedAttribute,
+                                    underline: SizedBox.shrink(),
                                   items: attributes.map((attr) {
                                     return DropdownMenuItem<String>(
                                       value: attr['name'],

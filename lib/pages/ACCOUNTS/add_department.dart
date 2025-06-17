@@ -4,6 +4,7 @@ import 'package:beposoft/loginpage.dart';
 
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/provider.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 class add_department extends StatefulWidget {
   const add_department({super.key});
@@ -24,7 +26,11 @@ class _add_departmentState extends State<add_department> {
   @override
   void initState() {
     super.initState();
-    getdepartments();
+    // getdepartments();
+     // Fetch departments when the page loads
+    Future.microtask(() =>
+      Provider.of<counterModel>(context, listen: false).fetchDepartments()
+    );
   }
 
   var url = "$api/api/add/department/";
@@ -158,6 +164,9 @@ Future<String?> getdepFromPrefs() async {
   }
   @override
   Widget build(BuildContext context) {
+        final counterModel counterdata = Provider.of<counterModel>(context);
+final dep = context.watch<counterModel>().departments;
+
     return Scaffold(
         backgroundColor: Color.fromARGB(242, 255, 255, 255),
         appBar: AppBar(
@@ -287,9 +296,15 @@ Future<String?> getdepFromPrefs() async {
                               SizedBox(height: 15),
                               ElevatedButton(
                                 onPressed: () {
-                                  setState(() {
-                                    adddepartment(department.text, context);
-                                  });
+                                  // setState(() {
+                                  //   adddepartment(department.text, context);
+                                  // });
+
+                                   final deptName = department.text.trim();
+              if (deptName.isNotEmpty) {
+                counterdata.adddepartment(deptName, context);
+                department.clear(); // Clear after adding
+              }
                                 },
                                 style: ButtonStyle(
                                   backgroundColor:
@@ -390,7 +405,7 @@ Future<String?> getdepFromPrefs() async {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: Text(dep[i]['name']),
+                                    child: Text(dep[i]['name'] ?? ''),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
@@ -410,6 +425,8 @@ Future<String?> getdepFromPrefs() async {
                                       ),
                                     ),
                                   ),
+                                  // Add delete button if needed
+                                
                                 ],
                               ),
                           ],

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:beposoft/pages/ACCOUNTS/provider.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
@@ -14,7 +15,7 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
 import 'package:new_version_plus/new_version_plus.dart';
-
+import 'package:provider/provider.dart';
 void main() {
   runApp(const beposoftmain());
 }
@@ -155,29 +156,36 @@ class _beposoftmainState extends State<beposoftmain> {
       }
     });
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: tokenn
-          ? department == "BDM"
-              ? bdm_dashbord()
-              : department == "warehouse"
-                  ? WarehouseDashboard()
-                  : department == "BDO"
-                      ? bdo_dashbord()
-                      : department == "ADMIN"
-                          ? admin_dashboard()
-                          : department == "Accounts / Accounting "
-                              ? admin_dashboard()
-                              : department == "Information Technology"
-                                  ? admin_dashboard()
-                                  : department == "HR"
-                                    ? HrDashboard()
-                                    : department == "Warehouse Admin"
-                                      ? WarehouseAdmin()
-                                        : department == "COO"
-                                          ? admin_dashboard()
-                                          : dashboard()
-          : login(),
+    return MultiProvider(
+
+      providers: [
+        ChangeNotifierProvider<counterModel>
+        (create: (_) => counterModel()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: tokenn
+            ? department == "BDM"
+                ? bdm_dashbord()
+                : department == "warehouse"
+                    ? WarehouseDashboard()
+                    : department == "BDO"
+                        ? bdo_dashbord()
+                        : department == "ADMIN"
+                            ? admin_dashboard()
+                            : department == "Accounts / Accounting "
+                                ? admin_dashboard()
+                                : department == "Information Technology"
+                                    ? admin_dashboard()
+                                    : department == "HR"
+                                      ? HrDashboard()
+                                      : department == "Warehouse Admin"
+                                        ? WarehouseAdmin()
+                                          : department == "COO"
+                                            ? admin_dashboard()
+                                            : dashboard()
+            : login(),
+      ),
     );
   }
 }

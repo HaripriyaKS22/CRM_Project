@@ -69,6 +69,8 @@ dev_dependencies:
   open_file: ^3.2.1
   url_launcher: ^6.1.7
   new_version_plus: ^0.0.9
+  call_log:
+  jwt_decoder: ^2.0.1
 
 
 # For information on the generic Dart part of this file, see the

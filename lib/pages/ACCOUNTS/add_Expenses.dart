@@ -264,6 +264,7 @@ int? selectedPurposeId;
         final parsed = jsonDecode(response.body);
 
         for (var productData in parsed) {
+          if(productData['category_name'] != null && productData['category_name'] != '') {
           categorylist.add({
             'id': productData['id'],
             'name': productData['category_name'],
@@ -273,7 +274,7 @@ int? selectedPurposeId;
           category = categorylist;
           ;
         });
-      }
+      }}
     } catch (error) {}
   }
 
@@ -597,7 +598,7 @@ void addexpense() async {
 
   void addexpensetwo() async {
     final token = await gettokenFromPrefs();
-
+print('selectedtype: $selectedtype');
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? username = prefs.getString('username');
@@ -628,7 +629,8 @@ void addexpense() async {
         },
       );
 
-      ;
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         Navigator.push(
@@ -971,7 +973,9 @@ else if(dep=="Warehouse Admin" ){
                                       if (newValue != null) {
                                         setState(() {
                                           selectedtype = newValue;
+                                         
                                         });
+                                         print("selectedtype: $selectedtype");
                                       }
                                     },
                                   ),

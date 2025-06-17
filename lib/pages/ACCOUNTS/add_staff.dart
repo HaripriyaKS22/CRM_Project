@@ -519,7 +519,7 @@ Future<void> RegisterUserData(
     try {
       var request = http.Request(
         'POST',
-        Uri.parse('$api/api/add/staff/'),
+        Uri.parse('$api/api/add/staff2/'),
       );
 
       request.headers.addAll({
@@ -527,7 +527,7 @@ Future<void> RegisterUserData(
         'Content-Type': 'application/json',
       });
 
-      ;
+      
 
       Map<String, dynamic> data = {
         'date_of_birth': selectedDate.toIso8601String().substring(0, 10),
@@ -562,10 +562,8 @@ Future<void> RegisterUserData(
 
       var response = await request.send();
       var responseData = await http.Response.fromStream(response);
-      ;
-
-      ;
-      ;
+      print('Response status: ${responseData.statusCode}');
+      print('Response body: ${responseData.body}');
 
       if (responseData.statusCode == 201) {
         final Map<String, dynamic> responseJson = jsonDecode(responseData.body);
@@ -644,7 +642,8 @@ Future<void> RegisterUserData(
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
       
       // Handle response based on status code
       if (response.statusCode == 200) {

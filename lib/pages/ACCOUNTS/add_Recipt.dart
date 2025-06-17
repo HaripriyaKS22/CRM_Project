@@ -175,7 +175,7 @@ class _add_receiptState extends State<add_receipt> {
             'created_by': name,
             'remark': Remark.text
           }));
-
+print(response.body);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(

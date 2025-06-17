@@ -118,7 +118,7 @@ class _Creditsalereport2State extends State<Creditsalereport2> {
         'Content-Type': 'application/json',
       },
     );
-
+print(response.body);
     if (response.statusCode == 200) {
       final salesData = jsonDecode(response.body);
 

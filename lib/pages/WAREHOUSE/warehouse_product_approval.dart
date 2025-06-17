@@ -353,7 +353,7 @@ dep= await getdepFromPrefs();
           List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
               (famItem) => famItem['id'] == id,
               orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
-
+print("Product Data: ${productData['variantIDs']}");
           // Add the product data to the list
           productList.add({
             'id': productData['id'],
@@ -478,7 +478,7 @@ Future<void> getvariant(int id, var type) async {
 
 
 Future<void> updateproduct( var productId) async {
-  ;
+  
   try {
     final token = await getTokenFromPrefs();
 
@@ -503,18 +503,18 @@ Future<void> updateproduct( var productId) async {
         ),
       );
       var warehouse = await getwarehouseFromPrefs();
-fetchProductListid(warehouse);
+      fetchProductListid(warehouse);
 
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed '),
+          content: Text('Failed'),
           duration: Duration(seconds: 2),
         ),
       );
     }
-  } catch (error) {
-    ;
+  } 
+  catch (error) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating shipping charge'),
@@ -701,7 +701,6 @@ void showSizeDialog2(BuildContext context, var products) {
                 ),
                 SizedBox(height: 20),
 
-                // Display the selected product as the "Selected Option"
                 ValueListenableBuilder<Map<String, dynamic>?>(
                   valueListenable: selectedProductNotifier,
                   builder: (context, selectedProduct, child) {

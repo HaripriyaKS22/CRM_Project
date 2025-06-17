@@ -200,6 +200,7 @@ void addpurpose(BuildContext context) async {
         final parsed = jsonDecode(response.body);
 
         for (var productData in parsed) {
+          if (productData['category_name'] != null && productData['category_name'] != '') {
           categorylist.add({
             'id': productData['id'],
             'name': productData['category_name'],
@@ -209,7 +210,7 @@ void addpurpose(BuildContext context) async {
           category = categorylist;
           
         });
-      }
+      }}
     } catch (error) {}
   }
 
@@ -846,8 +847,6 @@ print("Response status code: ${response.statusCode}");
         );
       }
     } catch (e) {
-            ;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,

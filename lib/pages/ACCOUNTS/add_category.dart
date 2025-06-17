@@ -57,6 +57,7 @@ class _add_categoriesState extends State<add_categories> {
         final parsed = jsonDecode(response.body);
 
         for (var productData in parsed) {
+          if(productData['category_name'] != null && productData['category_name'] != '') {
           categorylist.add({
             'id': productData['id'],
             'name': productData['category_name'],
@@ -65,7 +66,7 @@ class _add_categoriesState extends State<add_categories> {
         setState(() {
           category = categorylist;
         });
-      }
+      }}
     } catch (error) {}
   }
 

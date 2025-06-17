@@ -123,7 +123,6 @@ class _proforma_to_order_requestState extends State<proforma_to_order_request> {
     getstate();
 
     getbank();
-    await fetchCartData();
     fetchperformalistData();
   }
 
@@ -177,6 +176,7 @@ class _proforma_to_order_requestState extends State<proforma_to_order_request> {
           'Content-Type': 'application/json',
         },
       );
+      print("response::::::::::::::::::::::: ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
@@ -230,11 +230,12 @@ class _proforma_to_order_requestState extends State<proforma_to_order_request> {
         // Handle error response
       }
     } catch (error) {
-      
+      print("Error fetching performa list data: $error");
       // Handle exception
     }
   }
 Future<void> addtocart(cartdata) async{
+  print("cartdataaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     final token = await gettokenFromPrefs();
  try{
     for (var item in cartdata) {
@@ -252,7 +253,7 @@ Future<void> addtocart(cartdata) async{
     }
   )
   );
-   
+   print("cart response=========================================: ${response.body}");
       if (response.statusCode == 201) {
       //  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
       //     SnackBar(
@@ -269,6 +270,9 @@ Future<void> addtocart(cartdata) async{
         //   ),
         // );
       }}
+
+          await fetchCartData();
+      print("cart data fetched successfully");
  }
  catch(e){
   
@@ -410,7 +414,7 @@ Future<void> addtocart(cartdata) async{
           'Content-Type': 'application/json',
         },
       );
-
+print("cart response: ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final List<dynamic> cartsData = parsed['data'];
@@ -462,6 +466,7 @@ Future<void> addtocart(cartdata) async{
 
   var tot;
   void showTotalDialog(BuildContext context) {
+    print("cartdata: $cartdata");
     double total = 0.0;
     double totalDiscount = 0.0;
     double totalItemPrice = 0.0;

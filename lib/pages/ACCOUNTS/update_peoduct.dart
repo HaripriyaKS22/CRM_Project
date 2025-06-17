@@ -336,7 +336,16 @@ void initdata(){
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json', // Specify content type as JSON
       });
-
+    String approvalStatus = 'Disapproved';
+      if (singleProducts.isNotEmpty) {
+        String originalStock = singleProducts[0]['stock']?.toString() ?? '';
+        // Disapprove if stock is zero
+        if (stock.text.trim() == '0' || stock.text.trim() == '0.0') {
+          approvalStatus = 'Disapproved';
+        } else if (originalStock == stock.text) {
+          approvalStatus = 'Approved';
+        }
+      }
       // Prepare the data to send in JSON format
       Map<String, dynamic> data = {
         'name': name.text,
@@ -353,7 +362,7 @@ void initdata(){
         'landing_cost': landingPriceValue,
         'warehouse': selectedwarehouseId,
         'stock': stock.text,
-        'approval_status': 'Disapproved', // Set approval status to 'Disapproved'
+        'approval_status': approvalStatus, // Set approval status to 'Disapproved'
       };
 
       // Ensure _selectedFamily is populated correctly and send as a list of numbers

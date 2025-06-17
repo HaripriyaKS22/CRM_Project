@@ -593,12 +593,13 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
       print("Response status code: ${response.statusCode}");
       print("Response body: ${response.body}");
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('status updated successfully'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+     ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+    content: Text('status updated successfully'),
+    duration: Duration(seconds: 2),
+    backgroundColor: Colors.green, // Add green background color
+  ),
+);
        Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => OrderList(status:null)),
@@ -608,6 +609,7 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
           SnackBar(
             content: Text('Failed to update status'),
             duration: Duration(seconds: 2),
+            backgroundColor: Colors.red, // Add red background color
           ),
         );
       }
@@ -1366,13 +1368,16 @@ Future<void> deletebox( var orderId) async {
         'Content-Type': 'application/json',
       },
     );
+    print("Response status code: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
       ord = parsed['order'] ?? {};
 codamount.text = ord['cod_amount']?.toString() ?? '';
       shippingmethod.text = ord['shipping_mode'] ?? '';
-
+print("paymentttttttttttttttttttttttttttt${ord['payment_status']}");
       List<dynamic> itemsData = parsed['items'] ?? [];
       List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
 

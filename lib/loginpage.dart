@@ -61,37 +61,29 @@ void login(String email, String password, BuildContext context) async {
       Uri.parse(url),
       body: {"email": email, "password": password},
     );
-
+    print("response.bodyyyyyyyyyyyyyyyyyyyyy: ${response.body}");
+    print("response.statusCode: ${response.statusCode}");
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
 
       if (status == 'success') {
         var token = responseData['token'];
+        print("token: $token");
         var active = responseData['active'];
         var name = responseData['name'];
         var warehouse = responseData['warehouse_id'] ?? 0; // Default to 0 if null
-        
-        
 
-        // Decode the token and store the ID in SharedPreferences
         try {
           final jwt = JWT.decode(token);
           var id = jwt.payload['id']; // Expected to be an int
-          
-          
-
-          // Save data in SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setInt('user_id', id); // Store user ID as an int
           await prefs.setString('user_token', token); // Store token
           await prefs.setString('user_name', name); // Store user name
           await prefs.setInt('warehouse_id', warehouse); // Store warehouse ID
           await storeUserData(token, active, name, warehouse);
-
-        } catch (e) {
-          
-        }
+        } catch (e) {}
 
         // Handle navigation based on active role
         Widget targetPage;
@@ -132,16 +124,27 @@ void login(String email, String password, BuildContext context) async {
           SnackBar(backgroundColor: Colors.green, content: Text('Successfully logged in.')),
         );
       } else {
+        // Show backend error message if available
+        String errorMessage = responseData['message'] ?? 'Login failed.';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text('Login failed.')),
+          SnackBar(backgroundColor: Colors.red, content: Text(errorMessage)),
         );
       }
     } else {
+      // Try to show backend error message if available
+      String errorMessage = 'An error occurred. Please try again.';
+      try {
+        var responseData = jsonDecode(response.body);
+        if (responseData['message'] != null) {
+          errorMessage = responseData['message'];
+        }
+      } catch (_) {}
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(backgroundColor: Colors.red, content: Text('An error occurred. Please try again.')),
+        SnackBar(backgroundColor: Colors.red, content: Text(errorMessage)),
       );
     }
   } catch (e) {
+    print("Error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(backgroundColor: Colors.red, content: Text('An error occurred. Please try again.')),
     );

@@ -54,7 +54,7 @@ var dep;
           'Content-Type': 'application/json',
         },
       );
-
+print(response.body);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final List<dynamic> cartsData = parsed['data'];
@@ -149,7 +149,8 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
   }
 
   Future<void> updatecartdetails(
-      int id, int quantity, String description, double discount) async {
+      int id, int quantity, String description, double discount,editedprice) async {
+        print(editedprice);
     try {
       final token = await getTokenFromPrefs();
       final response = await http.put(
@@ -161,11 +162,13 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         body: jsonEncode({
           'quantity': quantity,
           'note': description,
+          'price':editedprice,
           'discount': discount,
         }),
       );
 
-      
+      print(response.body);
+      print(response.statusCode);
 
       if (response.statusCode == 200) {
         fetchCartData();
@@ -176,6 +179,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           ),
         );
       } else {
+        print(response.body);
         throw Exception('Failed to update cart item');
       }
     } catch (error) {
@@ -231,7 +235,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         TextEditingController(text: item['quantity']?.toString() ?? '');
     TextEditingController discountController =
         TextEditingController(text: item['discount']?.toString() ?? '');
-    TextEditingController price = TextEditingController(text: item['price']?.toString() ?? '');
+    TextEditingController pricee = TextEditingController(text: item['price']?.toString() ?? '');
 
     showDialog(
       context: context,
@@ -254,7 +258,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
                 keyboardType: TextInputType.number,
               ),
               TextField(
-                controller: price,
+                controller: pricee,
                 decoration: InputDecoration(labelText: 'Edit Price'),
                 keyboardType: TextInputType.number,
               ),
@@ -284,9 +288,8 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
                 final description = descriptionController.text;
                 final quantity = int.tryParse(quantityController.text) ?? item['quantity'];
                 final discount = double.tryParse(discountController.text) ?? item['discount'];
-                final price = double.tryParse(discountController.text) ?? item['discount'];
-
-                updatecartdetails(item['id'], quantity, description, discount);
+                final editedprice = double.tryParse(pricee.text) ?? item['price'];
+                updatecartdetails(item['id'], quantity, description, discount,editedprice);
                 // updateprice(price);
                 Navigator.of(context).pop();
               },

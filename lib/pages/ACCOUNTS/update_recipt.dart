@@ -36,6 +36,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 
 class update_recipt extends StatefulWidget {
@@ -51,6 +52,7 @@ class _update_reciptState extends State<update_recipt> {
   void initState() {
     super.initState();
 initdata();
+fetchOrderData();
     getbank();
   }
 void initdata() async {
@@ -75,6 +77,7 @@ var departments;
     List<Map<String, dynamic>> bank = [];
 String? selectedpurpose; // Holds the selected value
   final List<String> items = ['water', 'electricity','salary','emi','rent','travel','Others'];
+  String? selectedInvoiceId; // Variable to store the selected invoice ID
 
  String selectedstaff='';
     int? selectedstaffId;
@@ -119,7 +122,57 @@ String? selectedpurpose; // Holds the selected value
     
   }
 }
+  TextEditingController uname = TextEditingController();
 
+ List<Map<String, dynamic>> orders = [];
+Future<void> fetchOrderData() async {
+    try {
+      final token = await gettokenFromPrefs();
+      final dep = await getdepFromPrefs();
+      final jwt = JWT.decode(token!);
+      var name = jwt.payload['name'];
+      ;
+
+      String url = '$api/api/orders/';
+      var response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      ;
+      ;
+      ;
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final List ordersData = responseData['results'];
+
+        List<Map<String, dynamic>> newOrders = [];
+
+        for (var orderData in ordersData) {
+          newOrders.add({
+            'id': orderData['id'],
+            'invoice': orderData['invoice'],
+            'customer': orderData['customer']['name'],
+          });
+        }
+
+        setState(() {
+          orders = newOrders;
+          uname.text=name;
+          // filteredOrders = newOrders;
+          ;
+        });
+      } else {
+        throw Exception("Failed to load order data");
+      }
+    } catch (error) {
+      ;
+    }
+  }
 
   void getCurrentTime() {
   // Get current date and time
@@ -188,9 +241,7 @@ Future<void> getreciptlist() async {
       },
     );
 
-    ;
-    ;
-
+   
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 ;
@@ -238,6 +289,7 @@ void updateexpense() async {
         'Authorization': 'Bearer $token',
       },
       body: {
+        
         "bank": selectedbankId.toString(),
         "amount": amount.text,
         "received_at": formatDate(selectedDate), 
@@ -355,6 +407,49 @@ void updateexpense() async {
               ],
             ),
           ),
+
+           Text(
+                            "Select Invoice",
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 5),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: selectedInvoiceId,
+                                hint: Text(
+                                  'Select Invoice',
+                                  style: TextStyle(fontSize: 12.0),
+                                ),
+                                items: orders.map((order) {
+                                  return DropdownMenuItem<String>(
+                                    value: order['id'].toString(),
+                                    child: Text(
+                                      '${order['invoice']} - ${order['customer']}',
+                                      style: TextStyle(fontSize: 12.0),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedInvoiceId =
+                                        value; // Store the selected invoice ID
+      
+                                        ;
+                                  });
+                                },
+                                underline: SizedBox(),
+                              ),
+                            ),
+                          ),
            
 
           Text(
