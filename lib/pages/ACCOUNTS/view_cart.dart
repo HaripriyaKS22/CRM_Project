@@ -86,54 +86,54 @@ print(response.body);
       
     }
   }
- Future<void> updateprice(var price) async {
-    try {
-      final token = await getTokenFromPrefs();
+//  Future<void> updateprice(var price) async {
+//     try {
+//       final token = await getTokenFromPrefs();
 
-      var response = await http.put(
-        Uri.parse('$api/api/orders/products/update-price/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(
-          {
-            'price':price,
+//       var response = await http.put(
+//         Uri.parse('$api/api/orders/products/update-price/'),
+//         headers: {
+//           'Authorization': 'Bearer $token',
+//           'Content-Type': 'application/json',
+//         },
+//         body: jsonEncode(
+//           {
+//             'price':price,
             
-          },
-        ),
-      );
+//           },
+//         ),
+//       );
 
     
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Profile updated successfully'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>add_family()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update profile'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating profile'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
+//       if (response.statusCode == 200) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Profile updated successfully'),
+//             duration: Duration(seconds: 2),
+//           ),
+//         );
+//         Navigator.pushReplacement(
+//           context,
+//           MaterialPageRoute(builder: (context) =>add_family()),
+//         );
+//       } else {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Failed to update profile'),
+//             duration: Duration(seconds: 2),
+//           ),
+//         );
+//       }
+//     } catch (error) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Error updating profile'),
+//           duration: Duration(seconds: 2),
+//         ),
+//       );
+//     }
+//   }
 
   double calculateTotalPrice() {
     double total = 0;
@@ -162,13 +162,54 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         body: jsonEncode({
           'quantity': quantity,
           'note': description,
-          'price':editedprice,
           'discount': discount,
         }),
       );
 
       print(response.body);
       print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        fetchCartData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Cart item updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        print(response.body);
+        throw Exception('Failed to update cart item');
+      }
+    } catch (error) {
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update cart item'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+  Future<void> updateprice(
+      var id,  var
+      editedprice) async {
+        print(editedprice);
+    try {
+      final token = await getTokenFromPrefs();
+      final response = await http.put(
+        Uri.parse('$api/api/cart/update/$id/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "price": editedprice,
+        }),
+      );
+
+      print("response.body-----------------------price: ${response.body}");
+      print("response.statusCode: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         fetchCartData();
@@ -203,7 +244,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           'Authorization': 'Bearer $token',
         },
       );
-;
+
       if (response.statusCode == 204) {
         setState(() {
           cartdata.removeWhere((item) => item['id'] == id);
@@ -291,6 +332,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
                 final editedprice = double.tryParse(pricee.text) ?? item['price'];
                 updatecartdetails(item['id'], quantity, description, discount,editedprice);
                 // updateprice(price);
+                updateprice(item['id'],editedprice);
                 Navigator.of(context).pop();
               },
               child: Text('Save'),

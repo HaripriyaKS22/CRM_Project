@@ -1369,7 +1369,7 @@ Future<void> deletebox( var orderId) async {
       },
     );
     print("Response status code: ${response.statusCode}");
-    print("Response body: ${response.body}");
+    print("Response bodyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy: ${response.body}");
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -1378,6 +1378,7 @@ Future<void> deletebox( var orderId) async {
 codamount.text = ord['cod_amount']?.toString() ?? '';
       shippingmethod.text = ord['shipping_mode'] ?? '';
 print("paymentttttttttttttttttttttttttttt${ord['payment_status']}");
+print("itemmmmmmmmmmmmmmmmmmm${ord['items']}");
       List<dynamic> itemsData = parsed['items'] ?? [];
       List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
 
@@ -1468,7 +1469,7 @@ else{
       });
 
     } else {
-      ;
+      
     }
   } catch (error) {
 

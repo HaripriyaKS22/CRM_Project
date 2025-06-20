@@ -8,6 +8,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
 import 'package:beposoft/pages/ACCOUNTS/assetmanagement.dart';
 import 'package:beposoft/pages/ACCOUNTS/assetmanegment2.dart';
 import 'package:beposoft/pages/ACCOUNTS/bulk_customer_upload.dart';
+import 'package:beposoft/pages/ACCOUNTS/call_log.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
@@ -533,8 +534,16 @@ int grvcount=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
+              //  ListTile(
+              //   leading: Icon(Icons.dashboard),
+              //   title: Text('Call Report'),
+              //   onTap: () {
+              //     Navigator.push(context,
+              //         MaterialPageRoute(builder: (context) => CallLog()));
+              //   },
+              // ),
               ListTile(
-                leading: Icon(Icons.person),
+                leading: Icon(Icons.person), 
                 title: Text('Approve Products'),
                 onTap: () {
                   Navigator.push(context,

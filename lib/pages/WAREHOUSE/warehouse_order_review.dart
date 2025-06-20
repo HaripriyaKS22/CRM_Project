@@ -871,7 +871,7 @@ void showStatusDialog(BuildContext context,var order) {
         Uri.parse('$api/api/shipping/${widget.id}/order/'),
         headers: {
           'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/jso',
         },
         body: jsonEncode(
           {

@@ -59,7 +59,7 @@ void login(String email, String password, BuildContext context) async {
   try {
     var response = await http.post(
       Uri.parse(url),
-      body: {"email": email, "password": password},
+      body: {"username": email, "password": password},
     );
     print("response.bodyyyyyyyyyyyyyyyyyyyyy: ${response.body}");
     print("response.statusCode: ${response.statusCode}");

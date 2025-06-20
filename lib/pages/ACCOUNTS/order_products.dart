@@ -537,8 +537,8 @@ Future<String> addtocart(varid, quantity) async {
         'quantity': quantity,
       }),
     );
-
-
+print(response.statusCode);
+print(response.body);
     if (response.statusCode == 201) {
       return "success";
     } else if(response.statusCode == 400) {
@@ -568,7 +568,8 @@ Future<String> addtocart2( mainid, quantity) async {
       }),
     );
 
-
+print(response.statusCode);
+print(response.body);
       if (response.statusCode == 201) {
       return "success";
     } else if(response.statusCode == 400) {

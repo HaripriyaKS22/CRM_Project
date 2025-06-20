@@ -483,10 +483,9 @@ void updateexpense() async {
 
 
 
-          SizedBox(
-                      height: 5,
-                    ),
-           Text(
+          SizedBox(height: 5,),
+          
+            Text(
                       "Payment Date",
                       style: TextStyle(
                           fontSize: 13, ),

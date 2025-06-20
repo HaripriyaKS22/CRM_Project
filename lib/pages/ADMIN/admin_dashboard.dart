@@ -8,6 +8,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
 import 'package:beposoft/pages/ACCOUNTS/assetmanagement.dart';
 import 'package:beposoft/pages/ACCOUNTS/assetmanegment2.dart';
 import 'package:beposoft/pages/ACCOUNTS/bulk_customer_upload.dart';
+import 'package:beposoft/pages/ACCOUNTS/call_log.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
@@ -499,7 +500,14 @@ int grvcount=0;
                 'Add Recipt',
                 'Recipt List',
               ]),
-             
+              // ListTile(
+              //   leading: Icon(Icons.dashboard),
+              //   title: Text('Call Report'),
+              //   onTap: () {
+              //     Navigator.push(context,
+              //         MaterialPageRoute(builder: (context) => CallLog()));
+              //   },
+              // ),
               _buildDropdownTile(context, 'Proforma Invoice', [
                 'New Proforma Invoice',
                 'Proforma Invoice List',

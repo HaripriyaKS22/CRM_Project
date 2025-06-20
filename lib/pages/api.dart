@@ -1,3 +1,3 @@
-var api="https://organized-have-convinced-roller.trycloudflare.com";
+var api="https://appeared-extensions-paste-refrigerator.trycloudflare.com";
 
 
