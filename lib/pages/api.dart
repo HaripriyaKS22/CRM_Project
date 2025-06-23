@@ -1,3 +1,3 @@
-var api="https://appeared-extensions-paste-refrigerator.trycloudflare.com";
+var api="https://enjoy-extremely-cleaners-q.trycloudflare.com";
 
 

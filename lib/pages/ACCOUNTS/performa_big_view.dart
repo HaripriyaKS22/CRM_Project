@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_attribute.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_bank.dart';
@@ -363,6 +363,7 @@ class _PerformaInvoice_BigView_ListState
   }
 
   String getStateNameById(int stateId) {
+        
     final state = stat.firstWhere(
       (element) => element['id'] == stateId,
       orElse: () => {'name': 'Unknown'}, // Return a Map with a default 'name'
@@ -372,6 +373,7 @@ class _PerformaInvoice_BigView_ListState
 
 // Fetch performa list data and map state ID to state name
   Future<void> fetchperformalistData() async {
+    print("fetchperformalistData called with invoice: ${widget.invoice}");
     try {
       final token = await getTokenFromPrefs();
       final response = await http.get(
@@ -381,7 +383,8 @@ class _PerformaInvoice_BigView_ListState
           'Content-Type': 'application/json',
         },
       );
-      ;
+      print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 
@@ -461,212 +464,203 @@ class _PerformaInvoice_BigView_ListState
       body: Column(
         children: [
           Expanded(
-            child: orders.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    itemCount: orders.length,
-                    padding: const EdgeInsets.all(16.0),
-                    itemBuilder: (context, index) {
-                      final order = orders[index];
-                      final items = order['perfoma_items'] as List<dynamic>;
-                      
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
+  child: orders.isEmpty
+      ? const Center(child: CircularProgressIndicator())
+      : ListView.builder(
+          itemCount: orders.length,
+          padding: const EdgeInsets.all(16.0),
+          itemBuilder: (context, index) {
+            final order = orders[index];
+            final items = order['perfoma_items'] as List<dynamic>;
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                elevation: 6,
+                shadowColor: Colors.grey.shade300,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Invoice Header
+                    Container(
+                      padding: const EdgeInsets.all(14.0),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.blue.shade700, Colors.blue.shade400],
+                        ),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16.0)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Invoice: #${order['invoice']}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                          elevation: 4,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              // Invoice header
-                              Container(
-                                padding: const EdgeInsets.all(12.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(15.0)),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Invoice No: #${order['invoice']}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Date: ${order['order_date']}',
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Invoice details
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Customer Name: ${order['customer_name']}',
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    Text(
-                                      'Company: ${order['company_name']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      'Managed By: ${order['maneger']}',
-                                      style: const TextStyle(fontSize: 16), 
-                                    ),
-                                    Text(
-                                      'Family: ${order['family']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      'State: ${order['state']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      'Billing Address: ${order['address']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    // Text(
-                                    //   'Payment Status: ${order['payment_status']}',
-                                    //   style: const TextStyle(fontSize: 16),
-                                    // ),
-                                    // Text(
-                                    //   'Bank: ${order['bank']}',
-                                    //   style: const TextStyle(fontSize: 16),
-                                    // ),
-                                    // Text(
-                                    //   'Payment Method: ${order['payment_method']}',
-                                    //   style: const TextStyle(fontSize: 16),
-                                    // ),
-                                    Text(
-                                      'Order Status: ${order['status']}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Divider(),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      'Items:',
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    // List of Items in the Invoice
-                                    for (var item in items)
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 4.0),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // Display the first image of each item
-                                            if (item['first_image'] != null)
-                                              Flexible(
-                                                flex: 1,
-                                                child: Image.network(
-                                                  "$api${item['first_image']}",
-                                                  width: 80,
-                                                  height: 80,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Icon(Icons
-                                                        .image_not_supported); // Fallback image or icon
-                                                  },
-                                                ),
-                                              ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              flex: 2,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'Item Name: ${item['name']}',
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w500),
-                                                  ),
-                                                  Text(
-                                                    'Quantity: ${item['quantity']}',
-                                                    style: const TextStyle(
-                                                        fontSize: 14),
-                                                  ),
-                                                  Text(
-                                                    'Unit Price: \$${item['actual_price']}',
-                                                    style: const TextStyle(
-                                                        fontSize: 14),
-                                                  ),
-                                                  Text(
-                                                    'Discount: \$${(item['discount'] * item['quantity']).toStringAsFixed(2)}',
-                                                    style: const TextStyle(
-                                                        fontSize: 14),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    const SizedBox(height: 10),
-                                    Divider(),
-                                    Text(
-                                      'Total Amount: \$${order['total_amount']}',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              IconButton(
+      onPressed: () async {
+        final Uri url = Uri.parse('$api/invoice//');
+
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          // Handle error case
+        }
+      },
+      icon: Icon(
+        Icons.download,
+        color: const Color.fromARGB(255, 250, 250, 250),
+        size: 24,
+      ),
+    ),
+                              const Icon(Icons.calendar_today,
+                                  size: 16, color: Colors.white),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${order['order_date']}',
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 14),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-          
-          
-           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: downloadInvoice,
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0), // Border radius
-                  side: const BorderSide(
-                      color: Colors.blue, width: 2.0), // Border color and width
+                        ],
+                      ),
+                    ),
+
+                    // Invoice Body
+                    Padding(
+                      padding: const EdgeInsets.all(14.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _infoRow('Customer:', order['customer_name']),
+                          _infoRow('Company:', order['company_name']),
+                          _infoRow('Managed By:', order['maneger']),
+                          _infoRow('Family:', order['family_name']),
+                          _infoRow('State:', order['state']),
+                          _infoRow('Address:', order['address']),
+                          _infoRow('Status:', order['status'],
+                              color: Colors.orange),
+                          const SizedBox(height: 10),
+                          const Divider(),
+                          const Text(
+                            'Items:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+
+                          // Items list
+                          ...items.map((item) => Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 6.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (item['first_image'] != null)
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                        child: Image.network(
+                                          "$api${item['first_image']}",
+                                          width: 80,
+                                          height: 80,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error,
+                                              stackTrace) {
+                                            return const Icon(
+                                              Icons.image_not_supported,
+                                              size: 80,
+                                              color: Colors.grey,
+                                            );
+                                          },
+                                        ),
+                                      )
+                                    else
+                                      const Icon(Icons.image_not_supported,
+                                          size: 80, color: Colors.grey),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${item['name']}',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text('Qty: ${item['quantity']}'),
+                                          Text(
+                                              'Unit Price: \$${item['actual_price']}'),
+                                          Text(
+                                            'Discount: \$${(item['discount'] * item['quantity']).toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                                color: Colors.red),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )),
+                          const SizedBox(height: 10),
+                          const Divider(),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'Total: \$${order['total_amount']}',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                backgroundColor: Colors.white, // Button background color
-                foregroundColor: Colors.black, // Text color
               ),
-              child: const Text(
-                'Download Invoice',
-                style: TextStyle(color: Colors.blue),
-              ),
-            ),
-          ),
+            );
+          },
+        ),
+)
+,
+          
+          
+          //  Padding(
+          //   padding: const EdgeInsets.all(16.0),
+          //   child: ElevatedButton(
+          //     onPressed: downloadInvoice,
+          //     style: ElevatedButton.styleFrom(
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(12.0), // Border radius
+          //         side: const BorderSide(
+          //             color: Colors.blue, width: 2.0), // Border color and width
+          //       ),
+          //       backgroundColor: Colors.white, // Button background color
+          //       foregroundColor: Colors.black, // Text color
+          //     ),
+          //     child: const Text(
+          //       'Download Invoice',
+          //       style: TextStyle(color: Colors.blue),
+          //     ),
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
@@ -697,4 +691,28 @@ class _PerformaInvoice_BigView_ListState
       ),
     );
   }
+}
+Widget _infoRow(String label, String value, {Color? color}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2.0),
+    child: RichText(
+      text: TextSpan(
+        text: '$label ',
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: Colors.black,
+        ),
+        children: [
+          TextSpan(
+            text: value,
+            style: TextStyle(
+              fontWeight: FontWeight.normal,
+              color: color ?? Colors.grey[800],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

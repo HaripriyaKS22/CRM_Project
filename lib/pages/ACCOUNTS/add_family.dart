@@ -144,14 +144,10 @@ void logout() async {
   }
 
   void getCurrentTime() {
-  // Get current date and time
   DateTime now = DateTime.now();
-
-  // Format the time (e.g., HH:mm:ss)
   String formattedTime = DateFormat('HH:mm:ss').format(now);
-
-  
 }
+
  Future<void> deletefamily(int Id) async {
     final token = await gettokenFromPrefs();
 

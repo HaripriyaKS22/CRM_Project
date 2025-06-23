@@ -54,6 +54,21 @@ class _CallLogState extends State<CallLog> {
   }
 
   void uploadcalllog(BuildContext context, call_log.CallLogEntry log, String billCount, {bool showSnackbar = true}) async {
+    print("startTimeeeeeeeeeeeeeeeeeeeeee: $_startTime");
+    print(DateFormat('yyyy-MM-dd HH:mm:ss').format(_startTime!));
+    print(DateFormat('yyyy-MM-dd HH:mm:ss').format(_endTime!));
+        print("endTimeeeeeeeeeeeeeeeeeee: $_endTime");
+final formattedStartTime = _startTime != null
+    ? DateFormat('yyyy-MM-dd HH:mm:ss').format(_startTime!)
+    : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+final formattedEndTime = _endTime != null
+    ? DateFormat('yyyy-MM-dd HH:mm:ss').format(_endTime!)
+    : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+print("Using formattedStartTime: $formattedStartTime");
+print("Using formattedEndTime: $formattedEndTime");
+
     final token = await gettokenFromPrefs();
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
     var id = decodedToken['id'];
@@ -71,12 +86,8 @@ class _CallLogState extends State<CallLog> {
               ? DateFormat('yyyy-MM-dd').format(
                   DateTime.fromMillisecondsSinceEpoch(log.timestamp!))
               : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-          "start_time": _startTime != null
-              ? DateFormat('yyyy-MM-dd HH:mm:ss').format(_startTime!)
-              : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
-          "end_time": _endTime != null
-              ? DateFormat('yyyy-MM-dd HH:mm:ss').format(_endTime!)
-              : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+          "start_time":formattedStartTime,
+          "end_time": formattedEndTime,
           "active_calls": _totalActiveCalls.toString(),
           "bill_count": billCount.isNotEmpty ? billCount : "0",
         },
@@ -99,6 +110,7 @@ class _CallLogState extends State<CallLog> {
         _logsByHour.clear();
       }
     } catch (e) {
+      print('Error uploading call log: $e');
       if (showSnackbar) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

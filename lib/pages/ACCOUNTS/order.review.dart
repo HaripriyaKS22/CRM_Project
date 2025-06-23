@@ -26,7 +26,9 @@ class _OrderReviewState extends State<OrderReview> {
   Drawer d = Drawer();
   var ord;
   List<Map<String, dynamic>> warehouse = [];
-
+// Add to your State class
+bool showPayStatusDropdown = false;
+String? selectedPayStatus;
   List<Map<String, dynamic>> items = [];
   List<Map<String, dynamic>> bank = [];
   String? selectedBank;
@@ -34,7 +36,10 @@ class _OrderReviewState extends State<OrderReview> {
   String? companyname;
   DateTime selectedDate = DateTime.now();
     DateTime selectedDate2 = DateTime.now();
+bool showFamilyDropdown = false;
+bool showCompanyDropdown = false;
 
+String? selectedCompany;
   TextEditingController amountController = TextEditingController();
   TextEditingController transactionIdController = TextEditingController();
   TextEditingController remarkController = TextEditingController();
@@ -51,18 +56,20 @@ class _OrderReviewState extends State<OrderReview> {
    TextEditingController codamount = TextEditingController();
   TextEditingController shippingmethod = TextEditingController();
             TextEditingController trackingIdController = TextEditingController();
+List<String> paystatus = ["paid", 'COD', 'credit'];
 
 var selectedserviceId;
   List<String> statuses = [];
   @override
   void initState() {
     super.initState();
-  
+  print("widget.idssdddddddddddddddddd: ${widget.id}");
     initData();
     getbank();
     getcourierservices();
     fetchCustomerLedgerDetails();
-  
+    getfamily();
+    getcompany();
     receivedDateController.text = DateFormat('dd-MM-yyyy').format(selectedDate);
   }
 var dep;
@@ -121,9 +128,53 @@ var dep;
   var customerledgerreceived;
   var difference;
   bool ledger=false;
+    List<Map<String, dynamic>> fam = [];
+
+   Future<void> getfamily() async {
+    try {
+      final token = await getTokenFromPrefs();
+
+      var response = await http.get(
+        Uri.parse('$api/api/familys/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+        
+        List<Map<String, dynamic>> familylist = [];
+print("Response status code: ${response.statusCode}");
+      print("Response body------------------: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final parsed = jsonDecode(response.body);
+        var productsData = parsed['data'];
+
+        
+ for (var productData in productsData) {
+          String imageUrl = "${productData['image']}";
+          familylist.add({
+            'id': productData['id'],
+            'name': productData['name'],
+            
+          });
+        
+        }
+        setState(() {
+          fam = familylist;
+                  
+
+          
+        });
+      }
+    } catch (error) {
+      
+    }
+  }
+  
 Future<void> fetchCustomerLedgerDetails() async {
   try {
-    ;
+    
     
     final token = await getTokenFromPrefs();
     final response = await http.get(
@@ -134,8 +185,7 @@ Future<void> fetchCustomerLedgerDetails() async {
       },
     );
 
-    ;
-    ;
+    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -155,28 +205,25 @@ Future<void> fetchCustomerLedgerDetails() async {
       }
       var dif;
       if(receivedPaymentSum>totalAmountSum){
-;
          dif=receivedPaymentSum-totalAmountSum;
          ledger=true;
-
       }
       else{
          dif=totalAmountSum-receivedPaymentSum;
          ledger=false;
       }
       setState(() {
+
         customerledgertotal = totalAmountSum;
         customerledgerreceived = receivedPaymentSum;
         difference=dif;
         
       });
 
-      ;
-      ;
-      ;
+    
 
     } else {
-      ;
+      
     }
   } catch (error) {
     ;
@@ -368,7 +415,8 @@ void _showShippingChargeDialog(BuildContext context, Map<String, dynamic> boxDet
   double Balance = 0.0; // Define at the class level
   double paymentreceipt = 0.0; // Define at the class level
   int? selectedAddressId; // Variable to store the selected address ID
-
+  bool showBankDropdown = false;
+var selectedfamily;
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -830,45 +878,45 @@ fetchOrderItems();
 
   List<Map<String, dynamic>> company = [];
 
-  Future<void> getcompany(id) async {
-    try {
-      final token = await getTokenFromPrefs();
+ Future<void> getcompany() async {
+  try {
+    final token = await getTokenFromPrefs();
 
-      var response = await http.get(
-        Uri.parse('$api/api/company/data/'),
-        headers: {
-          'Authorization': ' Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      
-      
-      List<Map<String, dynamic>> companylist = [];
+    var response = await http.get(
+      Uri.parse('$api/api/company/data/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        final productsData = jsonDecode(response.body);
+    print("Response status code: ${response.statusCode}");
+    print("Response body------------------: ${response.body}");
 
-     
-        for (var productData in productsData) {
-          String imageUrl = "${productData['image']}";
-          companylist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
 
-          if (id == productData['id']) {
-            companyname = productData['name'];
-          }
-        }
+      // Extract the list from the response, adjust key if needed
+      final List<dynamic> companyData = decoded['data'];
 
-        setState(() {
-          company = companylist;
-        });
-      }
-    } catch (error) {
-      
+      List<Map<String, dynamic>> companyList = companyData.map((item) {
+        return {
+          'id': item['id'],
+          'name': item['name'],
+          // you can also include 'image': item['image'] if needed
+        };
+      }).toList();
+
+      setState(() {
+        company = companyList;
+        print("Company List:::::::::::::: $company");
+      });
     }
+  } catch (error) {
+    print("Error fetching company data: $error");
   }
+}
+
 
   void showAddDialog(BuildContext context) {
     showDialog(
@@ -1133,10 +1181,212 @@ fetchOrderItems();
             },
           ),
         );
-
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Address updated successfully'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id,customer: widget.customer)),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('Failed to update Address'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (error) {
         
-      
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating profile'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    
+  }
 
+
+   Future<void> updateorderfamily() async {
+    
+      try {
+        final token = await gettoken();
+
+        var response = await http.put(
+          Uri.parse('$api/api/orders/update/${widget.id}/'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(
+            {
+              'family': selectedfamily,
+            },
+          ),
+        );
+        print("Response status code: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Address updated successfully'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id,customer: widget.customer)),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('Failed to update Address'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (error) {
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating profile'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    
+  }
+  Future<void> updateordercompany() async {
+    
+      try {
+        final token = await gettoken();
+
+        var response = await http.put(
+          Uri.parse('$api/api/orders/update/${widget.id}/'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(
+            {
+              'company': selectedCompany,
+            },
+          ),
+        );
+        print("Response status code: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Address updated successfully'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id,customer: widget.customer)),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('Failed to update Address'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (error) {
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating profile'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    
+  }
+  Future<void> updateorderpay() async {
+    
+      try {
+        final token = await gettoken();
+
+        var response = await http.put(
+          Uri.parse('$api/api/orders/update/${widget.id}/'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(
+            {
+              'payment_status': selectedPayStatus,
+            },
+          ),
+        );
+        print("Response status code: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Address updated successfully'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OrderReview(id: widget.id,customer: widget.customer)),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('Failed to update Address'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (error) {
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating profile'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    
+  }
+ Future<void> updateorderbank() async {
+    
+      try {
+        final token = await gettoken();
+
+        var response = await http.put(
+          Uri.parse('$api/api/orders/update/${widget.id}/'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(
+            {
+              'bank': selectedBank,
+            },
+          ),
+        );
+        print("Response status code: ${response.statusCode}");
+        print("Response body: ${response.body}");
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1379,6 +1629,7 @@ codamount.text = ord['cod_amount']?.toString() ?? '';
       shippingmethod.text = ord['shipping_mode'] ?? '';
 print("paymentttttttttttttttttttttttttttt${ord['payment_status']}");
 print("itemmmmmmmmmmmmmmmmmmm${ord['items']}");
+
       List<dynamic> itemsData = parsed['items'] ?? [];
       List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
 
@@ -1762,12 +2013,7 @@ Future<void> updatemsg(var orderId) async {
                     ],
                   ),
                   SizedBox(height: 5,),
-                   Text(
-                            ord != null
-                                ? ord['company']['name'] ?? 'Company'
-                                : 'Loading...',
-                            style: TextStyle(color: const Color.fromARGB(255, 0, 77, 141)),
-                          ),
+                 
                                             SizedBox(height: 5,)
 
                 ],
@@ -1850,22 +2096,161 @@ Future<void> updatemsg(var orderId) async {
                             ],
                           ),
                           SizedBox(height: 4.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Family',
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                              Spacer(),
-                              Text(
-                                ord != null ? '${ord["family"]}' : 'Loading...',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
+                      if (dep != "BDM" && dep != "BDO")
+                         Row(
+  children: [
+    Text(
+      'Payment Method',
+      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+    ),
+    Spacer(),
+    GestureDetector(
+      onTap: () {
+        setState(() {
+          showPayStatusDropdown = !showPayStatusDropdown;
+        });
+      },
+      child: showPayStatusDropdown
+          ? Container(
+              width: 120,
+              child: DropdownButtonFormField<String>(
+                value: selectedPayStatus ?? (ord != null ? ord["payment_status"] : null),
+                items: paystatus.map((status) {
+                  return DropdownMenuItem<String>(
+                    value: status,
+                    child: Text(status),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedPayStatus = newValue;
+                    showPayStatusDropdown = false;
+                  });
+                  updateorderpay();
+                  // Call your update function here if needed
+                  // updateOrderPaymentStatus(newValue);
+                },
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                style: TextStyle(fontSize: 12, color: Colors.black),
+              ),
+            )
+          : Text(
+              ord != null ? '${ord["payment_status"]}' : 'Loading...',
+              style: TextStyle(fontSize: 12),
+            ),
+    ),
+  ],
+),
+if (dep != "BDM" && dep != "BDO")
+SizedBox(height: 4,),
+
+                    if (dep != "BDM" && dep != "BDO")
+                      Row(
+  children: [
+    Text(
+      'Family',
+      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+    ),
+    Spacer(),
+    GestureDetector(
+      onTap: () {
+        setState(() {
+          showFamilyDropdown = !showFamilyDropdown;
+        });
+      },
+      child: showFamilyDropdown
+          ? Container(
+              width: 120,
+              child: DropdownButtonFormField<String>(
+  value: selectedfamily ??
+      (ord != null ? ord["family_id"]?.toString() : null),
+  hint: Text(ord != null ? ord["family"] ?? "Select Family" : "Select Family"),
+  items: fam.map<DropdownMenuItem<String>>((Map<String, dynamic> item) {
+    return DropdownMenuItem<String>(
+      value: item['id'].toString(),
+      child: Text(item['name']),
+    );
+  }).toList(),
+  onChanged: (String? newValue) {
+    setState(() {
+      selectedfamily = newValue;
+      showFamilyDropdown = false;
+    });
+    updateorderfamily();
+  },
+  decoration: InputDecoration(
+    contentPadding: EdgeInsets.symmetric(horizontal: 8),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+  style: TextStyle(fontSize: 12, color: Colors.black),
+)
+
+            )
+          : Text(
+              ord != null ? ord["family"] ?? 'None' : 'Loading...',
+              style: TextStyle(fontSize: 12),
+            ),
+    ),
+  ],
+),                        
                           SizedBox(height: 4.0),
+
+                           Row(
+  children: [
+    Text(
+      'Company',
+      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+    ),
+    Spacer(),
+    GestureDetector(
+      onTap: () {
+        setState(() {
+          showCompanyDropdown = !showCompanyDropdown;
+        });
+      },
+      child: showCompanyDropdown
+          ? Container(
+              width: 140,
+              child: DropdownButtonFormField<String>(
+                value: selectedCompany ??
+                    (ord != null ? ord['company']['id'].toString() : null),
+                hint: Text(
+                    ord != null ? ord['company']['name'] ?? 'Select Company' : 'Select Company'),
+                items: company.map<DropdownMenuItem<String>>((companyItem) {
+                  return DropdownMenuItem<String>(
+                    value: companyItem['id'].toString(),
+                    child: Text(companyItem['name']),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedCompany = newValue;
+                    showCompanyDropdown = false;
+                  });
+                  updateordercompany(); // your function to handle update
+                },
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                style: TextStyle(fontSize: 12, color: Colors.black),
+              ),
+            )
+          : Text(
+              ord != null ? ord['company']['name'] ?? 'Select Company' : 'Loading...',
+              style: TextStyle(fontSize: 12),
+            ),
+    ),
+  ],
+)
+,
                           SizedBox(height: 4.0),
                           // if (ord != null && ord['shipping_mode'] != null)
                           //   Row(
@@ -2267,6 +2652,9 @@ Text(
                             fontSize: 16,
                           ),
                         ),
+                        Spacer(),
+                        Image.asset(
+                            height: 40, width: 40, 'lib/assets/money.png'),
                         Icon(
                           Icons.credit_card,
                           color: Colors.white,
@@ -2274,21 +2662,67 @@ Text(
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          ord != null ? ord["bank"]["name"] : 'Loading...',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            letterSpacing: 2,
+                    // Row(
+                    //   children: [
+                      
+
+
+                       
+                    //     Image.asset(
+                    //         height: 40, width: 40, 'lib/assets/money.png')
+                    //   ],
+                    // ),
+                      Container(
+                            width: MediaQuery.of(context).size.width * 0.85,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                showBankDropdown = !showBankDropdown;
+                              });
+                            },
+                            child: showBankDropdown
+                                ? Container(
+                                    width: 200,
+                                    child: DropdownButtonFormField<String>(
+                                      value: selectedBank ?? (ord != null ? ord["bank"]["id"].toString() : null),
+                                      items: bank.map((bankItem) {
+                                        return DropdownMenuItem<String>(
+                                          value: bankItem['id'].toString(),
+                                          child: Text(bankItem['name']),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          selectedBank = newValue;
+                                          showBankDropdown = false;
+                                        });
+                          updateorderbank();
+                                         },
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                        letterSpacing: 2,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    ord != null ? ord["bank"]["name"] : 'Loading...',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      letterSpacing: 2,
+                                    ),
+                                  ),
+                                                
                           ),
                         ),
-                        Spacer(),
-                        Image.asset(
-                            height: 40, width: 40, 'lib/assets/money.png')
-                      ],
-                    ),
                     SizedBox(height: 18),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,

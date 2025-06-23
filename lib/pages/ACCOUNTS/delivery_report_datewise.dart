@@ -89,7 +89,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
         },
       );
       List<Map<String, dynamic>> deliverylist = [];
-
+print(response.body);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];
@@ -108,6 +108,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
             'shipping_charge': productData['shipping_charge'],
             'tracking_id': productData['tracking_id'],
             'status': productData['status'],
+            'parcel_amount':productData['parcel_amount'],
           });
         }
         setState(() {
@@ -214,7 +215,7 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Shipping Charge: ₹${delivery['shipping_charge']}',
+                          'Amount: ₹${delivery['parcel_amount']}',
                           style: TextStyle(fontSize: 16),
                         ),
                       

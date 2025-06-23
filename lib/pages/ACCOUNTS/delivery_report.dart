@@ -372,8 +372,7 @@ else if(dep=="Warehouse Admin" ){
                               'Total Weight:', '${order['total_weight']} kg'),
                           _buildRow('Volume Weight:',
                               '${order['total_volume_weight']} kg'),
-                          _buildRow('Shipping Charge:',
-                              '₹${order['total_shipping_charge']}'),
+                          
                                 _buildRow('Total Actual Weight:',
                               '${order['total_actual_weight']} kg'),
                                 _buildRow('Total Parcel Amount:',

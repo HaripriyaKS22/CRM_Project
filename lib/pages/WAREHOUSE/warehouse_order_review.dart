@@ -1994,7 +1994,9 @@ Text(
                                 border: OutlineInputBorder(),
                                 contentPadding: EdgeInsets.symmetric(
                                     horizontal: 8.0, vertical: 8.0),
+                                    
                               ),
+                               keyboardType: TextInputType.number,
                             ),
                           ),
                         ],
