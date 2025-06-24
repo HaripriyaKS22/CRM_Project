@@ -61,15 +61,13 @@ void login(String email, String password, BuildContext context) async {
       Uri.parse(url),
       body: {"username": email, "password": password},
     );
-    print("response.bodyyyyyyyyyyyyyyyyyyyyy: ${response.body}");
-    print("response.statusCode: ${response.statusCode}");
+   
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var status = responseData['status'];
 
       if (status == 'success') {
         var token = responseData['token'];
-        print("token: $token");
         var active = responseData['active'];
         var name = responseData['name'];
         var warehouse = responseData['warehouse_id'] ?? 0; // Default to 0 if null
@@ -144,7 +142,6 @@ void login(String email, String password, BuildContext context) async {
       );
     }
   } catch (e) {
-    print("Error: $e");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(backgroundColor: Colors.red, content: Text('An error occurred. Please try again.')),
     );

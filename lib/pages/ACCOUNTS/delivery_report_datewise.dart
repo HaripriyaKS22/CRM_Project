@@ -89,7 +89,6 @@ class _DeliveryReportDatewiseState extends State<DeliveryReportDatewise> {
         },
       );
       List<Map<String, dynamic>> deliverylist = [];
-print(response.body);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         var productsData = parsed['data'];

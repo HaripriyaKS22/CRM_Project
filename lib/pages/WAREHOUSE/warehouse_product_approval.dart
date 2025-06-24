@@ -353,7 +353,6 @@ dep= await getdepFromPrefs();
           List<String> familyNames = (productData['family'] as List<dynamic>?)?.map((id) => id as int).map<String>((id) => fam.firstWhere(
               (famItem) => famItem['id'] == id,
               orElse: () => {'name': 'Unknown'})['name'] as String).toList() ?? [];
-print("Product Data: ${productData['variantIDs']}");
           // Add the product data to the list
           productList.add({
             'id': productData['id'],

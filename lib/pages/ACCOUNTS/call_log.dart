@@ -44,7 +44,6 @@ class _CallLogState extends State<CallLog> {
         _groupLogsByHour();
       });
     } catch (e) {
-      print('Error fetching call logs: $e');
     }
   }
 
@@ -54,10 +53,7 @@ class _CallLogState extends State<CallLog> {
   }
 
   void uploadcalllog(BuildContext context, call_log.CallLogEntry log, String billCount, {bool showSnackbar = true}) async {
-    print("startTimeeeeeeeeeeeeeeeeeeeeee: $_startTime");
-    print(DateFormat('yyyy-MM-dd HH:mm:ss').format(_startTime!));
-    print(DateFormat('yyyy-MM-dd HH:mm:ss').format(_endTime!));
-        print("endTimeeeeeeeeeeeeeeeeeee: $_endTime");
+  
 final formattedStartTime = _startTime != null
     ? DateFormat('yyyy-MM-dd HH:mm:ss').format(_startTime!)
     : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
@@ -66,8 +62,7 @@ final formattedEndTime = _endTime != null
     ? DateFormat('yyyy-MM-dd HH:mm:ss').format(_endTime!)
     : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
-print("Using formattedStartTime: $formattedStartTime");
-print("Using formattedEndTime: $formattedEndTime");
+
 
     final token = await gettokenFromPrefs();
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
@@ -92,8 +87,7 @@ print("Using formattedEndTime: $formattedEndTime");
           "bill_count": billCount.isNotEmpty ? billCount : "0",
         },
       );
-      print("response.bodyyyyyyyyyy: ${response.body}");
-      print("response.statusCode: ${response.statusCode}");
+   
 
       if (response.statusCode == 201 && showSnackbar) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -110,7 +104,7 @@ print("Using formattedEndTime: $formattedEndTime");
         _logsByHour.clear();
       }
     } catch (e) {
-      print('Error uploading call log: $e');
+     
       if (showSnackbar) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -316,7 +310,7 @@ print("Using formattedEndTime: $formattedEndTime");
                 ? ListView(
                     padding: EdgeInsets.all(10),
                     children: _logsByHour.entries.map((entry) {
-                     print("_logsByHourrrrrrrrrrrrrrrrrrrr: ${_logsByHour}");
+                  
                       return Card(
                         elevation: 4,
                         margin: EdgeInsets.symmetric(vertical: 8),

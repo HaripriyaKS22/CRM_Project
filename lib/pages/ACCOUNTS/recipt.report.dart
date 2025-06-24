@@ -160,7 +160,6 @@ class _recipt_ReportState extends State<recipt_Report> {
         );
       }
     } catch (error) {
-      ;
       
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

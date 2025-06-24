@@ -99,9 +99,7 @@ Future<void> getcustomer() async {
 
     final jwt = JWT.decode(token!);
     var name = jwt.payload['name'];
-    ;
-    ;
-
+    
 
     var response = await http.get(
       Uri.parse('$api/api/customers/'),

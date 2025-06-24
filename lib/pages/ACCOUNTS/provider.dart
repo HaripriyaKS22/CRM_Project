@@ -48,7 +48,6 @@ class counterModel extends ChangeNotifier {
         },
         body: {"name": department},
       );
-      print(response.body);
       if (response.statusCode == 201) {
         await fetchDepartments(); // Refresh the list after adding
         // Navigator.pop(context); // Remove or comment out this line
@@ -60,7 +59,6 @@ class counterModel extends ChangeNotifier {
         );
       }
     } catch (e) {
-      print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.red,

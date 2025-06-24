@@ -209,7 +209,6 @@ var allocatedstates;
         },
         body: jsonEncode(requestBody),
       );
-print(response.body);
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -2185,8 +2184,7 @@ if(dep=="BDM"){
                                       onChanged: (String? newValue) {
                                         setState(() {
                                           selectpaystatus = newValue!;
-                                          print(
-                                              "Selected Payment Status: $selectpaystatus");
+                                        
                                         });
                                       },
                                       items: paystatus

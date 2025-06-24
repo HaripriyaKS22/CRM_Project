@@ -551,7 +551,6 @@ Future<void> getexpenselist() async {
         orElse: () => {}, // Return an empty map instead of null
       );
       if (selectedExpense.isNotEmpty) {
-        print("Selected Expense::::::::::::: ${selectedExpense['category_id']}");
         setState(() {
           selectedCategoryId=selectedExpense['category_id'];
           transactionid.text = selectedExpense['transaction_id']?.toString() ?? '';
@@ -823,9 +822,7 @@ void updateexpense3() async {
           "quantity": quantity.text,
         },
       );
-print("Response status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
-      
+
 
       if (response.statusCode == 200) {
         Navigator.push(

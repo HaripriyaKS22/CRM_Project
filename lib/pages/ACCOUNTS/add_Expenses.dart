@@ -598,7 +598,6 @@ void addexpense() async {
 
   void addexpensetwo() async {
     final token = await gettokenFromPrefs();
-print('selectedtype: $selectedtype');
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? username = prefs.getString('username');
@@ -629,8 +628,7 @@ print('selectedtype: $selectedtype');
         },
       );
 
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+  
 
       if (response.statusCode == 200) {
         Navigator.push(
@@ -975,7 +973,6 @@ else if(dep=="Warehouse Admin" ){
                                           selectedtype = newValue;
                                          
                                         });
-                                         print("selectedtype: $selectedtype");
                                       }
                                     },
                                   ),

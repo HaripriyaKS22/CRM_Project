@@ -63,7 +63,6 @@ var selectedserviceId;
   @override
   void initState() {
     super.initState();
-  print("widget.idssdddddddddddddddddd: ${widget.id}");
     initData();
     getbank();
     getcourierservices();
@@ -143,8 +142,7 @@ var dep;
       );
         
         List<Map<String, dynamic>> familylist = [];
-print("Response status code: ${response.statusCode}");
-      print("Response body------------------: ${response.body}");
+
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
@@ -156,26 +154,23 @@ print("Response status code: ${response.statusCode}");
           familylist.add({
             'id': productData['id'],
             'name': productData['name'],
-            
-          });
-        
+          });  
         }
         setState(() {
           fam = familylist;
                   
-
-          
         });
       }
     } catch (error) {
       
     }
   }
-  
+  var balanceledger;
+  void calculatebalance(){
+    balanceledger=Balance-customerledgerreceived;
+  }
 Future<void> fetchCustomerLedgerDetails() async {
   try {
-    
-    
     final token = await getTokenFromPrefs();
     final response = await http.get(
       Uri.parse('$api/api/customer/${widget.customer}/ledger/'),
@@ -185,16 +180,18 @@ Future<void> fetchCustomerLedgerDetails() async {
       },
     );
 
-    
+   
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
-      final data = parsed['data'] as List;
+      final ledgerList = parsed['data']['ledger'] as List;
+      final advanceReceipts = parsed['data']['advance_receipts'] as List;
 
-      double totalAmountSum = 0;
-      double receivedPaymentSum = 0;
+      double totalAmountSum = 0.0;
+      double receivedPaymentSum = 0.0;
 
-      for (var order in data) {
+      // Sum total amount and received payments from ledger
+      for (var order in ledgerList) {
         totalAmountSum += (order['total_amount'] as num).toDouble();
 
         if (order['recived_payment'] != null) {
@@ -203,32 +200,32 @@ Future<void> fetchCustomerLedgerDetails() async {
           }
         }
       }
-      var dif;
-      if(receivedPaymentSum>totalAmountSum){
-         dif=receivedPaymentSum-totalAmountSum;
-         ledger=true;
-      }
-      else{
-         dif=totalAmountSum-receivedPaymentSum;
-         ledger=false;
-      }
-      setState(() {
 
+      // Add advance receipts to received total
+      for (var adv in advanceReceipts) {
+        receivedPaymentSum += double.tryParse(adv['amount'].toString()) ?? 0.0;
+      }
+      var dif;
+      if (receivedPaymentSum > totalAmountSum) {
+        dif = receivedPaymentSum - totalAmountSum;
+        ledger = true;
+      } else {
+        dif = totalAmountSum - receivedPaymentSum;
+        ledger = false;
+      }
+
+      setState(() {
         customerledgertotal = totalAmountSum;
         customerledgerreceived = receivedPaymentSum;
-        difference=dif;
-        
+        difference = dif;
       });
-
-    
-
+      calculatebalance();
     } else {
-      
     }
   } catch (error) {
-    ;
   }
 }
+
 
 void showParcelServiceDialog(BuildContext context, var id) {
   showDialog(
@@ -303,14 +300,7 @@ void _showShippingChargeDialog(BuildContext context, Map<String, dynamic> boxDet
           child: Column(
             children: [
               // Shipping Charge
-              TextField(
-                controller: shippingController,
-                decoration: InputDecoration(
-                  labelText: 'Shipping Charge',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
+             
               SizedBox(height: 10),
               // Actual Weight
               TextField(
@@ -366,13 +356,13 @@ void _showShippingChargeDialog(BuildContext context, Map<String, dynamic> boxDet
           ),
           ElevatedButton(
             onPressed: () {
-              if (shippingController.text.isNotEmpty &&
+              if (
                   actualWeightController.text.isNotEmpty &&
                   postOfficeAmountController.text.isNotEmpty &&
                   dateController.text.isNotEmpty) {
                 updateactualweight(
                   boxDetails['id'],
-                  double.parse(shippingController.text),
+                
                   double.parse(actualWeightController.text),
                   double.parse(postOfficeAmountController.text),
                   dateController.text, // Pass selected date
@@ -437,8 +427,6 @@ var selectedfamily;
 Future<void> updateboxstatus( var orderId) async {
   try {
     final token = await getTokenFromPrefs();
-
-;
     var response = await http.put(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
@@ -452,8 +440,7 @@ Future<void> updateboxstatus( var orderId) async {
         },
       ),
     );
-    ;
-    ;
+
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -638,8 +625,7 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
           },
         ),
       );
-      print("Response status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
+     
       if (response.statusCode == 200) {
      ScaffoldMessenger.of(context).showSnackBar(
   SnackBar(
@@ -673,7 +659,6 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
 
   Future<void> updateactualweight(
     var warehouseId,
-    double shippingController,
     double actualWeight,
     double postOfficeAmount,
     var selectedDate,
@@ -692,7 +677,6 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
         },
         body: jsonEncode(
           {
-            'shipping_charge': shippingController,
             'actual_weight': actualWeight,
             'parcel_amount': postOfficeAmount,
             'postoffice_date': selectedDate,
@@ -783,8 +767,6 @@ fetchOrderItems();
 Future<void> updateparcel(var parcel , var orderId) async {
   try {
     final token = await getTokenFromPrefs();
-
-
     var response = await http.put(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
@@ -797,8 +779,6 @@ Future<void> updateparcel(var parcel , var orderId) async {
         },
       ),
     );
-    ;
-    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -807,8 +787,6 @@ Future<void> updateparcel(var parcel , var orderId) async {
         ),
       );
 fetchOrderItems();
-
-
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -818,7 +796,6 @@ fetchOrderItems();
       );
     }
   } catch (error) {
-    ;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error updating '),
@@ -827,11 +804,10 @@ fetchOrderItems();
     );
   }
 }
+
 Future<void> updatetrackid(var track , var orderId) async {
   try {
     final token = await getTokenFromPrefs();
-
-
     var response = await http.put(
       Uri.parse('$api/api/warehouse/detail/$orderId/'),
       headers: {
@@ -844,8 +820,6 @@ Future<void> updatetrackid(var track , var orderId) async {
         },
       ),
     );
-    ;
-    ;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -890,8 +864,7 @@ fetchOrderItems();
       },
     );
 
-    print("Response status code: ${response.statusCode}");
-    print("Response body------------------: ${response.body}");
+   
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
@@ -909,11 +882,9 @@ fetchOrderItems();
 
       setState(() {
         company = companyList;
-        print("Company List:::::::::::::: $company");
       });
     }
   } catch (error) {
-    print("Error fetching company data: $error");
   }
 }
 
@@ -1202,8 +1173,8 @@ fetchOrderItems();
             ),
           );
         }
-      } catch (error) {
-        
+      } 
+      catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating profile'),
@@ -1232,8 +1203,7 @@ fetchOrderItems();
             },
           ),
         );
-        print("Response status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
+       
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1283,8 +1253,7 @@ fetchOrderItems();
             },
           ),
         );
-        print("Response status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
+       
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1334,8 +1303,6 @@ fetchOrderItems();
             },
           ),
         );
-        print("Response status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1385,8 +1352,6 @@ fetchOrderItems();
             },
           ),
         );
-        print("Response status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1618,17 +1583,14 @@ Future<void> deletebox( var orderId) async {
         'Content-Type': 'application/json',
       },
     );
-    print("Response status code: ${response.statusCode}");
-    print("Response bodyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy: ${response.body}");
-
+   
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
       ord = parsed['order'] ?? {};
 codamount.text = ord['cod_amount']?.toString() ?? '';
       shippingmethod.text = ord['shipping_mode'] ?? '';
-print("paymentttttttttttttttttttttttttttt${ord['payment_status']}");
-print("itemmmmmmmmmmmmmmmmmmm${ord['items']}");
+
 
       List<dynamic> itemsData = parsed['items'] ?? [];
       List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
@@ -1665,9 +1627,10 @@ print("itemmmmmmmmmmmmmmmmmmm${ord['items']}");
 
       
         calculatedTotalTax += (price_discount - excludePrice)* quantity;
-          calculatedNetAmount += excludePrice* quantity;
+        calculatedNetAmount += excludePrice* quantity;
         calculatedTotalDiscount += discount * quantity;
         calculatedPayableAmount += price* quantity;
+
       }
 
       // Process each warehouse item
@@ -1696,14 +1659,15 @@ print("itemmmmmmmmmmmmmmmmmmm${ord['items']}");
 
       for (var receipt in parsed['order']['recived_payment'] ?? []) {
         paymentReceiptsSum += double.tryParse(receipt['amount'].toString()) ?? 0.0;
-        ;
+        
       }
-;
+
 double remainingAmount;
 if(calculatedNetAmount>paymentReceiptsSum){
        remainingAmount = (calculatedNetAmount+calculatedTotalTax) - paymentReceiptsSum;
      
 }
+
 else{
   remainingAmount=paymentReceiptsSum-calculatedNetAmount;
 }
@@ -1719,6 +1683,7 @@ else{
         paymentreceipt=remainingAmount;
       });
 
+// fetchCustomerLedgerDetails();
     } else {
       
     }
@@ -1916,7 +1881,7 @@ Future<void> updatemsg(var orderId) async {
     );
     if (picked != null) {
       updateshippeddate( picked, orderId);
-      ;
+      
     }
   }
     void _showDatePicker2(BuildContext context, int orderId) async {
@@ -1928,7 +1893,7 @@ Future<void> updatemsg(var orderId) async {
     );
     if (picked != null) {
       updateorderdate( picked);
-      ;
+      
     }
   }
 
@@ -2252,6 +2217,7 @@ SizedBox(height: 4,),
 )
 ,
                           SizedBox(height: 4.0),
+                          
                           // if (ord != null && ord['shipping_mode'] != null)
                           //   Row(
                           //     children: [
@@ -3019,10 +2985,11 @@ Text(
                                     fontSize: 12, fontWeight: FontWeight.w600),
                               ),
                               Text(
-                               
-                                    '${Balance.toStringAsFixed(2)}',
-                                style: TextStyle(color: Colors.green),
-                              )
+                                ledger
+                                ?
+                                    "0.0"
+                                    :'${Balance.toStringAsFixed(2)}',
+                                style: TextStyle(color: Colors.green), )
                             ],
                           ),
                           SizedBox(height: 4.0),

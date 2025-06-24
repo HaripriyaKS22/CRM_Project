@@ -373,7 +373,6 @@ class _PerformaInvoice_BigView_ListState
 
 // Fetch performa list data and map state ID to state name
   Future<void> fetchperformalistData() async {
-    print("fetchperformalistData called with invoice: ${widget.invoice}");
     try {
       final token = await getTokenFromPrefs();
       final response = await http.get(
@@ -383,8 +382,7 @@ class _PerformaInvoice_BigView_ListState
           'Content-Type': 'application/json',
         },
       );
-      print("Response status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
+    
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
 

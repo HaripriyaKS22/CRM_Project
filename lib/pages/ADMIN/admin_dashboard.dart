@@ -500,14 +500,14 @@ int grvcount=0;
                 'Add Recipt',
                 'Recipt List',
               ]),
-              // ListTile(
-              //   leading: Icon(Icons.dashboard),
-              //   title: Text('Call Report'),
-              //   onTap: () {
-              //     Navigator.push(context,
-              //         MaterialPageRoute(builder: (context) => CallLog()));
-              //   },
-              // ),
+              ListTile(
+                leading: Icon(Icons.dashboard),
+                title: Text('Call Report'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => CallLog()));
+                },
+              ),
               _buildDropdownTile(context, 'Proforma Invoice', [
                 'New Proforma Invoice',
                 'Proforma Invoice List',

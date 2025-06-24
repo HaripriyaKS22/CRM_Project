@@ -119,7 +119,6 @@ void logout() async {
         body: {"name": name.text},
       );
 
-      print(response.body);
 
       if (response.statusCode == 201) {
         var responseData = jsonDecode(response.body);

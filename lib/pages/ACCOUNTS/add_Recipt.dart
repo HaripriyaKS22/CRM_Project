@@ -51,7 +51,9 @@ class _add_receiptState extends State<add_receipt> {
   DateTime selectedDate = DateTime.now();
   String? selectedInvoiceId; // Variable to store the selected invoice ID
   String? selectedBankId; // Variable to store the selected bank ID
-
+// Add this variable to your _add_receiptState class:
+String? selectedReceiptType;
+final List<String> receiptTypes = ['Order Receipt', 'Advance receipt', 'other Receipt'];
   Future<String?> gettoken() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     return pref.getString('token');
@@ -62,6 +64,7 @@ class _add_receiptState extends State<add_receipt> {
     super.initState();
     fetchOrderData();
     getbank();
+ getcustomer();
     // getNameFromJWT(); // Fetch the name from JWT
   }
 
@@ -69,6 +72,53 @@ class _add_receiptState extends State<add_receipt> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
+  List<Map<String, dynamic>> customer = [];
+String? selectedCustomerId;
+  Future<void> getcustomer() async {
+  try {
+    final dep = await getdepFromPrefs();
+    final token = await getTokenFromPrefs();
+
+    final jwt = JWT.decode(token!);
+    var name = jwt.payload['name'];
+    
+
+    var response = await http.get(
+      Uri.parse('$api/api/customers/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    ;
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      var productsData = parsed['data']; // Directly accessing 'data' since no pagination
+
+      List<Map<String, dynamic>> newCustomers = [];
+
+      for (var productData in productsData) {
+        newCustomers.add({
+          'id': productData['id'],
+          'name': productData['name'],
+          'created_at': productData['created_at'],
+        });
+      }
+
+      // Update UI
+      setState(() {
+        customer = newCustomers;
+        
+      });
+    } else {
+      throw Exception("Failed to load customer data");
+    }
+  } catch (error) {
+    ;
+  }
+}
 
   Future<void> fetchOrderData() async {
     try {
@@ -87,10 +137,7 @@ class _add_receiptState extends State<add_receipt> {
         },
       );
 
-      ;
-      ;
-      ;
-
+  
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         final List ordersData = responseData['results'];
@@ -144,7 +191,7 @@ class _add_receiptState extends State<add_receipt> {
         });
       }
     } catch (e) {
-      ;
+      
     }
   }
 
@@ -156,7 +203,7 @@ class _add_receiptState extends State<add_receipt> {
       final token = await getTokenFromPrefs();
       final jwt = JWT.decode(token!);
       var name = jwt.payload['name'];
-      ;
+    
 
       // Format the selectedDate as a string
       String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
@@ -175,7 +222,6 @@ class _add_receiptState extends State<add_receipt> {
             'created_by': name,
             'remark': Remark.text
           }));
-print(response.body);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -185,7 +231,9 @@ print(response.body);
         );
 
         Navigator.push(context, MaterialPageRoute(builder: (context)=>add_receipt()));
-      } else {
+      } 
+      else 
+      {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
             backgroundColor: Colors.red,
@@ -194,9 +242,110 @@ print(response.body);
         );
       }
     } catch (e) {
-      ;
+      
     }
   }
+
+  Future<void> AddReceipt2(
+    BuildContext scaffoldContext,
+  ) async {
+    final token = await gettoken();
+    try {
+      final token = await getTokenFromPrefs();
+      final jwt = JWT.decode(token!);
+      var name = jwt.payload['name'];
+    
+
+      // Format the selectedDate as a string
+      String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+      final response = await http.post(
+          Uri.parse('$api/api/advancereceipt/'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'customer': selectedCustomerId,
+            'amount': amount.text,
+            'bank': selectedBankId,
+            'transactionID': transactionid.text,
+            'received_at': formattedDate, // Use the formatted date string
+            'remark': Remark.text
+          }));
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Receipt added Successfully.'),
+          ),
+        );
+
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>add_receipt()));
+      } 
+      else 
+      {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Adding receipt failed.'),
+          ),
+        );
+      }
+    } catch (e) {
+      
+    }
+  }
+Future<void> AddReceipt3(
+    BuildContext scaffoldContext,
+  ) async {
+    final token = await gettoken();
+    try {
+      final token = await getTokenFromPrefs();
+      final jwt = JWT.decode(token!);
+      var name = jwt.payload['name'];
+    
+
+      // Format the selectedDate as a string
+      String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+      final response = await http.post(
+          Uri.parse('$api/api/bank-receipts/'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'amount': amount.text,
+            'bank': selectedBankId,
+            'transactionID': transactionid.text,
+            'received_at': formattedDate, // Use the formatted date string
+            'remark': Remark.text
+          }));
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Receipt added Successfully.'),
+          ),
+        );
+
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>add_receipt()));
+      } 
+      else 
+      {
+        ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Adding receipt failed.'),
+          ),
+        );
+      }
+    } catch (e) {
+      
+    }
+  }
+
 
   void logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -390,12 +539,57 @@ else if(dep=="Warehouse Admin" ){
                           SizedBox(
                             height: 10,
                           ),
+  Text(
+        "Receipt Type",
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+      ),
+      SizedBox(height: 5),
+      Padding(
+        padding: const EdgeInsets.only(right: 10),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: DropdownButton<String>(
+            isExpanded: true,
+            value: selectedReceiptType,
+            hint: Text(
+              'Select Receipt Type',
+              style: TextStyle(fontSize: 12.0),
+            ),
+             items: receiptTypes.map((type) {
+              return DropdownMenuItem<String>(
+                value: type,
+                child: Text(
+                  type,
+                  style: TextStyle(fontSize: 12.0),
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedReceiptType = value;
+              });
+            },
+            underline: SizedBox(),
+          ),
+        ),
+      ),
+
+      SizedBox(height: 10),
+
+
+                      if(selectedReceiptType =='Order Receipt') 
                           Text(
                             "Select Invoice",
                             style: TextStyle(
                                 fontSize: 12, fontWeight: FontWeight.bold),
                           ),
+                          if(selectedReceiptType =='Order Receipt') 
                           SizedBox(height: 5),
+                          if(selectedReceiptType =='Order Receipt')
                           Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: Container(
@@ -425,15 +619,59 @@ else if(dep=="Warehouse Admin" ){
                                     selectedInvoiceId =
                                         value; // Store the selected invoice ID
       
-                                        ;
+                                        
                                   });
                                 },
                                 underline: SizedBox(),
                               ),
                             ),
                           ),
+
+                        if(selectedReceiptType =='Advance receipt')
+                          Text(
+                              "Select Customer",
+                              style: TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            if(selectedReceiptType =='Advance receipt')
+                            SizedBox(height: 5),
+                            if(selectedReceiptType =='Advance receipt')
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: DropdownButton<String>(
+                                  isExpanded: true,
+                                  value: selectedCustomerId,
+                                  hint: Text(
+                                    'Select Customer',
+                                    style: TextStyle(fontSize: 12.0),
+                                  ),
+
+  items: customer.map((cust) {
+                                    return DropdownMenuItem<String>(
+                                      value: cust['id'].toString(),
+                                      child: Text(
+                                        cust['name'],
+                                        style: TextStyle(fontSize: 12.0),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedCustomerId = value;
+                                    });
+                                  },
+                                  underline: SizedBox(),
+                                ),
+                              ),
+                            ),
                           SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Text(
                             "Amount",
@@ -657,7 +895,14 @@ else if(dep=="Warehouse Admin" ){
                                   width: 270,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                       AddReceipt(context);
+                                      if(selectedReceiptType=='Order Receipt'){
+                                       AddReceipt(context);}
+                                        else if(selectedReceiptType=='Advance receipt'){
+                                          AddReceipt2(context);
+                                        }
+                                        else if(selectedReceiptType=='other Receipt'){
+                                          AddReceipt3(context);
+                                        }
                                     },
                                     style: ButtonStyle(
                                       backgroundColor:

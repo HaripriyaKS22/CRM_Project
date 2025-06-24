@@ -534,14 +534,14 @@ int grvcount=0;
                   // Navigate to the Settings page or perform any other action
                 },
               ),
-              //  ListTile(
-              //   leading: Icon(Icons.dashboard),
-              //   title: Text('Call Report'),
-              //   onTap: () {
-              //     Navigator.push(context,
-              //         MaterialPageRoute(builder: (context) => CallLog()));
-              //   },
-              // ),
+               ListTile(
+                leading: Icon(Icons.dashboard),
+                title: Text('Call Report'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => CallLog()));
+                },
+              ),
               ListTile(
                 leading: Icon(Icons.person), 
                 title: Text('Approve Products'),

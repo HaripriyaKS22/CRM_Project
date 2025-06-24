@@ -54,7 +54,6 @@ var dep;
           'Content-Type': 'application/json',
         },
       );
-print(response.body);
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);
         final List<dynamic> cartsData = parsed['data'];
@@ -150,7 +149,6 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
 
   Future<void> updatecartdetails(
       int id, int quantity, String description, double discount,editedprice) async {
-        print(editedprice);
     try {
       final token = await getTokenFromPrefs();
       final response = await http.put(
@@ -166,9 +164,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         }),
       );
 
-      print(response.body);
-      print(response.statusCode);
-
+     
       if (response.statusCode == 200) {
         fetchCartData();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -178,7 +174,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           ),
         );
       } else {
-        print(response.body);
+    
         throw Exception('Failed to update cart item');
       }
     } catch (error) {
@@ -194,7 +190,6 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
   Future<void> updateprice(
       var id,  var
       editedprice) async {
-        print(editedprice);
     try {
       final token = await getTokenFromPrefs();
       final response = await http.put(
@@ -208,8 +203,7 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
         }),
       );
 
-      print("response.body-----------------------price: ${response.body}");
-      print("response.statusCode: ${response.statusCode}");
+    
 
       if (response.statusCode == 200) {
         fetchCartData();
@@ -220,7 +214,6 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
           ),
         );
       } else {
-        print(response.body);
         throw Exception('Failed to update cart item');
       }
     } catch (error) {

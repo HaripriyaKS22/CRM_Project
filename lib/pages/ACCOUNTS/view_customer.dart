@@ -123,8 +123,7 @@ class _view_customerState extends State<view_customer> {
           'comment': comment,
         }),
       );
-print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
+
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
 
@@ -167,8 +166,6 @@ print("Response status: ${response.statusCode}");
 
       List<Map<String, dynamic>> managerlist = [];
 
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final parsed = jsonDecode(response.body);

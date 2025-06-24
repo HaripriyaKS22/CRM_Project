@@ -141,29 +141,26 @@ Future<void> fetchCustomerLedgerDetails() async {
         'Content-Type': 'application/json',
       },
     );
-    
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
-      final data = parsed['data'] as List;
+      final ledgerData = parsed['data']['ledger'] as List;
+      final advanceReceipts = parsed['data']['advance_receipts'] as List;
 
       List<Map<String, dynamic>> entries = [];
       double debitSum = 0.0;
       double creditSum = 0.0;
 
-      
-
-      for (var entry in data) {
+      // Handle Ledger Entries
+      for (var entry in ledgerData) {
         double? debitAmount = entry['total_amount'];
         debitSum += debitAmount ?? 0.0;
 
-        // Find the company name based on the company ID
         String companyName = companyList.firstWhere(
           (comp) => comp['name'] == entry['company'],
           orElse: () => {'name': 'Unknown Company'},
         )['name'];
 
-    
         entries.add({
           'date': entry['order_date'],
           'invoice': '${entry['invoice']}/$companyName',
@@ -174,12 +171,10 @@ Future<void> fetchCustomerLedgerDetails() async {
           'isFirstOfOrder': true,
         });
 
-        // Safely handle `recived_payment`
         var receivedPayments = entry['recived_payment'] as List<dynamic>? ?? [];
         for (var receipt in receivedPayments) {
-          double creditAmount = double.parse(receipt['amount']);
+          double creditAmount = double.tryParse(receipt['amount'].toString()) ?? 0.0;
           creditSum += creditAmount;
-
 
           entries.add({
             'date': receipt['received_at'],
@@ -193,20 +188,32 @@ Future<void> fetchCustomerLedgerDetails() async {
         }
       }
 
+      // Handle Advance Receipts
+      for (var adv in advanceReceipts) {
+        double creditAmount = double.tryParse(adv['amount'].toString()) ?? 0.0;
+        creditSum += creditAmount;
+
+        entries.add({
+          'date': adv['received_at'],
+          'invoice': 'Advance Receipt',
+          'company': '',
+          'particular': 'Advance Payment',
+          'debit': null,
+          'credit': creditAmount,
+          'isFirstOfOrder': false,
+        });
+      }
+
+      // Update state
       setState(() {
         ledgerEntries = entries;
         filteredEntries = entries;
         totalDebit = debitSum;
         totalCredit = creditSum;
       });
-
-      
-      
     } else {
-      
     }
   } catch (error) {
-    
   }
 }
 
@@ -279,15 +286,17 @@ Future<void> fetchCustomerLedgerDetails() async {
       totalDebit.toStringAsFixed(2),
       totalCredit.toStringAsFixed(2),
     ]);
+    if(totalCredit>totalDebit){
     sheetObject.appendRow([
       'Closing Balance',
       '',
       '',
       '',
-      (totalDebit - totalCredit).toStringAsFixed(2),
-      '',
+       '',
+      (totalCredit - totalDebit).toStringAsFixed(2),
+     
     ]);
-
+    }
     final tempDir = await getTemporaryDirectory();
     final tempPath = "${tempDir.path}/customer_ledger_preview.xlsx";
     final tempFile = File(tempPath);
@@ -682,24 +691,43 @@ Future<pw.Document> createInvoice() async {
                                             fontWeight: FontWeight.bold,
                                             color: Colors.green.shade800))),
                                   ]);
-                                } else {
-                                  return DataRow(cells: [
-                                    DataCell(Text('Closing Balance',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.deepOrangeAccent))),
-                                    DataCell(Text('')),
-                                    DataCell(Text('')),
-                                    DataCell(Text('')),
-                                    DataCell(Text(
-                                        (totalDebit - totalCredit)
-                                            .toStringAsFixed(2),
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.deepOrangeAccent))),
-                                    DataCell(Text('')),
-                                  ]);
-                                }
+                                }// ...existing code...
+else {
+  final closingBalance = (totalDebit - totalCredit).abs();
+  final isCredit = totalCredit > totalDebit;
+  return DataRow(cells: [
+    DataCell(Text('Closing Balance',
+        style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.deepOrangeAccent))),
+    DataCell(Text('')),
+    DataCell(Text('')),
+    DataCell(Text('')),
+    DataCell(
+      isCredit
+          ? Text('',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 249, 31, 31)))
+          : Text(
+              closingBalance.toStringAsFixed(2),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 252, 40, 40)))),
+    DataCell(
+      isCredit
+          ? Text(
+              closingBalance.toStringAsFixed(2),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 0, 184, 25)))
+          : Text('',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 1, 198, 11)))),
+  ]);
+}
+// ...existing code...
                               });
                             }(),
                           )
