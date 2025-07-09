@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/add_services.dart';
-import 'package:beposoft/pages/ACCOUNTS/call_log.dart';
+// import 'package:beposoft/pages/ACCOUNTS/call_log.dart';
 import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/BDO/bdo_customer_list.dart';
@@ -392,11 +392,11 @@ Future<void> getcustomer() async {
 
  void logout(BuildContext context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
-  await prefs.remove('username');
-  await prefs.remove('department');
-  await prefs.remove('warehouse');
+  // await prefs.remove('userId');
+  // await prefs.remove('token');
+  // await prefs.remove('username');
+  // await prefs.remove('department');
+  // await prefs.remove('warehouse');
   await Future.delayed(Duration(milliseconds: 100));
   Navigator.pushReplacement(
     context,
@@ -473,14 +473,14 @@ Future<void> getcustomer() async {
                       MaterialPageRoute(builder: (context) => bdo_dashbord()));
                 },
               ),
-              ListTile(
-                leading: Icon(Icons.dashboard),
-                title: Text('Call Report'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => CallLog()));
-                },
-              ),
+              // ListTile(
+              //   leading: Icon(Icons.dashboard),
+              //   title: Text('Call Report'),
+              //   onTap: () {
+              //     Navigator.push(context,
+              //         MaterialPageRoute(builder: (context) => CallLog()));
+              //   },
+              // ),
               
               Divider(),
               _buildDropdownTile(context, 'Customers', [

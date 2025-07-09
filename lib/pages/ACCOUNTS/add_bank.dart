@@ -8,6 +8,7 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_bank.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -201,7 +202,7 @@ Future<String?> getdepFromPrefs() async {
                     builder: (context) =>
                         bdo_dashbord()), // Replace AnotherPage with your target page
               );
-            } else if (dep == "BDM") {
+            }  else if (dep == "BDM") {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -209,6 +210,13 @@ Future<String?> getdepFromPrefs() async {
                         bdm_dashbord()), // Replace AnotherPage with your target page
               );
             }
+
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
 
             else if (dep == "ADMIN") {
               Navigator.pushReplacement(
@@ -467,7 +475,7 @@ SizedBox(height: 15),
  ),
           SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.only(right: 15,left: 15),
+            padding: const EdgeInsets.only(right: 15,left: 15,bottom: 55),
             child: Container(
               color: Colors.white,
               child: Table(

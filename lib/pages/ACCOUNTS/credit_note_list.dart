@@ -3,6 +3,7 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -127,7 +128,7 @@ leading: IconButton(
                     builder: (context) =>
                         bdo_dashbord()), // Replace AnotherPage with your target page
               );
-            } else if (dep == "BDM") {
+            }  else if (dep == "BDM") {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -135,6 +136,13 @@ leading: IconButton(
                         bdm_dashbord()), // Replace AnotherPage with your target page
               );
             }
+
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
 
             else if (dep == "ADMIN") {
               Navigator.pushReplacement(

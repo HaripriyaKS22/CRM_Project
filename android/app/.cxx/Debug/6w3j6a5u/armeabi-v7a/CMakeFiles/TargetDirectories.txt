@@ -1,0 +1,2 @@
+C:/Users/HP/Downloads/beposoft 01-7-2025/beposoft/android/app/.cxx/Debug/6w3j6a5u/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/HP/Downloads/beposoft 01-7-2025/beposoft/android/app/.cxx/Debug/6w3j6a5u/armeabi-v7a/CMakeFiles/rebuild_cache.dir

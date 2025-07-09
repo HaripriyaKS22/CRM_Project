@@ -507,7 +507,7 @@ class _PerformaInvoice_BigView_ListState
                             children: [
                               IconButton(
       onPressed: () async {
-        final Uri url = Uri.parse('$api/invoice//');
+        final Uri url = Uri.parse('$api/performainvoice/${order['invoice']}/');
 
         if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
           // Handle error case

@@ -6,7 +6,9 @@ import 'package:beposoft/pages/ACCOUNTS/add_new_customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_new_stock.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_staff.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
+import 'package:beposoft/pages/ACCOUNTS/advance_receipt_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/bank_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/bankrecipt_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/codsales_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/credit_note_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/creditsale_report.dart';
@@ -23,6 +25,7 @@ import 'package:beposoft/pages/ACCOUNTS/new_performa_products.dart';
 import 'package:beposoft/pages/ACCOUNTS/new_product.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_products.dart';
+import 'package:beposoft/pages/ACCOUNTS/order_recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/performa_invoice_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/post_office_report.dart';
 import 'package:beposoft/pages/ACCOUNTS/product_list.dart';
@@ -106,6 +109,28 @@ class drower{
           MaterialPageRoute(builder: (context) => recipt_Report()),
         );
         break;
+        case 'Bank Recipt':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => bank_recipt_Report()),
+        );
+        break;
+
+        case 'Advance Recipt':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => advance_recipt_Report()),
+        );
+        break;
+
+        case 'Order Recipt':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => order_recipt_Report()),
+        );
+        break;
+
+
       case 'New Proforma Invoice':
         Navigator.push(
           context,

@@ -181,9 +181,8 @@ class _view_customerState extends State<view_customer> {
         address.text = productsData['address'] ?? '';
         zipcode.text = productsData['zip_code'].toString() ?? '';
         city.text = productsData['city'] ?? '';
-        selectstate = statess.firstWhere(
-            (state) => state['id'] == productsData['state'],
-            orElse: () => {'name': ''})['name']; // Set selectstate
+        selectstate = productsData['state'] ?? '';
+         //   print("Selected State: $selectstate");print("Selected State ID: ${productsData['state']}");
         selectedManagerName = productsData['manager'];
            
         getstates();

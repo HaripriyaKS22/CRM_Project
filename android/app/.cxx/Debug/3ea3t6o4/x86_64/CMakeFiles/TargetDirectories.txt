@@ -1,0 +1,2 @@
+D:/Downloads/beposoft 01-7-2025/beposoft/android/app/.cxx/Debug/3ea3t6o4/x86_64/CMakeFiles/edit_cache.dir
+D:/Downloads/beposoft 01-7-2025/beposoft/android/app/.cxx/Debug/3ea3t6o4/x86_64/CMakeFiles/rebuild_cache.dir

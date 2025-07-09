@@ -53,8 +53,8 @@ class _HrDashboardState extends State<HrDashboard> {
 
   void logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userId');
-    await prefs.remove('token');
+    // await prefs.remove('userId');
+    // await prefs.remove('token');
 
     // Show the SnackBar
     ScaffoldMessenger.of(context).showSnackBar(

@@ -17,8 +17,10 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/navigateback.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_customer.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/MARKETING/marketing_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
@@ -109,7 +111,6 @@ Future<void> getcustomer() async {
       },
     );
 
-    ;
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -197,6 +198,19 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Marketing" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => marketing_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -254,7 +268,18 @@ else if(dep=="Warehouse Admin" ){
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
 }
-              
+        else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Marketing" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => marketing_dashboard()), // Replace AnotherPage with your target page
+            );
+}      
               else {
                 Navigator.pushReplacement(
                   context,

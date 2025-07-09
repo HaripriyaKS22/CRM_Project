@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:beposoft/loginpage.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:intl/intl.dart';
@@ -414,6 +415,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -465,6 +473,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -488,154 +503,110 @@ else if(dep=="Warehouse Admin" ){
           ],
         ),
         body: SingleChildScrollView(
-            child: Container(
-          child: Column(
-            children: [
-              SizedBox(
-                height: 15,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10, top: 10, left: 10),
-                child: Container(
-                  width: 600,
-                  decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 34, 165, 246),
-                    border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Add Receipt",
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-                      SizedBox(
-                        height: 13,
-                      ),
-                    ],
-                  ),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom:55),
+              child: Container(
+                        child: Column(
+              children: [
+                SizedBox(
+                  height: 15,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 25, left: 15, right: 15),
-                child: Container(
+                Padding(
+                  padding: const EdgeInsets.only(right: 10, top: 10, left: 10),
+                  child: Container(
+                    width: 600,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10.0),
-                      border:
-                          Border.all(color: Color.fromARGB(255, 202, 202, 202)),
+                      color: Color.fromARGB(255, 34, 165, 246),
+                      border: Border.all(color: Color.fromARGB(255, 202, 202, 202)),
                     ),
-                    width: 700,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 10,
-                          ),
-  Text(
-        "Receipt Type",
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-      ),
-      SizedBox(height: 5),
-      Padding(
-        padding: const EdgeInsets.only(right: 10),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: DropdownButton<String>(
-            isExpanded: true,
-            value: selectedReceiptType,
-            hint: Text(
-              'Select Receipt Type',
-              style: TextStyle(fontSize: 12.0),
-            ),
-             items: receiptTypes.map((type) {
-              return DropdownMenuItem<String>(
-                value: type,
-                child: Text(
-                  type,
-                  style: TextStyle(fontSize: 12.0),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "Add Receipt",
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
+                        SizedBox(
+                          height: 13,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedReceiptType = value;
-              });
-            },
-            underline: SizedBox(),
-          ),
-        ),
-      ),
-
-      SizedBox(height: 10),
-
-
-                      if(selectedReceiptType =='Order Receipt') 
-                          Text(
-                            "Select Invoice",
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          if(selectedReceiptType =='Order Receipt') 
-                          SizedBox(height: 5),
-                          if(selectedReceiptType =='Order Receipt')
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                value: selectedInvoiceId,
-                                hint: Text(
-                                  'Select Invoice',
-                                  style: TextStyle(fontSize: 12.0),
-                                ),
-                                items: orders.map((order) {
-                                  return DropdownMenuItem<String>(
-                                    value: order['id'].toString(),
-                                    child: Text(
-                                      '${order['invoice']} - ${order['customer']}',
-                                      style: TextStyle(fontSize: 12.0),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedInvoiceId =
-                                        value; // Store the selected invoice ID
-      
-                                        
-                                  });
-                                },
-                                underline: SizedBox(),
-                              ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 25, left: 15, right: 15),
+                  child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        border:
+                            Border.all(color: Color.fromARGB(255, 202, 202, 202)),
+                      ),
+                      width: 700,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 10,
                             ),
-                          ),
-
-                        if(selectedReceiptType =='Advance receipt')
-                          Text(
-                              "Select Customer",
+                Text(
+                      "Receipt Type",
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 5),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: DropdownButton<String>(
+              isExpanded: true,
+              value: selectedReceiptType,
+              hint: Text(
+                'Select Receipt Type',
+                style: TextStyle(fontSize: 12.0),
+              ),
+               items: receiptTypes.map((type) {
+                return DropdownMenuItem<String>(
+                  value: type,
+                  child: Text(
+                    type,
+                    style: TextStyle(fontSize: 12.0),
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedReceiptType = value;
+                });
+              },
+              underline: SizedBox(),
+                        ),
+                      ),
+                    ),
+              
+                    SizedBox(height: 10),
+              
+              
+                        if(selectedReceiptType =='Order Receipt') 
+                            Text(
+                              "Select Invoice",
                               style: TextStyle(
                                   fontSize: 12, fontWeight: FontWeight.bold),
                             ),
-                            if(selectedReceiptType =='Advance receipt')
+                            if(selectedReceiptType =='Order Receipt') 
                             SizedBox(height: 5),
-                            if(selectedReceiptType =='Advance receipt')
+                            if(selectedReceiptType =='Order Receipt')
                             Padding(
                               padding: const EdgeInsets.only(right: 10),
                               child: Container(
@@ -646,296 +617,344 @@ else if(dep=="Warehouse Admin" ){
                                 ),
                                 child: DropdownButton<String>(
                                   isExpanded: true,
-                                  value: selectedCustomerId,
+                                  value: selectedInvoiceId,
                                   hint: Text(
-                                    'Select Customer',
+                                    'Select Invoice',
                                     style: TextStyle(fontSize: 12.0),
                                   ),
-
-  items: customer.map((cust) {
+                                  items: orders.map((order) {
                                     return DropdownMenuItem<String>(
-                                      value: cust['id'].toString(),
+                                      value: order['id'].toString(),
                                       child: Text(
-                                        cust['name'],
+                                        '${order['invoice']} - ${order['customer']}',
                                         style: TextStyle(fontSize: 12.0),
                                       ),
                                     );
                                   }).toList(),
                                   onChanged: (value) {
                                     setState(() {
-                                      selectedCustomerId = value;
+                                      selectedInvoiceId =
+                                          value; // Store the selected invoice ID
+                    
+                                          
                                     });
                                   },
                                   underline: SizedBox(),
                                 ),
                               ),
                             ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            "Amount",
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                              child: TextField(
-                                controller: amount,
-                                decoration: InputDecoration(
-                                  labelText: 'Amount',
-                                  labelStyle: TextStyle(
-                                    fontSize: 12.0, // Set your desired font size
-                                  ),
-                                  border: OutlineInputBorder(
+              
+                          if(selectedReceiptType =='Advance receipt')
+                            Text(
+                                "Select Customer",
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              if(selectedReceiptType =='Advance receipt')
+                              SizedBox(height: 5),
+                              if(selectedReceiptType =='Advance receipt')
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
                                     borderRadius: BorderRadius.circular(10.0),
-                                    borderSide: BorderSide(color: Colors.grey),
                                   ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 8.0), // Set vertical padding
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "Transaction Id",
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                              child: TextField(
-                                controller: transactionid,
-                                decoration: InputDecoration(
-                                  labelText: 'Transaction Id',
-                                  labelStyle: TextStyle(
-                                    fontSize: 12.0, // Set your desired font size
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    borderSide: BorderSide(color: Colors.grey),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 8.0), // Set vertical padding
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "Bank",
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 5),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                value: selectedBankId,
-                                hint: Text(
-                                  'Select Bank',
-                                  style: TextStyle(fontSize: 12.0),
-                                ),
-                                items: bank.map((bankItem) {
-                                  return DropdownMenuItem<String>(
-                                    value: bankItem['id'].toString(),
-                                    child: Text(
-                                      '${bankItem['name']}',
+                                  child: DropdownButton<String>(
+                                    isExpanded: true,
+                                    value: selectedCustomerId,
+                                    hint: Text(
+                                      'Select Customer',
                                       style: TextStyle(fontSize: 12.0),
                                     ),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedBankId = value; // Store the selected bank ID
-                                    ;
-                                  });
-                                },
-                                underline: SizedBox(),
+              
+                items: customer.map((cust) {
+                                      return DropdownMenuItem<String>(
+                                        value: cust['id'].toString(),
+                                        child: Text(
+                                          cust['name'],
+                                          style: TextStyle(fontSize: 12.0),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedCustomerId = value;
+                                      });
+                                    },
+                                    underline: SizedBox(),
+                                  ),
+                                ),
                               ),
+                            SizedBox(
+                              height: 5,
                             ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            "Remark",
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                              child: TextField(
-                                controller:Remark ,
-                                decoration: InputDecoration(
-                                  labelText: 'Remark',
-                                  labelStyle: TextStyle(
-                                    fontSize: 12.0, // Set your desired font size
+                            Text(
+                              "Amount",
+                              style: TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                child: TextField(
+                                  controller: amount,
+                                  decoration: InputDecoration(
+                                    labelText: 'Amount',
+                                    labelStyle: TextStyle(
+                                      fontSize: 12.0, // Set your desired font size
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide: BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 8.0), // Set vertical padding
                                   ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    borderSide: BorderSide(color: Colors.grey),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 8.0), // Set vertical padding
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "Date",
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                              child: TextField(
-                                controller: TextEditingController(
-                                    text: DateFormat('yyyy-MM-dd').format(selectedDate)), // Default date
-                                readOnly: true, // Make the field read-only
-                                decoration: InputDecoration(
-                                  labelText: 'Date',
-                                  labelStyle: TextStyle(
-                                    fontSize: 12.0, // Set your desired font size
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Transaction Id",
+                              style: TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                child: TextField(
+                                  controller: transactionid,
+                                  decoration: InputDecoration(
+                                    labelText: 'Transaction Id',
+                                    labelStyle: TextStyle(
+                                      fontSize: 12.0, // Set your desired font size
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide: BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 8.0), // Set vertical padding
                                   ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    borderSide: BorderSide(color: Colors.grey),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 8.0), // Set vertical padding
                                 ),
-                                onTap: () async {
-                                  DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: selectedDate,
-                                    firstDate: DateTime(2000), // Earliest date
-                                    lastDate: DateTime(2100), // Latest date
-                                  );
-                                  if (pickedDate != null) {
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Bank",
+                              style: TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 5),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: DropdownButton<String>(
+                                  isExpanded: true,
+                                  value: selectedBankId,
+                                  hint: Text(
+                                    'Select Bank',
+                                    style: TextStyle(fontSize: 12.0),
+                                  ),
+                                  items: bank.map((bankItem) {
+                                    return DropdownMenuItem<String>(
+                                      value: bankItem['id'].toString(),
+                                      child: Text(
+                                        '${bankItem['name']}',
+                                        style: TextStyle(fontSize: 12.0),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
                                     setState(() {
-                                      selectedDate = pickedDate; // Update the selected date
+                                      selectedBankId = value; // Store the selected bank ID
                                       ;
                                     });
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "Name",
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Container(
-                              child: TextField(
-                                controller: TextEditingController(
-                                    text: uname.text), // Display the name extracted from JWT
-                                readOnly: true, // Make the field non-editable
-                                decoration: InputDecoration(
-                                  labelText: 'Name',
-                                  labelStyle: TextStyle(
-                                    fontSize: 12.0, // Set your desired font size
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    borderSide: BorderSide(color: Colors.grey),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 8.0), // Set vertical padding
+                                  },
+                                  underline: SizedBox(),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 20,
+                            SizedBox(height: 10),
+                            Text(
+                              "Remark",
+                              style: TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                child: TextField(
+                                  controller:Remark ,
+                                  decoration: InputDecoration(
+                                    labelText: 'Remark',
+                                    labelStyle: TextStyle(
+                                      fontSize: 12.0, // Set your desired font size
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide: BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 8.0), // Set vertical padding
+                                  ),
                                 ),
-                                SizedBox(
-                                  width: 270,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      if(selectedReceiptType=='Order Receipt'){
-                                       AddReceipt(context);}
-                                        else if(selectedReceiptType=='Advance receipt'){
-                                          AddReceipt2(context);
-                                        }
-                                        else if(selectedReceiptType=='other Receipt'){
-                                          AddReceipt3(context);
-                                        }
-                                    },
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                        Color.fromARGB(255, 64, 176, 251),
-                                      ),
-                                      shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              10), // Set your desired border radius
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Date",
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                           // ...existing code...
+Padding(
+  padding: const EdgeInsets.only(right: 10),
+  child: GestureDetector(
+    onTap: () async {
+      DateTime? pickedDate = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100),
+      );
+      if (pickedDate != null) {
+        setState(() {
+          selectedDate = pickedDate;
+        });
+      }
+    },
+    child: AbsorbPointer(
+      child: TextField(
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: 'Date',
+          labelStyle: TextStyle(fontSize: 12.0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+        ),
+        controller: TextEditingController(
+          text: DateFormat('yyyy-MM-dd').format(selectedDate),
+        ),
+      ),
+    ),
+  ),
+),
+
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Name",
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Container(
+                                child: TextField(
+                                  controller: TextEditingController(
+                                      text: uname.text), // Display the name extracted from JWT
+                                  readOnly: true, // Make the field non-editable
+                                  decoration: InputDecoration(
+                                    labelText: 'Name',
+                                    labelStyle: TextStyle(
+                                      fontSize: 12.0, // Set your desired font size
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide: BorderSide(color: Colors.grey),
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 8.0), // Set vertical padding
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 270,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        if(selectedReceiptType=='Order Receipt'){
+                                         AddReceipt(context);}
+                                          else if(selectedReceiptType=='Advance receipt'){
+                                            AddReceipt2(context);
+                                          }
+                                          else if(selectedReceiptType=='other Receipt'){
+                                            AddReceipt3(context);
+                                          }
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                          Color.fromARGB(255, 64, 176, 251),
+                                        ),
+                                        shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                10), // Set your desired border radius
+                                          ),
+                                        ),
+                                        fixedSize: MaterialStateProperty.all<Size>(
+                                          Size(95,
+                                              15), // Set your desired width and heigh
                                         ),
                                       ),
-                                      fixedSize: MaterialStateProperty.all<Size>(
-                                        Size(95,
-                                            15), // Set your desired width and heigh
-                                      ),
+                                      child: Text("Submit",
+                                          style: TextStyle(color: Colors.white)),
                                     ),
-                                    child: Text("Submit",
-                                        style: TextStyle(color: Colors.white)),
                                   ),
-                                ),
-                              ]),
-                          SizedBox(
-                            height: 20,
-                          )
-                        ],
+                                ]),
+                            SizedBox(
+                              height: 20,
+                            )
+                          ],
+                        ),
+                      )),
+                ),
+              ],
+                        ),
                       ),
-                    )),
-              ),
-            ],
-          ),
-        )),
+            )),
       ),
     );
   }

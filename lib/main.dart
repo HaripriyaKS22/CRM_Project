@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:beposoft/pages/ACCOUNTS/ASD_dashborad.dart';
 import 'package:beposoft/pages/ACCOUNTS/provider.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/HR/hr_dashboard.dart';
@@ -16,6 +18,7 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
 import 'package:new_version_plus/new_version_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 void main() {
   runApp(const beposoftmain());
 }
@@ -37,7 +40,9 @@ class _beposoftmainState extends State<beposoftmain> {
     super.initState();
     check();
     getbank();
-    checkForUpdate();
+    // checkForUpdate();
+    getCurrentAppVersion();
+  
   }
 
   Future<String?> gettokenFromPrefs() async {
@@ -121,13 +126,35 @@ class _beposoftmainState extends State<beposoftmain> {
       MaterialPageRoute(builder: (context) => login()),
     );
   }
+Future<void> checkLatestVersion() async {
+  final newVersion = NewVersionPlus(
+    androidId: 'com.bepositive.beposoft', // Your Android package name
+    iOSId: '1234567890', // Your iOS App ID
+  );
 
+  final status = await newVersion.getVersionStatus();
+  if (status != null) {
+  
+
+    if (status.canUpdate) {
+      newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status,
+        dialogTitle: 'Update Available',
+        dismissButtonText: 'Later',
+        updateButtonText: 'Update Now',
+      );
+    }
+  }
+}
   void checkForUpdate() async {
+  
     final newVersion = NewVersionPlus(
       androidId: '.beposoft', // Replace with your package name
       iOSId: 'your.ios.bundle.id', // Replace if you have iOS
     );
     final status = await newVersion.getVersionStatus();
+ 
     if (status != null && status.canUpdate) {
       newVersion.showUpdateDialog(
         context: context,
@@ -139,7 +166,11 @@ class _beposoftmainState extends State<beposoftmain> {
       );
     }
   }
+Future<void> getCurrentAppVersion() async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
+    checkLatestVersion();
+}
   @override
   Widget build(BuildContext context) {
     // Ensure that we only call layout-related code after the first frame is rendered
@@ -175,15 +206,19 @@ class _beposoftmainState extends State<beposoftmain> {
                             ? admin_dashboard()
                             : department == "Accounts / Accounting "
                                 ? admin_dashboard()
-                                : department == "Information Technology"
-                                    ? admin_dashboard()
-                                    : department == "HR"
-                                      ? HrDashboard()
-                                      : department == "Warehouse Admin"
-                                        ? WarehouseAdmin()
-                                          : department == "COO"
-                                            ? admin_dashboard()
-                                            : dashboard()
+                                : department == "CEO"
+                                  ? ceo_dashboard()
+                                  : department == "ASD"
+                                    ? asd_dashbord()
+                                    : department == "Information Technology"
+                                        ? admin_dashboard()
+                                        : department == "HR"
+                                          ? HrDashboard()
+                                          : department == "Warehouse Admin"
+                                            ? WarehouseAdmin()
+                                              : department == "COO"
+                                                ? admin_dashboard()
+                                                : dashboard()
             : login(),
       ),
     );

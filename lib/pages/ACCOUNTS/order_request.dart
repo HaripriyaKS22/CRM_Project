@@ -63,7 +63,7 @@ class _order_requestState extends State<order_request> {
       }).toList(),
     );
   }
-
+ bool isCreating = false;
   List<Map<String, dynamic>> products = [];
   final TextEditingController searchController = TextEditingController();
   List<Map<String, dynamic>> filteredProducts = [];
@@ -136,6 +136,18 @@ String? selectedCustomerName;
     await fetchCartData();
   }
 var allocatedstates;
+ void handleOrderCreate(BuildContext context) async {
+    setState(() {
+      isCreating = true;
+    });
+
+    try {
+      await ordercreate(context); // Make sure this is an async function
+    } finally {
+      // Optional: keep disabled or reset after done
+      // setState(() => isCreating = false); // Uncomment if you want to re-enable
+    }
+  }
   Future<void> getwarehouse() async {
     final token = await gettokenFromPrefs();
     try {
@@ -166,7 +178,7 @@ var allocatedstates;
 
   var warehouse;
 
-  void ordercreate(
+  Future ordercreate(
     BuildContext scaffoldContext,
   ) async {
     try {
@@ -209,6 +221,7 @@ var allocatedstates;
         },
         body: jsonEncode(requestBody),
       );
+ 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
@@ -441,6 +454,8 @@ var department='';
       totalDiscount += quantity * discountPerQuantity;
 
       total = totalItemPrice - totalDiscount;
+
+
     }
     setState(() {
       tot = total;
@@ -506,19 +521,17 @@ var department='';
             ),
           ),
           actions: <Widget>[
-            SizedBox(
-              width: 100,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue, // Set the text color to white
-                ),
-                onPressed: () {
-                  ordercreate(context);
-                },
-                child: Text("OK"),
-              ),
-            ),
+           SizedBox(
+      width: 100,
+      child: TextButton(
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.blue,
+        ),
+        onPressed: isCreating ? null : () => handleOrderCreate(context),
+        child: Text(isCreating ? "Creating..." : "OK"),
+      ),
+    ),
           ],
         );
       },
@@ -1581,7 +1594,7 @@ if(dep=="BDM"){
                                 height: 8,
                               ),
                               Text(
-                                "Family",
+                                "Division",
                                 style: TextStyle(
                                     fontSize: 12, fontWeight: FontWeight.bold),
                               ),

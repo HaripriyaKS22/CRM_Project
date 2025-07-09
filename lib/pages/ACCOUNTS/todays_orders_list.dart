@@ -14,6 +14,7 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
@@ -507,6 +508,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,

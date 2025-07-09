@@ -12,6 +12,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/expense_list.dart';
+import 'package:beposoft/pages/ACCOUNTS/order_recipts_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/recipt.report.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_family.dart';
@@ -240,7 +241,6 @@ Future<void> getreciptlist() async {
         'Content-Type': 'application/json',
       },
     );
-
    
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
@@ -253,7 +253,7 @@ setState(() {
       selectedDate=DateTime.parse(parsed['received_at']);
       selectedbankId=parsed['bank']?? '';
       createdby.text=parsed['created_by']?? '';
-  
+selectedInvoiceId = parsed['order'] != null ? parsed['order'].toString() : null;  
 });
    
 
@@ -289,7 +289,7 @@ void updateexpense() async {
         'Authorization': 'Bearer $token',
       },
       body: {
-        
+        'invoice': selectedInvoiceId.toString(),
         "bank": selectedbankId.toString(),
         "amount": amount.text,
         "received_at": formatDate(selectedDate), 
@@ -305,7 +305,7 @@ void updateexpense() async {
       var responseData = jsonDecode(response.body);
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => recipt_Report()),
+        MaterialPageRoute(builder: (context) => order_recipt_Report()),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
+import 'package:beposoft/pages/ACCOUNTS/update_atrribute.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -164,6 +166,7 @@ Future<String?> getdepFromPrefs() async {
             'name': productData['name'],
           });
         }
+        
 
         setState(() {
           attributes = attributelist;
@@ -410,7 +413,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                     builder: (context) =>
                         bdo_dashbord()), // Replace AnotherPage with your target page
               );
-            } else if (dep == "BDM") {
+            }  else if (dep == "BDM") {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -418,6 +421,13 @@ Future<void> addvalues(String value, int? attributeId) async {
                         bdm_dashbord()), // Replace AnotherPage with your target page
               );
             }
+
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
 
             else if (dep == "ADMIN") {
               Navigator.pushReplacement(
@@ -708,7 +718,7 @@ Future<void> addvalues(String value, int? attributeId) async {
                     ),
                     SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.only(right: 15, left: 15),
+                      padding: const EdgeInsets.only(right: 15, left: 15,bottom: 55),
                       child: Container(
                         color: Colors.white,
                         child: Table(
@@ -772,9 +782,21 @@ Future<void> addvalues(String value, int? attributeId) async {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text((i + 1).toString()),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(attributes[i]['name']),
+                                  GestureDetector(
+                                    onTap: () {
+                                     
+                                      // Navigate to the edit page with the selected attribute ID
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => update_attribute(id:attributes[i]['id'],value:null),
+                                        ),
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(attributes[i]['name']),
+                                    ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
@@ -809,12 +831,18 @@ Future<void> addvalues(String value, int? attributeId) async {
                                               ? Column(
                                                   children:
                                                       valuess.map((value) {
-                                                    return Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 4.0),
-                                                      child:
-                                                          Text(value['value']),
+                                                    return GestureDetector(
+                                                      onTap: () {
+        
+                                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>update_attribute(id: attributes[i]['id'],value:value)));
+                                                      },
+                                                      child: Padding(
+                                                        padding: const EdgeInsets
+                                                            .symmetric(
+                                                            vertical: 4.0),
+                                                        child:
+                                                            Text(value['value']),
+                                                      ),
                                                     );
                                                   }).toList(),
                                                 )

@@ -8,6 +8,7 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/emireport.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_department.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
@@ -303,6 +304,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -328,43 +336,50 @@ else if(dep=="Warehouse Admin" ){
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-            if(dep=="BDO" ){
-       Navigator.pushReplacement(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async{
+                      final dep= await getdepFromPrefs();
+     if(dep=="BDO" ){
+   Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
             );
-    
-    }
-    else if(dep=="BDM" ){
-       Navigator.pushReplacement(
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
             );
-    }
-    else if(dep=="warehouse" ){
-       Navigator.pushReplacement(
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
-    }
-    else if(dep=="Warehouse Admin" ){
-       Navigator.pushReplacement(
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
-    } else {
-              Navigator.pushReplacement(
+}
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+} 
+      else {
+      Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
+                MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
               );
-            }
-          },
-        ),
+      
+      }
+             
+            },
+          ),
         actions: [
           IconButton(
             icon: Image.asset('lib/assets/profile.png'),
@@ -686,111 +701,114 @@ else if(dep=="Warehouse Admin" ){
                     ),
                   ),
                   emiList.isNotEmpty
-                      ? ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: emiList.length,
-                          itemBuilder: (context, index) {
-                            final emi = emiList[index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => EmiReport(emid:emi['id'])));
-                              },
-                              child: Card(
-                                color: Colors.white,
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 16.0),
-                                elevation: 4.0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        color: Colors.blueAccent.withOpacity(
-                                            0.1), // Background color with some transparency
-                                        padding: EdgeInsets.all(
-                                            8.0), // Padding inside the container
-                                        child: Text(
-                                          '${emi['emi_name']}',
+                      ? Padding(
+                        padding: const EdgeInsets.only(bottom:55),
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: emiList.length,
+                            itemBuilder: (context, index) {
+                              final emi = emiList[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => EmiReport(emid:emi['id'])));
+                                },
+                                child: Card(
+                                  color: Colors.white,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 8.0, horizontal: 16.0),
+                                  elevation: 4.0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          color: Colors.blueAccent.withOpacity(
+                                              0.1), // Background color with some transparency
+                                          padding: EdgeInsets.all(
+                                              8.0), // Padding inside the container
+                                          child: Text(
+                                            '${emi['emi_name']}',
+                                            style: TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blueAccent,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 8.0),
+                                        Text(
+                                          'Principal: ₹${emi['principal']}',
                                           style: TextStyle(
-                                            fontSize: 18.0,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blueAccent,
+                                            fontSize: 16.0,
+                                            color: Colors.black87,
                                           ),
                                         ),
-                                      ),
-                                      SizedBox(height: 8.0),
-                                      Text(
-                                        'Principal: ₹${emi['principal']}',
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Interest: ${emi['annual_interest_rate']}%',
-                                            style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors.black87,
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Interest: ${emi['annual_interest_rate']}%',
+                                              style: TextStyle(
+                                                fontSize: 16.0,
+                                                color: Colors.black87,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            ', ${emi['tenure_months']} months',
-                                            style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors.black87,
+                                            Text(
+                                              ', ${emi['tenure_months']} months',
+                                              style: TextStyle(
+                                                fontSize: 16.0,
+                                                color: Colors.black87,
+                                              ),
                                             ),
+                                          ],
+                                        ),
+                                        Text(
+                                          'Down Payment: ₹${emi['down_payment']}',
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            color: Colors.black87,
                                           ),
-                                        ],
-                                      ),
-                                      Text(
-                                        'Down Payment: ₹${emi['down_payment']}',
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          color: Colors.black87,
                                         ),
-                                      ),
-    
-                                       Text(
-                                        'Total Interest: ₹${emi['total_interest']}',
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          color: Colors.black87,
+                            
+                                         Text(
+                                          'Total Interest: ₹${emi['total_interest']}',
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            color: Colors.black87,
+                                          ),
                                         ),
-                                      ),
-    
-                                       Text(
-                                        'Total Payment: ₹${emi['total_payment']}',
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          color: Colors.black87,
+                            
+                                         Text(
+                                          'Total Payment: ₹${emi['total_payment']}',
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            color: Colors.black87,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        'Emi: ₹${emi['emi']}',
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          color: const Color.fromARGB(
-                                              221, 252, 0, 0),
+                                        Text(
+                                          'Emi: ₹${emi['emi']}',
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            color: const Color.fromARGB(
+                                                221, 252, 0, 0),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        )
+                              );
+                            },
+                          ),
+                      )
                       : Text('No EMI data available'),
                   SizedBox(height: 15),
                 ],

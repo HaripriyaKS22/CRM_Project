@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
@@ -56,7 +57,7 @@ Future<void> getFinancialReport() async {
 
       List<Map<String, dynamic>> financeList = [];
 
-      for (var bankData in parsed['data'] ?? []) {
+      for (var bankData in parsed['bank_data'] ?? []) {
         String bankName = bankData['name'] ?? 'Unknown Bank';
 
         // Base opening balance
@@ -156,6 +157,12 @@ Future<void> getFinancialReport() async {
   totalTodayBanksAmount = totalTodayBanksAmount;
 });
 
+    } else {
+    
+      // Handle error response
+      setState(() {
+        Finance = [];
+      });
     }
   } catch (e) {
     ;
@@ -366,6 +373,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -423,7 +437,12 @@ Widget build(BuildContext context) {
                 MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
               );
     }
-              
+           else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}   
               else {
                 Navigator.pushReplacement(
                   context,

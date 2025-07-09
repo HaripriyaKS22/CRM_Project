@@ -14,8 +14,10 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/order.review.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
+import 'package:beposoft/pages/MARKETING/marketing_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
@@ -50,6 +52,34 @@ class _OrderListState extends State<OrderList> {
   DateTime? selectedDate; // For single date filter
   DateTime? startDate; // For date range filter
   DateTime? endDate; // For date range filter
+List<String> orderStatuses = [
+  'All',
+  'Invoice Created',
+  'Invoice Approved',
+  'Waiting For Confirmation',
+  'Packing under progress',
+  'Packing',
+  'Ready to ship',
+  'To Print',
+  'Shipped',
+  'Invoice Rejected',
+  // Add other statuses as needed
+];
+
+String selectedStatus = 'All'; // Default value
+void _filterOrdersByStatus(String status) {
+  if (status == 'All') {
+    setState(() {
+      filteredOrders = orders;
+    });
+  } else {
+    setState(() {
+      filteredOrders = orders.where((order) {
+        return order['status'] == status;
+      }).toList();
+    });
+  }
+}
 
   drower d = drower();
   Widget _buildDropdownTile(
@@ -104,10 +134,7 @@ Future<void> fetchOrderData() async {
       },
     );
 
-    ;
-    ;
-    ;
-
+   
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       final List ordersData = responseData['results'];
@@ -505,12 +532,27 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
+else if(dep=="Marketing" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => marketing_dashboard()), // Replace AnotherPage with your target page
+            );
+}
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
-} else {
+}
+
+ else {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => dashboard()),
@@ -553,6 +595,18 @@ else if(dep=="warehouse" ){
    Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+else if(dep=="Marketing" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => marketing_dashboard()), // Replace AnotherPage with your target page
             );
 }
 else if(dep=="Warehouse Admin" ){
@@ -616,6 +670,30 @@ else if(dep=="Warehouse Admin" ){
         ),
         body: Column(
           children: [
+
+              Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  child: DropdownButtonFormField<String>(
+    value: selectedStatus,
+    decoration: InputDecoration(
+      labelText: "Filter by Status",
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    ),
+    onChanged: (value) {
+      setState(() {
+        selectedStatus = value!;
+        _filterOrdersByStatus(selectedStatus);
+      });
+    },
+    items: orderStatuses.map((status) {
+      return DropdownMenuItem<String>(
+        value: status,
+        child: Text(status),
+      );
+    }).toList(),
+  ),
+),
             // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),

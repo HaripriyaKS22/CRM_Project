@@ -1111,7 +1111,7 @@ void initdata(){
                             ),
 
 // Conditionally show the TextField if `selecttype` is "single"
-                            if (selecttype == 'single') ...[
+                           
                               SizedBox(height: 10),
                               Text("Stock for Single Product *",
                                   style: TextStyle(
@@ -1131,7 +1131,7 @@ void initdata(){
                                       EdgeInsets.symmetric(vertical: 8.0),
                                 ),
                               ),
-                            ]
+                            
                           ],
                         ),
                       ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_Expense.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
@@ -242,7 +243,7 @@ Future<void> getexpenselist() async {
         'Content-Type': 'application/json',
       },
     );
-;
+
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
@@ -264,6 +265,7 @@ Future<void> getexpenselist() async {
             expenselist.add({
               'id': productData['id']?.toString() ?? '',
               'purpose_of_payment': productData['purpose_of_payment']?.toString() ?? '',
+               'purpose_of_pay': productData['purpose_of_pay'],
               // 'bank': productData['bank']?.toString() ?? '',
               'amount': amount,
               'company': productData['company']['name']?.toString() ?? '',
@@ -376,6 +378,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -415,6 +424,12 @@ else if(dep=="Warehouse Admin" ){
               );
       
       }
+      else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
       else if(dep=="BDM" ){
          Navigator.pushReplacement(
                 context,
@@ -478,7 +493,7 @@ else if(dep=="Warehouse Admin" ){
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Purpose of Payment: ${expense['purpose_of_payment']?? 'N/A'}',
+                                'Purpose of Payment: ${expense['purpose_of_pay']?? 'N/A'}',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

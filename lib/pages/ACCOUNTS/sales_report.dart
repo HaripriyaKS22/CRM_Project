@@ -10,6 +10,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_state.dart';
 import 'package:beposoft/pages/ACCOUNTS/add_supervisor.dart';
 import 'package:beposoft/pages/ACCOUNTS/invoice_report.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
@@ -577,6 +578,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -634,7 +642,12 @@ else if(dep=="Warehouse Admin" ){
                 MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
               );
       }
-              
+              else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
               
               else {
                 Navigator.pushReplacement(
@@ -700,7 +713,9 @@ else if(dep=="Warehouse Admin" ){
                     order['family__name'].toString().toLowerCase() ==
                     selectedFamily!.toLowerCase());
               }).toList();
+              _updateTotals();
             }
+
           });
         },
       ),
@@ -795,15 +810,13 @@ else if(dep=="Warehouse Admin" ){
                     ),
                   ),
                   Divider(color: Colors.grey),
-                  SizedBox(height: 8),
+               
                   
-                  _buildRow('Total Bills:', reportData['total_bills_in_date']?? 0),
-                  _buildRow('Total Amount:', reportData['amount']?? 0),
-                  _buildRow('Approved Bills:', reportData['approved']['bills'] ?? 0),
-                  _buildRow('Approved Amount:', reportData['approved']['amount'] ?? 0.0),
-                  _buildRow('Rejected Bills:', reportData['rejected']['bills'] ?? 0),
-                  _buildRow('Rejected Amount:', reportData['rejected']['amount'] ?? 0.0),
-                  SizedBox(height: 12),
+                 
+                  _buildRow('Bills:', reportData['approved']['bills'] ?? 0),
+                  _buildRow('Amount:', reportData['approved']['amount'] ?? 0.0),
+               
+               if(selectedstaff==null && selectedFamily ==null )
                   ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blueAccent,
@@ -877,12 +890,15 @@ else if(dep=="Warehouse Admin" ){
                                 indent: 0,
                                 endIndent: 0,
                               ),
-                              _buildRowWithTwoColumns('Total Bills:', totalBills,
-                                  'Total Amount:', totalAmount),
-                              _buildRowWithTwoColumns('Approved Bills:', approvedBills,
-                                  'Approved Amount:', approvedAmount),
-                              _buildRowWithTwoColumns('Rejected Bills:', rejectedBills,
-                                  'Rejected Amount:', rejectedAmount),
+                            // ...existing code...
+_buildRowWithTwoColumns('Total Bills:', totalBills,
+    'Total Amount:', totalAmount.toStringAsFixed(2)),
+_buildRowWithTwoColumns('Approved Bills:', approvedBills,
+    'Approved Amount:', approvedAmount.toStringAsFixed(2)),
+_buildRowWithTwoColumns('Rejected Bills:', rejectedBills,
+    'Rejected Amount:', rejectedAmount.toStringAsFixed(2)),
+// ...existing code...
+                                  SizedBox(height: 50),
                             ],
                           ),
                         ),

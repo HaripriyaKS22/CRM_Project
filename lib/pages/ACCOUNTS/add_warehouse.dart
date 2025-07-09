@@ -4,6 +4,7 @@ import 'package:beposoft/loginpage.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/update_warehouse.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -178,14 +179,21 @@ class _add_warehouseState extends State<add_warehouse> {
                     builder: (context) =>
                         bdo_dashbord()), // Replace AnotherPage with your target page
               );
-            } else if (dep == "BDM") {
+            }  else if (dep == "BDM") {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
                         bdm_dashbord()), // Replace AnotherPage with your target page
               );
-            } else {
+            }
+
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+} else {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -407,7 +415,7 @@ class _add_warehouseState extends State<add_warehouse> {
             ),
             SizedBox(height: 10),
             Padding(
-              padding: const EdgeInsets.only(right: 15, left: 15),
+              padding: const EdgeInsets.only(right: 15, left: 15,bottom:55),
               child: Container(
                 color: Colors.white,
                 child: Table(

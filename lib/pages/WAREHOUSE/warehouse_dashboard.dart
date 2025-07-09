@@ -339,11 +339,11 @@ int packed=0;
 
  void logout(BuildContext context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
-  await prefs.remove('username');
-  await prefs.remove('department');
-  await prefs.remove('warehouse');
+  // await prefs.remove('userId');
+  // await prefs.remove('token');
+  // await prefs.remove('username');
+  // await prefs.remove('department');
+  // await prefs.remove('warehouse');
   await Future.delayed(Duration(milliseconds: 100));
   Navigator.pushReplacement(
     context,

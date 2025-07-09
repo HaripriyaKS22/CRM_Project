@@ -14,6 +14,7 @@ import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
@@ -176,19 +177,25 @@ void logout() async {
     MaterialPageRoute(builder: (context) => login()),
   );
 }
+Future<String?> getwarehouseFromPrefs() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int? warehouseId = prefs.getInt('warehouse');
+  
+  // Check if warehouseId is null before converting to String
+  return warehouseId?.toString();
+}
 
   Future<void> fetchProductList() async {
   final token = await getTokenFromPrefs();
-
+ var warehouse = await getwarehouseFromPrefs();
   try {
     final response = await http.get(
-      Uri.parse("$api/api/products/"),
+      Uri.parse("$api/api/warehouse/products/$warehouse/"),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
     );
-;
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -258,6 +265,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -314,6 +328,12 @@ else if(dep=="Warehouse Admin" ){
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+} 
       else {
       Navigator.pushReplacement(
                 context,

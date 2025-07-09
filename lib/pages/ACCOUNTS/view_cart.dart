@@ -67,6 +67,8 @@ var dep;
             'slug': cartData['slug'],
             'size': cartData['size'],
             'quantity': cartData['quantity'],
+            'stock':cartData['stock'],
+            'locked_stock': cartData['locked_stock'],
             
             'price': cartData['price'],
             'note': cartData['note'] ?? '',
@@ -274,63 +276,89 @@ final price = double.tryParse(item['price'].toString()) ?? 0.0; // Ensure it's a
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Edit Item Details',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+        String? errorText;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                'Edit Item Details',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              TextField(
-                controller: quantityController,
-                decoration: InputDecoration(labelText: 'Quantity'),
-                keyboardType: TextInputType.number,
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(labelText: 'Description'),
+                  ),
+                  TextField(
+                    controller: quantityController,
+                    decoration: InputDecoration(
+                      labelText: 'Quantity',
+                      errorText: errorText,
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+
+                      final enteredQty = int.tryParse(value) ?? 0;
+                      final maxQty = (item['stock'] ?? 0) - (item['locked_stock'] ?? 0);
+                      setState(() {
+                        if (enteredQty > maxQty) {
+                          errorText = 'Quantity exceeds available stock ($maxQty)';
+                        } else {
+                          errorText = null;
+                        }
+                      });
+                    },
+                  ),
+                  TextField(
+                    controller: pricee,
+                    decoration: InputDecoration(labelText: 'Edit Price'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: discountController,
+                    decoration: InputDecoration(labelText: 'Discount (in Rs for each product)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
               ),
-              TextField(
-                controller: pricee,
-                decoration: InputDecoration(labelText: 'Edit Price'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: discountController,
-                decoration: InputDecoration(labelText: 'Discount (in Rs for each product)'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              actions: [
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
-              ),
-              onPressed: () {
-                final description = descriptionController.text;
-                final quantity = int.tryParse(quantityController.text) ?? item['quantity'];
-                final discount = double.tryParse(discountController.text) ?? item['discount'];
-                final editedprice = double.tryParse(pricee.text) ?? item['price'];
-                updatecartdetails(item['id'], quantity, description, discount,editedprice);
-                // updateprice(price);
-                updateprice(item['id'],editedprice);
-                Navigator.of(context).pop();
-              },
-              child: Text('Save'),
-            ),
-          ],
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    final enteredQty = int.tryParse(quantityController.text) ?? item['quantity'];
+                    final maxQty = (item['stock'] ?? 0) - (item['locked_stock'] ?? 0);
+                    if (enteredQty > maxQty) {
+                      setState(() {
+                        errorText = 'Quantity exceeds available stock ($maxQty)';
+                      });
+                      return;
+                    }
+                    final description = descriptionController.text;
+                    final discount = double.tryParse(discountController.text) ?? item['discount'];
+                    final editedprice = double.tryParse(pricee.text) ?? item['price'];
+                    updatecartdetails(item['id'], enteredQty, description, discount, editedprice);
+                    updateprice(item['id'], editedprice);
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Save'),
+                ),
+              ],
+            );
+          },
         );
       },
     );

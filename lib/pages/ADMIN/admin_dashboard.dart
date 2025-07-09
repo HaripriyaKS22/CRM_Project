@@ -8,7 +8,7 @@ import 'package:beposoft/pages/ACCOUNTS/add_warehouse.dart';
 import 'package:beposoft/pages/ACCOUNTS/assetmanagement.dart';
 import 'package:beposoft/pages/ACCOUNTS/assetmanegment2.dart';
 import 'package:beposoft/pages/ACCOUNTS/bulk_customer_upload.dart';
-import 'package:beposoft/pages/ACCOUNTS/call_log.dart';
+// import 'package:beposoft/pages/ACCOUNTS/call_log.dart';
 import 'package:beposoft/pages/ACCOUNTS/graph.dart';
 import 'package:beposoft/pages/ACCOUNTS/grv_list.dart';
 import 'package:beposoft/pages/ACCOUNTS/order_list.dart';
@@ -326,6 +326,8 @@ setState(() {
 // Get token from SharedPreferences
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    for (String key in prefs.getKeys()) {
+  }
     return prefs.getString('token');
   }
 int grv=0;
@@ -393,10 +395,12 @@ int grvcount=0;
 
  void logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
-  await prefs.remove('token');
-  await prefs.remove('username');
-    await prefs.remove('department');
+ // await prefs.remove('userId');
+  // await prefs.remove('token');
+ // await prefs.remove('username');
+    // await prefs.remove('user_token');
+
+  //  await prefs.remove('department');
 
   
 
@@ -496,18 +500,23 @@ int grvcount=0;
                 'Add Customer',
                 'Customers',
               ]),
-               _buildDropdownTile(context, 'Recipt', [
+                _buildDropdownTile(context, 'Recipt', [
                 'Add Recipt',
                 'Recipt List',
+                'Bank Recipt',
+                'Advance Recipt',
+                'Order Recipt',
+                
               ]),
-              ListTile(
-                leading: Icon(Icons.dashboard),
-                title: Text('Call Report'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => CallLog()));
-                },
-              ),
+             
+              // ListTile(
+              //   leading: Icon(Icons.dashboard),
+              //   title: Text('Call Report'),
+              //   onTap: () {
+              //     Navigator.push(context,
+              //         MaterialPageRoute(builder: (context) => CallLog()));
+              //   },
+              // ),
               _buildDropdownTile(context, 'Proforma Invoice', [
                 'New Proforma Invoice',
                 'Proforma Invoice List',
@@ -639,7 +648,7 @@ int grvcount=0;
               ),
               ListTile(
                 leading: Icon(Icons.person),
-                title: Text('Family'),
+                title: Text('Division'),
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => add_family()));
@@ -733,7 +742,7 @@ int grvcount=0;
               Divider(),
               
               
-              Divider(),
+              
               ListTile(
                 leading: Icon(Icons.exit_to_app),
                 title: Text('Logout'),
@@ -741,6 +750,7 @@ int grvcount=0;
                   logout();
                 },
               ),
+              SizedBox(height: 50), // Add some space at the bottom
             ],
           ),
         ),

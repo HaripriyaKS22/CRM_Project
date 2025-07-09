@@ -4,6 +4,7 @@ import 'package:beposoft/pages/ACCOUNTS/customer.dart';
 import 'package:beposoft/pages/ACCOUNTS/dashboard.dart';
 import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
+import 'package:beposoft/pages/WAREHOUSE/warehouse_order_view.dart';
 import 'package:beposoft/pages/api.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:file_picker/file_picker.dart';
@@ -13,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 
 class WarehouseOrderReview extends StatefulWidget {
   final id;
@@ -89,32 +91,120 @@ class _WarehouseOrderReviewState extends State<WarehouseOrderReview> {
     });
   }
   File? selectedImage;
+  File? selectedImage2;
 
-  void imageSelect() async {
-    try {
-      
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-      );
-      if (result != null) {
-        setState(() {
-          selectedImage = File(result.files.single.path!);
 
-          
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("image1 selected successfully."),
-          backgroundColor: Color.fromARGB(173, 120, 249, 126),
-        ));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error while selecting the file."),
-        backgroundColor: Colors.red,
-      ));
-    }
+ final ImagePicker _picker = ImagePicker();
+
+void imageSelect() async {
+  try {
+    // Show choice dialog
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Gallery'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+                  if (pickedFile != null) {
+                    setState(() {
+                      selectedImage = File(pickedFile.path);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Image selected from gallery."),
+                      backgroundColor: Color.fromARGB(173, 120, 249, 126),
+                    ));
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Camera'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+                  if (pickedFile != null) {
+                    setState(() {
+                      selectedImage = File(pickedFile.path);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Image captured from camera."),
+                      backgroundColor: Color.fromARGB(173, 120, 249, 126),
+                    ));
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Error while selecting the image."),
+      backgroundColor: Colors.red,
+    ));
   }
-
+}
+ void imageSelect2() async {
+  try {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Gallery'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+                  if (pickedFile != null) {
+                    setState(() {
+                      selectedImage2 = File(pickedFile.path);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Image selected from gallery."),
+                      backgroundColor: Color.fromARGB(173, 120, 249, 126),
+                    ));
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Camera'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+                  if (pickedFile != null) {
+                    setState(() {
+                      selectedImage2 = File(pickedFile.path);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Image captured from camera."),
+                      backgroundColor: Color.fromARGB(173, 120, 249, 126),
+                    ));
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Error while selecting the image."),
+      backgroundColor: Colors.red,
+    ));
+  }
+}
   bool showAllProducts = false;
   Future<String?> getTokenFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -152,6 +242,35 @@ Future<String?> getdepartment() async {
       });
     }
   }
+
+  Future unlockorder(var id) async{
+  final token= await getTokenFromPrefs();
+
+  try{
+    var response= await http.post(Uri.parse('$api/api/orders/unlock/${id}/'),
+  headers: {
+    'Content-Type':'application/json',
+     'Authorization':'Bearer $token'
+  },
+  body: jsonEncode({
+
+  }  
+  ),);
+
+ Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => WarehouseOrderView(
+                           status:null
+                          )));
+
+
+  }
+  catch(e){
+
+  }
+  
+}
  Future<void> getprofiledata() async {
     try {
       final token = await getTokenFromPrefs();
@@ -540,6 +659,15 @@ void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails)
                     return Icon(Icons.image_not_supported, size: 40, color: Colors.grey);
                   },
                 ),
+                 SizedBox(height: 8),
+              if (boxDetails['image_before'] != null)
+                Image.network(
+                  '$api${boxDetails['image_before']}',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.image_not_supported, size: 40, color: Colors.grey);
+                  },
+                ),
 
                 
               SizedBox(height: 12),
@@ -598,6 +726,7 @@ void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails)
 }
   void addboxdetails(
     File? image1,
+    File? image2,
     DateTime selectedDate,
     BuildContext scaffoldContext,
   ) async {
@@ -657,6 +786,10 @@ void showBoxDetailsDialog(BuildContext context, Map<String, dynamic> boxDetails)
       if (image1 != null) {
         request.files
             .add(await http.MultipartFile.fromPath('image', image1.path));
+      }
+      if (image2 != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('image_before', image2.path));
       }
 
       
@@ -1095,6 +1228,7 @@ var dep;
               'actual_price': item['actual_price'],
               'exclude_price': item['exclude_price'],
               'images': item['image'],
+              'image_before': item['image_before'],
             });
 
             // Convert values to double for safe calculation
@@ -1295,255 +1429,836 @@ var dep;
       );
     }
   }
+Future<void> _navigateBack() async {
+
+
+   Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => WarehouseOrderView(
+                           status:null
+                          )));
+
+  }
 
   @override
   Widget build(BuildContext context) {
     final visibleItems = showAllProducts ? items : items.take(2).toList();
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 255, 255, 255),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              height: 160,
-              child: Column(
-                children: [
-                  SizedBox(height: 50),
-                  Row(
-                    children: [
-                      SizedBox(width: 13),
-                      Container(
-                        height: 70,
-                        width: 70,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 220, 220, 220),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(Icons.local_shipping,
-                            size: 40, color: Colors.blue),
-                      ),
-                      SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            ord != null
-                                ? ord['invoice'] ?? 'Invoice Number'
-                                : 'Loading...',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: const Color.fromARGB(255, 0, 0, 0),
-                            ),
+    return WillPopScope(
+       onWillPop: () async {
+        // Trigger the navigation logic when the back swipe occurs
+        _navigateBack();
+        return false; // Prevent the default back navigation behavior
+      },
+      child: Scaffold(
+        
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                height: 160,
+                child: Column(
+                  children: [
+                    SizedBox(height: 50),
+                    Row(
+                      children: [
+                        SizedBox(width: 13),
+                        Container(
+                          height: 70,
+                          width: 70,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 220, 220, 220),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        
-                        ],
+                          child: Icon(Icons.local_shipping,
+                              size: 40, color: Colors.blue),
+                        ),
+                        SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ord != null
+                                  ? ord['invoice'] ?? 'Invoice Number'
+                                  : 'Loading...',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: const Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ),
+                          
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5,),
+                     Text(
+                              ord != null
+                                  ? ord['company']['name'] ?? 'Company'
+                                  : 'Loading...',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            SizedBox(height: 5,)
+                  ],
+                ),
+              ),
+      
+              SizedBox(height: 10,),
+              Container(
+        color: Colors.white, // Background color
+        padding: EdgeInsets.all(10), // Add padding
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Evenly space buttons
+          children: [
+            ElevatedButton.icon(
+              onPressed: () async{
+      
+                final Uri url = Uri.parse('$api/deliverynote/${ord['id']}/');
+      
+          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+            // Handle error case
+          }
+      
+      
+      
+              },
+              icon: Icon(Icons.download,color: Colors.white,), // Download icon
+              label: Text("Delivery"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Button color
+                foregroundColor: Colors.white, // Text color
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async{
+      
+                final Uri url = Uri.parse('$api/shippinglabel/${ord['id']}/');
+      
+          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+            // Handle error case
+          }
+      
+      
+      
+              },
+              icon: Icon(Icons.download,color: Colors.white), // Download icon
+              label: Text("Address"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Button color
+                foregroundColor: Colors.white, // Text color
+              ),
+            ),
+          ],
+        ),
+      ),
+      
+       Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+         children: [
+           ElevatedButton.icon(
+                  onPressed: () async{
+           
+                    
+           unlockorder(ord['id']);
+             
+           
+           
+                  },
+                  icon: Icon(Icons.download,color: Colors.white), // Download icon
+                  label: Text("Unlock Delivery Note"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Button color
+                    foregroundColor: Colors.white, // Text color
+                  ),
+                ),
+         ],
+       ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  color: Colors.white,
+                  elevation: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            topRight: Radius.circular(15.0),
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              ord != null
+                                  ? ord['manage_staff'] ?? 'manage_staff'
+                                  : 'Loading...',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              ord != null
+                                  ? ord["order_date"] ?? 'Date Not Available'
+                                  : '',
+                              style: TextStyle(color: Colors.white, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: .0),
+                            Row(
+                              children: [
+                                Text(
+                                  'Status: ',
+                                  style: TextStyle(
+                                      fontSize: 12, fontWeight: FontWeight.w600),
+                                ),
+                                Spacer(),
+                                Text(
+                                  ord != null ? '${ord["status"]}' : 'Loading...',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 4.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Family',
+                                  style: TextStyle(
+                                      fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                                Spacer(),
+                                Text(
+                                  ord != null ? '${ord["family"]}' : 'Loading...',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 4.0),
+                            SizedBox(height: 4.0),
+                            if (ord != null && ord['shipping_mode'] != null)
+                              Row(
+                                children: [
+                                  Text(
+                                    'Shipping Mode',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    '${ord['shipping_mode']}',
+                                    style: TextStyle(
+                                        color: const Color.fromARGB(255, 0, 0, 0),
+                                        fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            if (ord != null &&
+                                ord['code_charge'] != null &&
+                                ord['code_charge'] != 0)
+                              SizedBox(height: 4.0),
+                            if (ord != null &&
+                                ord['code_charge'] != null &&
+                                ord['code_charge'] != 0)
+                              Row(
+                                children: [
+                                  Text(
+                                    'Code Charge',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    ' ${ord['code_charge']}',
+                                    style: TextStyle(
+                                        color: const Color.fromARGB(255, 0, 0, 0),
+                                        fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 5,),
-                   Text(
-                            ord != null
-                                ? ord['company']['name'] ?? 'Company'
-                                : 'Loading...',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          SizedBox(height: 5,)
-                ],
-              ),
-            ),
-
-            SizedBox(height: 10,),
-            Container(
-      color: Colors.white, // Background color
-      padding: EdgeInsets.all(10), // Add padding
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Evenly space buttons
-        children: [
-          ElevatedButton.icon(
-            onPressed: () async{
-
-              final Uri url = Uri.parse('$api/deliverynote/${ord['id']}/');
-
-        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-          // Handle error case
-        }
-
-
-
-            },
-            icon: Icon(Icons.download,color: Colors.white,), // Download icon
-            label: Text("Delivery"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue, // Button color
-              foregroundColor: Colors.white, // Text color
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () async{
-
-              final Uri url = Uri.parse('$api/shippinglabel/${ord['id']}/');
-
-        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-          // Handle error case
-        }
-
-
-
-            },
-            icon: Icon(Icons.download,color: Colors.white), // Download icon
-            label: Text("Address"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue, // Button color
-              foregroundColor: Colors.white, // Text color
-            ),
-          ),
-        ],
-      ),
-    ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
                 ),
-                color: Colors.white,
-                elevation: 4,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 12, right: 12,top: 10),
+                child: DropdownButtonFormField<String>(
+                            value: selectedStatus,
+                            hint: Text('Select Status'),
+                            items: statuses.map((status) {
+                              return DropdownMenuItem<String>(
+                                value: status,
+                                child: Text(status),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedStatus =
+                                    value; // This will store the selected status
+                              });
+                            },
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              
+                            ),
+                          ),
+              ),
+              SizedBox(height: 5,),
+               Padding(
+                 padding: const EdgeInsets.only(left: 12),
+                 child: ElevatedButton.icon(
+                             onPressed: () async{
+                  updatestatus();
+                 
+                             },
+                             label: Text("Save"),
+                             style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Button color
+                  foregroundColor: Colors.white, // Text color
+                             ),
+                           ),
+               ),
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15.0),
-                          topRight: Radius.circular(15.0),
-                        ),
-                      ),
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            ord != null
-                                ? ord['manage_staff'] ?? 'manage_staff'
-                                : 'Loading...',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            ord != null
-                                ? ord["order_date"] ?? 'Date Not Available'
-                                : '',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
-                        ],
+                    const Text(
+                      'Billing Address',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: .0),
-                          Row(
-                            children: [
-                              Text(
-                                'Status: ',
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.w600),
-                              ),
-                              Spacer(),
-                              Text(
-                                ord != null ? '${ord["status"]}' : 'Loading...',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 4.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Family',
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                              Spacer(),
-                              Text(
-                                ord != null ? '${ord["family"]}' : 'Loading...',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 4.0),
-                          SizedBox(height: 4.0),
-                          if (ord != null && ord['shipping_mode'] != null)
-                            Row(
-                              children: [
-                                Text(
-                                  'Shipping Mode',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Spacer(),
-                                Text(
-                                  '${ord['shipping_mode']}',
-                                  style: TextStyle(
-                                      color: const Color.fromARGB(255, 0, 0, 0),
-                                      fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          if (ord != null &&
-                              ord['code_charge'] != null &&
-                              ord['code_charge'] != 0)
-                            SizedBox(height: 4.0),
-                          if (ord != null &&
-                              ord['code_charge'] != null &&
-                              ord['code_charge'] != 0)
-                            Row(
-                              children: [
-                                Text(
-                                  'Code Charge',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Spacer(),
-                                Text(
-                                  ' ${ord['code_charge']}',
-                                  style: TextStyle(
-                                      color: const Color.fromARGB(255, 0, 0, 0),
-                                      fontSize: 12),
-                                ),
-                              ],
-                            ),
-                        ],
+                    SizedBox(height: 4),
+                    Text(
+                      ord != null ? '${ord["customer"]["name"]}' : 'Loading...',
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      ord != null
+                          ? '${ord["customer"]["address"]}, ${ord["customer"]["city"]}, ${ord["customer"]["state"]}, ${ord["customer"]["zip_code"]}'
+                          : 'Loading...',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      ord != null
+                          ? 'Phone: ${ord["customer"]["phone"]}'
+                          : 'Loading...',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      ord != null
+                          ? 'Email: ${ord["customer"]["email"]}'
+                          : 'Loading...',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12,top: 10),
-              child: DropdownButtonFormField<String>(
+              Padding(
+                padding: const EdgeInsets.only(right: 15, left: 15),
+                child: Divider(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Shipping Address',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      ord != null
+                          ? '${ord["billing_address"]["name"]}'
+                          : 'Loading...',
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      ord != null
+                          ? '${ord["billing_address"]["address"]}, ${ord["billing_address"]["city"]}, ${ord["billing_address"]["state"]}, ${ord["billing_address"]["zipcode"]}'
+                          : 'Loading...',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      ord != null
+                          ? 'Phone: ${ord["billing_address"]["phone"]}'
+                          : 'Loading...',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      ord != null
+                          ? 'Email: ${ord["billing_address"]["email"]}'
+                          : 'Loading...',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10, right: 15, left: 15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Products',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+      
+                    // Display each item in the visibleItems list within a card
+                    for (var item in visibleItems)
+                      GestureDetector(
+                        onTap: () {
+                          showPopupDialog(context, item);
+                        },
+                        child:Card(
+                          color: Colors.white,
+                          margin: const EdgeInsets.only(bottom: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 4,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Display the first image in a small container
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    image: DecorationImage(
+                                      image: NetworkImage('$api${item["images"]}'),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                // Display product details
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item['name'],
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Quantity: ${item["quantity"]}, Rate: ${item["rate"]}',
+                                        style: TextStyle(
+                                            fontSize: 12, color: Colors.grey),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'discount: ${item["discount"]}',
+                                            style: TextStyle(
+                                                fontSize: 12, color: Colors.grey),
+                                          ),
+                                          SizedBox(
+                                            width: 4,
+                                          ),
+                                          if (item["tax"] != 0)
+                                            Text(
+                                              'Tax: ${item["tax"]}',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey),
+                                            )
+                                        ],
+                                      ),
+                                       Text(
+                                        'Rate After Discount: ${item["rate"] - item["discount"]}',
+                                        style: TextStyle(
+                                            fontSize: 12, color: Colors.grey),
+                                      ),
+      
+                                     Text(
+        'Tax Amount: ${((item["rate"] - item["discount"]) - item["exclude_price"]).toStringAsFixed(2)}',
+        style: TextStyle(
+        fontSize: 12, color: Colors.grey),
+      ),
+                                       // ...existing code...
+      Text(
+        'Excluded price: ${item["exclude_price"]}',
+        style: TextStyle(
+        fontSize: 12, color: Colors.grey),
+      ),
+      // ...existing code...
+                                      Row(
+                                        children: [
+                                         Text(
+        'Total: ${(((item["exclude_price"] + ((item["rate"] - item["discount"]) - item["exclude_price"])) * item["quantity"]).toStringAsFixed(2))}',
+        style: TextStyle(
+      fontSize: 12,
+      color: Colors.black,
+        ),
+      ),
+      
+                                      
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+      
+                    // "See More" or "See Less" Button
+                    if (items.length >
+                        3) // Show button only if there are more than 3 items
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            showAllProducts =
+                                !showAllProducts; // Toggle the visibility
+                          });
+                        },
+                        child: Text(
+                          showAllProducts ? 'See Less' : 'See More',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              SizedBox(height: 10),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0), // Reduced padding
+                  child: Container(
+                    padding: const EdgeInsets.all(12.0), // Reduced padding
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Reduced border radius
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 3,
+                          blurRadius: 5,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 40, // Reduced height
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: Colors.blue,
+                          ),
+                          alignment: Alignment.center, // Simplified layout
+                          child: Text(
+                            "Box Details",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15, // Reduced font size
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8), // Reduced spacing
+                        Container(
+                          height: 45, // Reduced height
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0), // Added padding
+                          child: DropdownButton<Map<String, dynamic>>(
+                            value: manager.isNotEmpty
+                                ? manager.firstWhere(
+                                    (element) =>
+                                        element['id'] ==
+                                        (selectedManagerId ?? manager[0]['id']),
+                                    orElse: () => manager[0],
+                                  )
+                                : null,
+                            underline: SizedBox(),
+                            onChanged: manager.isNotEmpty
+                                ? (Map<String, dynamic>? newValue) {
+                                    setState(() {
+                                      selectedManagerName = newValue!['name'];
+                                      selectedManagerId = newValue['id'];
+                                      
+                                     
+      
+                                    });
+                                  }
+                                : null,
+                            items: manager
+                                .map<DropdownMenuItem<Map<String, dynamic>>>(
+                                    (Map<String, dynamic> manager) {
+                              return DropdownMenuItem<Map<String, dynamic>>(
+                                value: manager,
+                                child: Text(
+                                  manager['name'],
+                                  style: TextStyle(
+                                      fontSize: 13), // Reduced font size
+                                ),
+                              );
+                            }).toList(),
+                            isExpanded: true, // Added to expand dropdown
+                          ),
+                        ),
+      
+                        SizedBox(height: 8),
+                        TextField(
+                          controller: box,
+                          decoration: InputDecoration(
+                            labelText: 'Boxes',
+                            labelStyle: TextStyle(fontSize: 13),
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8.0, vertical: 8.0),
+                          ),
+                        ),
+                        SizedBox(height: 8), // Reduced spacing
+                         Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: length,
+                        decoration: InputDecoration(
+                          labelText: 'Length',
+                          labelStyle: TextStyle(fontSize: 13),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 8.0,
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) => calculateVolume(),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: breadth,
+                        decoration: InputDecoration(
+                          labelText: 'Breadth',
+                          labelStyle: TextStyle(fontSize: 13),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 8.0,
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) => calculateVolume(),
+                      ),
+                    ),
+                  ],
+                ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                             Expanded(
+                      child: TextField(
+                        controller: height,
+                        decoration: InputDecoration(
+                          labelText: 'Height',
+                          labelStyle: TextStyle(fontSize: 13),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 8.0,
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) => calculateVolume(),
+                      ),
+                    ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: weight,
+                                decoration: InputDecoration(
+                                  labelText: 'Weight(g)',
+                                  labelStyle: TextStyle(fontSize: 13),
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 8.0, vertical: 8.0),
+                                      
+                                ),
+                                 keyboardType: TextInputType.number,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 3),
+                         if (totalVolume != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        "Total Volume: ${totalVolume!.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                                          SizedBox(height: 5),
+      
+                        // TextField(
+                        //   controller: service,
+                        //   decoration: InputDecoration(
+                        //     labelText: 'Service',
+                        //     labelStyle: TextStyle(fontSize: 13),
+                        //     border: OutlineInputBorder(),
+                        //     contentPadding:
+                        //         EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                        //   ),
+                        // ),
+      
+                        Padding(
+                          padding: const EdgeInsets.only(right: 0),
+                          child: Column(
+                            children: [
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10.0),
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: Colors.grey, width: 1.0),
+                                ),
+                                child: DropdownButton<int>(
+                                  isExpanded: true,
+                                  underline:
+                                      SizedBox(), // Removes default underline
+                                  hint: Text('Select a Parcel Service'),
+                                  value: selectedserviceId,
+                                  items: courierdata.map((item) {
+                                    return DropdownMenuItem<int>(
+                                      value: item['id'],
+                                      child: Text(item['name']),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedserviceId = value;
+                                    });
+                                
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        TextField(
+                          controller: transactionid,
+                          decoration: InputDecoration(
+                            labelText: 'Tracking Id',
+                            labelStyle: TextStyle(fontSize: 13),
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8.0, vertical: 8.0),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        // TextField(
+                        //   controller: shippingcharge,
+                        //   decoration: InputDecoration(
+                        //     labelText: 'Shipping Charge',
+                        //     labelStyle: TextStyle(fontSize: 13),
+                        //     border: OutlineInputBorder(),
+                        //     contentPadding: EdgeInsets.symmetric(
+                        //         horizontal: 8.0, vertical: 8.0),
+                        //   ),
+                        // ),
+                        SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
                           value: selectedStatus,
                           hint: Text('Select Status'),
                           items: statuses.map((status) {
@@ -1560,932 +2275,416 @@ var dep;
                           },
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            
+                            labelText: 'Status',
                           ),
                         ),
-            ),
-            SizedBox(height: 5,),
-             Padding(
-               padding: const EdgeInsets.only(left: 12),
-               child: ElevatedButton.icon(
-                           onPressed: () async{
-                updatestatus();
-               
-                           },
-                           label: Text("Save"),
-                           style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Button color
-                foregroundColor: Colors.white, // Text color
-                           ),
-                         ),
-             ),
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Billing Address',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    ord != null ? '${ord["customer"]["name"]}' : 'Loading...',
-                    style: TextStyle(
-                      color: const Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 13,
-                    ),
-                  ),
-                  Text(
-                    ord != null
-                        ? '${ord["customer"]["address"]}, ${ord["customer"]["city"]}, ${ord["customer"]["state"]}, ${ord["customer"]["zip_code"]}'
-                        : 'Loading...',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Text(
-                    ord != null
-                        ? 'Phone: ${ord["customer"]["phone"]}'
-                        : 'Loading...',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
-                  Text(
-                    ord != null
-                        ? 'Email: ${ord["customer"]["email"]}'
-                        : 'Loading...',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 15, left: 15),
-              child: Divider(),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Shipping Address',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    ord != null
-                        ? '${ord["billing_address"]["name"]}'
-                        : 'Loading...',
-                    style: TextStyle(
-                      color: const Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 13,
-                    ),
-                  ),
-                  Text(
-                    ord != null
-                        ? '${ord["billing_address"]["address"]}, ${ord["billing_address"]["city"]}, ${ord["billing_address"]["state"]}, ${ord["billing_address"]["zipcode"]}'
-                        : 'Loading...',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Text(
-                    ord != null
-                        ? 'Phone: ${ord["billing_address"]["phone"]}'
-                        : 'Loading...',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
-                  Text(
-                    ord != null
-                        ? 'Email: ${ord["billing_address"]["email"]}'
-                        : 'Loading...',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10, right: 15, left: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Products',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-
-                  // Display each item in the visibleItems list within a card
-                  for (var item in visibleItems)
-                    GestureDetector(
-                      onTap: () {
-                        showPopupDialog(context, item);
-                      },
-                      child:Card(
-                        color: Colors.white,
-                        margin: const EdgeInsets.only(bottom: 8.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
+                        SizedBox(height: 8),
+                        Container(
+                          height: 50, // Reduced height
+                          padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Display the first image in a small container
-                              Container(
-                                height: 50,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                    image: NetworkImage('$api${item["images"]}'),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                              Text(
+                                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                style: TextStyle(fontSize: 13),
                               ),
-                              SizedBox(width: 10),
-                              // Display product details
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item['name'],
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'Quantity: ${item["quantity"]}, Rate: ${item["rate"]}',
-                                      style: TextStyle(
-                                          fontSize: 12, color: Colors.grey),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'discount: ${item["discount"]}',
-                                          style: TextStyle(
-                                              fontSize: 12, color: Colors.grey),
-                                        ),
-                                        SizedBox(
-                                          width: 4,
-                                        ),
-                                        if (item["tax"] != 0)
-                                          Text(
-                                            'Tax: ${item["tax"]}',
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.grey),
-                                          )
-                                      ],
-                                    ),
-                                     Text(
-                                      'Rate After Discount: ${item["rate"] - item["discount"]}',
-                                      style: TextStyle(
-                                          fontSize: 12, color: Colors.grey),
-                                    ),
-
-                                   Text(
-  'Tax Amount: ${((item["rate"] - item["discount"]) - item["exclude_price"]).toStringAsFixed(2)}',
-  style: TextStyle(
-      fontSize: 12, color: Colors.grey),
-),
-                                     // ...existing code...
-Text(
-  'Excluded price: ${item["exclude_price"]}',
-  style: TextStyle(
-      fontSize: 12, color: Colors.grey),
-),
-// ...existing code...
-                                    Row(
-                                      children: [
-                                       Text(
-  'Total: ${(((item["exclude_price"] + ((item["rate"] - item["discount"]) - item["exclude_price"])) * item["quantity"]).toStringAsFixed(2))}',
-  style: TextStyle(
-    fontSize: 12,
-    color: Colors.black,
-  ),
-),
-
-                                    
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                              Spacer(),
+                              GestureDetector(
+                                onTap: () => _selectDate(context),
+                                child: Icon(Icons.date_range,
+                                    size: 20), // Reduced icon size
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ),
-
-                  // "See More" or "See Less" Button
-                  if (items.length >
-                      3) // Show button only if there are more than 3 items
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          showAllProducts =
-                              !showAllProducts; // Toggle the visibility
-                        });
-                      },
-                      child: Text(
-                        showAllProducts ? 'See Less' : 'See More',
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            SizedBox(height: 10),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0), // Reduced padding
-                child: Container(
-                  padding: const EdgeInsets.all(12.0), // Reduced padding
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(8.0), // Reduced border radius
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 3,
-                        blurRadius: 5,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 40, // Reduced height
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.0),
-                          color: Colors.blue,
-                        ),
-                        alignment: Alignment.center, // Simplified layout
-                        child: Text(
-                          "Box Details",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15, // Reduced font size
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 8), // Reduced spacing
-                      Container(
-                        height: 45, // Reduced height
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0), // Added padding
-                        child: DropdownButton<Map<String, dynamic>>(
-                          value: manager.isNotEmpty
-                              ? manager.firstWhere(
-                                  (element) =>
-                                      element['id'] ==
-                                      (selectedManagerId ?? manager[0]['id']),
-                                  orElse: () => manager[0],
-                                )
-                              : null,
-                          underline: SizedBox(),
-                          onChanged: manager.isNotEmpty
-                              ? (Map<String, dynamic>? newValue) {
-                                  setState(() {
-                                    selectedManagerName = newValue!['name'];
-                                    selectedManagerId = newValue['id'];
-                                    
-                                   
-
-                                  });
-                                }
-                              : null,
-                          items: manager
-                              .map<DropdownMenuItem<Map<String, dynamic>>>(
-                                  (Map<String, dynamic> manager) {
-                            return DropdownMenuItem<Map<String, dynamic>>(
-                              value: manager,
-                              child: Text(
-                                manager['name'],
-                                style: TextStyle(
-                                    fontSize: 13), // Reduced font size
-                              ),
-                            );
-                          }).toList(),
-                          isExpanded: true, // Added to expand dropdown
-                        ),
-                      ),
-
-                      SizedBox(height: 8),
-                      TextField(
-                        controller: box,
-                        decoration: InputDecoration(
-                          labelText: 'Boxes',
-                          labelStyle: TextStyle(fontSize: 13),
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 8.0),
-                        ),
-                      ),
-                      SizedBox(height: 8), // Reduced spacing
-                       Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: length,
-                      decoration: InputDecoration(
-                        labelText: 'Length',
-                        labelStyle: TextStyle(fontSize: 13),
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 8.0,
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) => calculateVolume(),
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: breadth,
-                      decoration: InputDecoration(
-                        labelText: 'Breadth',
-                        labelStyle: TextStyle(fontSize: 13),
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 8.0,
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) => calculateVolume(),
-                    ),
-                  ),
-                ],
-              ),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                           Expanded(
-                    child: TextField(
-                      controller: height,
-                      decoration: InputDecoration(
-                        labelText: 'Height',
-                        labelStyle: TextStyle(fontSize: 13),
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 8.0,
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) => calculateVolume(),
-                    ),
-                  ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: weight,
-                              decoration: InputDecoration(
-                                labelText: 'Weight(g)',
-                                labelStyle: TextStyle(fontSize: 13),
-                                border: OutlineInputBorder(),
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 8.0),
-                                    
-                              ),
-                               keyboardType: TextInputType.number,
+                        SizedBox(height: 8),
+                        InkWell(
+                          onTap: () => imageSelect(),
+                          child: Container(
+                            height: 50, // Reduced height
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey[200],
                             ),
+                            child: selectedImage == null
+                                ? Center(
+                                    child: Text(
+                                      'Image before Paking ',
+                                      style: TextStyle(
+                                          fontSize: 13), // Reduced font size
+                                    ),
+                                  )
+                                : Image.file(
+                                    File(selectedImage!.path),
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 3),
-                       if (totalVolume != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      "Total Volume: ${totalVolume!.toStringAsFixed(2)}",
+                        ),
+                        SizedBox(height: 12), // Reduced spacing
+                         InkWell(
+                          onTap: () => imageSelect2(),
+                          child: Container(
+                            height: 50, // Reduced height
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey[200],
+                            ),
+                            child: selectedImage2 == null
+                                ? Center(
+                                    child: Text(
+                                      'Image after packing',
+                                      style: TextStyle(
+                                          fontSize: 13), // Reduced font size
+                                    ),
+                                  )
+                                : Image.file(
+                                    File(selectedImage2!.path),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                        SizedBox(height: 12), // Reduced spacing
+      
+                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                         children: [
+                           ElevatedButton(
+                             onPressed: () {
+                               addboxdetails(selectedImage,selectedImage2,selectedDate, context);
+                               //updatestatus();
+                             },
+                             style: ElevatedButton.styleFrom(
+                               backgroundColor: Colors.blue, // Button background color
+                               foregroundColor: Colors.white, // Text color
+                               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding inside the button
+                               shape: RoundedRectangleBorder(
+                                 borderRadius: BorderRadius.circular(10), // Rounded corners
+                               ),
+                               elevation: 5, // Shadow effect
+                               fixedSize: Size(200, 50), // Width and height of the button
+                             ),
+                             child: Text(
+                               "Submit",
+                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Text styling
+                             ),
+                           ),
+                         ],
+                       ),
+      
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'BOX Details',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
-                  ),
-                                        SizedBox(height: 5),
-
-                      // TextField(
-                      //   controller: service,
-                      //   decoration: InputDecoration(
-                      //     labelText: 'Service',
-                      //     labelStyle: TextStyle(fontSize: 13),
-                      //     border: OutlineInputBorder(),
-                      //     contentPadding:
-                      //         EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                      //   ),
-                      // ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(right: 0),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.grey, width: 1.0),
-                              ),
-                              child: DropdownButton<int>(
-                                isExpanded: true,
-                                underline:
-                                    SizedBox(), // Removes default underline
-                                hint: Text('Select a Parcel Service'),
-                                value: selectedserviceId,
-                                items: courierdata.map((item) {
-                                  return DropdownMenuItem<int>(
-                                    value: item['id'],
-                                    child: Text(item['name']),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedserviceId = value;
-                                  });
-                              
-                                },
+                    SizedBox(height: 10),
+                    ord == null || ord['warehouse'] == null
+                        ? Center(
+                            child: Text(
+                              'No BOX Details Available',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      TextField(
-                        controller: transactionid,
-                        decoration: InputDecoration(
-                          labelText: 'Tracking Id',
-                          labelStyle: TextStyle(fontSize: 13),
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 8.0),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      // TextField(
-                      //   controller: shippingcharge,
-                      //   decoration: InputDecoration(
-                      //     labelText: 'Shipping Charge',
-                      //     labelStyle: TextStyle(fontSize: 13),
-                      //     border: OutlineInputBorder(),
-                      //     contentPadding: EdgeInsets.symmetric(
-                      //         horizontal: 8.0, vertical: 8.0),
-                      //   ),
-                      // ),
-                      SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedStatus,
-                        hint: Text('Select Status'),
-                        items: statuses.map((status) {
-                          return DropdownMenuItem<String>(
-                            value: status,
-                            child: Text(status),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedStatus =
-                                value; // This will store the selected status
-                          });
-                        },
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Status',
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        height: 50, // Reduced height
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                              style: TextStyle(fontSize: 13),
-                            ),
-                            Spacer(),
-                            GestureDetector(
-                              onTap: () => _selectDate(context),
-                              child: Icon(Icons.date_range,
-                                  size: 20), // Reduced icon size
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      InkWell(
-                        onTap: () => imageSelect(),
-                        child: Container(
-                          height: 120, // Reduced height
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey[200],
-                          ),
-                          child: selectedImage == null
-                              ? Center(
-                                  child: Text(
-                                    'Tap to select an image',
-                                    style: TextStyle(
-                                        fontSize: 13), // Reduced font size
-                                  ),
-                                )
-                              : Image.file(
-                                  File(selectedImage!.path),
-                                  fit: BoxFit.cover,
-                                ),
-                        ),
-                      ),
-                      SizedBox(height: 12), // Reduced spacing
-
-                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                       children: [
-                         ElevatedButton(
-                           onPressed: () {
-                             addboxdetails(selectedImage, selectedDate, context);
-                             //updatestatus();
-                           },
-                           style: ElevatedButton.styleFrom(
-                             backgroundColor: Colors.blue, // Button background color
-                             foregroundColor: Colors.white, // Text color
-                             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding inside the button
-                             shape: RoundedRectangleBorder(
-                               borderRadius: BorderRadius.circular(10), // Rounded corners
-                             ),
-                             elevation: 5, // Shadow effect
-                             fixedSize: Size(200, 50), // Width and height of the button
-                           ),
-                           child: Text(
-                             "Submit",
-                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Text styling
-                           ),
-                         ),
-                       ],
-                     ),
-
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'BOX Details',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  ord == null || ord['warehouse'] == null
-                      ? Center(
-                          child: Text(
-                            'No BOX Details Available',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        )
-                      : Column(
-                          children:
-                              ord['warehouse'].map<Widget>((order) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: GestureDetector(
-                                onTap: (){
-
-
-                                  if(dep!="warehouse")
-                                  {
-                                    
-                                   showBoxDetailsDialog(
-                                      context, order);
-
-                                  }
-
-
-
-
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(12.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        spreadRadius: 2,
-                                        blurRadius: 4,
-                                        offset: Offset(0, 2), // Shadow position
-                                      ),
-                                    ],
-                                    border:
-                                        Border.all(color: Colors.grey.shade300),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Image and Box Details
-                                      Row(
-                                        children: [
-                                          Container(
-                                            width: 80,
-                                            height: 80,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              color: Colors.grey[200],
+                          )
+                        : Column(
+                            children:
+                                ord['warehouse'].map<Widget>((order) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: GestureDetector(
+                                  onTap: (){
+      
+      
+                                    if(dep!="warehouse")
+                                    {
+                                      
+                                     showBoxDetailsDialog(
+                                        context, order);
+      
+                                    }
+      
+      
+      
+      
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(12.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.3),
+                                          spreadRadius: 2,
+                                          blurRadius: 4,
+                                          offset: Offset(0, 2), // Shadow position
+                                        ),
+                                      ],
+                                      border:
+                                          Border.all(color: Colors.grey.shade300),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Image and Box Details
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 80,
+                                              height: 80,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                color: Colors.grey[200],
+                                              ),
+                                              child: order['image'] != null
+                                                  ? Image.network(
+                                                      '$api${order['image']}',
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (context, error,
+                                                          stackTrace) {
+                                                        return Icon(
+                                                            Icons
+                                                                .image_not_supported,
+                                                            size: 40,
+                                                            color: Colors.grey);
+                                                      },
+                                                    )
+                                                  : Icon(Icons.image_not_supported,
+                                                      size: 40, color: Colors.grey),
                                             ),
-                                            child: order['image'] != null
-                                                ? Image.network(
-                                                    '$api${order['image']}',
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (context, error,
-                                                        stackTrace) {
-                                                      return Icon(
-                                                          Icons
-                                                              .image_not_supported,
-                                                          size: 40,
-                                                          color: Colors.grey);
-                                                    },
-                                                  )
-                                                : Icon(Icons.image_not_supported,
-                                                    size: 40, color: Colors.grey),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              ' ${order['box'] ?? 'N/A'}',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
+                                            SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                ' ${order['box'] ?? 'N/A'}',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          // Delete Button
-                                          GestureDetector(
-                                            onTap: () {
-                                            
-                                              deletebox(order['id']);
-                                            },
-                                            child: Image.asset(
-                                              "lib/assets/close.png",
-                                              height: 15,
-                                              width: 15,
+                                            // Delete Button
+                                            GestureDetector(
+                                              onTap: () {
+                                              
+                                                deletebox(order['id']);
+                                              },
+                                              child: Image.asset(
+                                                "lib/assets/close.png",
+                                                height: 15,
+                                                width: 15,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Divider(),
-                                      SizedBox(height: 12),
-                                
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Packed By:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          Text(
-                                            order['packed_by'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 6),
-
-                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Verified by:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          Text(
-                                            order['verified_by'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 6),
-
-
-
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Checked by:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          Text(
-                                            order['checked_by'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 6),
-                                
-                                      // Shipping Charge
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Shipping Charge:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          Text(
-                                            order['shipping_charge'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 6),
-                                
-                                      // Parcel Service
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Parcel Service:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          Text(
-                                            order['parcel_service'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 6),
-                                
-                                      // Tracking ID
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Tracking ID:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          Text(
-                                            order['tracking_id']?.toString() ??
-                                                'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 6),
-                                
-                                      // Status
-                                      GestureDetector(
-                                        onTap: () {
-                                           showStatusDialog(context,order);
-                                        },
-                                        child: Row(
+                                          ],
+                                        ),
+                                        Divider(),
+                                        SizedBox(height: 12),
+                                  
+                                        Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Container(
-    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-    decoration: BoxDecoration(
-      color: const Color.fromARGB(255, 220, 220, 220), // Background color
-      borderRadius: BorderRadius.circular(8), // Rounded corners
-    ),
-    child: Text(
-      'Status',
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-        color: Colors.white, // Text color
-      ),
-    ),
-  ),
                                             Text(
-                                              order['status'] ?? 'N/A',
+                                              'Packed By:',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              order['packed_by'] ?? 'N/A',
                                               style: TextStyle(fontSize: 14),
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      SizedBox(height: 6),
-                                
-                                      // Shipped Date
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Shipped Date:',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
+                                        SizedBox(height: 6),
+      
+                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Verified by:',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
                                             ),
+                                            Text(
+                                              order['verified_by'] ?? 'N/A',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6),
+      
+      
+      
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Checked by:',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              order['checked_by'] ?? 'N/A',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6),
+                                  
+                                        // Shipping Charge
+                                        // Row(
+                                        //   mainAxisAlignment:
+                                        //       MainAxisAlignment.spaceBetween,
+                                        //   children: [
+                                        //     Text(
+                                        //       'Shipping Charge:',
+                                        //       style: TextStyle(
+                                        //         fontWeight: FontWeight.bold,
+                                        //         fontSize: 14,
+                                        //       ),
+                                        //     ),
+                                        //     Text(
+                                        //       order['shipping_charge'] ?? 'N/A',
+                                        //       style: TextStyle(fontSize: 14),
+                                        //     ),
+                                        //   ],
+                                        // ),
+                                        // SizedBox(height: 6),
+                                  
+                                        // // Parcel Service
+                                        // Row(
+                                        //   mainAxisAlignment:
+                                        //       MainAxisAlignment.spaceBetween,
+                                        //   children: [
+                                        //     Text(
+                                        //       'Parcel Service:',
+                                        //       style: TextStyle(
+                                        //         fontWeight: FontWeight.bold,
+                                        //         fontSize: 14,
+                                        //       ),
+                                        //     ),
+                                        //     Text(
+                                        //       order['parcel_service'] ?? 'N/A',
+                                        //       style: TextStyle(fontSize: 14),
+                                        //     ),
+                                        //   ],
+                                        // ),
+                                        SizedBox(height: 6),
+                                  
+                                        // Tracking ID
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Tracking ID:',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              order['tracking_id']?.toString() ??
+                                                  'N/A',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6),
+                                  
+                                        // Status
+                                        GestureDetector(
+                                          onTap: () {
+                                             showStatusDialog(context,order);
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 220, 220, 220), // Background color
+        borderRadius: BorderRadius.circular(8), // Rounded corners
+      ),
+      child: Text(
+        'Status',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          color: Colors.white, // Text color
+        ),
+      ),
+        ),
+                                              Text(
+                                                order['status'] ?? 'N/A',
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
                                           ),
-                                          Text(
-                                            order['shipped_date'] ?? 'N/A',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                        ),
+                                        SizedBox(height: 6),
+                                  
+                                        // Shipped Date
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Shipped Date:',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              order['shipped_date'] ?? 'N/A',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                ],
+                              );
+                            }).toList(),
+                          ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 30),
-          ],
+              SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );

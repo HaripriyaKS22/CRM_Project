@@ -15,6 +15,7 @@ import 'package:beposoft/pages/ACCOUNTS/dorwer.dart';
 import 'package:beposoft/pages/ACCOUNTS/methods.dart';
 import 'package:beposoft/pages/ACCOUNTS/view_cart.dart';
 import 'package:beposoft/pages/ADMIN/admin_dashboard.dart';
+import 'package:beposoft/pages/ADMIN/ceo_dashboard.dart';
 import 'package:beposoft/pages/BDM/bdm_dshboard.dart';
 import 'package:beposoft/pages/BDO/bdo_dashboard.dart';
 import 'package:beposoft/pages/WAREHOUSE/warehouse_admin.dart';
@@ -968,6 +969,13 @@ else if(dep=="warehouse" ){
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
 }
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+}
+
 else if(dep=="Warehouse Admin" ){
    Navigator.pushReplacement(
               context,
@@ -989,47 +997,51 @@ else if(dep=="Warehouse Admin" ){
           "Product List",
           style: TextStyle(color: Colors.grey, fontSize: 14),
         ),
-     leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Custom back arrow
-          onPressed: () async {
-            final dep = await getdepFromPrefs();
-           if(dep=="BDO" ){
-       Navigator.pushReplacement(
+     leading:IconButton(
+            icon: const Icon(Icons.arrow_back), // Custom back arrow
+            onPressed: () async{
+                      final dep= await getdepFromPrefs();
+     if(dep=="BDO" ){
+   Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdo_dashbord()), // Replace AnotherPage with your target page
             );
-    
-    }
-    else if(dep=="BDM" ){
-       Navigator.pushReplacement(
+
+}
+else if(dep=="BDM" ){
+   Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => bdm_dashbord()), // Replace AnotherPage with your target page
             );
-    }
-    else if(dep=="warehouse" ){
-       Navigator.pushReplacement(
+}
+else if(dep=="warehouse" ){
+   Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseDashboard()), // Replace AnotherPage with your target page
             );
-    }
-    else if(dep=="Warehouse Admin" ){
-       Navigator.pushReplacement(
+}
+else if(dep=="Warehouse Admin" ){
+   Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => WarehouseAdmin()), // Replace AnotherPage with your target page
             );
-    }
-            
-            else {
-              Navigator.pushReplacement(
+}
+else if(dep=="CEO" ){
+   Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ceo_dashboard()), // Replace AnotherPage with your target page
+            );
+} 
+      else {
+      Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        dashboard()), // Replace AnotherPage with your target page
+                MaterialPageRoute(builder: (context) => dashboard()), // Replace AnotherPage with your target page
               );
-            }
-          },
-        ),
-    
+      
+      }
+             
+            },
+          ),
         
           actions: [
           // Cart icon with badge

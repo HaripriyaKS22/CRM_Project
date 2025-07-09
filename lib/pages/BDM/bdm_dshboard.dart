@@ -62,7 +62,7 @@ int confirm=0;
 int customers=0;
   List<Map<String, dynamic>> customer = [];
   List<Map<String, dynamic>> filteredProducts = [];
-
+double totalAmountToday = 0.0;
 var family='';
 String familyName='';
    
@@ -256,6 +256,7 @@ Future<void> getcustomer() async {
               // Count orders for today
               if (formattedOrderDate == today) {
                 totalOrdersToday++;
+                 totalAmountToday += double.tryParse(orderData['total_amount'].toString()) ?? 0.0;
               }
 
               // Count orders with status "Invoice Created"
@@ -597,9 +598,9 @@ Future<void> getGrvList() async {
 
  void logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('department');
-  await prefs.remove('token');
-    await prefs.remove('username');
+  // await prefs.remove('department');
+  // await prefs.remove('token');
+  //   await prefs.remove('username');
 
 
   // Use a post-frame callback to show the SnackBar after the current frame
@@ -711,17 +712,17 @@ Future<void> getGrvList() async {
                _buildDropdownTile(
                   context, 'Orders', ['New Orders', 'Orders List']),
              
-              Divider(),
-               ListTile(
-                leading: Icon(Icons.person_2),
-                title: Text('Staff'),
-                onTap: () {
-                 Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => bdm_staff_list(family: familyName,)),
-        );
-                },
-              ),
+        //       Divider(),
+        //        ListTile(
+        //         leading: Icon(Icons.person_2),
+        //         title: Text('Staff'),
+        //         onTap: () {
+        //          Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => bdm_staff_list(family: familyName,)),
+        // );
+        //         },
+        //       ),
              
            
               Divider(),
@@ -789,6 +790,9 @@ Future<void> getGrvList() async {
 
                         },
                         child: _buildInfoCard(todaysbill.toString(), 'Todays Bills', 0)),
+
+                         _buildInfoCard(totalAmountToday.toString(), 'Total Volume', 0),
+                     
                       GestureDetector(
                         onTap: () {
                            Navigator.push(
