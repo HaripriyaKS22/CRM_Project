@@ -367,6 +367,7 @@ dep= await getdepFromPrefs();
         'Authorization': 'Bearer $token',
       },
     );
+   
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       var productsData = parsed['data'];
@@ -605,6 +606,7 @@ double netAmountBeforeTax = 0.0; // Define at the class level
         'Content-Type': 'application/json',
       },
     );
+   
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
 
@@ -713,6 +715,7 @@ updatestatus();
 
 
 Future<String> addtocart(id,varid, quantity,tax,rate) async {
+  
   final token = await getTokenFromPrefs();
   try {
     final response = await http.post(
@@ -725,11 +728,12 @@ Future<String> addtocart(id,varid, quantity,tax,rate) async {
         'order': widget.id, // Use the id from the widget
         'product': varid,
         'quantity': quantity,
-        'tax':tax,
-        'rate':rate
+        'tax':rate,
+        'rate':tax
         
       }),
     );
+
     if (response.statusCode == 201) {
 fetchOrderItems();
       return "success";
@@ -748,6 +752,7 @@ fetchOrderItems();
 
 
 Future<String> addtocart2( mainid, quantity,tax,rate) async {
+ 
 
   final token = await getTokenFromPrefs();
   try {

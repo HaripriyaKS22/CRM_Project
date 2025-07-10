@@ -88,18 +88,18 @@ var warehousee;
   if (dep == "BDM") {
     statuses = [
       'Invoice Approved',
-      'Invoice Rejectd',
+      'Invoice Rejected',
     ];
   } else if (dep == "Accounts / Accounting") {
     statuses = [
       'Shipped',
       'Waiting For Confirmation',
-      'Invoice Rejectd',
+      'Invoice Rejected',
     ];
   } else if (dep == "Admin") {
     statuses = [
       'To Print',
-      'Invoice Rejectd',
+      'Invoice Rejected',
     ];
   } else if (dep == "warehouse") {
     statuses = [
@@ -155,16 +155,30 @@ Future<String?> getwarehouseFromPrefs() async {
   bool ledger=false;
 
  List<String> getFilteredStatuses(String? selectedStatus, List<String> availableStatuses) {
-  if (selectedStatus != null) {
+  List<String> filteredStatuses = [];
+
+  if (selectedStatus != null && availableStatuses.contains(selectedStatus)) {
     int index = availableStatuses.indexOf(selectedStatus);
-    if (index != -1) {
-      // Get current + next status (if exists)
-      int endIndex = (index + 2 <= availableStatuses.length) ? index + 2 : availableStatuses.length;
-      return availableStatuses.sublist(index, endIndex);
-    }
+    int endIndex = (index + 2 <= availableStatuses.length) ? index + 2 : availableStatuses.length;
+    filteredStatuses = availableStatuses.sublist(index, endIndex);
+  } else {
+    filteredStatuses = [...availableStatuses];
   }
-  return availableStatuses; // show all if none selected
+
+  // Ensure selectedStatus is present
+  if (selectedStatus != null && !filteredStatuses.contains(selectedStatus)) {
+    filteredStatuses.insert(0, selectedStatus);
+  }
+
+  // Always include "Invoice Rejected"
+  if (!filteredStatuses.contains('Invoice Rejected')) {
+    filteredStatuses.add('Invoice Rejected');
+  }
+
+  return filteredStatuses;
 }
+
+
     List<Map<String, dynamic>> fam = [];
  Future<void> fetchProductListid(var warehouse) async {
   final token = await getTokenFromPrefs();
@@ -275,8 +289,6 @@ Future<void> fetchCustomerLedgerDetails() async {
       },
     );
 
-   
-
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       final ledgerList = parsed['data']['ledger'] as List;
@@ -301,10 +313,12 @@ Future<void> fetchCustomerLedgerDetails() async {
         receivedPaymentSum += double.tryParse(adv['amount'].toString()) ?? 0.0;
       }
       var dif;
+ 
       if (receivedPaymentSum > totalAmountSum) {
         dif = receivedPaymentSum - totalAmountSum;
         ledger = true;
-      } else {
+      } 
+      else {
         dif = totalAmountSum - receivedPaymentSum;
         ledger = false;
       }
@@ -714,6 +728,7 @@ Future<void> SendTrackingId(BuildContext scaffoldContext,var trackingId,var Orde
   'time': formattedTime,
   'updated_at': DateTime.now().toIso8601String().split('T')[0],
   'billing_address': selectedAddressId,
+  'shipping_charge': shippingchargeController.text.trim().isNotEmpty ? double.parse(shippingchargeController.text) : 0.0,
 };
 
 if (noteController.text.trim().isNotEmpty) {
@@ -728,6 +743,7 @@ var response = await http.put(
   body: jsonEncode(body),
 );
       if (response.statusCode == 200) {
+        fetchOrderItems();
      ScaffoldMessenger.of(context).showSnackBar(
   SnackBar(
     content: Text('status updated successfully'),
@@ -1663,6 +1679,8 @@ Future<void> deletebox( var orderId) async {
   // bool flag = false;
 
   double totalDiscount = 0.0; // Define at the class level
+  double shippingCharge = 0.0; // Define at the class level
+  double actualamount = 0.0; // Define at the class level
  Future<void> fetchOrderItems() async {
   try {
     
@@ -1691,12 +1709,14 @@ Future<void> deletebox( var orderId) async {
 codamount.text = ord['cod_amount']?.toString() ?? '';
       shippingmethod.text = ord['shipping_mode'] ?? '';
 noteController.text=ord['note'] ?? '';
+shippingchargeController.text=ord['shipping_charge']?.toString()  ?? '';
 selectedAddressId=ord['billing_address']['id'];
       List<dynamic> itemsData = parsed['items'] ?? [];
       List<dynamic> warehouseData = (parsed['order'] != null && parsed['order']['warehouse'] is List) ? parsed['order']['warehouse'] : [];
 
 selectedStatus = ord['status'] ?? '';
-
+shippingCharge=ord['shipping_charge']?.toDouble() ?? 0.0;
+actualamount=ord['total_amount']?.toDouble() ?? 0.0;
       getaddress(ord['customer']?['id']);
 
       List<Map<String, dynamic>> orderList = [];
@@ -1763,15 +1783,15 @@ selectedStatus = ord['status'] ?? '';
         paymentReceiptsSum += double.tryParse(receipt['amount'].toString()) ?? 0.0;
         
       }
-
+   
 double remainingAmount;
-if(calculatedNetAmount>paymentReceiptsSum){
-       remainingAmount = (calculatedNetAmount+calculatedTotalTax) - paymentReceiptsSum;
+if(actualamount>paymentReceiptsSum){
+       remainingAmount = actualamount- paymentReceiptsSum;
      
 }
 
 else{
-  remainingAmount=paymentReceiptsSum-calculatedNetAmount;
+  remainingAmount=paymentReceiptsSum-actualamount;
 }
       setState(() {
 
@@ -1783,7 +1803,7 @@ else{
         totalDiscount = calculatedTotalDiscount;
         Balance = remainingAmount;
         paymentreceipt=remainingAmount;
-        updateamount=netAmountBeforeTax + totalTaxAmount;
+        updateamount=netAmountBeforeTax + totalTaxAmount + shippingCharge;
       });
 // fetchCustomerLedgerDetails();
 updatingamount();
@@ -1791,7 +1811,12 @@ updatingamount();
       
     }
   } catch (error) {
-
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error fetching order items'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 }
 Future<void> updatingamount() async {
@@ -1813,10 +1838,11 @@ var response = await http.put(
   },
   body: jsonEncode(body),
 );
+
       if (response.statusCode == 200) {
      ScaffoldMessenger.of(context).showSnackBar(
   SnackBar(
-    content: Text('status updated successfully'),
+    content: Text('Total updated successfully'),
     duration: Duration(seconds: 2),
     backgroundColor: Colors.green, // Add green background color
   ),
@@ -2719,6 +2745,7 @@ Future<void> updatemsg(var orderId) async {
                                           GestureDetector(
                                             onTap: () {
                                               removeproduct(item["id"]);
+                                              fetchOrderItems();
                                             },
                                             child: Image.asset(
                                                 height: 25,
@@ -2770,7 +2797,7 @@ Future<void> updatemsg(var orderId) async {
                                   onPressed: () {
                                      Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => update_order_products(id:ord['id'],customer:widget.customer)),
+              MaterialPageRoute(builder: (context) => update_order_products(id:widget.id,customer:widget.customer)),
             );
                                     
                                   },
@@ -3098,6 +3125,30 @@ Future<void> updatemsg(var orderId) async {
                           ),
                         ],
                       ),
+                       SizedBox(
+                        height: 4,
+                      ),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Shipping Charge',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            '${shippingCharge.toStringAsFixed(2)}', // Format to 2 decimal places
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                       SizedBox(
                         height: 4,
                       ),
@@ -3113,7 +3164,7 @@ Future<void> updatemsg(var orderId) async {
                             ),
                           ),
                           Text(
-        '${(netAmountBeforeTax + totalTaxAmount).toStringAsFixed(2)}',
+        '${(netAmountBeforeTax + totalTaxAmount + shippingCharge).toStringAsFixed(2)}',
         style: TextStyle(
       color: const Color.fromARGB(255, 1, 155, 24),
       fontWeight: FontWeight.bold,
@@ -3538,15 +3589,18 @@ Future<void> updatemsg(var orderId) async {
                           ),
                         ),
                         if(dep != "BDM" && dep != "BDO")
+
                         SizedBox(height: 16.0),
-                        TextField(
-                          controller: noteController,
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Add a Note',
-                          ),
-                        ),
+                        
+                   TextField(
+  controller: noteController,
+  maxLines: 3,
+  readOnly: (dep == "BDM" || dep == "BDO") && ord != null && ord['status'] != 'Invoice Created',
+  decoration: InputDecoration(
+    border: OutlineInputBorder(),
+    labelText: 'Add a Note',
+  ),
+),
                         SizedBox(height: 16.0),
       
                         ElevatedButton(

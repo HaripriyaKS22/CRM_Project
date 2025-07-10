@@ -217,9 +217,7 @@ Future<String?> getdepartment() async {
   final List<String> statuses = [
    'Packing under Progress',
    'Ready To Ship',
-    'Packed',
-    'Shipped',
-    
+
   ];
   double netAmountBeforeTax = 0.0; // Define at the class level
   double totalTaxAmount = 0.0; // Define at the class level
@@ -307,7 +305,7 @@ Future<String?> getdepartment() async {
       
 
       var response = await http.put(
-        Uri.parse('$api/api/order/status/update/${widget.id}/'),
+        Uri.parse('$api/api/shipping/${widget.id}/order/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -321,7 +319,6 @@ Future<String?> getdepartment() async {
         ),
       );
 
-      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -597,21 +594,21 @@ Future<void> deletebox( var orderId) async {
 
      
         for (var productData in productsData) {
-          if(dep=="Warehouse Admin"){
-            if(productData['department_name'] == "warehouse"||productData['department_name']=="Warehouse Admin"){
+         
+            if(productData['department_name'] != "BDM" && productData['department_name']!="BDO" && productData['department_name']!="Marketing" && productData['department_name']!="CSO" && productData['department_name']!="CEO"&& productData['department_name']!="HR" && productData['department_name']!="IT"){
          
           managerlist.add({
             'id': productData['id'],
             'name': productData['name'],
-          });}}
-          else{
+          });}
+          // else{
 
-            managerlist.add({
-            'id': productData['id'],
-            'name': productData['name'],
-          });
+          //   managerlist.add({
+          //   'id': productData['id'],
+          //   'name': productData['name'],
+          // });
 
-          }
+          // }
         }
         setState(() {
           manager = managerlist;
